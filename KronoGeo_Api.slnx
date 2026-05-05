@@ -2,5 +2,6 @@
   <Project Path="KronoGeo_Api.Infrastructure/KronoGeo_Api.Infrastructure.csproj" />
   <Project Path="KronoGeo_Api.Interface/KronoGeo_Api.Interface.csproj" />
   <Project Path="KronoGeo_Api.Models/KronoGeo_Api.Models.csproj" />
+  <Project Path="KronoGeo_Api.TestUnitaire/KronoGeo_Api.TestUnitaire.csproj" Id="e6203e96-3220-4c49-a906-fe324fbd46d9" />
   <Project Path="KronoGeo_Api/KronoGeo_Api.csproj" />
 </Solution>
