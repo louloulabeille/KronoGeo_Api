@@ -5,9 +5,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 // prochaine etape 
-// - installer Npgsql.EntityFrameworkCore.PostgreSQL et créer le dbcontext
+// - installer Npgsql.EntityFrameworkCore.PostgreSQL et créer le dbcontext -- fait
 // - mettre en place l'authentification
-// - mettre en place les tests unitaires
+// - mettre en place les tests unitaires -- fait
 
 
 builder.Services.AddControllers();
