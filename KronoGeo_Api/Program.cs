@@ -4,6 +4,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+// prochaine etape 
+// - installer Npgsql.EntityFrameworkCore.PostgreSQL et créer le dbcontext
+// - mettre en place l'authentification
+// - mettre en place les tests unitaires
+
+
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
