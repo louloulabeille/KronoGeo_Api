@@ -30,7 +30,7 @@ builder.Services.AddSwaggerGen();
 
 #region Mise en place de MediatR
 // - method d'extension
-builder.Services.AddMediaTRExtend();
+builder.Services.AddMediaTRExtend(builder.Configuration);
 #endregion
 
 #region DbContext
@@ -81,6 +81,6 @@ await app.InitializeRolesAsync();
 app.MapControllers();
 
 // - log d'information pour indiquer que l'application a démarré avec succès
-app.Logger.LogInformation($"Information - {DateTime.Now:dd-MM-yyyy HH:mm:ss} - L'application KronoGeo_Api a démarré avec succès.");
+app.Logger.LogInformation("L'application KronoGeo_Api a démarré avec succès.");
 
 app.Run();

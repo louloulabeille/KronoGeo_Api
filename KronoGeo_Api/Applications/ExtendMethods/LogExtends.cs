@@ -17,7 +17,7 @@ namespace KronoGeo_Api.Applications.ExtendMethods
                     .WriteTo.Console()
                     .WriteTo.File($"logs/log-{DateTime.Now:dd-MM-yyyy}.txt", 
                     rollingInterval: RollingInterval.Day,
-                    outputTemplate: "{Timestamp:dd-MM-yyyy HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
+                    outputTemplate: "{Timestamp:dd-MM-yyyy HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
                     )
                     .CreateLogger();
                 host.UseSerilog();

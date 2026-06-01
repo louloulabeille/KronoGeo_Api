@@ -9,10 +9,17 @@
             /// Pour dissocier la demande et la réponse 
             /// </summary>
             /// <returns></returns>
-            public IServiceCollection AddMediaTRExtend()
+            public IServiceCollection AddMediaTRExtend(IConfiguration configuration)
             {
-                //services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Program>());
-                services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+                // - récupération de la configuration de MediatR
+                var mediatRConfig = configuration.GetSection("MediatR");
+                string licence = mediatRConfig.GetValue<string>("key") ?? string.Empty;
+
+                // - lancement du service
+                services.AddMediatR(cfg => {
+                    cfg.LicenseKey = licence;
+                    cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
+                });
                 return services;
             }
         }
