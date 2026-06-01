@@ -1,6 +1,8 @@
 using KronoGeo_Api.Applications.ExtendMethods;
 using KronoGeo_Api.Infrastructure.Database;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +14,12 @@ var builder = WebApplication.CreateBuilder(args);
 // - mettre en place l'authentification - manque toute la partie JWT bearer et enregistrement des param aussi
 // - mettre en place les tests unitaires -- projet créé 
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    // - on peut ajouter le AuthorizeFilter au niveau global pour que toutes les routes soient protégées par défaut
+    // et il faudra ajouter l'attribut [AllowAnonymous] pour les routes qui ne nécessitent pas d'authentification
+    options.Filters.Add(new AuthorizeFilter());
+});
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -34,6 +41,10 @@ builder.Services.AddDbContextSecretExtend(builder.Configuration);
     builder.Services.AddDbContextSecretExtend(builder.Configuration);      
 #endif
 
+#endregion
+
+#region Logging - log dans la console et dans des fichiers de log quotidiens
+builder.Host.AddSerilog();
 #endregion
 
 #region Authentification / bearer Jwt
@@ -68,5 +79,8 @@ app.UseAuthorization();
 await app.InitializeRolesAsync();
 #endregion
 app.MapControllers();
+
+// - log d'information pour indiquer que l'application a démarré avec succès
+app.Logger.LogInformation($"Information - {DateTime.Now:dd-MM-yyyy HH:mm:ss} - L'application KronoGeo_Api a démarré avec succès.");
 
 app.Run();
