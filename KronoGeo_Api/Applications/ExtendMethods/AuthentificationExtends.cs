@@ -62,7 +62,7 @@ namespace KronoGeo_Api.Applications.ExtendMethods
 
                 // - ajout dans le services Ioptions de Keybearer en injection de dépendance
                 // pour pouvoir l'utiliser dans les controllers ou autres services
-                services.AddOptions<KeyBearer>().Bind(config.GetSection("Bearer"));
+                services.AddOptions<KeyBearer>().Bind(config.GetSection("Jwt"));
 
                 if (string.IsNullOrEmpty(cle.Key))
                     throw new InvalidOperationException("Bearer key is not configured.");

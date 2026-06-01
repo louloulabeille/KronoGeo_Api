@@ -37,6 +37,7 @@ namespace KronoGeo_Api.Controllers
 
                 if (result.Result is not null && result.Result.Succeeded)
                 {
+
                     _logger.LogInformation("User {Login} registered successfully.", register.Login);
                     return this.Ok(result.Register);
                 }
