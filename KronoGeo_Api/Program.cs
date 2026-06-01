@@ -27,18 +27,20 @@ builder.Services.AddMediaTRExtend();
 #endregion
 
 #region DbContext
-// - récupération de la ligne de connexion vers la base de données -- stocker dans les données secrètes
-string? stringConnection = builder.Configuration.GetConnectionString("DefaultConnection") ??
-    throw new InvalidOperationException("Connection string 'DefaultConnection' not found");
+#if DEBUG
+// - pour le développement on va utiliser les données secrètes pour stocker la ligne de connexion vers la base de données
+builder.Services.AddDbContextSecretExtend(builder.Configuration);
+#else //programmer pour la production sinon le faire avec les variables d'environnement
+    builder.Services.AddDbContextSecretExtend(builder.Configuration);      
+#endif
 
-// - appel du DbContext pour la connexion vers la base
-builder.Services.AddDbContext<KronoGeoDbContext>(options =>
-    options.UseNpgsql(stringConnection));
 #endregion
 
 #region Authentification / bearer Jwt
 // mise en place de Identity.Ui
 builder.Services.AddCustonIdentityUser();
+builder.Services.AddCustomlsAuthentification(builder.Configuration);
+builder.Services.AddAuthorizationPolicy();
 #endregion
 
 var app = builder.Build();
@@ -50,7 +52,7 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 
-if (app.Environment.IsStaging() || app.Environment.IsDevelopment() || app.Environment.IsProduction())
+if (app.Environment.IsStaging() || app.Environment.IsDevelopment()) // - pas en production || app.Environment.IsProduction()
 {
     // - lancement du swagger
     app.UseSwagger();
@@ -59,9 +61,12 @@ if (app.Environment.IsStaging() || app.Environment.IsDevelopment() || app.Enviro
 
 app.UseHttpsRedirection();
 
+#region authentification
 app.UseAuthentication();
 app.UseAuthorization();
-
+// - initialisation des rôles dans la base de données au lancement de l'application
+await app.InitializeRolesAsync();
+#endregion
 app.MapControllers();
 
 app.Run();
