@@ -42,8 +42,13 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                 // - si l'utilisateur existe et que le mot de passe est fourni, tenter de se connecter
                 if (user is not null && !string.IsNullOrEmpty(result.Register.Password))
                 {
-                    var signInResult = await _signInManager.PasswordSignInAsync(user, result!.Register.Password, true, true);
+                    var hashPass = new PasswordHasher<IdentityUser>();
+                    var pass = hashPass.HashPassword(user,result!.Register.Password);
+                    var re = hashPass.VerifyHashedPassword(user, user.PasswordHash!, result.Register.Password);
+
+                    var signInResult = await _signInManager.CheckPasswordSignInAsync(user, result!.Register.Password, true);
                     result.SignInResult = signInResult;
+                    result.Register.Password = string.Empty;
 
                     if (signInResult.Succeeded)
                     {

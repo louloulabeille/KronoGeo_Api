@@ -37,8 +37,7 @@ namespace KronoGeo_Api.Controllers
 
                 if (result.Result is not null && result.Result.Succeeded)
                 {
-
-                    _logger.LogInformation("User {Login} registered successfully.", register.Login);
+                    //_logger.LogInformation("User {Login} registered successfully.", register.Login);
                     return this.Ok(result.Register);
                 }
                 else
@@ -70,24 +69,24 @@ namespace KronoGeo_Api.Controllers
                 var result = await _mediaR.Send(new LoginUserCommand() { Register = login });
                 if (result.SignInResult is not null && result.SignInResult.Succeeded)
                 {
-                    _logger.LogInformation("User {Login} logged in successfully.", login.Login);
+                    //_logger.LogInformation("User {Login} logged in successfully.", login.Login);
                     return Ok(result.Register);
                 }
                 else if (result.SignInResult is not null && result.SignInResult.IsLockedOut)
                 {
                     _logger.LogWarning("User {Login} account is locked out.", login.Login);
-                    return Forbid("Your account is locked. Please try again later.");
+                    return this.BadRequest("Your account is locked. Please try again later.");
                 }
                 else
                 {
                     _logger.LogWarning("User {Login} login failed: Invalid credentials.", login.Login);
-                    return Unauthorized("Problem with login and password.");
+                    return this.BadRequest("Ivalid with login and password.");
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while logging in user {Login}.", login.Login);
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+                return this.Problem("An error occurred while processing your request.");
             }
         }
         #endregion
