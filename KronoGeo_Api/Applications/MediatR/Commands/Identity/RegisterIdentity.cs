@@ -8,6 +8,7 @@ namespace KronoGeo_Api.Applications.MediatR.Commands.Identity
         #region properties
         public required RegisterDTO Register { get; set; }
         public IdentityResult? Result { get; set; } = null;
+        public SignInResult? SignInResult { get; set; } = null;
         #endregion
     }
 }

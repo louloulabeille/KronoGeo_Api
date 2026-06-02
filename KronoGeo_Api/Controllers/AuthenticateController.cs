@@ -19,7 +19,7 @@ namespace KronoGeo_Api.Controllers
         private readonly IMediator _mediaR = mediaR;
         #endregion
 
-        #region public action methods
+        #region public action methods Register 
         [AllowAnonymous]
         [HttpPost("Register")]
         // - enregistrement d'un nouvel utilisateur
@@ -52,7 +52,44 @@ namespace KronoGeo_Api.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
             }
         }
+        #endregion
 
+
+        #region public action methods Login
+        [AllowAnonymous]
+        [HttpPost("Login")]
+        // - connexion d'un utilisateur existant au niveau de l'API
+        public async Task<IActionResult> Login([FromBody] RegisterDTO login)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                var result = await _mediaR.Send(new LoginUserCommand() { Register = login });
+                if (result.SignInResult is not null && result.SignInResult.Succeeded)
+                {
+                    _logger.LogInformation("User {Login} logged in successfully.", login.Login);
+                    return Ok(result.Register);
+                }
+                else if (result.SignInResult is not null && result.SignInResult.IsLockedOut)
+                {
+                    _logger.LogWarning("User {Login} account is locked out.", login.Login);
+                    return Forbid("Your account is locked. Please try again later.");
+                }
+                else
+                {
+                    _logger.LogWarning("User {Login} login failed: Invalid credentials.", login.Login);
+                    return Unauthorized("Problem with login and password.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while logging in user {Login}.", login.Login);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+            }
+        }
         #endregion
     }
 }

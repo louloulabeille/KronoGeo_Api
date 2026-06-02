@@ -28,15 +28,14 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
             var result = await _signInManager.UserManager.CreateAsync(user, registerIdentity.Register.Password);
             if (result.Succeeded)
             {
-                // for the first account is Admin and the others are User
-                if (_signInManager.UserManager.Users.Count() == 1)
+                // -  for the first account is Admin and the others are User
+                if ( _signInManager.UserManager.Users.Count() == 1 )
                 {
-                    // Assign Admin & User role to the first user
+                    // - Assign Admin & User role to the first user
                     await _signInManager.UserManager.AddToRolesAsync(user, ["Admin", "User"]);
-                    //await _signInManager.UserManager.AddToRoleAsync(user, ); 
                 }
-                else
-                    await _signInManager.UserManager.AddToRoleAsync(user, "User"); // Assign default role
+                else // - Assign default role
+                    await _signInManager.UserManager.AddToRoleAsync(user, "User"); 
 
                 // - token generation for the user after registration
                 registerIdentity.Register.Token = 
