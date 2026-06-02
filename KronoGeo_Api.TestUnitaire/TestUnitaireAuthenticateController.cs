@@ -26,7 +26,6 @@ namespace KronoGeo_Api.TestUnitaire
         private readonly Mock<IMediator> _mediator = new();
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly Mock<IOptions<KeyBearer>> _keyBearer = new();
-        private bool _isCharging = false;
         #endregion
 
         #region constructor
@@ -39,12 +38,7 @@ namespace KronoGeo_Api.TestUnitaire
             _signInManager = new SignInManager<IdentityUser>(userManager, Mock.Of<IHttpContextAccessor>(), Mock.Of<IUserClaimsPrincipalFactory<IdentityUser>>(), null, null, null, null);
 
             // - intialisation de la base de données
-            if (!_isCharging)
-            {
-                Init();
-                _isCharging = true;
-            }
-            
+            Init();
 
             // - configuration de la clé de sécurité pour les tests unitaires
             _keyBearer.Setup(k => k.Value)
@@ -60,7 +54,7 @@ namespace KronoGeo_Api.TestUnitaire
         }
         #endregion
 
-        #region private initialization
+        #region private initialization || init test de la base de données en mémoire et des rôles pour les tests unitaires
         private void Init()
         {
             // - suppression de tous les utilisateurs et rôles existants dans la base de données en mémoire avant chaque test
@@ -82,9 +76,32 @@ namespace KronoGeo_Api.TestUnitaire
             }
 
         }
+
+        /// <summary>
+        /// initialisation de la base avec un utlisateur
+        /// </summary>
+        /// <param name="register"></param>
+        /// <param name="roles"></param>
+        private void InitUser(RegisterDTO register, string[] roles)
+        {
+            var user = new IdentityUser {
+                    UserName = register.Login, 
+                    Email = register.Email, 
+                    PhoneNumber = register.PhoneNumber,
+            };
+            var result = _signInManager.UserManager.CreateAsync(user, register.Password).Result;
+            if (result.Succeeded)
+            {
+                // - assignation des rôles aux utilisateurs créés pour les tests unitaires
+                foreach (var role in roles)
+                {
+                    _signInManager.UserManager.AddToRoleAsync(user, role).Wait();
+                }   
+            }
+        }
         #endregion
 
-        #region XUnit Test
+        #region XUnit TestUnit pour AddUserCommand de MediatR - ajout d'utilisateur
         [Fact]
         public async Task ShouldAddFirstUserSuccessfully()
         {
@@ -125,8 +142,6 @@ namespace KronoGeo_Api.TestUnitaire
         public async Task ShouldAddOtherUserSuccessfully()
         {
             // - Arrange
-            Init();
-
             Mock<ILogger<AddUserHandler>> _logger = new();
 
             var registerDtoFirst = new RegisterDTO
@@ -152,9 +167,6 @@ namespace KronoGeo_Api.TestUnitaire
             _mediator.Setup(m => m.Send(It.IsAny<AddUserCommand>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(retour).Verifiable("Notification was not sent.");
 
-            /*_signInManager.Setup(sm => sm.UserManager.CreateAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()))
-                .Returns(Task.FromResult(IdentityResult.Success));*/
-
             // - Act
             var handlerFirst = new AddUserHandler(_logger.Object, _keyBearer.Object, _signInManager);
             var resultFirst = await handlerFirst.Handle(new AddUserCommand { Register = registerDtoFirst }, CancellationToken.None);
@@ -172,6 +184,42 @@ namespace KronoGeo_Api.TestUnitaire
             Assert.True(result.Result.Succeeded);
             Assert.False(string.IsNullOrEmpty(result.Register.Token!));
             Assert.True(roles.Contains("User"), "Subsequent users should only have the User role assigned.");
+        }
+        #endregion
+
+        #region Xunit TestUnit pour LoginUserCommand de MediatR - connexion d'utilisateur
+        [Fact]
+        public async Task ShouldLoginUserSuccessfully()
+        {
+            // - Arrange
+            Mock<ILogger<LoginUserHandler>> _logger = new();
+
+            var registerDto = new RegisterDTO
+            {
+                Login = "testuser",
+                Password = "123456789&AAAA",
+                Email = "testuser@example.com",
+                PhoneNumber = "",
+                Token = ""
+            };
+
+            // - ajout de l'utilisateur dans la base de données en mémoire pour le test de connexion
+            InitUser(registerDto, ["User"]);
+
+            var retour = new RegisterIdentity() { Register = registerDto, };
+            _mediator.Setup(m => m.Send(It.IsAny<LoginUserCommand>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(retour).Verifiable("Notification was not sent.");
+
+            // - Act
+            var handler = new LoginUserHandler(_logger.Object, _keyBearer.Object, _signInManager);
+            var result = await handler.Handle(new LoginUserCommand { Register = registerDto }, CancellationToken.None);
+
+            // - Assert
+            Assert.True(result is not null);
+            Assert.True(result.SignInResult is not null);
+            Assert.True(result.SignInResult.Succeeded);
+            Assert.False(string.IsNullOrEmpty(result.Register.Token));
+
         }
         #endregion
     }
