@@ -14,12 +14,15 @@ var builder = WebApplication.CreateBuilder(args);
 // - mettre en place l'authentification - manque toute la partie JWT bearer et enregistrement des param aussi
 // - mettre en place les tests unitaires -- projet créé 
 
+#region AddControllers
 builder.Services.AddControllers(options =>
 {
     // - on peut ajouter le AuthorizeFilter au niveau global pour que toutes les routes soient protégées par défaut
     // et il faudra ajouter l'attribut [AllowAnonymous] pour les routes qui ne nécessitent pas d'authentification
     options.Filters.Add(new AuthorizeFilter());
 });
+#endregion
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -56,6 +59,7 @@ builder.Services.AddAuthorizationPolicy();
 
 var app = builder.Build();
 
+#region app.Environment.IsDevelopment & app.Environment.IsStaging
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -69,6 +73,7 @@ if (app.Environment.IsStaging() || app.Environment.IsDevelopment()) // - pas en 
     app.UseSwagger();
     app.UseSwaggerUI(); // - https://localhost:7291/swagger/index.html
 }
+#endregion
 
 app.UseHttpsRedirection();
 
@@ -78,9 +83,12 @@ app.UseAuthorization();
 // - initialisation des rôles dans la base de données au lancement de l'application
 await app.InitializeRolesAsync();
 #endregion
+
 app.MapControllers();
 
+#region Ilogger - lancement de l'application - Message
 // - log d'information pour indiquer que l'application a démarré avec succès
 app.Logger.LogInformation("L'application KronoGeo_Api a démarré avec succès.");
+#endregion
 
 app.Run();

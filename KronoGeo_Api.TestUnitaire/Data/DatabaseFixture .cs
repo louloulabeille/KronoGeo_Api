@@ -5,6 +5,9 @@ using System.Text;
 
 namespace KronoGeo_Api.TestUnitaire.Data
 {
+    /// <summary>
+    /// class pour avoir un suivi ici du db context entre les methodes
+    /// </summary>
     public class DatabaseFixture : IDisposable
     {
         #region public properties

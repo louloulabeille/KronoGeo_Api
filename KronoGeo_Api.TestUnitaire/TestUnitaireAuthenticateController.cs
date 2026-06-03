@@ -23,7 +23,6 @@ namespace KronoGeo_Api.TestUnitaire
     {
         #region private properties
         private readonly KronoGeoContextMemory _context = new();
-        private readonly Mock<IMediator> _mediator = new();
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly Mock<IOptions<KeyBearer>> _keyBearer = new();
         #endregion
@@ -117,11 +116,6 @@ namespace KronoGeo_Api.TestUnitaire
                 Token = ""
             };
 
-            var retour = new RegisterIdentity() { Register = registerDto, };
-
-            _mediator.Setup(m=>m.Send(It.IsAny<AddUserCommand>(),It.IsAny<CancellationToken>()))
-                .ReturnsAsync(retour).Verifiable("Notification was not sent.");
-
             // - Act
             var handler = new AddUserHandler(_logger.Object, _keyBearer.Object, _signInManager);
             var result = await handler.Handle(new AddUserCommand { Register = registerDto }, CancellationToken.None);
@@ -162,10 +156,6 @@ namespace KronoGeo_Api.TestUnitaire
                 Token = ""
             };
 
-            var retour = new RegisterIdentity() { Register = registerDto, };
-
-            _mediator.Setup(m => m.Send(It.IsAny<AddUserCommand>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(retour).Verifiable("Notification was not sent.");
 
             // - Act
             var handlerFirst = new AddUserHandler(_logger.Object, _keyBearer.Object, _signInManager);
@@ -205,10 +195,6 @@ namespace KronoGeo_Api.TestUnitaire
 
             // - ajout de l'utilisateur dans la base de données en mémoire pour le test de connexion
             InitUser(registerDto, ["User"]);
-
-            var retour = new RegisterIdentity() { Register = registerDto, };
-            _mediator.Setup(m => m.Send(It.IsAny<LoginUserCommand>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(retour).Verifiable("Notification was not sent.");
 
             // - Act
             var handler = new LoginUserHandler(_logger.Object, _keyBearer.Object, _signInManager);

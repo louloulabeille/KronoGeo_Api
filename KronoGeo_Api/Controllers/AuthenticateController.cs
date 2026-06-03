@@ -1,5 +1,6 @@
 ﻿using KronoGeo_Api.Applications.MediatR.Commands.Identity;
 using KronoGeo_Api.Applications.Model.DTO;
+using KronoGeo_Api.Infrastructure.Test;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -27,9 +28,15 @@ namespace KronoGeo_Api.Controllers
         {
             try
             {
-                if (!ModelState.IsValid)
+                if (!ModelState.IsValid )
                 {
                     return BadRequest(ModelState);
+                }
+
+                if(string.IsNullOrEmpty(register.Email) || !EmailTest.IsValidEmail(register.Email))
+                {
+                    _logger.LogWarning("User registration failed: Email and PhoneNumber are both missing for {Login}.", register.Login);
+                    return BadRequest("Invalid email address.");
                 }
 
                 // - appel du MediatR pour exécuter la commande d'ajout d'utilisateur
@@ -62,7 +69,7 @@ namespace KronoGeo_Api.Controllers
         {
             try
             {
-                if (!ModelState.IsValid)
+                if (!ModelState.IsValid && !string.IsNullOrEmpty(login.Email))
                 {
                     return BadRequest(ModelState);
                 }
@@ -80,7 +87,7 @@ namespace KronoGeo_Api.Controllers
                 else
                 {
                     _logger.LogWarning("User {Login} login failed: Invalid credentials.", login.Login);
-                    return this.BadRequest("Ivalid with login and password.");
+                    return this.BadRequest("Invalid login or password.");
                 }
             }
             catch (Exception ex)
@@ -89,6 +96,26 @@ namespace KronoGeo_Api.Controllers
                 return this.Problem("An error occurred while processing your request.");
             }
         }
+        #endregion
+
+        #region public action method Delete
+        [HttpPost("Delete")]
+        [Authorize(Roles = "Admin,User,Manager")]
+        // - suppression de son compte utilisateur de l'API
+        public async Task<IActionResult> Delete([FromBody] RegisterDTO register)
+        {
+            try
+            {
+
+            }catch(Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while deleting user {Login}.", register.Login);
+                return this.Problem("An error occurred while processing your request.");
+            }
+
+            return this.Ok();
+        }
+
         #endregion
     }
 }
