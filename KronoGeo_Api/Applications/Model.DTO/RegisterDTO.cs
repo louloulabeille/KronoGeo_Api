@@ -4,6 +4,7 @@ namespace KronoGeo_Api.Applications.Model.DTO
 {
     public class RegisterDTO
     {
+        public string Id { get; set; } = string.Empty;
         [Required]
         public required string Login { get; set; }
         [Required]

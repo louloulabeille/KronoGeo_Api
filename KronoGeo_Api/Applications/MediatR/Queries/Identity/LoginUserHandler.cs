@@ -55,6 +55,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                         // - génération du token JWT pour l'utilisateur connecté
                         result.Register.Token = 
                             await SecurityTokenGenerate.GenerateJwtToken(user, _keyBearer.Value, _signInManager.UserManager);
+                        result.Register.Id = user.Id;   // - va servir pour la suppression du compte
                     }
                  
                 }

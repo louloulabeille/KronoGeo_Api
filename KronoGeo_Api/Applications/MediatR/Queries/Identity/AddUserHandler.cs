@@ -32,16 +32,16 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                 {
                     // -  for the first account is Admin and the others are User
                     if (_signInManager.UserManager.Users.Count() == 1)
-                    {
                         // - Assign Admin & User role to the first user
                         await _signInManager.UserManager.AddToRolesAsync(user, ["Admin", "User"]);
-                    }
                     else // - Assign default role
                         await _signInManager.UserManager.AddToRoleAsync(user, "User");
 
                     // - token generation for the user after registration
                     registerIdentity.Register.Token =
                         await SecurityTokenGenerate.GenerateJwtToken(user, _keyBearer.Value, _signInManager.UserManager);
+                    registerIdentity.Register.Id = user.Id; // - va servir pour la suppression du compte
+
                 }
                 registerIdentity.Result = result;
 

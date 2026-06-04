@@ -28,12 +28,12 @@ namespace KronoGeo_Api.Controllers
         {
             try
             {
-                if (!ModelState.IsValid )
+                if (!ModelState.IsValid)
                 {
                     return BadRequest(ModelState);
                 }
 
-                if(string.IsNullOrEmpty(register.Email) || !EmailTest.IsValidEmail(register.Email))
+                if (string.IsNullOrEmpty(register.Email) || !EmailTest.IsValidEmail(register.Email))
                 {
                     _logger.LogWarning("User registration failed: Email and PhoneNumber are both missing for {Login}.", register.Login);
                     return BadRequest("Invalid email address.");
@@ -99,21 +99,29 @@ namespace KronoGeo_Api.Controllers
         #endregion
 
         #region public action method Delete
-        [HttpPost("Delete")]
+        [HttpDelete("{id}")]
         [Authorize(Roles = "Admin,User,Manager")]
         // - suppression de son compte utilisateur de l'API
-        public async Task<IActionResult> Delete([FromBody] RegisterDTO register)
+        public async Task<IActionResult> DeleteUser(string id)
         {
             try
             {
+                var result = await _mediaR.Send(new DeleteUserCommand() { Id = id });
+                if (result.Result is not null && result.Result.Succeeded)
+                {
+                    return this.Ok("Deleted successfully.");
+                }
 
-            }catch(Exception ex)
+                if (result.Result is not null)
+                    return this.BadRequest(result.Result.Errors);
+
+                throw new Exception("DeleteUser erreur interne du handler - pas de result.Result IdentityResult manquant.");
+            }
+            catch(Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while deleting user {Login}.", register.Login);
+                _logger.LogError(ex, "An error occurred while deleting user {id}.", id);
                 return this.Problem("An error occurred while processing your request.");
             }
-
-            return this.Ok();
         }
 
         #endregion
