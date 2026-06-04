@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-	  <InternalsVisibleTo Include="KronoGeo_Api.TestUnitaire"/>	
+	  <InternalsVisibleTo Include="KronoGeo_Api.TestUnitaire" />	
   </ItemGroup>
 
   <ItemGroup>
