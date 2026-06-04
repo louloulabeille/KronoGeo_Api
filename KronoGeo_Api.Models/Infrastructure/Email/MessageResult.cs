@@ -10,7 +10,7 @@ namespace KronoGeo_Api.Models.Infrastructure.Email
         Failure
     }
 
-    public class EmailResult
+    public class MessageResult
     {
         public required string To { get; set; }
         public required EmailResultStatus Status { get; set; } = EmailResultStatus.Success;

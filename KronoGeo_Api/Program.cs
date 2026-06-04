@@ -31,6 +31,10 @@ builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 #endregion
 
+#region Mise en place de IservicesMessage pour envoi de mail de confirmation
+builder.Services.AddServiceMessage(builder.Configuration);
+#endregion
+
 #region Mise en place de MediatR
 // - method d'extension
 builder.Services.AddMediaTRExtend(builder.Configuration);

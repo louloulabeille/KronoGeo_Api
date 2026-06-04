@@ -19,10 +19,11 @@ namespace KronoGeo_Api.Infrastructure.Service.Email.MessageFactoryMethod
         #region public method Factory
         public string ReturnMessage()
         {
-            StringBuilder message = new StringBuilder();
+            StringBuilder message = new();
             message.AppendLine($"<h1>Bonjour {_user.UserName} </h1>");
             message.AppendLine("<p>Merci de vous êtes inscrit sur notre plateforme CronoGeo. Veuillez cliquer sur le lien suivant pour confirmer votre adresse email : </p>");
             message.AppendLine($"<a href='{GenerationUrlAuthentification()}' target='_blank'>Confirmer mon adresse email</a>"); 
+            message.AppendLine("<p>Attention : ce lien expire dans 24 heures.</p>");
             message.AppendLine($"<p>Si vous n'avez pas créé de compte, veuillez ignorer cet email.</p>");
             message.AppendLine("<p>Cordialement,</p>");
             return message.ToString();  

@@ -5,8 +5,8 @@ using System.Text;
 
 namespace KronoGeo_Api.Interface.Service
 {
-    public interface IServiceSendMail
+    public interface IServiceSendMessage
     {
-        public EmailResult SendEmail(string to, string subject, string body);
+        public MessageResult Send(string to, string subject, string body);
     }
 }

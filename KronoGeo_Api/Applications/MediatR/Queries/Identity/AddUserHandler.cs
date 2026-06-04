@@ -1,17 +1,26 @@
 ﻿using KronoGeo_Api.Applications.Authentification;
 using KronoGeo_Api.Applications.MediatR.Commands.Identity;
 using KronoGeo_Api.Applications.Model.DTO;
+using KronoGeo_Api.Infrastructure.Service.Email.MessageFactoryMethod;
+using KronoGeo_Api.Interface.Service;
+using KronoGeo_Api.Models.Infrastructure.Email;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Options;
 
 namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
 {
     public class AddUserHandler(ILogger<AddUserHandler> logger
-        , IOptions<KeyBearer> keyBearer, SignInManager<IdentityUser> signInManager)
+        , IOptions<KeyBearer> keyBearer, SignInManager<IdentityUser> signInManager
+        , IServiceSendMessage serviceSendMail)
         : UserIdentityHandler(logger, keyBearer, signInManager)
         , IRequestHandler<AddUserCommand, RegisterIdentity>
     {
+        #region private properties
+        private readonly IServiceSendMessage _serviceSendMail = serviceSendMail;
+        #endregion
+
 
         #region method interface
         public async Task<RegisterIdentity> Handle(AddUserCommand request, CancellationToken cancellationToken)
@@ -42,9 +51,11 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                         await SecurityTokenGenerate.GenerateJwtToken(user, _keyBearer.Value, _signInManager.UserManager);
                     registerIdentity.Register.Id = user.Id; // - va servir pour la suppression du compte
 
+                    // - Send confirmation email
+                    var resultEmail = SendEmailConfirmation(user);
                 }
                 registerIdentity.Result = result;
-
+                registerIdentity.Register.Password = string.Empty;
             }
             catch(Exception ex)
             {
@@ -57,5 +68,31 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
             return registerIdentity;
         }
         #endregion
+
+        #region private method
+        private MessageResult SendEmailConfirmation(IdentityUser user)
+        {
+            var message = MessageCourriel.Message(new MessageAuthentificationCreator( _signInManager.UserManager, user));
+            if (user.Email is null)
+            {
+               _logger.LogError("User {UserName} has no email address. Cannot send confirmation email.", user.UserName);
+                return new MessageResult() 
+                {
+                    To = string.Empty,
+                    Message = message,
+                    Status = EmailResultStatus.Failure,
+                    Exception = new ArgumentNullException($"{user.UserName} has no email address. Cannot send confirmation email.") 
+                };
+            }
+
+            var result = _serviceSendMail.Send(user.Email, "Confirmation de votre adresse email", message);
+            if (result.Status == EmailResultStatus.Failure)
+            {
+                _logger.LogError("Failed to send confirmation email to {Email}: {Message}", user.Email, result.Message);
+            }
+            return result;
+        }
+        #endregion
+
     }
 }

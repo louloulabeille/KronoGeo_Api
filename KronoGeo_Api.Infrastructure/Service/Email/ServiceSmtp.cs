@@ -1,5 +1,6 @@
 ﻿using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models.Infrastructure.Email;
+using Microsoft.Extensions.Options;
 using MimeKit;
 using System;
 using System.Collections.Generic;
@@ -7,20 +8,20 @@ using System.Text;
 
 namespace KronoGeo_Api.Infrastructure.Service.Email
 {
-    public class ServiceSmtp(CourrielOptions options) : IServiceSendMail
+    public class ServiceSmtp(IOptions<CourrielOptions> options) : IServiceSendMessage
     {
         #region private properties
-        private readonly CourrielOptions _options = options;
+        private readonly CourrielOptions _options = options.Value;
         #endregion
 
         #region interface implementation
-        public EmailResult SendEmail(string to, string subject, string body)
+        public MessageResult Send(string to, string subject, string body)
         {
             MimeMessage message = new();
             message.From.Add(new MailboxAddress(_options.FromName, _options.From));
             message.To.Add(MailboxAddress.Parse(to));
             message.Subject = subject;
-            message.Body = new TextPart("plain")
+            message.Body = new TextPart("html")
             {
                 Text = body
             };
@@ -32,7 +33,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Email
                 client.Authenticate(_options.Username, _options.Password);
                 client.Send(message);
                 client.Disconnect(true);
-                return new EmailResult
+                return new MessageResult
                 {
                     To = to,
                     Status = EmailResultStatus.Success,
@@ -42,7 +43,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Email
             }
             catch (MailKit.Security.AuthenticationException ex)
             {
-                return new EmailResult
+                return new MessageResult
                 {
                     To = to,
                     Status = EmailResultStatus.Failure,
@@ -52,7 +53,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Email
             }
             catch (Exception ex)
             {
-                return new EmailResult
+                return new MessageResult
                 {
                     To = to,
                     Status = EmailResultStatus.Failure,
