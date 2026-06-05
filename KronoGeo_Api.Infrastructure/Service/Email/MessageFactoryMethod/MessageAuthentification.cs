@@ -30,8 +30,8 @@ namespace KronoGeo_Api.Infrastructure.Service.Email.MessageFactoryMethod
             message.AppendLine($"<p>Si vous n'avez pas créé de compte, veuillez ignorer cet email.</p>");
             message.AppendLine("<p>Cordialement,</p>");
             message.AppendLine("");
-            message.AppendLine("ps:");
-            message.AppendLine("Si vous avez un problème avec le lien de confirmation, vous pouvez copier ce lien dans votre navigateur.");
+            message.AppendLine($"ps:{Environment.NewLine}");
+            message.AppendLine($"Si vous avez un problème avec le lien de confirmation, vous pouvez copier ce lien dans votre navigateur.{Environment.NewLine}");
             message.AppendLine($"{lien}");
             return message.ToString();  
         }
