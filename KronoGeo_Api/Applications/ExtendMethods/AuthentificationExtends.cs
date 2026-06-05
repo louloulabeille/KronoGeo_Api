@@ -9,6 +9,8 @@ namespace KronoGeo_Api.Applications.ExtendMethods
 {
     public static class AuthentificationExtends
     {
+        private const string _emailConfirmationTokenProviderName = "ConfirmEmail";
+
         extension (IServiceCollection services)
         {
             /// <summary>
@@ -40,9 +42,18 @@ namespace KronoGeo_Api.Applications.ExtendMethods
                     // - a mettre en place après
                     options.SignIn.RequireConfirmedEmail = true;
                     //options.SignIn.RequireConfirmedAccount = true;
+                    // - format du token pouvant être configuré
+                    options.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;
+
                 })
                     .AddRoles<IdentityRole>() // - permet la mise en place de rôles pour les utilisateurs
-                    .AddEntityFrameworkStores<KronoGeoDbContext>();
+                    .AddEntityFrameworkStores<KronoGeoDbContext>()
+                    .AddDefaultTokenProviders(); // - mise en place de la vérification du token
+
+                // - configuration de la durée de vie du token 24h par défaut 24h
+                services.Configure<DataProtectionTokenProviderOptions>(options => {
+                    options.TokenLifespan = TimeSpan.FromDays(1);
+                });
 
                 return services;
             }

@@ -3,8 +3,10 @@ using KronoGeo_Api.Applications.Model.DTO;
 using KronoGeo_Api.Interface.Service;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using Microsoft.Win32;
+using System.Text;
 
 namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
 {
@@ -15,23 +17,24 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
     {
         public async Task<RegisterIdentity> Handle(ConfirmEmailCommand request, CancellationToken cancellationToken)
         {
-            
-            var user = await _signInManager.UserManager.FindByIdAsync(request.Id);;
+            string id = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(request.Id));
+            string token = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(request.Token));
+            var user = await _signInManager.UserManager.FindByIdAsync(id);;
 
             if (user is null)
             {
-                var register = new RegisterDTO() { Id = request.Id , Login = string.Empty, Password = string.Empty };
+                var register = new RegisterDTO() { Id = id , Login = string.Empty, Password = string.Empty };
                 var identityResult = IdentityResult.Failed(new IdentityError { Description = "User not found." });
 
                 return new RegisterIdentity() { Register = register, Result = identityResult};
             }
-            var result = await _signInManager.UserManager.ConfirmEmailAsync(user, request.Token);
+            var result = await _signInManager.UserManager.ConfirmEmailAsync(user, token);
 
             return new RegisterIdentity() { 
                 Register = new RegisterDTO()
                 {
                     Id = user.Id, 
-                    Login = user.UserName??user.Email??string.Empty,
+                    Login = user.UserName??string.Empty,
                 } , 
                 Result = result 
             }; ;

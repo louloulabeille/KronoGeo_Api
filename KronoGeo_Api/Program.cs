@@ -1,5 +1,6 @@
 using KronoGeo_Api.Applications.ExtendMethods;
 using KronoGeo_Api.Infrastructure.Database;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Serilog;

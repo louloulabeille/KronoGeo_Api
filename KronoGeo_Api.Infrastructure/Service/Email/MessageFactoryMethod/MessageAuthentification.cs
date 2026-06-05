@@ -1,6 +1,7 @@
 ﻿using KronoGeo_Api.Interface.Service.MessageFactoryMethod;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -38,8 +39,10 @@ namespace KronoGeo_Api.Infrastructure.Service.Email.MessageFactoryMethod
         private string GenerationUrlAuthentification()
         {
             var token = _userManager.GenerateEmailConfirmationTokenAsync(_user).Result;
+            string encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+            string encodedId = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(_user.Id));
             //var url = new Uri($"https://localhost:7291/api/v1/Authenticate/ConfirmEmail/{Uri.EscapeDataString(_user.Id)}/{Uri.EscapeDataString(token)}");
-            var url = new Uri($"https://localhost:7291/api/v1/Authenticate/ConfirmEmail/{Uri.EscapeDataString(_user.Id)}/{token}");
+            var url = new Uri($"https://localhost:7291/api/v1/Authenticate/ConfirmEmail/{encodedId}/{encodedToken}");
             return url.ToString();
         }
         #endregion
