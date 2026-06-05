@@ -1,4 +1,5 @@
-﻿using KronoGeo_Api.Applications.Model.DTO;
+﻿using KronoGeo_Api.Applications.CustomTokenProviders;
+using KronoGeo_Api.Applications.Model.DTO;
 using KronoGeo_Api.Infrastructure.Database;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -43,16 +44,22 @@ namespace KronoGeo_Api.Applications.ExtendMethods
                     options.SignIn.RequireConfirmedEmail = true;
                     //options.SignIn.RequireConfirmedAccount = true;
                     // - format du token pouvant être configuré
-                    options.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;
-
+                    //options.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;
+                    options.Tokens.EmailConfirmationTokenProvider = "EmailConfirmation";
                 })
                     .AddRoles<IdentityRole>() // - permet la mise en place de rôles pour les utilisateurs
                     .AddEntityFrameworkStores<KronoGeoDbContext>()
-                    .AddDefaultTokenProviders(); // - mise en place de la vérification du token
+                    .AddDefaultTokenProviders() // - mise en place de la vérification du token
+                    .AddTokenProvider<EmailConfirmationTokenProvider<IdentityUser>>("EmailConfirmation");
 
                 // - configuration de la durée de vie du token 24h par défaut 24h
                 services.Configure<DataProtectionTokenProviderOptions>(options => {
-                    options.TokenLifespan = TimeSpan.FromDays(1);
+                    options.TokenLifespan = TimeSpan.FromHours(24);
+                });
+
+                services.Configure<EmailConfirmationTokenProviderOptions>(options =>
+                {
+                    options.TokenLifespan = TimeSpan.FromDays(3);
                 });
 
                 return services;

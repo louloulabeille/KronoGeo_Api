@@ -26,12 +26,12 @@ namespace KronoGeo_Api.Infrastructure.Service.Email.MessageFactoryMethod
             message.AppendLine($"<h1>Bonjour {_user.UserName} </h1>");
             message.AppendLine("<p>Merci de vous êtes inscrit sur notre plateforme KronoGeo. Veuillez cliquer sur le lien suivant pour confirmer votre adresse email : </p>");
             message.AppendLine($"<a href='{lien}' target='_blank'>Confirmer mon adresse email</a>"); 
-            message.AppendLine("<p>Attention : ce lien expire dans 24 heures.</p>");
+            message.AppendLine("<p>Attention : ce lien expire dans 72 heures.</p>");
             message.AppendLine($"<p>Si vous n'avez pas créé de compte, veuillez ignorer cet email.</p>");
             message.AppendLine("<p>Cordialement,</p>");
             message.AppendLine("");
-            message.AppendLine($"ps:{Environment.NewLine}");
-            message.AppendLine($"Si vous avez un problème avec le lien de confirmation, vous pouvez copier ce lien dans votre navigateur.{Environment.NewLine}");
+            message.AppendLine($"ps:");
+            message.AppendLine($"Si vous avez un problème avec le lien de confirmation, vous pouvez copier ce lien dans votre navigateur.");
             message.AppendLine($"{lien}");
             return message.ToString();  
         }
@@ -47,7 +47,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Email.MessageFactoryMethod
             var token = _userManager.GenerateEmailConfirmationTokenAsync(_user).Result;
             string encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
             string encodedId = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(_user.Id));
-            //var url = new Uri($"https://localhost:7291/api/v1/Authenticate/ConfirmEmail/{Uri.EscapeDataString(_user.Id)}/{Uri.EscapeDataString(token)}");
+            
             var url = new Uri($"https://localhost:7291/api/v1/Authenticate/ConfirmEmail/{encodedId}/{encodedToken}");
             return url.ToString();
         }
