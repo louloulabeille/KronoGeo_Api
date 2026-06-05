@@ -49,7 +49,12 @@ namespace KronoGeo_Api.Controllers
                 }
                 else
                 {
-                    _logger.LogWarning("User {Login} registration failed: {Errors}", register.Login, string.Join(", ", result.Result!.Errors.Select(e => e.Description)));
+                    if ( result.Result is null)
+                    {
+                        _logger.LogWarning("User {Login} registration failed: no result object.", register.Login);
+                        return BadRequest("Internal error.");
+                    }
+                    _logger.LogWarning("User {Login} registration failed: {Errors}", register.Login, string.Join(", ", result.Result.Errors.Select(e => e.Description)));
                     return BadRequest(result.Result.Errors);
                 }
             } catch (Exception ex)
