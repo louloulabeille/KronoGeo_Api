@@ -1,4 +1,5 @@
 ﻿using KronoGeo_Api.Applications.Authentification;
+using KronoGeo_Api.Applications.Email;
 using KronoGeo_Api.Applications.MediatR.Commands.Identity;
 using KronoGeo_Api.Applications.Model.DTO;
 using KronoGeo_Api.Infrastructure.Service.Email.MessageFactoryMethod;
@@ -55,8 +56,9 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                     registerIdentity.Result = result;
                     registerIdentity.Register.Password = string.Empty;
 
-                    // - Send confirmation email
-                    var resultEmail = SendEmailConfirmation(user);
+                    // - Send confirmation email 
+                    var MailAuto = new ApiMailIdentity(_serviceSendMail, _logger);
+                    var resultEmail = MailAuto.SendEmail(user, new MessageAuthentificationCreator(_signInManager.UserManager, user, _urlOptions));
                 }
                 
             }
@@ -73,7 +75,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
         #endregion
 
         #region private method
-        private MessageResult SendEmailConfirmation(IdentityUser user)
+        /*private MessageResult SendEmailConfirmation(IdentityUser user)
         {
             var message = MessageCourriel.Message(new MessageAuthentificationCreator( _signInManager.UserManager, user, _urlOptions));
             if (user.Email is null)
@@ -94,7 +96,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                 _logger.LogError("Failed to send confirmation email to {Email}: {Message}", user.Email, result.Message);
             }
             return result;
-        }
+        }*/
         #endregion
 
     }

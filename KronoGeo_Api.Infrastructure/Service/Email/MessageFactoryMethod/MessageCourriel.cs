@@ -6,7 +6,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Email.MessageFactoryMethod
 {
     public static class MessageCourriel
     {
-        public static string Message(MessageAuthentificationCreator creator)
+        public static string Message(MessageCourrielFactory creator)
         {
             return creator.SomeOperation();
         }

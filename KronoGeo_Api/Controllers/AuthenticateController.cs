@@ -155,5 +155,24 @@ namespace KronoGeo_Api.Controllers
             }
         }
         #endregion
+
+        #region action method Update Identity
+        [HttpPost("Update")]
+        [Authorize(Roles = "Admin,User,Manager")]
+        // - Modification du compte utilisateur
+        // - Passworld & email 
+        public async Task<IActionResult> UpdateUser([FromForm]RegisterDTO register)
+        {
+            try
+            {
+                var result = _mediaR.Send(new UpdateUserCommand() { registerDTO = register });
+            }
+            catch (Exception ex) {
+                _logger.LogError(ex, "An error occurred while deleting user {register.login}.", register.Login);
+                return this.Problem("An error occurred while processing your request.");
+            }
+            return this.Ok();
+        }
+        #endregion
     }
 }
