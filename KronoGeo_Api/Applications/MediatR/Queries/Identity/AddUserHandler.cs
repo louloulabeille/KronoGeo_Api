@@ -13,12 +13,14 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
 {
     public class AddUserHandler(ILogger<AddUserHandler> logger
         , IOptions<KeyBearer> keyBearer, SignInManager<IdentityUser> signInManager
-        , IServiceSendMessage serviceSendMail)
+        , IServiceSendMessage serviceSendMail
+        , IOptions<UrlOptions> urlOptions)
         : UserIdentityHandler(logger, keyBearer, signInManager)
         , IRequestHandler<AddUserCommand, RegisterIdentity>
     {
         #region private properties
         private readonly IServiceSendMessage _serviceSendMail = serviceSendMail;
+        private readonly IOptions<UrlOptions> _urlOptions = urlOptions;
         #endregion
 
 
@@ -72,7 +74,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
         #region private method
         private MessageResult SendEmailConfirmation(IdentityUser user)
         {
-            var message = MessageCourriel.Message(new MessageAuthentificationCreator( _signInManager.UserManager, user));
+            var message = MessageCourriel.Message(new MessageAuthentificationCreator( _signInManager.UserManager, user, _urlOptions));
             if (user.Email is null)
             {
                _logger.LogError("User {UserName} has no email address. Cannot send confirmation email.", user.UserName);
