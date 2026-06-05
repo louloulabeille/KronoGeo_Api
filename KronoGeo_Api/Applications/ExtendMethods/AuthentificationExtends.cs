@@ -38,7 +38,7 @@ namespace KronoGeo_Api.Applications.ExtendMethods
                     options.Lockout.MaxFailedAccessAttempts = 3;
 
                     // - a mettre en place après
-                    //options.SignIn.RequireConfirmedEmail = true;
+                    options.SignIn.RequireConfirmedEmail = true;
                     //options.SignIn.RequireConfirmedAccount = true;
                 })
                     .AddRoles<IdentityRole>() // - permet la mise en place de rôles pour les utilisateurs
