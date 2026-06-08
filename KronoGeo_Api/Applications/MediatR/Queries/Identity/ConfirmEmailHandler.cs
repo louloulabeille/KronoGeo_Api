@@ -26,7 +26,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                 var register = new RegisterDTO() { Id = id , Login = string.Empty, Password = string.Empty };
                 var identityResult = IdentityResult.Failed(new IdentityError { Description = "User not found." });
 
-                return new RegisterIdentity() { Register = register, Result = identityResult};
+                return new RegisterIdentity() { Register = register, IdentityResult = identityResult};
             }
             var result = await _signInManager.UserManager.ConfirmEmailAsync(user, token);
 
@@ -35,8 +35,8 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                 {
                     Id = user.Id, 
                     Login = user.UserName??string.Empty,
-                } , 
-                Result = result 
+                } ,
+                IdentityResult = result 
             }; ;
         }
     }

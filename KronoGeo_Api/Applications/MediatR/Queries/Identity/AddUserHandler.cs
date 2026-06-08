@@ -53,7 +53,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                     registerIdentity.Register.Token =
                         await SecurityTokenGenerate.GenerateJwtToken(user, _keyBearer.Value, _signInManager.UserManager);
                     registerIdentity.Register.Id = user.Id; // - va servir pour la suppression du compte
-                    registerIdentity.Result = result;
+                    registerIdentity.IdentityResult = result;
                     registerIdentity.Register.Password = string.Empty;
 
                     // - Send confirmation email 

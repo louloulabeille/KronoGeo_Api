@@ -65,7 +65,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                 _logger.LogError(ex, "An error occurred while processing login for user {Login}.", result.Register.Login);
                 // - en cas d'erreur, on peut choisir de retourner un résultat spécifique ou de propager l'exception
                 // pour le moment on retourne un résultat avec SignInResult null pour indiquer une erreur
-                result.SignInResult = null;
+                result.SignInResult = SignInResult.Failed;
             }
 
             return result;

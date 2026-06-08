@@ -42,20 +42,21 @@ namespace KronoGeo_Api.Controllers
                 // - appel du MediatR pour exécuter la commande d'ajout d'utilisateur
                 var result = await _mediaR.Send(new AddUserCommand() { Register = register });
 
-                if (result.Result is not null && result.Result.Succeeded)
+                if (result.IdentityResult is not null && result.IdentityResult.Succeeded)
                 {
                     //_logger.LogInformation("User {Login} registered successfully.", register.Login);
                     return this.Ok(result.Register);
                 }
                 else
                 {
-                    if ( result.Result is null)
+                    if ( result.IdentityResult is null)
                     {
                         _logger.LogWarning("User {Login} registration failed: no result object.", register.Login);
                         return BadRequest("Internal error.");
                     }
-                    _logger.LogWarning("User {Login} registration failed: {Errors}", register.Login, string.Join(", ", result.Result.Errors.Select(e => e.Description)));
-                    return BadRequest(result.Result.Errors);
+                    _logger.LogWarning("User {Login} registration failed: {Errors}", register.Login, 
+                        string.Join(", ", result.IdentityResult.Errors.Select(e => e.Description)));
+                    return BadRequest(result.IdentityResult.Errors);
                 }
             } catch (Exception ex)
             {
@@ -112,13 +113,13 @@ namespace KronoGeo_Api.Controllers
             try
             {
                 var result = await _mediaR.Send(new DeleteUserCommand() { Id = id });
-                if (result.Result is not null && result.Result.Succeeded)
+                if (result.IdentityResult is not null && result.IdentityResult.Succeeded)
                 {
                     return this.Ok("Deleted successfully.");
                 }
 
-                if (result.Result is not null)
-                    return this.BadRequest(result.Result.Errors);
+                if (result.IdentityResult is not null)
+                    return this.BadRequest(result.IdentityResult.Errors);
 
                 throw new Exception("DeleteUser erreur interne du handler - pas de result.Result IdentityResult manquant.");
             }
@@ -138,13 +139,13 @@ namespace KronoGeo_Api.Controllers
             try
             {
                 var result = await _mediaR.Send(new ConfirmEmailCommand() { Id = user, Token = token });
-                if (result.Result is not null && result.Result.Succeeded)
+                if (result.IdentityResult is not null && result.IdentityResult.Succeeded)
                 {
                     return this.Ok("Email confirmed successfully.");
                 }
 
-                if (result.Result is not null)
-                    return this.BadRequest(result.Result.Errors);
+                if (result.IdentityResult is not null)
+                    return this.BadRequest(result.IdentityResult.Errors);
 
                 throw new Exception("ConfirmEmail erreur interne du handler - pas de result.Result IdentityResult manquant.");
             }
@@ -165,7 +166,8 @@ namespace KronoGeo_Api.Controllers
         {
             try
             {
-                var result = _mediaR.Send(new UpdateUserCommand() { registerDTO = register });
+
+                var result = _mediaR.Send(new UpdateUserCommand() { Register = register });
             }
             catch (Exception ex) {
                 _logger.LogError(ex, "An error occurred while deleting user {register.login}.", register.Login);
