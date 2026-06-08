@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace KronoGeo_Api.Infrastructure.Service.Email.MessageFactoryMethod
+namespace KronoGeo_Api.Infrastructure.Service.Email
 {
     public class GenerateUrl
     {
@@ -19,6 +19,24 @@ namespace KronoGeo_Api.Infrastructure.Service.Email.MessageFactoryMethod
             , IOptions<UrlOptions> urlOptions, IdentityUser user)
         {
             var token = userManager.GenerateEmailConfirmationTokenAsync(user).Result;
+            string encodedToken = EncodingMessage(token);
+            string encodedId = EncodingMessage(user.Id);
+
+            //var url = new Uri($"https://localhost:7291/api/v1/Authenticate/ConfirmEmail/{encodedId}/{encodedToken}");
+            var url = new Uri($"{urlOptions.Value.UrlEmailAuthentification}/{encodedId}/{encodedToken}");
+            return url.ToString();
+        }
+
+        /// <summary>
+        /// génération url pour l'authentification du mail sans définir le token dedans
+        /// </summary>
+        /// <param name="userManager"></param>
+        /// <param name="urlOptions"></param>
+        /// <param name="user"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public static string GenerationUrlAuthentification( IOptions<UrlOptions> urlOptions, IdentityUser user, string token )
+        {
             string encodedToken = EncodingMessage(token);
             string encodedId = EncodingMessage(user.Id);
 

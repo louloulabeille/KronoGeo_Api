@@ -167,7 +167,7 @@ namespace KronoGeo_Api.Controllers
             try
             {
 
-                var result = _mediaR.Send(new UpdateUserCommand() { Register = register });
+                var result = _mediaR.Send(new UpdateUserEmailCommand() { Register = register });
             }
             catch (Exception ex) {
                 _logger.LogError(ex, "An error occurred while deleting user {register.login}.", register.Login);

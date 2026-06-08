@@ -42,7 +42,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                     if(!await CanDeleteUser(user))
                     {
                         var identityResult = IdentityResult.Failed(new IdentityError { Description = "Cannot delete user with critical roles." });
-                        registerIdentity.Result = identityResult;
+                        registerIdentity.IdentityResult = identityResult;
                         return registerIdentity;
                     }
 
@@ -51,13 +51,13 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                     {
                         _logger.LogInformation("User {Login} deleted successfully.", user.UserName);
                     }
-                    registerIdentity.Result = result;
+                    registerIdentity.IdentityResult = result;
 
                 }
                 else
                 {
                     var identityResult = IdentityResult.Failed(new IdentityError { Description = "User not found." });
-                    registerIdentity.Result = identityResult;
+                    registerIdentity.IdentityResult = identityResult;
                 }
 
                 return registerIdentity;

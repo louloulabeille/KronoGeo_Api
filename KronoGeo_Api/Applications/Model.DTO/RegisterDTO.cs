@@ -8,6 +8,7 @@ namespace KronoGeo_Api.Applications.Model.DTO
         [Required]
         public required string Login { get; set; }
         public string Password { get; set; } = string.Empty;
+        public string? NewPassord  {get;set; }
         //[EmailAddress(ErrorMessage = "Invalid email address.")]
         public string Email { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;

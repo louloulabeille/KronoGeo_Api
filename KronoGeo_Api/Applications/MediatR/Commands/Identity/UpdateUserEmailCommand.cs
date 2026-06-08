@@ -3,7 +3,7 @@ using MediatR;
 
 namespace KronoGeo_Api.Applications.MediatR.Commands.Identity
 {
-    public class UpdateUserCommand : IRequest<RegisterIdentity>
+    public class UpdateUserEmailCommand : IRequest<RegisterIdentity>
     {
         public required RegisterDTO Register { get; set; }
     }

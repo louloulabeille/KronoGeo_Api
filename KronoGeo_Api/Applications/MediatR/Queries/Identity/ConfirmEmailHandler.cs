@@ -1,6 +1,6 @@
 ﻿using KronoGeo_Api.Applications.MediatR.Commands.Identity;
 using KronoGeo_Api.Applications.Model.DTO;
-using KronoGeo_Api.Infrastructure.Service.Email.MessageFactoryMethod;
+using KronoGeo_Api.Infrastructure.Service.Email;
 using KronoGeo_Api.Interface.Service;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
