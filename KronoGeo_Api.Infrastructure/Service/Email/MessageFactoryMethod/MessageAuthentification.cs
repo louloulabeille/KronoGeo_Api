@@ -23,7 +23,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Email.MessageFactoryMethod
         #region public method Factory
         public string ReturnMessage()
         {
-            string lien = GenerationUrlAuthentification();
+            string lien = GenerateUrl.GenerationUrlAuthentification(_userManager, _urlOptions, _user);
 
             StringBuilder message = new();
             message.AppendLine($"<h1>Bonjour {_user.UserName} </h1>");
@@ -40,21 +40,6 @@ namespace KronoGeo_Api.Infrastructure.Service.Email.MessageFactoryMethod
         }
         #endregion
 
-        #region private method
-        /// <summary>
-        /// générateur url pour l'authentification du mail 
-        /// </summary>
-        /// <returns></returns>
-        private string GenerationUrlAuthentification()
-        {
-            var token = _userManager.GenerateEmailConfirmationTokenAsync(_user).Result;
-            string encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-            string encodedId = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(_user.Id));
-
-            //var url = new Uri($"https://localhost:7291/api/v1/Authenticate/ConfirmEmail/{encodedId}/{encodedToken}");
-            var url = new Uri($"{_urlOptions.Value.UrlEmailAuthentification}/{encodedId}/{encodedToken}");
-            return url.ToString();
-        }
-        #endregion
+        
     }
 }

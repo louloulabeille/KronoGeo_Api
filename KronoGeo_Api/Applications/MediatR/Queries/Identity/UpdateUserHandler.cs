@@ -14,7 +14,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
         , IServiceSendMessage serviceSendMail
         , IOptions<UrlOptions> urlOptions)
         : UserIdentityHandler (logger, keyBearer, signInManager)
-        //, IRequestHandler<UpdateUserCommand, RegisterIdentity>
+        , IRequestHandler<UpdateUserCommand, RegisterIdentity>
     {
 
 

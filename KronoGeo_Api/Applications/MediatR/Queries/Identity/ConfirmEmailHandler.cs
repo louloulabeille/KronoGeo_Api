@@ -1,5 +1,6 @@
 ﻿using KronoGeo_Api.Applications.MediatR.Commands.Identity;
 using KronoGeo_Api.Applications.Model.DTO;
+using KronoGeo_Api.Infrastructure.Service.Email.MessageFactoryMethod;
 using KronoGeo_Api.Interface.Service;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -17,8 +18,9 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
     {
         public async Task<RegisterIdentity> Handle(ConfirmEmailCommand request, CancellationToken cancellationToken)
         {
-            string id = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(request.Id));
-            string token = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(request.Token));
+            string id = GenerateUrl.DecodingMessage(request.Id);
+            string token = GenerateUrl.DecodingMessage(request.Token);
+
             var user = await _signInManager.UserManager.FindByIdAsync(id);;
 
             if (user is null)
