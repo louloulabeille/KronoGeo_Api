@@ -8,7 +8,7 @@ using System.Text;
 
 namespace KronoGeo_Api.Infrastructure.Service.Email.MessageFactoryMethod
 {
-    public class MessageChangeEmail(UserManager<IdentityUser> userManager
+    public class MessageRecupOldEmail(UserManager<IdentityUser> userManager
         , IdentityUser user, IOptions<UrlOptions> urlOptions, string lienToken) : IMessageMail
     {
         #region private properties
@@ -20,12 +20,11 @@ namespace KronoGeo_Api.Infrastructure.Service.Email.MessageFactoryMethod
 
         public string ReturnMessage()
         {
-            
             StringBuilder message = new();
             message.AppendLine($"<h1>Bonjour {_user.UserName} </h1>");
-            message.AppendLine("<p>Pour valider le changment de votre adresse mail sur ce compte , vous devez valider ce lien : </p>");
+            message.AppendLine("<p>Mail de récupération de votre compte en cas de changement d'adresse mail. Le lien ci-dessous sert à récupérer votre ancienne adresse mail pour votre compte. Changez vtre mot de passe si votre compte a été piraté.</p>");
             message.AppendLine($"<a href='{_lienToken}' target='_blank'>Confirmer mon adresse email</a>");
-            message.AppendLine("<p>Attention : ce lien expire dans 24 heures. Si vous n'avez jamais demandé la modification de votre email, vous allez recevoir un lien pour récupérer votre ancienne adresse mail avec votre ancienne adresse mail.</p>");
+            message.AppendLine("<p>Attention : ce lien expire dans 24 heures. Ne prennez pas en compte ce mail, si le changment d'adresse mail est correct.</p>");
             message.AppendLine("<p>Cordialement,</p>");
             message.AppendLine("");
             message.AppendLine($"ps:");

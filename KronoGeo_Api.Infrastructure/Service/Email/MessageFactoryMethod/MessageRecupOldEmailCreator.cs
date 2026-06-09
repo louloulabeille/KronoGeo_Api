@@ -8,10 +8,9 @@ using System.Text;
 
 namespace KronoGeo_Api.Infrastructure.Service.Email.MessageFactoryMethod
 {
-    public class MessageChangeEmailCreator(UserManager<IdentityUser> userManager
+    public class MessageRecupOldEmailCreator(UserManager<IdentityUser> userManager
         , IdentityUser user, IOptions<UrlOptions> urlOptions, string lienToken) : MessageCourrielFactory
     {
-
         #region private properties
         private readonly UserManager<IdentityUser> _userManager = userManager;
         private readonly IdentityUser _user = user;
@@ -21,7 +20,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Email.MessageFactoryMethod
 
         public override IMessageMail FactoryMethod()
         {
-            return new MessageChangeEmail(_userManager, _user, _urlOptions, _lienToken);
+            return new MessageRecupOldEmail(_userManager, _user, _urlOptions, _lienToken);
         }
     }
 }

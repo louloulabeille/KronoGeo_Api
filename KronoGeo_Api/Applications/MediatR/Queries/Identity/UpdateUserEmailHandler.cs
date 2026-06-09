@@ -28,7 +28,8 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
 
         #region public method
         /// <summary>
-        /// method qui met à jour le compte user identity
+        /// method qui envoi un mail de confirmation pour le nouveau mail avant mise a jour
+        /// et envoi aussi le mail de récuperation de compte sur l'ancienne adresse mail avant récupération
         /// </summary>
         /// <param name="request"></param>
         /// <param name="cancellationToken"></param>
@@ -53,21 +54,34 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                     && EmailTest.IsValidEmail(request.Register.Email)
                     && request.Register.Email.Trim() != user.Email)
                 {
-                    
                     string token = await _signInManager.UserManager.GenerateChangeEmailTokenAsync(user,request.Register.Email.Trim());
-                    //string token = await _signInManager.UserManager.GenerateEmailConfirmationTokenAsync(user);
-                    var identityResult = await _signInManager.UserManager.ChangeEmailAsync(user, request.Register.Email.Trim(), token);
+                    string tokenRecupt = await _signInManager.UserManager.GenerateChangeEmailTokenAsync(user, user.Email?? throw new ArgumentNullException($"Email null for account {user.UserName}."));
+                    string urlNewMail = GenerateUrl.GenerationUrlEmailUpdate(_urlOptions, user, request.Register.Email.Trim(), token);
+                    string urlRecupAccount = GenerateUrl.GenerationUrlRecupAccount(_urlOptions, user, request.Register.Email.Trim());
+
+                    // - Send confirmation email 
+                    var mailAuto = new ApiMailIdentity(_serviceSendMail, _logger);
+                    var recuptMail = mailAuto.SendEmail(user, new MessageRecupOldEmailCreator(_signInManager.UserManager, user, _urlOptions, urlRecupAccount));
+
+                    // - on envoi le mail le récupération si tout est ok
+                    if (recuptMail.Status == EmailResultStatus.Success )
+                    {
+                        _logger.LogDebug("Url {url} de récuperation de compte utilisateur pour le compte : {login} ", urlRecupAccount, user.UserName);
+                        var resultEmail = mailAuto.SendEmail(user, new MessageChangeEmailCreator(_signInManager.UserManager, user, _urlOptions, urlNewMail));
+                        if (resultEmail.Status == EmailResultStatus.Success) { 
+                            _logger.LogDebug("Url {url} d'authentificatrion de modification de mail pour le compte : {login} ", urlNewMail, user.UserName);
+                            result.IdentityResult = IdentityResult.Success;
+                            return result;
+                        }
+                    }
+
+                    result.IdentityResult = IdentityResult.Failed(new IdentityError { Description = "Internal error or email not found." });
+                    /*var identityResult = await _signInManager.UserManager.ChangeEmailAsync(user, request.Register.Email.Trim(), token);
                     if (identityResult.Succeeded)
                     {
-                        /*result.Register.Email = request.Register.Email.Trim();
-                        string url = GenerateUrl.GenerationUrlAuthentification(_urlOptions, user, token);
-                        _logger.LogInformation("{url} - changement de l'adresse mail de {login}", url, result.Register.Login);
-*/
-                        // - Send confirmation email 
-                        var MailAuto = new ApiMailIdentity(_serviceSendMail, _logger);
-                        var resultEmail = MailAuto.SendEmail(user, new MessageChangeEmailCreator(_signInManager.UserManager, user, _urlOptions));
+                        
                     }
-                    result.IdentityResult = identityResult;
+                    result.IdentityResult = identityResult;*/
                 }
                 else
                 {
@@ -76,7 +90,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while processing change password for user {Login}.", result.Register.Login);
+                _logger.LogError(ex, "An error occurred while processing change email for user {Login}.", result.Register.Login);
                 result.IdentityResult = IdentityResult.Failed(new IdentityError { Description="Internal Error." }); 
             }
 

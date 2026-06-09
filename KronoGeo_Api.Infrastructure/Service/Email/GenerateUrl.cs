@@ -46,6 +46,43 @@ namespace KronoGeo_Api.Infrastructure.Service.Email
         }
 
         /// <summary>
+        /// génération url pour l'authentification du mail sans définir le token dedans et prend en
+        /// paramètre email 
+        /// </summary>
+        /// <param name="urlOptions"></param>
+        /// <param name="user"></param>
+        /// <param name="email"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public static string GenerationUrlEmailUpdate(IOptions<UrlOptions> urlOptions, IdentityUser user, string email,string token)
+        {
+            string encodedToken = EncodingMessage(token);
+            string encodedId = EncodingMessage(user.Id);
+            string encodedEmail = EncodingMessage(email);
+
+            var url = new Uri($"{urlOptions.Value.UrlEmailAuthentification}/{encodedId}/{encodedEmail}/{encodedToken}");
+            return url.ToString();
+        }
+
+        /// <summary>
+        /// Génération url pour la récupération du compte lors du changement 
+        /// </summary>
+        /// <param name="urlOptions"></param>
+        /// <param name="user"></param>
+        /// <param name="email"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public static string GenerationUrlRecupAccount(IOptions<UrlOptions> urlOptions, IdentityUser user, string token)
+        {
+            string encodedToken = EncodingMessage(token);
+            string encodedId = EncodingMessage(user.Id);
+            string encodedEmail = EncodingMessage(user.Email?? throw new NullReferenceException($"Email is null, account {user.UserName}."));
+
+            var url = new Uri($"{urlOptions.Value.UrlRecupEmail}/{encodedId}/{encodedEmail}/{encodedToken}");
+            return url.ToString();
+        }
+
+        /// <summary>
         /// method d'encodage pour echange des datas en web
         /// </summary>
         /// <param name="entry"></param>
