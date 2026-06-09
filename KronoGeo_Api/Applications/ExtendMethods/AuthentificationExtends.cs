@@ -57,6 +57,7 @@ namespace KronoGeo_Api.Applications.ExtendMethods
                     options.TokenLifespan = TimeSpan.FromHours(24);
                 });
 
+                // - durée de vie pour les tokens de validations email 3 jours 
                 services.Configure<EmailConfirmationTokenProviderOptions>(options =>
                 {
                     options.TokenLifespan = TimeSpan.FromDays(3);
