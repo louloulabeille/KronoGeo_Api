@@ -131,50 +131,8 @@ namespace KronoGeo_Api.Controllers
         }
         #endregion
 
-        #region public action method ConfirmEmail
-        [HttpGet("ConfirmEmail/{user}/{token}")]
-        [AllowAnonymous]
-        public async Task<IActionResult> ConfirmEmail(string user, string token)
-        {
-            try
-            {
-                var result = await _mediaR.Send(new ConfirmEmailCommand() { Id = user, Token = token });
-                if (result.IdentityResult is not null && result.IdentityResult.Succeeded)
-                {
-                    return this.Ok("Email confirmed successfully.");
-                }
+        
 
-                if (result.IdentityResult is not null)
-                    return this.BadRequest(result.IdentityResult.Errors);
-
-                throw new Exception("ConfirmEmail erreur interne du handler - pas de result.Result IdentityResult manquant.");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while confirming email for user {user}.", user);
-                return this.Problem("An error occurred while processing your request.");
-            }
-        }
-        #endregion
-
-        #region action method Update Identity
-        [HttpPost("Update")]
-        [Authorize(Roles = "Admin,User,Manager")]
-        // - Modification du compte utilisateur
-        // - Passworld & email 
-        public async Task<IActionResult> UpdateUser([FromForm]RegisterDTO register)
-        {
-            try
-            {
-
-                var result = _mediaR.Send(new UpdateUserEmailCommand() { Register = register });
-            }
-            catch (Exception ex) {
-                _logger.LogError(ex, "An error occurred while deleting user {register.login}.", register.Login);
-                return this.Problem("An error occurred while processing your request.");
-            }
-            return this.Ok();
-        }
-        #endregion
+        
     }
 }

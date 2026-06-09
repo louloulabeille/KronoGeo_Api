@@ -53,16 +53,19 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                     && EmailTest.IsValidEmail(request.Register.Email)
                     && request.Register.Email.Trim() != user.Email)
                 {
-
-                    string token = await _signInManager.UserManager.GenerateEmailConfirmationTokenAsync(user);
+                    
+                    string token = await _signInManager.UserManager.GenerateChangeEmailTokenAsync(user,request.Register.Email.Trim());
+                    //string token = await _signInManager.UserManager.GenerateEmailConfirmationTokenAsync(user);
                     var identityResult = await _signInManager.UserManager.ChangeEmailAsync(user, request.Register.Email.Trim(), token);
                     if (identityResult.Succeeded)
                     {
+                        /*result.Register.Email = request.Register.Email.Trim();
                         string url = GenerateUrl.GenerationUrlAuthentification(_urlOptions, user, token);
-
+                        _logger.LogInformation("{url} - changement de l'adresse mail de {login}", url, result.Register.Login);
+*/
                         // - Send confirmation email 
                         var MailAuto = new ApiMailIdentity(_serviceSendMail, _logger);
-                        var resultEmail = MailAuto.SendEmail(user, new MessageChangeEmailCreator(_signInManager.UserManager, user, _urlOptions, url));
+                        var resultEmail = MailAuto.SendEmail(user, new MessageChangeEmailCreator(_signInManager.UserManager, user, _urlOptions));
                     }
                     result.IdentityResult = identityResult;
                 }

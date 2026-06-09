@@ -64,7 +64,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                     // - 
                     if (resultEmail.Status == EmailResultStatus.Failure)
                     {
-                        _logger.LogError(resultEmail.Message, $"Error send mail for {user.UserName}");
+                        _logger.LogError("{message} - Error send mail for {userName}", resultEmail.Message, user.UserName);
                     }
                 }
                 
