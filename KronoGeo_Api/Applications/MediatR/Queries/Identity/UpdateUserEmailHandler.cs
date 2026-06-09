@@ -61,13 +61,13 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
 
                     // - Send confirmation email 
                     var mailAuto = new ApiMailIdentity(_serviceSendMail, _logger);
-                    var recuptMail = mailAuto.SendEmail(user, new MessageRecupOldEmailCreator(_signInManager.UserManager, user, _urlOptions, urlRecupAccount));
+                    var recuptMail = mailAuto.SendEmail(user, new MessageRecupOldEmailCreator(_signInManager.UserManager, user, _urlOptions, urlRecupAccount),"Mail de récupération de l'ancienne adresse mail.");
 
                     // - on envoi le mail le récupération si tout est ok
                     if (recuptMail.Status == EmailResultStatus.Success )
                     {
                         _logger.LogDebug("Url {url} de récuperation de compte utilisateur pour le compte : {login} ", urlRecupAccount, user.UserName);
-                        var resultEmail = mailAuto.SendEmail(user, new MessageChangeEmailCreator(_signInManager.UserManager, user, _urlOptions, urlNewMail));
+                        var resultEmail = mailAuto.SendEmail(user, new MessageChangeEmailCreator(_signInManager.UserManager, user, _urlOptions, urlNewMail),"Mail de validation de changement de votre adresse mail.");
                         if (resultEmail.Status == EmailResultStatus.Success) { 
                             _logger.LogDebug("Url {url} d'authentificatrion de modification de mail pour le compte : {login} ", urlNewMail, user.UserName);
                             result.IdentityResult = IdentityResult.Success;
