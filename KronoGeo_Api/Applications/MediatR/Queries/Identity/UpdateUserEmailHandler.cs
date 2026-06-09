@@ -66,26 +66,24 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                     // - on envoi le mail le récupération si tout est ok
                     if (recuptMail.Status == EmailResultStatus.Success )
                     {
-                        _logger.LogDebug("Url {url} de récuperation de compte utilisateur pour le compte : {login} ", urlRecupAccount, user.UserName);
-                        var resultEmail = mailAuto.SendEmail(user, new MessageChangeEmailCreator(_signInManager.UserManager, user, _urlOptions, urlNewMail),"Mail de validation de changement de votre adresse mail.");
+                        //_logger.LogDebug("Url {url} de récuperation de compte utilisateur pour le compte : {login} ", urlRecupAccount, user.UserName);
+                        
+                        var resultEmail = mailAuto.SendEmail(request.Register.Email, new MessageChangeEmailCreator(_signInManager.UserManager, user, _urlOptions, urlNewMail),"Mail de validation de changement de votre adresse mail.");
                         if (resultEmail.Status == EmailResultStatus.Success) { 
-                            _logger.LogDebug("Url {url} d'authentificatrion de modification de mail pour le compte : {login} ", urlNewMail, user.UserName);
+                            //_logger.LogDebug("Url {url} d'authentificatrion de modification de mail pour le compte : {login} ", urlNewMail, user.UserName);
                             result.IdentityResult = IdentityResult.Success;
                             return result;
                         }
                     }
 
                     result.IdentityResult = IdentityResult.Failed(new IdentityError { Description = "Internal error or email not found." });
-                    /*var identityResult = await _signInManager.UserManager.ChangeEmailAsync(user, request.Register.Email.Trim(), token);
-                    if (identityResult.Succeeded)
-                    {
-                        
-                    }
-                    result.IdentityResult = identityResult;*/
+                    _logger.LogError("An error occurred while processing land email for user {Login}. old mail :{old} && new mail : {new}", user.UserName, user.Email, request.Register.Email);
+                    
                 }
                 else
                 {
                     result.IdentityResult = IdentityResult.Failed(new IdentityError { Description = "Email invalid" });
+                    _logger.LogError("New Email invalid {new} for {user}", request.Register.Email, user.UserName);
                 }
             }
             catch (Exception ex)

@@ -49,23 +49,27 @@ namespace KronoGeo_Api.Controllers
         {
             try
             {
-                var result = await _mediaR.Send(new ConfirmEmailCommand() { Id = user, Token = token });
-                /*if (result.IdentityResult is not null && result.IdentityResult.Succeeded)
+                var result = await _mediaR.Send(new ConfirmUpdateOrNotEmailCommand()
+                { 
+                    Id = user, 
+                    Token = token,
+                    Email = email
+                });
+                if (result.IdentityResult is not null && result.IdentityResult.Succeeded)
                 {
-                    return this.Ok("Email confirmed successfully.");
+                    return this.Ok("Email change successfully.");
                 }
 
                 if (result.IdentityResult is not null)
                     return this.BadRequest(result.IdentityResult.Errors);
 
-                throw new Exception("ConfirmEmail erreur interne du handler - pas de result.Result IdentityResult manquant.");*/
+                throw new Exception("Confirm update Email erreur interne du handler.");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while confirming email for user {user}.", user);
                 return this.Problem("An error occurred while processing your request.");
             }
-            return this.Ok();
         }
 
         [HttpGet("ConfirmRecupEmail/{user}/{email}/{token}")]

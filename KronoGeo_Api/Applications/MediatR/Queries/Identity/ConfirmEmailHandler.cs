@@ -21,7 +21,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
             string id = GenerateUrl.DecodingMessage(request.Id);
             string token = GenerateUrl.DecodingMessage(request.Token);
 
-            var user = await _signInManager.UserManager.FindByIdAsync(id);;
+            var user = await _signInManager.UserManager.FindByIdAsync(id);
 
             if (user is null)
             {

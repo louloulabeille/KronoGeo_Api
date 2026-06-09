@@ -22,7 +22,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Email.MessageFactoryMethod
         {
             StringBuilder message = new();
             message.AppendLine($"<h1>Bonjour {_user.UserName} </h1>");
-            message.AppendLine("<p>Mail de récupération de votre compte en cas de changement d'adresse mail. Le lien ci-dessous sert à récupérer votre ancienne adresse mail pour votre compte. Changez vtre mot de passe si votre compte a été piraté.</p>");
+            message.AppendLine("<p>Mail de récupération de votre compte en cas de changement d'adresse mail. Le lien ci-dessous sert à récupérer votre ancienne adresse mail pour votre compte. Changez votre mot de passe si votre compte a été piraté.</p>");
             message.AppendLine($"<a href='{_lienToken}' target='_blank'>Confirmer mon adresse email</a>");
             message.AppendLine("<p>Attention : ce lien expire dans 24 heures. Ne prennez pas en compte ce mail, si le changment d'adresse mail est correct.</p>");
             message.AppendLine("<p>Cordialement,</p>");

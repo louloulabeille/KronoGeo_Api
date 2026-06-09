@@ -1,8 +1,10 @@
 ﻿using KronoGeo_Api.Infrastructure.Service.Email.MessageFactoryMethod;
+using KronoGeo_Api.Infrastructure.Test;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models.Infrastructure.Email;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace KronoGeo_Api.Applications.Email
 {
@@ -31,6 +33,12 @@ namespace KronoGeo_Api.Applications.Email
             return SendEmail(user, objectMessage, null);
         }
 
+
+        public MessageResult SendEmail(string emailUser, MessageCourrielFactory objectMessage,string? subject)
+        {
+            var user = new IdentityUser(emailUser) { Email = emailUser };
+            return SendEmail(user, objectMessage, subject);
+        }
 
         /// <summary>
         /// Method d'envoi du mail qui se fait automatique dans l'API

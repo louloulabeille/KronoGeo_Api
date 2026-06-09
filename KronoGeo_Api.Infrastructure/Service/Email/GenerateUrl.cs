@@ -60,7 +60,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Email
             string encodedId = EncodingMessage(user.Id);
             string encodedEmail = EncodingMessage(email);
 
-            var url = new Uri($"{urlOptions.Value.UrlEmailAuthentification}/{encodedId}/{encodedEmail}/{encodedToken}");
+            var url = new Uri($"{urlOptions.Value.UrlUpdateEmail}/{encodedId}/{encodedEmail}/{encodedToken}");
             return url.ToString();
         }
 

@@ -25,7 +25,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Email.MessageFactoryMethod
             message.AppendLine($"<h1>Bonjour {_user.UserName} </h1>");
             message.AppendLine("<p>Pour valider le changment de votre adresse mail sur ce compte , vous devez valider ce lien : </p>");
             message.AppendLine($"<a href='{_lienToken}' target='_blank'>Confirmer mon adresse email</a>");
-            message.AppendLine("<p>Attention : ce lien expire dans 24 heures. Si vous n'avez jamais demandé la modification de votre email, vous allez recevoir un lien pour récupérer votre ancienne adresse mail avec votre ancienne adresse mail.</p>");
+            message.AppendLine("<p>Attention : ce lien expire dans 24 heures. Si vous n'avez jamais demandé la modification de votre email, vous allez recevoir un lien pour récupérer votre adresse mail. Faites un changement de mot de passe si votre compte a été piraté.</p>");
             message.AppendLine("<p>Cordialement,</p>");
             message.AppendLine("");
             message.AppendLine($"ps:");
