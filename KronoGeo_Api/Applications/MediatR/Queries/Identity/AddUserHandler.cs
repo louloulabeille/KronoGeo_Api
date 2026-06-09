@@ -59,6 +59,13 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                     // - Send confirmation email 
                     var MailAuto = new ApiMailIdentity(_serviceSendMail, _logger);
                     var resultEmail = MailAuto.SendEmail(user, new MessageAuthentificationCreator(_signInManager.UserManager, user, _urlOptions));
+
+                    // - il faudra modifier toutes cette partie pour gérer la possilité de renvoyer le mail
+                    // - 
+                    if (resultEmail.Status == EmailResultStatus.Failure)
+                    {
+                        _logger.LogError(resultEmail.Message, $"Error send mail for {user.UserName}");
+                    }
                 }
                 
             }
@@ -67,7 +74,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                 _logger.LogError(ex, "An error occurred while processing login for user {Login}.", ex.Message);
                 // - en cas d'erreur, on peut choisir de retourner un résultat spécifique ou de propager l'exception
                 // pour le moment on retourne un résultat avec SignInResult null pour indiquer une erreur
-                registerIdentity.SignInResult = null;
+                registerIdentity.SignInResult = SignInResult.Failed;
             }
 
             return registerIdentity;
