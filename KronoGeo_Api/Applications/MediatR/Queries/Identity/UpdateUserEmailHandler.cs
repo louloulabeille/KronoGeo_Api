@@ -54,26 +54,19 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                     && EmailTest.IsValidEmail(request.Register.Email)
                     && request.Register.Email.Trim() != user.Email)
                 {
-                    string token = await _signInManager.UserManager.GenerateChangeEmailTokenAsync(user,request.Register.Email.Trim());
-                    string tokenRecupt = await _signInManager.UserManager.GenerateChangeEmailTokenAsync(user, user.Email?? throw new ArgumentNullException($"Email null for account {user.UserName}."));
+                    
+                    
+                    string token = await _signInManager.UserManager.GenerateChangeEmailTokenAsync(user, request.Register.Email.Trim());
                     string urlNewMail = GenerateUrl.GenerationUrlEmailUpdate(_urlOptions, user, request.Register.Email.Trim(), token);
-                    string urlRecupAccount = GenerateUrl.GenerationUrlRecupAccount(_urlOptions, user, tokenRecupt);
 
-                    // - Send confirmation email 
+                    // - email de recuperation 
                     var mailAuto = new ApiMailIdentity(_serviceSendMail, _logger);
-                    var recuptMail = mailAuto.SendEmail(user, new MessageRecupOldEmailCreator(_signInManager.UserManager, user, _urlOptions, urlRecupAccount),"Mail de récupération de l'ancienne adresse mail.");
-
-                    // - on envoi le mail le récupération si tout est ok
-                    if (recuptMail.Status == EmailResultStatus.Success )
-                    {
-                        //_logger.LogDebug("Url {url} de récuperation de compte utilisateur pour le compte : {login} ", urlRecupAccount, user.UserName);
-                        
-                        var resultEmail = mailAuto.SendEmail(request.Register.Email, new MessageChangeEmailCreator(_signInManager.UserManager, user, _urlOptions, urlNewMail),"Mail de validation de changement de votre adresse mail.");
-                        if (resultEmail.Status == EmailResultStatus.Success) { 
-                            //_logger.LogDebug("Url {url} d'authentificatrion de modification de mail pour le compte : {login} ", urlNewMail, user.UserName);
-                            result.IdentityResult = IdentityResult.Success;
-                            return result;
-                        }
+                
+                    var resultEmail = mailAuto.SendEmail(request.Register.Email, new MessageChangeEmailCreator(_signInManager.UserManager, user, _urlOptions, urlNewMail),"Mail de validation de changement de votre adresse mail.");
+                    if (resultEmail.Status == EmailResultStatus.Success) { 
+                        //_logger.LogDebug("Url {url} d'authentificatrion de modification de mail pour le compte : {login} ", urlNewMail, user.UserName);
+                        result.IdentityResult = IdentityResult.Success;
+                        return result;
                     }
 
                     result.IdentityResult = IdentityResult.Failed(new IdentityError { Description = "Internal error or email not found." });

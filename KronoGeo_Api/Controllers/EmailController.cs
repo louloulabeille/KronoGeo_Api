@@ -53,11 +53,18 @@ namespace KronoGeo_Api.Controllers
                 { 
                     Id = user, 
                     Token = token,
-                    Email = email
+                    Email = email,
+                    Recup = true // - envoi du mail de récupération vers l'ancienne adresse mail
                 });
-                if (result.IdentityResult is not null && result.IdentityResult.Succeeded)
+                if (result.IdentityResult is not null && result.IdentityResult.Succeeded && result.SignInResult is null )
                 {
                     return this.Ok("Email change successfully.");
+                }
+
+                // - le changement de l'adresse mail ok mais l'envoi du mail de récuperation n'a pas été envoyé
+                if (result.IdentityResult is not null && result.IdentityResult.Succeeded && result.SignInResult is not null)
+                {
+                    return this.Ok("Email change successfully. But email recovery failed.");
                 }
 
                 if (result.IdentityResult is not null)
@@ -82,7 +89,8 @@ namespace KronoGeo_Api.Controllers
                 {
                     Id = user,
                     Token = token,
-                    Email = email
+                    Email = email,
+                    Recup = false
                 });
                 if (result.IdentityResult is not null && result.IdentityResult.Succeeded)
                 {
