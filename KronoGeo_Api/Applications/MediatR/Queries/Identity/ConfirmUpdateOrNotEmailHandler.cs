@@ -1,4 +1,5 @@
-﻿using KronoGeo_Api.Applications.MediatR.Commands.Identity;
+﻿using KronoGeo_Api.Applications.Authentification;
+using KronoGeo_Api.Applications.MediatR.Commands.Identity;
 using KronoGeo_Api.Applications.Model.DTO;
 using KronoGeo_Api.Infrastructure.Service.Email;
 using MediatR;
@@ -33,8 +34,13 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
 
             try
             {
-                var identityResult = await _signInManager.UserManager.ChangeEmailAsync(user, decodeMail, decodeToken);
-                result.IdentityResult = identityResult;
+                if ( decodeMail != user.Email )
+                {
+                    var identityResult = await _signInManager.UserManager.ChangeEmailAsync(user, decodeMail, decodeToken);
+                    result.IdentityResult = identityResult;
+                    if( identityResult.Succeeded) // - modifie le token
+                        result.Register.Token = await SecurityTokenGenerate.GenerateJwtToken(user, _keyBearer.Value, _signInManager.UserManager);
+                }
             }
             catch (Exception ex)
             {

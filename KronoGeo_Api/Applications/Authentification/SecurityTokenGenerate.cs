@@ -35,6 +35,7 @@ namespace KronoGeo_Api.Applications.Authentification
             claims.Add(new Claim("Id", user.Id));
             claims.Add(new Claim(JwtRegisteredClaimNames.Sub, user.UserName ?? user.Email!));
             claims.Add(new Claim(JwtRegisteredClaimNames.Email, user.Email!));
+            claims.Add(new Claim("SecurityStamp", user.SecurityStamp??string.Empty));
             claims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
             var roles = await userManager.GetRolesAsync(user);
 

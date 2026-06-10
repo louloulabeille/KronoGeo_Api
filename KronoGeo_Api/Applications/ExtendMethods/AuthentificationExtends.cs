@@ -4,6 +4,7 @@ using KronoGeo_Api.Infrastructure.Database;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 
 namespace KronoGeo_Api.Applications.ExtendMethods
@@ -49,8 +50,8 @@ namespace KronoGeo_Api.Applications.ExtendMethods
                 })
                     .AddRoles<IdentityRole>() // - permet la mise en place de rôles pour les utilisateurs
                     .AddEntityFrameworkStores<KronoGeoDbContext>()
-                    .AddDefaultTokenProviders() // - mise en place de la vérification du token
-                    .AddTokenProvider<EmailConfirmationTokenProvider<IdentityUser>>("EmailConfirmation");
+                    .AddTokenProvider<EmailConfirmationTokenProvider<IdentityUser>>("EmailConfirmation")
+                    .AddDefaultTokenProviders(); // - mise en place de la vérification du token
 
                 // - configuration de la durée de vie du token 24h par défaut 24h
                 services.Configure<DataProtectionTokenProviderOptions>(options => {
@@ -101,6 +102,30 @@ namespace KronoGeo_Api.Applications.ExtendMethods
                         ValidateIssuer = cle.ValidateIssuer,
                         ValidateActor = cle.ValidateActor, // - valider l'acteur qui est à l'origine de la demande d'authentification OAuth2.0
                         ValidateLifetime = cle.ValidateLifetime,    // durée de vie à paramétrer lors de la création du token envoyer vers l'user
+                    };
+
+                    // - mise en place du control de SecurityStamp pour mieux protéger le compte
+                    // - si le compte est modifié le SecurityStamp est automatiquement changé dans la base de donnée
+                    // - le token ne sera plus valid
+                    options.Events = new JwtBearerEvents()
+                    {
+                        OnTokenValidated = async tokenValidateContext =>
+                        {
+                            var userManager     = tokenValidateContext.HttpContext.RequestServices.GetRequiredService<UserManager<IdentityUser>>();
+                            var claimPrincipal  = tokenValidateContext.Principal;
+                            var idUser          = claimPrincipal?.FindFirstValue("Id");
+                            var securityStamp = claimPrincipal?.FindFirstValue("SecurityStamp");
+                            var user = await userManager.FindByIdAsync(idUser??string.Empty);
+                            if ( user is null )
+                            {
+                                tokenValidateContext.Fail("User not found");
+                                return;
+                            }
+                            if ( !string.IsNullOrEmpty(user!.SecurityStamp) && user.SecurityStamp != securityStamp ){
+                                tokenValidateContext.Fail("Token has been invalidated. Please log in again.");
+                                return;
+                            }
+                        }
                     };
                 });
 

@@ -57,7 +57,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                     string token = await _signInManager.UserManager.GenerateChangeEmailTokenAsync(user,request.Register.Email.Trim());
                     string tokenRecupt = await _signInManager.UserManager.GenerateChangeEmailTokenAsync(user, user.Email?? throw new ArgumentNullException($"Email null for account {user.UserName}."));
                     string urlNewMail = GenerateUrl.GenerationUrlEmailUpdate(_urlOptions, user, request.Register.Email.Trim(), token);
-                    string urlRecupAccount = GenerateUrl.GenerationUrlRecupAccount(_urlOptions, user, request.Register.Email.Trim());
+                    string urlRecupAccount = GenerateUrl.GenerationUrlRecupAccount(_urlOptions, user, tokenRecupt);
 
                     // - Send confirmation email 
                     var mailAuto = new ApiMailIdentity(_serviceSendMail, _logger);
