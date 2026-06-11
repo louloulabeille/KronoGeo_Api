@@ -12,7 +12,7 @@ using Microsoft.Extensions.Options;
 
 namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
 {
-    public class UpdateUserEmailHandler( ILogger<AddUserHandler> logger
+    public class UpdateUserEmailHandler( ILogger<UpdateUserEmailHandler> logger
         , IOptions<KeyBearer> keyBearer, SignInManager<IdentityUser> signInManager
         , IServiceSendMessage serviceSendMail
         , IOptions<UrlOptions> urlOptions)

@@ -13,7 +13,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
 {
-    public class ConfirmEmailHandler(ILogger<AddUserHandler> logger
+    public class ConfirmEmailHandler(ILogger<ConfirmEmailHandler> logger
         , IOptions<KeyBearer> keyBearer, SignInManager<IdentityUser> signInManager)
         : UserIdentityHandler(logger, keyBearer, signInManager)
         , IRequestHandler<ConfirmEmailCommand, RegisterIdentity>

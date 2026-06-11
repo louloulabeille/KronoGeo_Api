@@ -121,7 +121,8 @@ namespace KronoGeo_Api.Controllers
                 if (result.IdentityResult is not null)
                     return this.BadRequest(result.IdentityResult.Errors);
 
-                throw new Exception("DeleteUser erreur interne du handler - pas de result.Result IdentityResult manquant.");
+                _logger.LogError("An error occurred while deleting user {id}. pas de IdentityResult", id);
+                return this.Problem("An error occurred while processing your request.");
             }
             catch(Exception ex)
             {
@@ -145,15 +146,24 @@ namespace KronoGeo_Api.Controllers
             
             try
             {
+                var result = await _mediaR.Send(new UpdateUserPasswordCommand { Register = register });
 
+                if (result.IdentityResult is not null && result.IdentityResult.Succeeded)
+                {
+                    return this.Ok("Update password successfully.");
+                }
+
+                if (result.IdentityResult is not null)
+                    return this.BadRequest(result.IdentityResult.Errors);
+
+                _logger.LogError("An error occurred while updating password for user {user}. pas de IdentityResult", register.Login);
+                return this.Problem("An error occurred while processing your request.");
             }
             catch(Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while updating password for user {id}.", register.Login);
                 return this.Problem("An error occurred while processing your request.");
             }
-
-            return this.Ok();
         }
 
         #endregion

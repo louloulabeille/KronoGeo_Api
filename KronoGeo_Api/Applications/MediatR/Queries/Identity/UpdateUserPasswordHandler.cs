@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 
 namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
 {
-    public class UpdateUserPasswordHandler(ILogger<AddUserHandler> logger
+    public class UpdateUserPasswordHandler(ILogger<UpdateUserPasswordHandler> logger
         , IOptions<KeyBearer> keyBearer, SignInManager<IdentityUser> signInManager) 
         : UserIdentityHandler(logger, keyBearer, signInManager)
         , IRequestHandler<UpdateUserPasswordCommand, RegisterIdentity>
@@ -24,12 +24,33 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
         {
             var result = new RegisterIdentity { Register = request.Register };
 
-            if (string.IsNullOrEmpty(request.Register.Password))
-                result.IdentityResult = IdentityResult.Failed(new IdentityError() { Description = "Password failed." });
+            try
+            {
+                if (string.IsNullOrEmpty(request.Register.Password) || string.IsNullOrEmpty(request.Register.NewPassord))
+                {
+                    result.IdentityResult = IdentityResult.Failed(new IdentityError() { Description = "Password failed." });
+                    return result;
+                }
 
+                var user = await _signInManager.UserManager.FindByIdAsync(request.Register.Id)?? 
+                    await _signInManager.UserManager.FindByNameAsync(request.Register.Login);
+
+                if ( user is not null )
+                {
+                    var identityResult = await _signInManager.UserManager.ChangePasswordAsync(user, request.Register.Password, request.Register.NewPassord);
+                    result.IdentityResult = identityResult;
+                }
+                else
+                {
+                    result.IdentityResult = IdentityResult.Failed(new IdentityError() { Description = "User not found." });
+                }
+
+            }
+            catch (Exception ex) {
+                _logger.LogError(ex, "An error occurred while processing change password for user {Login}.", result.Register.Login);
+                result.IdentityResult = IdentityResult.Failed(new IdentityError { Description = "Internal Error." });
+            }
             
-
-
             return result;
         }
     }
