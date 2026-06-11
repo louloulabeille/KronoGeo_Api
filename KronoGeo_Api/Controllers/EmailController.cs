@@ -19,6 +19,12 @@ namespace KronoGeo_Api.Controllers
 
 
         #region public action method Confirmation Email
+        /// <summary>
+        /// action de confirmation du mail quand le compte a été créé
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
         [HttpGet("ConfirmEmail/{user}/{token}")]
         [AllowAnonymous]
         public async Task<IActionResult> ConfirmEmail(string user, string token)
@@ -34,7 +40,9 @@ namespace KronoGeo_Api.Controllers
                 if (result.IdentityResult is not null)
                     return this.BadRequest(result.IdentityResult.Errors);
 
-                throw new Exception("ConfirmEmail erreur interne du handler - pas de result.Result IdentityResult manquant.");
+
+                _logger.LogCritical("Erreur critique dans la confirmation de mail pour {user} & token : {token}", user , token)
+                return this.BadRequest("Internal Error.");
             }
             catch (Exception ex)
             {
@@ -43,6 +51,13 @@ namespace KronoGeo_Api.Controllers
             }
         }
 
+        /// <summary>
+        /// Action de modification de l'adresse mail et de vérification du nouveau mail
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="email"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
         [HttpGet("ConfirmUpdateEmail/{user}/{email}/{token}")]
         [AllowAnonymous]
         public async Task<IActionResult> ConfirmUpdateEmail(string user, string email, string token)
@@ -79,6 +94,14 @@ namespace KronoGeo_Api.Controllers
             }
         }
 
+
+        /// <summary>
+        /// Action pour la récupération de l'adresse mail
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="email"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
         [HttpGet("ConfirmRecupEmail/{user}/{email}/{token}")]
         [AllowAnonymous]
         public async Task<IActionResult> ConfirmRecupEmail(string user, string email, string token)
@@ -90,7 +113,7 @@ namespace KronoGeo_Api.Controllers
                     Id = user,
                     Token = token,
                     Email = email,
-                    Recup = false
+                    Recup = false // - non envoi vers l'ancienne adresse mail pour la récupération
                 });
                 if (result.IdentityResult is not null && result.IdentityResult.Succeeded)
                 {
@@ -111,10 +134,13 @@ namespace KronoGeo_Api.Controllers
         #endregion
 
         #region action method Update Identity Email
+        /// <summary>
+        /// action qui prépare la modification du mail par l'envoi du lien de confirmation  
+        /// </summary>
+        /// <param name="register"></param>
+        /// <returns></returns>
         [HttpPost("UpdateEmail")]
         [Authorize(Roles = "Admin,User,Manager")]
-        // - Modification du compte utilisateur
-        // - Passworld & email 
         public async Task<IActionResult> UpdateEmail([FromBody] RegisterDTO register)
         {
             try

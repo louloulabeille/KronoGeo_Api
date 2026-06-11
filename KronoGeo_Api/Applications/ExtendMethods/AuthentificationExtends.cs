@@ -11,7 +11,7 @@ namespace KronoGeo_Api.Applications.ExtendMethods
 {
     public static class AuthentificationExtends
     {
-        private const string _emailConfirmationTokenProviderName = "ConfirmEmail";
+        //private const string _emailConfirmationTokenProviderName = "ConfirmEmail";
 
         extension (IServiceCollection services)
         {

@@ -131,8 +131,32 @@ namespace KronoGeo_Api.Controllers
         }
         #endregion
 
-        
+        #region public action method Password // - mettre aussi dans cette région initialisation password 
+        /// <summary>
+        /// action de modification du mot de passe du compte utilisateur tout en verifiant que son mot de passe
+        /// actuel est ok
+        /// </summary>
+        /// <param name="register"></param>
+        /// <returns></returns>
+        [HttpPost("UpdatePassword")]
+        [Authorize(Roles = "Admin,User,Manager")]
+        public async Task<IActionResult> UpdatePassword([FromBody]RegisterDTO register )
+        {
+            
+            try
+            {
 
-        
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating password for user {id}.", register.Login);
+                return this.Problem("An error occurred while processing your request.");
+            }
+
+            return this.Ok();
+        }
+
+        #endregion
+
     }
 }

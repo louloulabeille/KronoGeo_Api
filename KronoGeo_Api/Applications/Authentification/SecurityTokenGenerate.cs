@@ -10,7 +10,7 @@ namespace KronoGeo_Api.Applications.Authentification
     public class SecurityTokenGenerate
     {
         /// <summary>
-        /// Generation de Token JWT Token, avec prise en charge des roles
+        /// Generation du Token JWT Token, avec prise en charge des roles
         /// </summary>
         /// <param name="user"></param>
         /// <param name="options"></param>
