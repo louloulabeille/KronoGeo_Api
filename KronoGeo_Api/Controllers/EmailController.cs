@@ -41,7 +41,7 @@ namespace KronoGeo_Api.Controllers
                     return this.BadRequest(result.IdentityResult.Errors);
 
 
-                _logger.LogCritical("Erreur critique dans la confirmation de mail pour {user} & token : {token}", user , token)
+                _logger.LogCritical("Erreur critique dans la confirmation de mail pour {user} & token : {token}", user, token);
                 return this.BadRequest("Internal Error.");
             }
             catch (Exception ex)
