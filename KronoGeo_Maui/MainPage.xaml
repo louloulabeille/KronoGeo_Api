@@ -3,17 +3,28 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:KronoGeo_Maui.ModelViews"
              x:DataType="viewmodels:MainPageViewModel"
-             x:Class="KronoGeo_Maui.MainPage">
+             x:Class="KronoGeo_Maui.MainPage"
+             Shell.BackgroundColor="#82706D"
+             Title="">
+    <ScrollView Orientation="Vertical" VerticalScrollBarVisibility="Never" BackgroundColor="#82706D">
+        <VerticalStackLayout Padding="30,50" Spacing="25" 
+                         HorizontalOptions="Center" >
 
- 
-    <VerticalStackLayout
-        Padding="30,0"
-        Spacing="25">
+            <Grid ColumnDefinitions="10,*,10" RowDefinitions="100,*" RowSpacing="40">
+                <Border Grid.Column="1" Grid.Row="0"  StrokeShape="RoundRectangle 90,90,90,90">
+                    
+                    <Image Source="KronoGeo100x100.png" />
+                </Border>
+                <Border Grid.Column="1" Grid.Row="1" StrokeThickness="2" Stroke="LightGrey" StrokeShape="RoundRectangle 10,10,10,10">
+                    <VerticalStackLayout >
+                        <Entry Placeholder="Login" />
+                        <Entry Placeholder="Password" />
+                    </VerticalStackLayout>
+                </Border>
+               
+            </Grid>
 
-        <Label Text="KronoGeo"></Label>
-        <Image Source=""></Image>
-        
-    </VerticalStackLayout>
-  
+        </VerticalStackLayout>
+    </ScrollView>
 
 </ContentPage>
