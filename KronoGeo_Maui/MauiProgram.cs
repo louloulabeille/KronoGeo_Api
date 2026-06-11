@@ -1,7 +1,7 @@
-﻿using KronoGeo_MvvM_Maui.Application.ExtendMethods;
+﻿using KronoGeo_Maui.Applications.ExtendMethods;
 using Microsoft.Extensions.Logging;
 
-namespace KronoGeo_MvvM_Maui
+namespace KronoGeo_Maui
 {
     public static class MauiProgram
     {
@@ -19,7 +19,7 @@ namespace KronoGeo_MvvM_Maui
 #if DEBUG
     		builder.Logging.AddDebug();
 #endif
-            builder.Services.AddMvvmClass();
+            builder.Services.AddMvvmInjection();
 
             return builder.Build();
         }

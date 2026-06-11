@@ -3,10 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:KronoGeo_MvvM_Maui.ViewModels"
              x:DataType="viewmodels:MainPageViewModel"
-             x:Class="KronoGeo_MvvM_Maui.MainPage">
+             x:Class="KronoGeo_MvvM_Maui.MainPage"
+             Title="KronoGeo"
+             Shell.BackgroundColor="#0E1D31"
+             Shell.TitleColor="White"
+             Shell.BackButtonBehavior="{BackButtonBehavior IsVisible=False}">
 
     <ScrollView>
-        <VerticalStackLayout
+        <!--<VerticalStackLayout
             Padding="30,0"
             Spacing="25">
             <Image
@@ -32,7 +36,7 @@
                 SemanticProperties.Hint="Counts the number of times you click"
                 Clicked="OnCounterClicked"
                 HorizontalOptions="Fill" />
-        </VerticalStackLayout>
+        </VerticalStackLayout>-->
     </ScrollView>
 
 </ContentPage>
