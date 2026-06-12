@@ -4,24 +4,80 @@
              xmlns:viewmodels="clr-namespace:KronoGeo_Maui.ModelViews"
              x:DataType="viewmodels:MainPageViewModel"
              x:Class="KronoGeo_Maui.MainPage"
-             Shell.BackgroundColor="#82706D"
+             xmlns:helpers="clr-namespace:KronoGeo_Maui.Applications.Helpers"
              Title="">
-    <ScrollView Orientation="Vertical" VerticalScrollBarVisibility="Never" BackgroundColor="#82706D">
+<!--
+    sur fond noir
+    color-1: #96BD8E;
+    color-2: #9E8EBD;
+    color-3: #BD8EAD;
+    -->
+
+    <ScrollView Orientation="Vertical" VerticalScrollBarVisibility="Never" BackgroundColor="#96BD8E">
         <VerticalStackLayout Padding="30,50" Spacing="25" 
                          HorizontalOptions="Center" >
 
-            <Grid ColumnDefinitions="10,*,10" RowDefinitions="100,*" RowSpacing="40">
-                <Border Grid.Column="1" Grid.Row="0"  StrokeShape="RoundRectangle 90,90,90,90">
-                    
-                    <Image Source="KronoGeo100x100.png" />
+            <Grid ColumnDefinitions="10,*,10" RowDefinitions="100,*,50" RowSpacing="40">
+                <!-- logo en rond-->
+                <Border Grid.Column="1" Grid.Row="0" StrokeThickness="1" WidthRequest="100"
+                        StrokeShape="RoundRectangle 90,90,90,90" Background="#51638B">
+                    <Image Source="logo_kronogeo_660x660.png" />
                 </Border>
-                <Border Grid.Column="1" Grid.Row="1" StrokeThickness="2" Stroke="LightGrey" StrokeShape="RoundRectangle 10,10,10,10">
-                    <VerticalStackLayout >
-                        <Entry Placeholder="Login" />
-                        <Entry Placeholder="Password" />
+                <!-- zone de saisie-->
+                <Border Grid.Column="1" Grid.Row="1" StrokeShape="RoundRectangle 10,10,10,10"
+                        BackgroundColor="#F9EDE1" Padding="15" MinimumWidthRequest="300">
+                    
+                    <VerticalStackLayout Spacing="20">
+                        <HorizontalStackLayout>
+                            <Label
+                                Padding="0,5,0,0"
+                                FontFamily="MaterialIcons-Regular" 
+                                Text="{x:Static helpers:MaterialDesignIconsFonts.Person}"
+                                FontSize="30"
+                                HorizontalOptions="Center"
+                                TextColor="#51638B">
+                            </Label>
+                            <Entry Placeholder="login" MinimumWidthRequest="230"
+                                   FontSize="14" TextColor="#51638B"/>
+                            <!--<Label Padding="-19,5,0,0" FontFamily="MaterialIcons-Regular" 
+                                Text="{x:Static helpers:MaterialDesignIconsFonts.Groups}"
+                                FontSize="20" HorizontalOptions="Center" TextColor="#51808B"/>
+                            -->
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout >
+                            <Label
+                                Padding="0,5,0,0"
+                                FontFamily="MaterialIcons-Regular" 
+                                Text="{x:Static helpers:MaterialDesignIconsFonts.Lock}"
+                                FontSize="30"
+                                HorizontalOptions="Center"
+                                TextColor="#51638B">
+                            </Label>
+                            <Entry Placeholder="Mot de passe" IsPassword="{Binding IsPassword}" MinimumWidthRequest="240"
+                                   FontSize="14" TextColor="#51638B" MaximumWidthRequest="230"
+                                   />
+                            <!--{x:Static helpers:MaterialDesignIconsFonts.Visibility_off} -->
+                            <Button 
+                                Padding="-50,-10,0,0"
+                                FontFamily="MaterialIcons-Regular" 
+                                Text="{Binding Btn_IsPasswordTxt}" 
+                                FontSize="20"
+                                HorizontalOptions="Center"
+                                BackgroundColor="Transparent"
+                                TextColor="#51808B"               
+                                Command="{Binding IsVisibilityPasswordCommand}"/>
+                        </HorizontalStackLayout>
                     </VerticalStackLayout>
                 </Border>
-               
+                <!-- btn de validation -->
+                <VerticalStackLayout Grid.Row="2" Grid.Column="1" HorizontalOptions="Center">
+                    <Border StrokeThickness="0" MinimumWidthRequest="170" 
+                            StrokeShape="RoundRectangle 30,30,30,30">
+                        <Button Text="Se connecter" WidthRequest="170"
+                            BackgroundColor="#F9EDE1"/>    
+                    </Border>
+                    
+                </VerticalStackLayout>
             </Grid>
 
         </VerticalStackLayout>
