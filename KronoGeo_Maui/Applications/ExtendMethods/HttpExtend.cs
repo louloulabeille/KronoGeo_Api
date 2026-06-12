@@ -1,12 +1,9 @@
-﻿using KronoGeo_Api.Infrastructure.Service.HttpClient;
+﻿using KronoGeo_Api.Infrastructure.Service.Http;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models.Infrastructure.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Polly;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace KronoGeo_Maui.Applications.ExtendMethods
 {
