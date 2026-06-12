@@ -26,8 +26,8 @@ namespace KronoGeo_Maui
 
             #region AddHttpClient
             builder.Configuration.AddAppsettingsConfiguration();
-            builder.Services.AddUrlApiOptions(builder.Configuration);
-
+            builder.Services.AddUrlApiOptions( builder.Configuration );
+            builder.Services.AddHttpClientService( builder.Configuration);
             #endregion
 
             return builder.Build();

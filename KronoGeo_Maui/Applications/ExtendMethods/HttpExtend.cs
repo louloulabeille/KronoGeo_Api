@@ -2,6 +2,7 @@
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models.Infrastructure.Options;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Polly;
 using System;
 using System.Collections.Generic;
@@ -48,13 +49,18 @@ namespace KronoGeo_Maui.Applications.ExtendMethods
             /// ajoute le service AddHttpClient en injection de dépendance
             /// </summary>
             /// <returns></returns>
-            public IServiceCollection AddHttpClientService(IConfiguration config )
+            public IServiceCollection AddHttpClientService( IConfiguration configuration )
             {
-
+                // - HttpClient utilisé par injection de dépendance
                 services.AddHttpClient<IServiceHttpKronoGeo, HttpClientKronoGeo>((serviceProvider, client) =>
-                { 
-                    
-                });
+                {
+                    var options = serviceProvider.GetRequiredService<IOptions<UrlApi>>();
+                    client.BaseAddress = new Uri(options.Value.BasicAdress);
+                })  // - nombre d'essai 5 et intervalle en milliseconde i = (50 + i*150)
+                    .AddTransientHttpErrorPolicy(policyBuilder => policyBuilder.WaitAndRetryAsync(
+                        retryCount: 5,
+                        retryNumber => TimeSpan.FromMilliseconds(50 + retryNumber * 150))); ;
+                
                 return services;
             }
 
