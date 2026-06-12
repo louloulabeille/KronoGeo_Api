@@ -1,4 +1,4 @@
-﻿using KronoGeo_Api.Applications.Model.DTO;
+﻿using KronoGeo_Api.Models.Infrastructure.Options;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 

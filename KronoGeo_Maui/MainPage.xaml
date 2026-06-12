@@ -28,32 +28,38 @@
                         BackgroundColor="#F9EDE1" Padding="15" MinimumWidthRequest="300">
                     
                     <VerticalStackLayout Spacing="20">
+                        <Label Text="* Information obligatoire" TextColor="#51638B" 
+                               HorizontalOptions="Start" FontSize="12"/>
                         <HorizontalStackLayout>
                             <Label
-                                Padding="0,5,0,0"
+                                Padding="-5,5,0,0"
                                 FontFamily="MaterialIcons-Regular" 
                                 Text="{x:Static helpers:MaterialDesignIconsFonts.Person}"
                                 FontSize="30"
                                 HorizontalOptions="Center"
                                 TextColor="#51638B">
                             </Label>
-                            <Entry Placeholder="login" MinimumWidthRequest="230"
+                            <Entry Placeholder="Identitiant *" MinimumWidthRequest="230"
                                    FontSize="14" TextColor="#51638B"/>
-                            <!--<Label Padding="-19,5,0,0" FontFamily="MaterialIcons-Regular" 
-                                Text="{x:Static helpers:MaterialDesignIconsFonts.Groups}"
-                                FontSize="20" HorizontalOptions="Center" TextColor="#51808B"/>
-                            -->
+                            <Button 
+                                Padding="-50,-10,0,0"
+                                FontFamily="MaterialIcons-Regular" 
+                                Text="{Binding Btn_IsGestionGroup}" 
+                                FontSize="20"
+                                HorizontalOptions="Center"
+                                BackgroundColor="Transparent"
+                                TextColor="#51808B"/>
                         </HorizontalStackLayout>
                         <HorizontalStackLayout >
                             <Label
-                                Padding="0,5,0,0"
+                                Padding="-5,5,0,0"
                                 FontFamily="MaterialIcons-Regular" 
                                 Text="{x:Static helpers:MaterialDesignIconsFonts.Lock}"
                                 FontSize="30"
                                 HorizontalOptions="Center"
                                 TextColor="#51638B">
                             </Label>
-                            <Entry Placeholder="Mot de passe" IsPassword="{Binding IsPassword}" MinimumWidthRequest="240"
+                            <Entry Placeholder="Mot de passe *" IsPassword="{Binding IsPassword}" MinimumWidthRequest="240"
                                    FontSize="14" TextColor="#51638B" MaximumWidthRequest="230"
                                    />
                             <!--{x:Static helpers:MaterialDesignIconsFonts.Visibility_off} -->
@@ -72,9 +78,9 @@
                 <!-- btn de validation -->
                 <VerticalStackLayout Grid.Row="2" Grid.Column="1" HorizontalOptions="Center">
                     <Border StrokeThickness="0" MinimumWidthRequest="170" 
-                            StrokeShape="RoundRectangle 30,30,30,30">
-                        <Button Text="Se connecter" WidthRequest="170"
-                            BackgroundColor="#F9EDE1"/>    
+                            StrokeShape="RoundRectangle 30,30,30,30" BackgroundColor="#F9EDE1">
+                        <Button Text="Se connecter" WidthRequest="170" BackgroundColor="Transparent"
+                            />    
                     </Border>
                     
                 </VerticalStackLayout>

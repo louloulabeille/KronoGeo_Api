@@ -13,6 +13,8 @@ namespace KronoGeo_Maui.ModelViews
         [ObservableProperty]
         public partial bool IsPassword { get; set; } = true;
         [ObservableProperty]
+        public partial string Btn_IsGestionGroup { get; set; } = MaterialDesignIconsFonts.Groups;
+        [ObservableProperty]
         public partial string Btn_IsPasswordTxt { get; set; } = MaterialDesignIconsFonts.Visibility;
 
         #endregion

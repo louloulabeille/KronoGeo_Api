@@ -1,6 +1,6 @@
 ﻿using KronoGeo_Api.Applications.CustomTokenProviders;
-using KronoGeo_Api.Applications.Model.DTO;
 using KronoGeo_Api.Infrastructure.Database;
+using KronoGeo_Api.Models.Infrastructure.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;

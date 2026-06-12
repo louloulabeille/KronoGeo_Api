@@ -20,7 +20,15 @@ namespace KronoGeo_Maui
 #if DEBUG
     		builder.Logging.AddDebug();
 #endif
+            #region MvvM Injection
             builder.Services.AddMvvmInjection();
+            #endregion
+
+            #region AddHttpClient
+            builder.Configuration.AddAppsettingsConfiguration();
+            builder.Services.AddUrlApiOptions(builder.Configuration);
+
+            #endregion
 
             return builder.Build();
         }

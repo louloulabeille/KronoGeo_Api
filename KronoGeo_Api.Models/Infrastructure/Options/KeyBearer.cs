@@ -1,4 +1,4 @@
-﻿namespace KronoGeo_Api.Applications.Model.DTO
+﻿namespace KronoGeo_Api.Models.Infrastructure.Options
 {
     // - pour le moment les données sont dans secret 
     public class KeyBearer

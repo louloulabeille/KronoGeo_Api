@@ -2,6 +2,7 @@
 using KronoGeo_Api.Applications.MediatR.Commands.Identity;
 using KronoGeo_Api.Applications.MediatR.Queries.Identity;
 using KronoGeo_Api.Applications.Model.DTO;
+using KronoGeo_Api.Models.Infrastructure.Options;
 using KronoGeo_Api.TestUnitaire.Data;
 using MediatR;
 using Microsoft.AspNetCore.Http;

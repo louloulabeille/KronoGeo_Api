@@ -1,6 +1,6 @@
 ﻿using KronoGeo_Api.Applications.Authentification;
 using KronoGeo_Api.Applications.MediatR.Commands.Identity;
-using KronoGeo_Api.Applications.Model.DTO;
+using KronoGeo_Api.Models.Infrastructure.Options;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;

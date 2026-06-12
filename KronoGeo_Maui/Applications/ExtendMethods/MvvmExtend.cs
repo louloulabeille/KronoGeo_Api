@@ -5,7 +5,7 @@ using System.Text;
 
 namespace KronoGeo_Maui.Applications.ExtendMethods
 {
-    public static class MvvmExtendMethod
+    public static class MvvmExtend
     {
         extension ( IServiceCollection services )
         {
