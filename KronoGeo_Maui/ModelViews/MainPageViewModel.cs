@@ -5,6 +5,7 @@ using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Model.DTO;
 using KronoGeo_Maui.Applications.Helpers;
+using KronoGeo_Maui.Applications.Services;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -55,11 +56,18 @@ namespace KronoGeo_Maui.ModelViews
                     };
                     var result = await _http.AuthenticateAsync(user);
 
-                    if(result.IsSuccess)
+                    // - enregistrement 
+                    if(result.IsSuccess && result.Register is not null )
                     {
+                        InMemoriMauiUser inMemoriMauiUser = new ();
+                        await inMemoriMauiUser.SaveUser(result.Register);
                        /* var content = result.Content;
                         var jsonResponse = await result.Content.ReadAsStringAsync();
                         RegisterDTO? userResult = JsonSerializer.Deserialize<RegisterDTO>(jsonResponse, JsonOptions.GetJsonOptions());*/
+                    }
+                    else
+                    { //  - affiche le message
+
                     }
 
 

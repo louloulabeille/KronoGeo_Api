@@ -21,11 +21,11 @@ namespace KronoGeo_Api.Interface.Service
         /// Supprime l'utilisateur dans l'apllication
         /// </summary>
         /// <returns></returns>
-        public bool ClearUser();
+        public void ClearUser();
         /// <summary>
         /// retourne l'utilisateur dans l'apllication
         /// </summary>
         /// <returns></returns>
-        public RegisterDTO GetRegister();
+        public Task<RegisterDTO?> GetRegister();
     }
 }

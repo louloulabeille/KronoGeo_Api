@@ -1,4 +1,6 @@
-﻿using KronoGeo_Maui.Applications.ExtendMethods;
+﻿using KronoGeo_Api.Interface.Service;
+using KronoGeo_Maui.Applications.ExtendMethods;
+using KronoGeo_Maui.Applications.Services;
 using Microsoft.Extensions.Logging;
 
 namespace KronoGeo_Maui
