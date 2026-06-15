@@ -1,6 +1,8 @@
-﻿using KronoGeo_Api.Applications.Model.DTO;
+﻿using KronoGeo_Api.Infrastructure.Applications.Helpers;
 using KronoGeo_Api.Interface.Service;
+using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Infrastructure.Options;
+using KronoGeo_Api.Models.Model.DTO;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -22,12 +24,20 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// </summary>
         /// <param name="register"></param>
         /// <returns></returns>
-        public async Task<HttpResponseMessage> AuthenticateAsync( RegisterDTO register )
+        public async Task<ResponseApiAuthenticate> AuthenticateAsync( RegisterDTO register )
         {
             HttpContent content = new StringContent(JsonSerializer.Serialize(register), Encoding.UTF8, "application/json");
-            using var response = await _httpClient.PostAsync(_options.Value.Login, content);
-            
-            return response;
+            using HttpResponseMessage response = await _httpClient.PostAsync(_options.Value.Login, content);
+
+            var retour = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ResponseApiAuthenticate>(retour , JsonOptions.GetJsonOptions()) 
+                ?? new ResponseApiAuthenticate
+                   {
+                        ApiStatus = EnumApiStatus.Problem,
+                        Message = "Error JsonSerializer.Deserialize"
+                   }; 
+
+            return result;
         }
 
 

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace KronoGeo_Api.Applications.Model.DTO
+namespace KronoGeo_Api.Models.Model.DTO
 {
     public class RegisterDTO
     {

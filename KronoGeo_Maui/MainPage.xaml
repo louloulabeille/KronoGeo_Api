@@ -40,7 +40,7 @@
                                 TextColor="#51638B">
                             </Label>
                             <Entry Placeholder="Identitiant *" MinimumWidthRequest="230"
-                                   FontSize="14" TextColor="#51638B"/>
+                                   FontSize="14" TextColor="#51638B" Text="{Binding Login}"/>
                             <Button 
                                 Padding="-50,-10,0,0"
                                 FontFamily="MaterialIcons-Regular" 
@@ -61,6 +61,7 @@
                             </Label>
                             <Entry Placeholder="Mot de passe *" IsPassword="{Binding IsPassword}" MinimumWidthRequest="240"
                                    FontSize="14" TextColor="#51638B" MaximumWidthRequest="230"
+                                   Text="{Binding Password}"
                                    />
                             <!--{x:Static helpers:MaterialDesignIconsFonts.Visibility_off} -->
                             <Button 

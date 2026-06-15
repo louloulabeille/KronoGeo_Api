@@ -1,12 +1,14 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using KronoGeo_Api.Applications.Model.DTO;
 using KronoGeo_Api.Infrastructure.Service.Http;
 using KronoGeo_Api.Interface.Service;
+using KronoGeo_Api.Models.Infrastructure.Http;
+using KronoGeo_Api.Models.Model.DTO;
 using KronoGeo_Maui.Applications.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json;
 
 namespace KronoGeo_Maui.ModelViews
 {
@@ -44,8 +46,28 @@ namespace KronoGeo_Maui.ModelViews
         {
             if ( !string.IsNullOrEmpty(Login.Trim()) && !string.IsNullOrEmpty(Password.Trim()) )
             {
-                var user = new RegisterDTO { Login = Login, Password = Password, };
-                var result = await _http.AuthenticateAsync(user);
+                try
+                {
+                    var user = new RegisterDTO 
+                    { 
+                        Login = Login, Password = Password, 
+                        Token = string.Empty, NewPassord = string.Empty 
+                    };
+                    var result = await _http.AuthenticateAsync(user);
+
+                    if(result.IsSuccess)
+                    {
+                       /* var content = result.Content;
+                        var jsonResponse = await result.Content.ReadAsStringAsync();
+                        RegisterDTO? userResult = JsonSerializer.Deserialize<RegisterDTO>(jsonResponse, JsonOptions.GetJsonOptions());*/
+                    }
+
+
+                }catch(Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                
             }
             
 

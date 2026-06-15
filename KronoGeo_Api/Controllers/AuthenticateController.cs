@@ -1,6 +1,7 @@
 ﻿using KronoGeo_Api.Applications.MediatR.Commands.Identity;
-using KronoGeo_Api.Applications.Model.DTO;
 using KronoGeo_Api.Infrastructure.Test;
+using KronoGeo_Api.Models.Infrastructure.Http;
+using KronoGeo_Api.Models.Model.DTO;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -83,7 +84,7 @@ namespace KronoGeo_Api.Controllers
                 if (result.SignInResult is not null && result.SignInResult.Succeeded)
                 {
                     //_logger.LogInformation("User {Login} logged in successfully.", login.Login);
-                    return Ok(result.Register);
+                    return Ok(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.Success, Register = result.Register });
                 }
                 else if (result.SignInResult is not null && result.SignInResult.IsLockedOut)
                 {
