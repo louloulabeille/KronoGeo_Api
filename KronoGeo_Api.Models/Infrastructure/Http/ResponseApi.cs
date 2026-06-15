@@ -8,7 +8,8 @@ namespace KronoGeo_Api.Models.Infrastructure.Http
     {
         Success,
         BadRequest,
-        Problem
+        Problem,
+        NotFound,
     }
 
     public abstract class ResponseApi
@@ -31,5 +32,9 @@ namespace KronoGeo_Api.Models.Infrastructure.Http
         /// </summary>
         /// <returns></returns>
         public bool IsBadRequest { get { return ApiStatus == EnumApiStatus.BadRequest; } }
+        /// <summary>
+        /// retourne not found quand le resultat de la recherche n'est pas trouvé
+        /// </summary>
+        public bool IsNotFound { get { return ApiStatus == EnumApiStatus.NotFound; }}
     }
 }

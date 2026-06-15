@@ -34,7 +34,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                 ?? new ResponseApiAuthenticate
                    {
                         ApiStatus = EnumApiStatus.Problem,
-                        Message = "Error JsonSerializer.Deserialize"
+                        Message = retour
                    }; 
 
             return result;

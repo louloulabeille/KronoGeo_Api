@@ -1,4 +1,5 @@
 ﻿using KronoGeo_Api.Applications.MediatR.Commands.Identity;
+using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Model.DTO;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -34,15 +35,15 @@ namespace KronoGeo_Api.Controllers
                 var result = await _mediaR.Send(new ConfirmEmailCommand() { Id = user, Token = token });
                 if (result.IdentityResult is not null && result.IdentityResult.Succeeded)
                 {
-                    return this.Ok("Email confirmed successfully.");
+                    return this.Ok(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.Success, Message = "Email confirmed successfully." });
                 }
 
                 if (result.IdentityResult is not null)
-                    return this.BadRequest(result.IdentityResult.Errors);
+                    return this.BadRequest(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.BadRequest, Message = result.IdentityResult.Errors.ToString() });
 
 
                 _logger.LogCritical("Erreur critique dans la confirmation de mail pour {user} & token : {token}", user, token);
-                return this.BadRequest("Internal Error.");
+                return this.BadRequest(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.BadRequest, Message = "Internal Error." });
             }
             catch (Exception ex)
             {
@@ -73,19 +74,20 @@ namespace KronoGeo_Api.Controllers
                 });
                 if (result.IdentityResult is not null && result.IdentityResult.Succeeded && result.SignInResult is null )
                 {
-                    return this.Ok("Email change successfully.");
+                    return this.Ok(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.Success, Message = "Email change successfully." });
                 }
 
                 // - le changement de l'adresse mail ok mais l'envoi du mail de récuperation n'a pas été envoyé
                 if (result.IdentityResult is not null && result.IdentityResult.Succeeded && result.SignInResult is not null)
                 {
-                    return this.Ok("Email change successfully. But email recovery failed.");
+                    return this.Ok(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.Success, Message = "Email change successfully. But email recovery failed." });
                 }
 
                 if (result.IdentityResult is not null)
-                    return this.BadRequest(result.IdentityResult.Errors);
+                    return this.BadRequest(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.BadRequest, Message = result.IdentityResult.Errors.ToString() });
 
                 throw new Exception("Confirm update Email erreur interne du handler.");
+
             }
             catch (Exception ex)
             {
@@ -117,11 +119,11 @@ namespace KronoGeo_Api.Controllers
                 });
                 if (result.IdentityResult is not null && result.IdentityResult.Succeeded)
                 {
-                    return this.Ok("Rollback Email change successfully.");
+                    return this.Ok(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.Success, Message = "Rollback Email change successfully." });
                 }
 
                 if (result.IdentityResult is not null)
-                    return this.BadRequest(result.IdentityResult.Errors);
+                    return this.BadRequest(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.BadRequest, Message = result.IdentityResult.Errors.ToString() });
 
                 throw new Exception("Confirm update Email erreur interne du handler.");
             }
@@ -148,11 +150,11 @@ namespace KronoGeo_Api.Controllers
                 var result = await _mediaR.Send(new UpdateUserEmailCommand() { Register = register });
                 if (result.IdentityResult is not null && result.IdentityResult.Succeeded)
                 {
-                    return this.Ok(result.Register);
+                    return this.Ok(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.Success, Register = result.Register });
                 }
                 else
                 {
-                    return this.BadRequest(result.IdentityResult);
+                    return this.BadRequest(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.BadRequest, Message = result.IdentityResult?.Errors.ToString() });
                 }
             }
             catch (Exception ex)

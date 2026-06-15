@@ -31,13 +31,13 @@ namespace KronoGeo_Api.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    return BadRequest(ModelState);
+                    return BadRequest(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.BadRequest, Message = ModelState.ToString() });
                 }
 
                 if (string.IsNullOrEmpty(register.Email) || !EmailTest.IsValidEmail(register.Email))
                 {
                     _logger.LogWarning("User registration failed: Email and PhoneNumber are both missing for {Login}.", register.Login);
-                    return BadRequest("Invalid email address.");
+                    return BadRequest(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.BadRequest, Message = "Invalid email address." });
                 }
 
                 // - appel du MediatR pour exécuter la commande d'ajout d'utilisateur
@@ -46,23 +46,23 @@ namespace KronoGeo_Api.Controllers
                 if (result.IdentityResult is not null && result.IdentityResult.Succeeded)
                 {
                     //_logger.LogInformation("User {Login} registered successfully.", register.Login);
-                    return this.Ok(result.Register);
+                    return this.Ok(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.Success, Register = result.Register });
                 }
                 else
                 {
                     if ( result.IdentityResult is null)
                     {
                         _logger.LogWarning("User {Login} registration failed: no result object.", register.Login);
-                        return BadRequest("Internal error.");
+                        return BadRequest(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.BadRequest, Message = "Internal error." });
                     }
                     _logger.LogWarning("User {Login} registration failed: {Errors}", register.Login, 
                         string.Join(", ", result.IdentityResult.Errors.Select(e => e.Description)));
-                    return BadRequest(result.IdentityResult.Errors);
+                    return BadRequest(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.BadRequest, Message = result.IdentityResult.Errors.ToString() });
                 }
             } catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while registering user {Login}.", register.Login);
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+                return this.Problem("An error occurred while processing your request.");
             }
         }
         #endregion
@@ -84,23 +84,24 @@ namespace KronoGeo_Api.Controllers
                 if (result.SignInResult is not null && result.SignInResult.Succeeded)
                 {
                     //_logger.LogInformation("User {Login} logged in successfully.", login.Login);
-                    return Ok(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.Success, Register = result.Register });
+                    return Ok( new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.Success, Register = result.Register });
                 }
                 else if (result.SignInResult is not null && result.SignInResult.IsLockedOut)
                 {
+
                     _logger.LogWarning("User {Login} account is locked out.", login.Login);
-                    return this.BadRequest("Your account is locked. Please try again later.");
+                    return this.BadRequest( new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.BadRequest, Message = "Your account is locked. Please try again later." });
                 }
                 else
                 {
                     _logger.LogWarning("User {Login} login failed: Invalid credentials.", login.Login);
-                    return this.BadRequest("Invalid login or password.");
+                    return this.NotFound( new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.NotFound, Message = "Invalid login or password." });
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while logging in user {Login}.", login.Login);
-                return this.Problem("An error occurred while processing your request.");
+                return this.Problem ( "An error occurred while processing your request." );
             }
         }
         #endregion
@@ -116,11 +117,11 @@ namespace KronoGeo_Api.Controllers
                 var result = await _mediaR.Send(new DeleteUserCommand() { Id = id });
                 if (result.IdentityResult is not null && result.IdentityResult.Succeeded)
                 {
-                    return this.Ok("Deleted successfully.");
+                    return this.Ok(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.Success,  Message = "Deleted successfully."});
                 }
 
                 if (result.IdentityResult is not null)
-                    return this.BadRequest(result.IdentityResult.Errors);
+                    return this.BadRequest(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.BadRequest, Message = result.IdentityResult.Errors.ToString() });
 
                 _logger.LogError("An error occurred while deleting user {id}. pas de IdentityResult", id);
                 return this.Problem("An error occurred while processing your request.");
@@ -151,7 +152,7 @@ namespace KronoGeo_Api.Controllers
 
                 if (result.IdentityResult is not null && result.IdentityResult.Succeeded)
                 {
-                    return this.Ok("Update password successfully.");
+                    return this.Ok(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.Success, Message = "Update password successfully." });
                 }
 
                 if (result.IdentityResult is not null)
