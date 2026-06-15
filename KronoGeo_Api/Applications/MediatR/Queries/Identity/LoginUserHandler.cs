@@ -48,7 +48,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
 
                     var signInResult = await _signInManager.CheckPasswordSignInAsync(user, result!.Register.Password, true);
                     result.SignInResult = signInResult;
-                    result.Register.Password = string.Empty;
+                    //result.Register.Password = string.Empty;
 
                     if (signInResult.Succeeded)
                     {
@@ -56,6 +56,8 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                         result.Register.Token = 
                             await SecurityTokenGenerate.GenerateJwtToken(user, _keyBearer.Value, _signInManager.UserManager);
                         result.Register.Id = user.Id;   // - va servir pour la suppression du compte
+                        result.Register.Email = user.Email??string.Empty;
+                        result.Register.PhoneNumber = user.PhoneNumber ?? string.Empty;
                     }
                  
                 }
