@@ -1,5 +1,4 @@
-﻿using KronoGeo_Api.Applications.Model.DTO;
-using MediatR;
+﻿using MediatR;
 
 namespace KronoGeo_Api.Applications.MediatR.Commands.Identity
 {

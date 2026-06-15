@@ -1,7 +1,7 @@
 ﻿using Castle.Core.Logging;
 using KronoGeo_Api.Applications.MediatR.Commands.Identity;
 using KronoGeo_Api.Applications.MediatR.Queries.Identity;
-using KronoGeo_Api.Applications.Model.DTO;
+using KronoGeo_Api.Models.Model.DTO;
 using KronoGeo_Api.Models.Infrastructure.Options;
 using KronoGeo_Api.TestUnitaire.Data;
 using MediatR;
@@ -17,6 +17,8 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
+using KronoGeo_Api.Interface.Service;
+using KronoGeo_Api.Models.Infrastructure.Email;
 
 namespace KronoGeo_Api.TestUnitaire
 {
@@ -26,6 +28,8 @@ namespace KronoGeo_Api.TestUnitaire
         private readonly KronoGeoContextMemory _context = new();
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly Mock<IOptions<KeyBearer>> _keyBearer = new();
+        private readonly Mock<IOptions<UrlOptions>> _urlOptions = new();
+        private readonly Mock<IServiceSendMessage> _send = new();
         #endregion
 
         #region constructor
@@ -118,7 +122,7 @@ namespace KronoGeo_Api.TestUnitaire
             };
 
             // - Act
-            var handler = new AddUserHandler(_logger.Object, _keyBearer.Object, _signInManager);
+            var handler = new AddUserHandler(_logger.Object, _keyBearer.Object, _signInManager, _send.Object, _urlOptions.Object);
             var result = await handler.Handle(new AddUserCommand { Register = registerDto }, CancellationToken.None);
             
             var user = await _signInManager.UserManager.FindByNameAsync(registerDto.Login);
@@ -126,8 +130,8 @@ namespace KronoGeo_Api.TestUnitaire
 
             // - Assert
             Assert.True(result is not null);
-            Assert.True(result.Result is not null);
-            Assert.True(result.Result.Succeeded);
+            Assert.True(result.IdentityResult is not null);
+            Assert.True(result.IdentityResult.Succeeded);
             Assert.False(string.IsNullOrEmpty(result.Register.Token!));
             Assert.True(roles.Contains("Admin") && roles.Contains("User"), "The first user should have both Admin and User roles assigned.");
 
@@ -159,10 +163,10 @@ namespace KronoGeo_Api.TestUnitaire
 
 
             // - Act
-            var handlerFirst = new AddUserHandler(_logger.Object, _keyBearer.Object, _signInManager);
+            var handlerFirst = new AddUserHandler(_logger.Object, _keyBearer.Object, _signInManager, _send.Object, _urlOptions.Object );
             var resultFirst = await handlerFirst.Handle(new AddUserCommand { Register = registerDtoFirst }, CancellationToken.None);
 
-            var handler = new AddUserHandler(_logger.Object, _keyBearer.Object, _signInManager);
+            var handler = new AddUserHandler(_logger.Object, _keyBearer.Object, _signInManager , _send.Object, _urlOptions.Object);
             var result = await handler.Handle(new AddUserCommand { Register = registerDto }, CancellationToken.None);
 
             var user = await _signInManager.UserManager.FindByNameAsync(registerDto.Login);
@@ -171,8 +175,8 @@ namespace KronoGeo_Api.TestUnitaire
 
             // - Assert
             Assert.True(result is not null);
-            Assert.True(result.Result is not null);
-            Assert.True(result.Result.Succeeded);
+            Assert.True(result.IdentityResult is not null);
+            Assert.True(result.IdentityResult.Succeeded);
             Assert.False(string.IsNullOrEmpty(result.Register.Token!));
             Assert.True(roles.Contains("User"), "Subsequent users should only have the User role assigned.");
         }

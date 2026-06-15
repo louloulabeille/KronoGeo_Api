@@ -1,5 +1,5 @@
 ﻿using KronoGeo_Api.Applications.MediatR.Commands.Identity;
-using KronoGeo_Api.Applications.Model.DTO;
+using KronoGeo_Api.Models.Model.DTO;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -1,4 +1,4 @@
-﻿using KronoGeo_Api.Applications.Model.DTO;
+﻿using KronoGeo_Api.Models.Model.DTO;
 using Microsoft.AspNetCore.Identity;
 
 namespace KronoGeo_Api.Applications.MediatR.Commands.Identity
