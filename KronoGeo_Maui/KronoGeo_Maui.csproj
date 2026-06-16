@@ -81,4 +81,10 @@
 	  <ProjectReference Include="..\KronoGeo_Api.Models\KronoGeo_Api.Models.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <MauiXaml Update="PageHelpers\LoadingPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
+
 </Project>

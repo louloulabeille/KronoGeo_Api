@@ -4,6 +4,7 @@ using KronoGeo_Maui.Applications.Services;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using CommunityToolkit.Maui;
+using KronoGeo_Maui.Applications.Interface;
 
 namespace KronoGeo_Maui
 {
@@ -39,6 +40,8 @@ namespace KronoGeo_Maui
             #region injection pour la sauvegarde en memoire de l'utilisation
             builder.Services.AddScoped<IServiceSaveUser,InMemoriMauiUser>();
             #endregion
+
+            builder.Services.AddSingleton<IDialogService, MauiDialogService>();
 
             return builder.Build();
         }

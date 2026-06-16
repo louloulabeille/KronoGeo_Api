@@ -5,7 +5,9 @@ using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Model.DTO;
 using KronoGeo_Maui.Applications.Helpers;
+using KronoGeo_Maui.Applications.Interface;
 using KronoGeo_Maui.Applications.Services;
+using KronoGeo_Maui.PageHelpers;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,11 +15,13 @@ using System.Text.Json;
 
 namespace KronoGeo_Maui.ModelViews
 {
-    public partial class MainPageViewModel(IServiceHttpKronoGeo http, IServiceSaveUser saveUser) : ObservableObject
+    public partial class MainPageViewModel(IServiceHttpKronoGeo http, IServiceSaveUser saveUser
+        , IDialogService dialogService) : ObservableObject
     {
         #region private readonly properties
         private readonly IServiceHttpKronoGeo _http = http;
         private readonly IServiceSaveUser _saveUser = saveUser;
+        private readonly IDialogService _dialogService = dialogService;
         protected RegisterDTO? _user = default;
         #endregion
 
@@ -78,13 +82,18 @@ namespace KronoGeo_Maui.ModelViews
         {
             IsMessageErreur = false;
             Label_MessageErreur = string.Empty;
-            if ( !string.IsNullOrEmpty(Login.Trim()) && !string.IsNullOrEmpty(Password.Trim()) )
+            var popup = new LoadingPage();
+            
+
+            var login = IsSaisieLogin ? Login : _user?.Login ?? string.Empty;
+            if ( !string.IsNullOrEmpty(login.Trim()) && !string.IsNullOrEmpty(Password.Trim()) )
             {
                 try
                 {
+                    _dialogService.ShowPopup(popup);
                     var identifiant = new RegisterDTO 
                     { 
-                        Login = IsSaisieLogin ? Login : _user?.Login ?? string.Empty, Password = Password, 
+                        Login = login, Password = Password, 
                         Token = string.Empty, NewPassord = string.Empty 
                     };
                     var result = await _http.AuthenticateAsync(identifiant);
@@ -108,10 +117,15 @@ namespace KronoGeo_Maui.ModelViews
                         };
                         IsMessageErreur = true;
                     }
-                }catch(Exception ex)
+                    await _dialogService.ClosePopup(popup);
+                }
+                catch(Exception ex)
                 { // - mettre en place d'un systeme pour récupérer les messages d'erreurs ou pas
                     Console.WriteLine(ex.Message);
-                }   
+                }
+
+
+                
             }
         }
 
@@ -130,12 +144,36 @@ namespace KronoGeo_Maui.ModelViews
                 _user = user;
             }
         }
+
+        /// <summary>
+        /// method qui supprime l'user en memoire pour mettre en place
+        /// le login à saisir
+        /// </summary>
+        /// <returns></returns>
+        [RelayCommand]
+        public async Task ClearUserMemory()
+        {
+            if (_user is null) return;
+            
+            // - re-initialise la fenêtre
+            _user = null;
+            _saveUser.ClearUser();
+            Label_Login = string.Empty;
+            IsSaisieLogin = true;
+            Login = string.Empty;
+
+        }
         #endregion
 
         #region private method 
-        private string Cache(string entry)
+        /// <summary>
+        /// cache en party un string par des étoiles par défaut
+        /// </summary>
+        /// <param name="entry"></param>
+        /// <returns></returns>
+        public static string Cache(string entry)
         {
-            var result = entry.Remove(2) + "**********";
+            var result = entry[..2] + "**********";
             return  result;
         }
         #endregion

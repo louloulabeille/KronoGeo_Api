@@ -7,14 +7,7 @@
              x:Class="KronoGeo_Maui.MainPage"
              xmlns:helpers="clr-namespace:KronoGeo_Maui.Applications.Helpers"
              Title="">
-    <!--#region intialisation de la page appel d'une method init -->
-    <!--<ContentPage.Behaviors>
-        <toolkit:EventToCommandBehavior
-        EventName="Appearing"
-        Command="{Binding AppearingExeCommand}" />
-    </ContentPage.Behaviors>-->
-    <!--#endregion-->
-    
+
     <!--
     sur fond noir
     color-1: #96BD8E;
@@ -26,7 +19,7 @@
         <VerticalStackLayout Padding="30,50" Spacing="25" 
                          HorizontalOptions="Center" >
 
-            <Grid ColumnDefinitions="10,*,10" RowDefinitions="100,*,50" RowSpacing="40">
+            <Grid ColumnDefinitions="10,*,10" RowDefinitions="100,*,50" RowSpacing="20">
                 <!-- logo en rond-->
                 <Border Grid.Column="1" Grid.Row="0" StrokeThickness="1" WidthRequest="100"
                         StrokeShape="RoundRectangle 90,90,90,90" Background="#51638B">
@@ -63,7 +56,10 @@
                                 FontSize="20"
                                 HorizontalOptions="Center"
                                 BackgroundColor="Transparent"
-                                TextColor="#51808B"/>
+                                TextColor="#51808B"
+                                Command="{Binding ClearUserMemoryCommand}"
+                                IsEnabled="{Binding IsSaisieLogin, Converter={toolkit:InvertedBoolConverter}}" 
+                                IsVisible="{Binding IsSaisieLogin, Converter={toolkit:InvertedBoolConverter}}"/>
                         </HorizontalStackLayout>
                         <HorizontalStackLayout >
                             <Label
@@ -94,17 +90,16 @@
                 </Border>
                 <!-- btn de validation -->
                 <VerticalStackLayout Grid.Row="2" Grid.Column="1" HorizontalOptions="Center">
+                    <Label Margin="0,0,0,10" IsEnabled="{Binding IsMessageErreur}" 
+                        IsVisible="{Binding IsMessageErreur}" Text="{Binding Label_MessageErreur}" 
+                        TextColor="Red" BackgroundColor="Transparent"
+                        FontAttributes="Bold" HorizontalOptions="Center"/>
+
                     <Border StrokeThickness="0" MinimumWidthRequest="170" MaximumWidthRequest="170"
                             StrokeShape="RoundRectangle 30,30,30,30" BackgroundColor="#F9EDE1">
                         <Button Text="Se connecter" WidthRequest="170" BackgroundColor="Transparent"
-                            Command="{Binding GetLoginCommand}"/>    
+                            Command="{Binding GetLoginCommand}"/>
                     </Border>
-                    
-                    <Label Margin="0,30,0,0" IsEnabled="{Binding IsMessageErreur}" 
-                        IsVisible="{Binding IsMessageErreur}" Text="{Binding Label_MessageErreur}" 
-                        TextColor="Red" BackgroundColor="Transparent"
-                        FontAttributes="Bold" HorizontalOptions="Center" 
-                    />
                 </VerticalStackLayout>
             </Grid>
 

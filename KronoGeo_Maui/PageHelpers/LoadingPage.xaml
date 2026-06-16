@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<mct:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:mct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+       x:Class="KronoGeo_Maui.PageHelpers.LoadingPage"
+       CanBeDismissedByTappingOutsideOfPopup="False"
+       BackgroundColor="Transparent"
+        >
+    <VerticalStackLayout >
+        <Border StrokeShape="RoundRectangle 90,90,90,90" StrokeThickness="1" HeightRequest="100">
+            <Image Source="logo_kronogeo_660x660.png" WidthRequest="100" HeightRequest="100"/>
+        </Border>
+        <ActivityIndicator Margin="0,15,0,0" IsRunning="true" Color="#51638B" BackgroundColor="Transparent"
+                   SemanticProperties.Description="Loading" />
+    </VerticalStackLayout>
+</mct:Popup>
+    
+    
