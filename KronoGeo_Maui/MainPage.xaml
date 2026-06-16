@@ -8,12 +8,6 @@
              xmlns:helpers="clr-namespace:KronoGeo_Maui.Applications.Helpers"
              Title="">
 
-    <!--
-    sur fond noir
-    color-1: #96BD8E;
-    color-2: #9E8EBD;
-    color-3: #BD8EAD;
-    -->
 
     <ScrollView Orientation="Vertical" VerticalScrollBarVisibility="Never" BackgroundColor="#96BD8E">
         <VerticalStackLayout Padding="30,50" Spacing="25" 

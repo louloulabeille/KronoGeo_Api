@@ -17,6 +17,7 @@
         private static void RoutingRegister()
         {
             Routing.RegisterRoute("MainPage", typeof(MainPage));
+            Routing.RegisterRoute("ApplicationPage", typeof(ApplicationPage));
         }
     }
 }

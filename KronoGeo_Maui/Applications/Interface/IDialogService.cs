@@ -9,5 +9,6 @@ namespace KronoGeo_Maui.Applications.Interface
     {
         public void ShowPopup(Popup popup);
         public Task ClosePopup(Popup popup);
+       
     }
 }

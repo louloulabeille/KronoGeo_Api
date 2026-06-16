@@ -3,13 +3,25 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:KronoGeo_Maui.ModelViews"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:helpers="clr-namespace:KronoGeo_Maui.Applications.Helpers"
              x:DataType="viewmodels:ApplicationPageViewModel"
              x:Class="KronoGeo_Maui.ApplicationPage"
-             Title="ApplicationPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             Title="KronoGeo"
+             Shell.BackgroundColor="#F9EDE1"
+             Shell.TitleColor="#51638B"
+             Shell.BackButtonBehavior="{BackButtonBehavior IsVisible=False}">
+    <!-- ToolBar -->
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Command="{Binding ToolbarItemCommand}">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource FontFamily="MaterialIcons-Regular" Glyph="&#xe7fd;"/>
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
+    </ContentPage.ToolbarItems>
+    <ScrollView>
+        <VerticalStackLayout BackgroundColor="#96BD8E">
+            
+        </VerticalStackLayout>
+    </ScrollView>
+    
 </ContentPage>

@@ -102,13 +102,13 @@ namespace KronoGeo_Maui.ModelViews
                     if(result.IsSuccess && result.Register is not null )
                     {
                         await _saveUser.SaveUser(result.Register);
-                        
-                       /* var content = result.Content;
-                        var jsonResponse = await result.Content.ReadAsStringAsync();
-                        RegisterDTO? userResult = JsonSerializer.Deserialize<RegisterDTO>(jsonResponse, JsonOptions.GetJsonOptions());*/
+                        await _dialogService.ClosePopup(popup);
+
+                        await Shell.Current.GoToAsync("ApplicationPage");
                     }
                     else
                     { //  - affiche le message
+                        await _dialogService.ClosePopup(popup);
                         Label_MessageErreur = result.Message switch
                         {
                             "Invalid login or password." => "Mot de passe ou identifiant erroné",
@@ -117,15 +117,13 @@ namespace KronoGeo_Maui.ModelViews
                         };
                         IsMessageErreur = true;
                     }
-                    await _dialogService.ClosePopup(popup);
+                    
                 }
                 catch(Exception ex)
                 { // - mettre en place d'un systeme pour récupérer les messages d'erreurs ou pas
                     Console.WriteLine(ex.Message);
+                    await _dialogService.ClosePopup(popup);
                 }
-
-
-                
             }
         }
 
@@ -173,8 +171,11 @@ namespace KronoGeo_Maui.ModelViews
         /// <returns></returns>
         public static string Cache(string entry)
         {
-            var result = entry[..2] + "**********";
-            return  result;
+            if (entry.Length >= 2)
+            {
+                return entry[..2] + "**********";
+            }
+            return entry;
         }
         #endregion
     }
