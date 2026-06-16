@@ -73,17 +73,23 @@
                                 BackgroundColor="Transparent"
                                 TextColor="#51808B"               
                                 Command="{Binding IsVisibilityPasswordCommand}"/>
+
                         </HorizontalStackLayout>
                     </VerticalStackLayout>
                 </Border>
                 <!-- btn de validation -->
                 <VerticalStackLayout Grid.Row="2" Grid.Column="1" HorizontalOptions="Center">
-                    <Border StrokeThickness="0" MinimumWidthRequest="170" 
+                    <Border StrokeThickness="0" MinimumWidthRequest="170" MaximumWidthRequest="170"
                             StrokeShape="RoundRectangle 30,30,30,30" BackgroundColor="#F9EDE1">
                         <Button Text="Se connecter" WidthRequest="170" BackgroundColor="Transparent"
                             Command="{Binding GetLoginCommand}"/>    
                     </Border>
                     
+                    <Label Margin="0,30,0,0" IsEnabled="{Binding IsMessageErreur}" 
+                        IsVisible="{Binding IsMessageErreur}" Text="{Binding Label_MessageErreur}" 
+                        TextColor="Red" BackgroundColor="Transparent"
+                        FontAttributes="Bold" HorizontalOptions="Center" 
+                    />
                 </VerticalStackLayout>
             </Grid>
 
