@@ -18,19 +18,35 @@ namespace KronoGeo_Maui.ModelViews
         #region private readonly properties
         private readonly IServiceHttpKronoGeo _http = http;
         private readonly IServiceSaveUser _saveUser = saveUser;
+        protected RegisterDTO? _user = default;
         #endregion
 
         #region public ObservableProperty properties 
+        // - gestion devisiblité de mot de passe
         [ObservableProperty]
         public partial bool IsPassword { get; set; } = true;
         [ObservableProperty]
         public partial string Btn_IsGestionGroup { get; set; } = MaterialDesignIconsFonts.Groups;
         [ObservableProperty]
         public partial string Btn_IsPasswordTxt { get; set; } = MaterialDesignIconsFonts.Visibility;
+        // -- end
+
+        // - gestion de message d'erreur
         [ObservableProperty]
         public partial bool IsMessageErreur { get; set; } = false;
         [ObservableProperty]
         public partial string Label_MessageErreur { get; set; } = string.Empty;
+        // -- end
+
+        // - gestion de la fenêtre de connexion 
+        // - 3 possibilités :
+        // - pas d'user en mémoire fenêtre par défaut
+        // - un user pas besoin de saisir le login
+        // - sinon utilisation la bio métric
+        [ObservableProperty]
+        public partial bool IsSaisieLogin { get; set; } = true;
+        [ObservableProperty]
+        public partial string Label_Login { get; set; } = string.Empty;
         #endregion
 
         #region public ObservableProperty properties saisie
@@ -66,36 +82,30 @@ namespace KronoGeo_Maui.ModelViews
             {
                 try
                 {
-                    var user = new RegisterDTO 
+                    var identifiant = new RegisterDTO 
                     { 
-                        Login = Login, Password = Password, 
+                        Login = IsSaisieLogin ? Login : _user?.Login ?? string.Empty, Password = Password, 
                         Token = string.Empty, NewPassord = string.Empty 
                     };
-                    var result = await _http.AuthenticateAsync(user);
+                    var result = await _http.AuthenticateAsync(identifiant);
 
                     // - enregistrement 
                     if(result.IsSuccess && result.Register is not null )
                     {
                         await _saveUser.SaveUser(result.Register);
-                        var register = _saveUser.GetRegister();
+                        
                        /* var content = result.Content;
                         var jsonResponse = await result.Content.ReadAsStringAsync();
                         RegisterDTO? userResult = JsonSerializer.Deserialize<RegisterDTO>(jsonResponse, JsonOptions.GetJsonOptions());*/
                     }
                     else
                     { //  - affiche le message
-                        switch (result.Message)
+                        Label_MessageErreur = result.Message switch
                         {
-                            case "Invalid login or password.":
-                                Label_MessageErreur = "Mot de passe ou identifiant erroné";
-                                break;
-                            case "Your account is locked. Please try again later.":
-                                Label_MessageErreur = "Votre compte est bloqué. Veuillez re-essayer plus tard.";
-                                break;
-                            default:
-                                Label_MessageErreur = "Erreur interne. Veuillez re-essayer plus tard ou contactez administrateur.";
-                                break;
-                        }
+                            "Invalid login or password." => "Mot de passe ou identifiant erroné",
+                            "Your account is locked. Please try again later." => "Votre compte est bloqué. Veuillez re-essayer plus tard.",
+                            _ => "Erreur interne. Veuillez re-essayer plus tard ou contactez administrateur.",
+                        };
                         IsMessageErreur = true;
                     }
                 }catch(Exception ex)
@@ -105,6 +115,29 @@ namespace KronoGeo_Maui.ModelViews
             }
         }
 
+        /// <summary>
+        /// methode d"initalisation de la fenêtre
+        /// </summary>
+        /// <returns></returns>
+        [RelayCommand]
+        public async Task AppearingExe()
+        {
+            var user = await _saveUser.GetRegister();
+
+            if (user != null) {
+                IsSaisieLogin = false;
+                Label_Login = Cache( user.Login);
+                _user = user;
+            }
+        }
+        #endregion
+
+        #region private method 
+        private string Cache(string entry)
+        {
+            var result = entry.Remove(2) + "**********";
+            return  result;
+        }
         #endregion
     }
 }

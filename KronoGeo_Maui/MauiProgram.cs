@@ -3,6 +3,7 @@ using KronoGeo_Maui.Applications.ExtendMethods;
 using KronoGeo_Maui.Applications.Services;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using CommunityToolkit.Maui;
 
 namespace KronoGeo_Maui
 {
@@ -13,6 +14,8 @@ namespace KronoGeo_Maui
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                // Initialize the .NET MAUI Community Toolkit by adding the below line of code
+                .UseMauiCommunityToolkit()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
