@@ -1,6 +1,7 @@
 ﻿using KronoGeo_Api.Interface.Service;
 using KronoGeo_Maui.Applications.ExtendMethods;
 using KronoGeo_Maui.Applications.Services;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace KronoGeo_Maui
@@ -30,6 +31,10 @@ namespace KronoGeo_Maui
             builder.Configuration.AddAppsettingsConfiguration();    // - ajout d'un fichier de configuration dans Iconfiguration
             builder.Services.AddUrlApiOptions( builder.Configuration );
             builder.Services.AddHttpClientService( builder.Configuration);
+            #endregion
+
+            #region injection pour la sauvegarde en memoire de l'utilisation
+            builder.Services.AddScoped<IServiceSaveUser,InMemoriMauiUser>();
             #endregion
 
             return builder.Build();

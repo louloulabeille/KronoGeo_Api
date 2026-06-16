@@ -13,10 +13,11 @@ using System.Text.Json;
 
 namespace KronoGeo_Maui.ModelViews
 {
-    public partial class MainPageViewModel(IServiceHttpKronoGeo http) : ObservableObject
+    public partial class MainPageViewModel(IServiceHttpKronoGeo http, IServiceSaveUser saveUser) : ObservableObject
     {
         #region private readonly properties
         private readonly IServiceHttpKronoGeo _http = http;
+        private readonly IServiceSaveUser _saveUser = saveUser;
         #endregion
 
         #region public ObservableProperty properties
@@ -59,8 +60,8 @@ namespace KronoGeo_Maui.ModelViews
                     // - enregistrement 
                     if(result.IsSuccess && result.Register is not null )
                     {
-                        InMemoriMauiUser inMemoriMauiUser = new ();
-                        await inMemoriMauiUser.SaveUser(result.Register);
+                        await _saveUser.SaveUser(result.Register);
+                        var register = _saveUser.GetRegister();
                        /* var content = result.Content;
                         var jsonResponse = await result.Content.ReadAsStringAsync();
                         RegisterDTO? userResult = JsonSerializer.Deserialize<RegisterDTO>(jsonResponse, JsonOptions.GetJsonOptions());*/

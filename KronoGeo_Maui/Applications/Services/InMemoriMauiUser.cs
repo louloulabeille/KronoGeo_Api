@@ -49,10 +49,10 @@ namespace KronoGeo_Maui.Applications.Services
 
             await SecureStorage.Default.SetAsync("Id-User", register.Id);
             await SecureStorage.Default.SetAsync("Login-User", register.Login);
-            await SecureStorage.Default.SetAsync("Password-User", register.Id);
-            await SecureStorage.Default.SetAsync("Email-User", register.Id);
-            await SecureStorage.Default.SetAsync("Phone-User", register.Id);
-            await SecureStorage.Default.SetAsync("Token-User", register.Id);
+            await SecureStorage.Default.SetAsync("Password-User", register.Password);
+            await SecureStorage.Default.SetAsync("Email-User", register.Email);
+            await SecureStorage.Default.SetAsync("Phone-User", register.PhoneNumber);
+            await SecureStorage.Default.SetAsync("Token-User", register.Token ?? string.Empty);
         }
 
         /// <summary>
