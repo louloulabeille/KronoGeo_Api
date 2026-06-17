@@ -10,6 +10,9 @@
              Shell.TitleColor="#51638B">
 
     <VerticalStackLayout BackgroundColor="#96BD8E">
-        <Switch IsToggled="{Binding IsBiometric}" />
+        <HorizontalStackLayout>
+            <Label Text="Connexion par biometrie"></Label>
+            <Switch IsToggled="{Binding IsBiometric}" />
+        </HorizontalStackLayout>
     </VerticalStackLayout>
 </ContentPage>

@@ -17,7 +17,12 @@ namespace KronoGeo_Maui
                 EventName = nameof(Appearing),
                 Command = viewModel.AppearingExeCommand
             });
-
+            // - lancement après loaded de la page du systeme Biometric si option coché
+            this.Behaviors.Add(new EventToCommandBehavior
+            {
+                EventName = nameof(Loaded),
+                Command = viewModel.BiometrieActionCommand
+            });
         }
     }
 }
