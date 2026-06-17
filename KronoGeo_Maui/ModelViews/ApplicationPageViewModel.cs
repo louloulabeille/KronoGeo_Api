@@ -9,7 +9,7 @@ namespace KronoGeo_Maui.ModelViews
     public partial class ApplicationPageViewModel : ObservableObject
     {
         [RelayCommand]
-        public async Task ToolbarItem()
+        public static async Task ToolbarItem()
         {
             await Shell.Current.GoToAsync("ParametragePage");
         }

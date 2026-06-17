@@ -18,6 +18,9 @@ namespace KronoGeo_Maui.Applications.ExtendMethods
                 services.AddSingleton<ApplicationPage>();
                 services.AddSingleton<ApplicationPageViewModel>();
 
+                services.AddSingleton<ParametragePage>();
+                services.AddSingleton<ParametragePageViewModel>();
+
                 return services;
             }
         }

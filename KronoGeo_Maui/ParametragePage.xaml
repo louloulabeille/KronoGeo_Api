@@ -2,11 +2,14 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:KronoGeo_Maui.ModelViews"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:DataType="viewmodels:ParametragePageViewModel"
              x:Class="KronoGeo_Maui.ParametragePage"
-             Title="Parametrage">
+             Title="Parametrage"
+             Shell.BackgroundColor="#F9EDE1"
+             Shell.TitleColor="#51638B">
 
     <VerticalStackLayout BackgroundColor="#96BD8E">
-        <Switch IsToggled="false" />
+        <Switch IsToggled="{Binding IsBiometric}" />
     </VerticalStackLayout>
 </ContentPage>

@@ -42,6 +42,7 @@ namespace KronoGeo_Maui
             #endregion
 
             builder.Services.AddSingleton<IDialogService, MauiDialogService>();
+            builder.Services.AddScoped<IServiceSaveParametrage, InMemoryMauiParametrage>();
 
             return builder.Build();
         }
