@@ -362,3 +362,4 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /KronoGeo_Api.Infrastructure/Database/KronoGeoContextFactory.cs
+/KronoGeo_Maui/ModelViews/MainPageViewModel.cs
