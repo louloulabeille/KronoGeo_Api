@@ -5,6 +5,7 @@
   <Project Path="KronoGeo_Api.TestUnitaire/KronoGeo_Api.TestUnitaire.csproj" Id="e6203e96-3220-4c49-a906-fe324fbd46d9" />
   <Project Path="KronoGeo_Api/KronoGeo_Api.csproj" />
   <Project Path="KronoGeo_MvvM_Maui/KronoGeo_MvvM_Maui.csproj" Id="741d01bf-5e83-497c-8b05-f233974e5539">
+    <Build Solution="Debug|*" Project="false" />
     <Deploy Solution="Debug|*" />
   </Project>
 </Solution>
