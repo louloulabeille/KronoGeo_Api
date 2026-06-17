@@ -1,7 +1,6 @@
 ﻿using KronoGeo_Api.Interface.Service;
 using KronoGeo_Maui.Applications.ExtendMethods;
 using KronoGeo_Maui.Applications.Services;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using CommunityToolkit.Maui;
 using KronoGeo_Maui.Applications.Interface;
@@ -17,6 +16,7 @@ namespace KronoGeo_Maui
                 .UseMauiApp<App>()
                 // Initialize the .NET MAUI Community Toolkit by adding the below line of code
                 .UseMauiCommunityToolkit()
+                .UseMauiMaps() // pour afficher les cartes de Microsoft.Maui.Controls.Maps
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");

@@ -1,4 +1,5 @@
 using KronoGeo_Maui.ModelViews;
+//using Map = Microsoft.Maui.Controls.Maps.Map;
 
 namespace KronoGeo_Maui;
 

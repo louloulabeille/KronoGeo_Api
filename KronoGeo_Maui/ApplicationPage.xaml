@@ -4,6 +4,7 @@
              xmlns:viewmodels="clr-namespace:KronoGeo_Maui.ModelViews"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:helpers="clr-namespace:KronoGeo_Maui.Applications.Helpers"
+             xmlns:maps="http://schemas.microsoft.com/dotnet/2021/maui/maps"
              x:DataType="viewmodels:ApplicationPageViewModel"
              x:Class="KronoGeo_Maui.ApplicationPage"
              Title="KronoGeo"
@@ -14,12 +15,30 @@
     <ContentPage.ToolbarItems>
         <ToolbarItem Command="{Binding ToolbarItemCommand}">
             <ToolbarItem.IconImageSource>
-                <FontImageSource FontFamily="MaterialIcons-Regular" Glyph="&#xe7fd;"/>
+                <FontImageSource FontFamily="MaterialIcons-Regular" Glyph="&#xe7fd;" Color="#51638B"/>
             </ToolbarItem.IconImageSource>
         </ToolbarItem>
     </ContentPage.ToolbarItems>
-    <ScrollView>
-        <VerticalStackLayout BackgroundColor="#96BD8E">
+    <ScrollView BackgroundColor="#96BD8E" >
+        <VerticalStackLayout>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="50" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="5" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="5" />
+                </Grid.ColumnDefinitions>
+                <maps:Map HeightRequest="600" Grid.Column="1" Grid.Row="0" 
+                    x:Name="googleMap" IsShowingUser="True"
+                     IsScrollEnabled="True" IsZoomEnabled="True"/>
+                <HorizontalStackLayout HeightRequest="50" Grid.Column="1" Grid.Row="1" BackgroundColor="#F9EDE1">
+
+                </HorizontalStackLayout>
+
+            </Grid>
             
         </VerticalStackLayout>
     </ScrollView>
