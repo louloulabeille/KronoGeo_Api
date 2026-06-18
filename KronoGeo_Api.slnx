@@ -6,6 +6,5 @@
   <Project Path="KronoGeo_Api/KronoGeo_Api.csproj" />
   <Project Path="KronoGeo_Maui/KronoGeo_Maui.csproj" Id="80fa94dc-9c9e-4d98-a667-19b26ff1e45c">
     <Build Solution="Debug|*" Project="false" />
-    <Deploy Solution="Debug|*" />
   </Project>
 </Solution>
