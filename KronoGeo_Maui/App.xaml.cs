@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Android.Media.TV;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace KronoGeo_Maui
 {
@@ -11,6 +12,7 @@ namespace KronoGeo_Maui
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
+
             return new Window(new AppShell());
         }
     }

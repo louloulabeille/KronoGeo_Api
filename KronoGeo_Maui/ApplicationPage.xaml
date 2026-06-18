@@ -10,37 +10,37 @@
              Title="KronoGeo"
              Shell.BackgroundColor="#F9EDE1"
              Shell.TitleColor="#51638B"
-             Shell.BackButtonBehavior="{BackButtonBehavior IsVisible=False}">
+             Shell.BackButtonBehavior="{BackButtonBehavior IsVisible=False}"
+             Shell.TabBarTitleColor="#51638B">
+    
     <!-- ToolBar -->
     <ContentPage.ToolbarItems>
         <ToolbarItem Command="{Binding ToolbarItemCommand}">
             <ToolbarItem.IconImageSource>
-                <FontImageSource FontFamily="MaterialIcons-Regular" Glyph="&#xe7fd;" Color="#51638B"/>
+                <FontImageSource FontFamily="MaterialIcons-Regular" Glyph="&#xe8ac;" Color="#51638B"/>
             </ToolbarItem.IconImageSource>
         </ToolbarItem>
     </ContentPage.ToolbarItems>
     <ScrollView BackgroundColor="#96BD8E" >
-        <VerticalStackLayout>
+        
             <Grid>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="5" />
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="50" />
+                    <!--<RowDefinition Height="50" />-->
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="5" />
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="5" />
                 </Grid.ColumnDefinitions>
-                <maps:Map HeightRequest="600" Grid.Column="1" Grid.Row="0" 
+                <maps:Map Grid.Column="1" Grid.Row="1" MinimumHeightRequest="600" HeightRequest="650"
                     x:Name="googleMap" IsShowingUser="True"
                      IsScrollEnabled="True" IsZoomEnabled="True"/>
-                <HorizontalStackLayout HeightRequest="50" Grid.Column="1" Grid.Row="1" BackgroundColor="#F9EDE1">
-
-                </HorizontalStackLayout>
 
             </Grid>
-            
-        </VerticalStackLayout>
+
+        
+
     </ScrollView>
-    
 </ContentPage>

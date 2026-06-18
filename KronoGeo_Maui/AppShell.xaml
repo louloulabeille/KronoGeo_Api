@@ -4,24 +4,30 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:KronoGeo_Maui"
-    Title="KronoGeo_Maui">
+    Title="KronoGeo_Maui"
+    Shell.TabBarBackgroundColor="#F9EDE1"
+    Shell.TabBarTitleColor="#51638B"
+    Shell.TabBarUnselectedColor="#51638B"
+    >
 
-    <ShellContent
+    <!--<ShellContent
         Title="Home"
         ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+        Route="MainPage" />-->
+
+    <!-- Icon="{FontImageSource FontFamily=MaterialIcons-Regular,Glyph='&#e3e3e3',Color='#51638B'}"-->
     <TabBar>
-        <Tab Title="Start" Icon="{FontImageSource FontFamily=MaterialIcons-Regular,Glyph='#e3e3e3',Color='#51638B'}">
-            <ShellContent ContentTemplate="{DataTemplate local:ApplicationPage}"/>
+        <Tab Title="Application">
+            <Tab.Icon>
+                <FontImageSource FontFamily="MaterialIcons-Regular" Glyph="&#xe7fd;" Color="#51638B"/>
+            </Tab.Icon>
+            <ShellContent ContentTemplate="{DataTemplate local:ApplicationPage}" />
         </Tab>
-        <Tab Title="Stop" Icon="{FontImageSource FontFamily=MaterialIcons-Regular,Glyph='#e3e3e3',Color='#51638B'}">
-            <ShellContent ContentTemplate="{DataTemplate local:ApplicationPage}"/>
-        </Tab>
-        <Tab Title="Camera" Icon="{FontImageSource FontFamily=MaterialIcons-Regular,Glyph='#e3e3e3',Color='#51638B'}">
-            <ShellContent ContentTemplate="{DataTemplate local:ApplicationPage}"/>
-        </Tab>
-        <Tab Title="Paramètre" >
-            <ShellContent ContentTemplate="{DataTemplate local:ApplicationPage}"/>
+        <Tab Title="Start">
+            <Tab.Icon>
+                <FontImageSource FontFamily="MaterialIcons-Regular" Glyph="&#xe7fd;" Color="#51638B"/>
+            </Tab.Icon>
+            <ShellContent  ContentTemplate="{DataTemplate local:ParametragePage}"/>
         </Tab>
     </TabBar>
 </Shell>

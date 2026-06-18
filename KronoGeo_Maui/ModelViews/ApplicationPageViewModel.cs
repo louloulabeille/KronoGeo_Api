@@ -13,5 +13,11 @@ namespace KronoGeo_Maui.ModelViews
         {
             await Shell.Current.GoToAsync("ParametragePage");
         }
+
+        [RelayCommand]
+        public static async Task AppearingExe(BindableObject bind)
+        {
+            Shell.SetTabBarIsVisible(bind, true);
+        }
     }
 }
