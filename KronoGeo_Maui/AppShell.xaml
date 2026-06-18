@@ -10,5 +10,18 @@
         Title="Home"
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
-
+    <TabBar>
+        <Tab Title="Start" Icon="{FontImageSource FontFamily=MaterialIcons-Regular,Glyph='#e3e3e3',Color='#51638B'}">
+            <ShellContent ContentTemplate="{DataTemplate local:ApplicationPage}"/>
+        </Tab>
+        <Tab Title="Stop" Icon="{FontImageSource FontFamily=MaterialIcons-Regular,Glyph='#e3e3e3',Color='#51638B'}">
+            <ShellContent ContentTemplate="{DataTemplate local:ApplicationPage}"/>
+        </Tab>
+        <Tab Title="Camera" Icon="{FontImageSource FontFamily=MaterialIcons-Regular,Glyph='#e3e3e3',Color='#51638B'}">
+            <ShellContent ContentTemplate="{DataTemplate local:ApplicationPage}"/>
+        </Tab>
+        <Tab Title="Paramètre" >
+            <ShellContent ContentTemplate="{DataTemplate local:ApplicationPage}"/>
+        </Tab>
+    </TabBar>
 </Shell>
