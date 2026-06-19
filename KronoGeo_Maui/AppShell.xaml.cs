@@ -65,7 +65,7 @@ namespace KronoGeo_Maui
 
     #region  classe d'appel pour faire le lien avec le model view 
     // -- start la geolocalisation
-    public class ActionStartGeo(bool action) { public bool Action { get; set; } = action; }
+    public class ActionStartGeo(bool actionStart) { public bool ActionStart { get; set; } = actionStart; }
     // -- stop la geolocalisation
     public class ActionStopGeo { } 
     // -- ouvre la camera pour photo ou ( - video sera mis en place + tard )
