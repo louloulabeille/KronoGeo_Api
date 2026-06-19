@@ -1,6 +1,7 @@
 ﻿using KronoGeo_Api.Infrastructure.Service.Email.MessageFactoryMethod;
 using KronoGeo_Api.Infrastructure.Test;
 using KronoGeo_Api.Interface.Service;
+using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Infrastructure.Email;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
@@ -28,7 +29,7 @@ namespace KronoGeo_Api.Applications.Email
         /// <param name="user"></param>
         /// <param name="objectMessage"></param>
         /// <returns></returns>
-        public MessageResult SendEmail(IdentityUser user, MessageCourrielFactory objectMessage)
+        public MessageResult SendEmail(ApplicationUser user, MessageCourrielFactory objectMessage)
         {
             return SendEmail(user, objectMessage, null);
         }
@@ -36,7 +37,7 @@ namespace KronoGeo_Api.Applications.Email
 
         public MessageResult SendEmail(string emailUser, MessageCourrielFactory objectMessage,string? subject)
         {
-            var user = new IdentityUser(emailUser) { Email = emailUser };
+            var user = new ApplicationUser() { Email = emailUser };
             return SendEmail(user, objectMessage, subject);
         }
 
@@ -47,7 +48,7 @@ namespace KronoGeo_Api.Applications.Email
         /// <param name="messagObjectMessage">Object d'instanciation du body du mail</param>
         /// <param name="subject">subject du mail pas obligatoire - message par défaut : Confirmation de votre adresse email</param>
         /// <returns></returns>
-        public MessageResult SendEmail(IdentityUser user, MessageCourrielFactory objectMessage, string? subject)
+        public MessageResult SendEmail(ApplicationUser user, MessageCourrielFactory objectMessage, string? subject)
         {
           
             var message = MessageCourriel.Message(objectMessage);

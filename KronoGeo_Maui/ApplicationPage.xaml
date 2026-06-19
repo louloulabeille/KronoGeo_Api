@@ -34,7 +34,8 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="5" />
                 </Grid.ColumnDefinitions>
-                <maps:Map Grid.Column="1" Grid.Row="1" MinimumHeightRequest="600" HeightRequest="650"
+            <Label Text="{Binding Message}" TextColor="Red" FontSize="14"/>
+            <maps:Map Grid.Column="1" Grid.Row="1" MinimumHeightRequest="600" HeightRequest="650"
                     x:Name="googleMap" IsShowingUser="True"
                      IsScrollEnabled="True" IsZoomEnabled="True"/>
 

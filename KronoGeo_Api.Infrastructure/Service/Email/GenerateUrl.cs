@@ -1,4 +1,5 @@
-﻿using KronoGeo_Api.Models.Infrastructure.Email;
+﻿using KronoGeo_Api.Models;
+using KronoGeo_Api.Models.Infrastructure.Email;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
@@ -15,8 +16,8 @@ namespace KronoGeo_Api.Infrastructure.Service.Email
         /// générateur url pour l'authentification du mail 
         /// </summary>
         /// <returns></returns>
-        public static string GenerationUrlAuthentification(UserManager<IdentityUser> userManager
-            , IOptions<UrlOptions> urlOptions, IdentityUser user)
+        public static string GenerationUrlAuthentification(UserManager<ApplicationUser> userManager
+            , IOptions<UrlOptions> urlOptions, ApplicationUser user)
         {
             var token = userManager.GenerateEmailConfirmationTokenAsync(user).Result;
             string encodedToken = EncodingMessage(token);
@@ -35,7 +36,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Email
         /// <param name="user"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        public static string GenerationUrlAuthentification( IOptions<UrlOptions> urlOptions, IdentityUser user, string token )
+        public static string GenerationUrlAuthentification( IOptions<UrlOptions> urlOptions, ApplicationUser user, string token )
         {
             string encodedToken = EncodingMessage(token);
             string encodedId = EncodingMessage(user.Id);
@@ -54,7 +55,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Email
         /// <param name="email"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        public static string GenerationUrlEmailUpdate(IOptions<UrlOptions> urlOptions, IdentityUser user, string email,string token)
+        public static string GenerationUrlEmailUpdate(IOptions<UrlOptions> urlOptions, ApplicationUser user, string email,string token)
         {
             string encodedToken = EncodingMessage(token);
             string encodedId = EncodingMessage(user.Id);
@@ -72,7 +73,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Email
         /// <param name="email"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        public static string GenerationUrlRecupAccount(IOptions<UrlOptions> urlOptions, IdentityUser user, string token)
+        public static string GenerationUrlRecupAccount(IOptions<UrlOptions> urlOptions, ApplicationUser user, string token)
         {
             return GenerationUrlRecupAccount(urlOptions, user,  user.Email??string.Empty , token);
         }
@@ -85,7 +86,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Email
         /// <param name="email"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        public static string GenerationUrlRecupAccount(IOptions<UrlOptions> urlOptions, IdentityUser user, string oldMail, string token)
+        public static string GenerationUrlRecupAccount(IOptions<UrlOptions> urlOptions, ApplicationUser user, string oldMail, string token)
         {
             string encodedToken = EncodingMessage(token);
             string encodedId = EncodingMessage(user.Id);

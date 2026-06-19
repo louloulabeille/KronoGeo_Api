@@ -28,6 +28,12 @@ namespace KronoGeo_Maui.ModelViews
         }
         #endregion
 
+        #region public propeties ObservableProperties
+        [ObservableProperty]
+        public partial string Message { get; set; } = string.Empty;
+
+        #endregion
+
 
         #region method RelayCommand
         [RelayCommand]
