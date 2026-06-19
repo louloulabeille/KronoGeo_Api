@@ -8,7 +8,7 @@ using System.Text;
 
 namespace KronoGeo_Api.Infrastructure.Database
 {
-    public class KronoGeoDbContext : IdentityDbContext
+    public class KronoGeoDbContext : IdentityDbContext<ApplicationUser>
     {
         #region constructeur
         public KronoGeoDbContext(DbContextOptions<KronoGeoDbContext> options) : base(options)
