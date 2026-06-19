@@ -10,22 +10,29 @@
     Shell.TabBarUnselectedColor="#51638B"
     >
 
-    <!--<ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />-->
 
-    <!-- Icon="{FontImageSource FontFamily=MaterialIcons-Regular,Glyph='&#e3e3e3',Color='#51638B'}"-->
     <TabBar>
-        <Tab Title="Application">
+        <Tab Title="Start" Route="Start">
             <Tab.Icon>
-                <FontImageSource FontFamily="MaterialIcons-Regular" Glyph="&#xe7fd;" Color="#51638B"/>
+                <FontImageSource x:Name="fontImageStart" FontFamily="MaterialIcons-Regular" Glyph="&#xe1c4;" Color="#51638B"/>
             </Tab.Icon>
-            <ShellContent ContentTemplate="{DataTemplate local:ApplicationPage}" />
+            <ShellContent ContentTemplate="{DataTemplate local:MainPage}" />
         </Tab>
-        <Tab Title="Start">
+        <Tab Title="Stop" Route="Stop">
             <Tab.Icon>
-                <FontImageSource FontFamily="MaterialIcons-Regular" Glyph="&#xe7fd;" Color="#51638B"/>
+                <FontImageSource FontFamily="MaterialIcons-Regular" Glyph="&#xef71;" Color="#51638B"/>
+            </Tab.Icon>
+            <ShellContent  ContentTemplate="{DataTemplate local:ApplicationPage}"/>
+        </Tab>
+        <Tab Title="Camera" Route="Camera">
+            <Tab.Icon>
+                <FontImageSource FontFamily="MaterialIcons-Regular" Glyph="&#xe3af;" Color="#51638B"/>
+            </Tab.Icon>
+            <ShellContent  ContentTemplate="{DataTemplate local:ApplicationPage}"/>
+        </Tab>
+        <Tab Title="Parametrage" Route="Settings">
+            <Tab.Icon>
+                <FontImageSource FontFamily="MaterialIcons-Regular" Glyph="&#xe8b8;" Color="#51638B"/>
             </Tab.Icon>
             <ShellContent  ContentTemplate="{DataTemplate local:ParametragePage}"/>
         </Tab>

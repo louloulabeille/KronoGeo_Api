@@ -12,8 +12,8 @@ namespace KronoGeo_Maui
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-
             return new Window(new AppShell());
         }
+
     }
 }
