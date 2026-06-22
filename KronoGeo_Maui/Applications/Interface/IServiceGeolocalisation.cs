@@ -7,7 +7,6 @@ namespace KronoGeo_Maui.Applications.Interface
     public interface IServiceGeolocalisation : IDisposable
     {
         #region public properties
-        public CancellationTokenSource CancellationTokenSource { get; set; }
         public bool Pause { get; set; }
         #endregion
         #region public event 
@@ -16,8 +15,10 @@ namespace KronoGeo_Maui.Applications.Interface
         #endregion
 
         #region public method
-        public void StartLocationUpdates();
+        public void StartLocationUpdatesAsync();
         public void StopLocationUpdates();
+
+        public Task StartLocationUpdatesAsync(CancellationTokenSource cancellationTokenSource);
         #endregion
 
     }

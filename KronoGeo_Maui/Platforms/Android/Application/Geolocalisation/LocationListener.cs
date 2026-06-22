@@ -13,7 +13,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
 
         #region event appelé lors du changemeent de la localisation
         // Action à appeler lorsque la localisation change - event
-        public Action<Location>? OnLocationChangedAction { get; set; }
+        public Action<global::Android.Locations.Location>? OnLocationChangedAction { get; set; }
         #endregion
 
         #region public method interface

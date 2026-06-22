@@ -30,6 +30,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         public GeolocationAndroid()
         {
             _locationManager = (LocationManager?)AndroidApplication.Context.GetSystemService(Context.LocationService);
+            Init();
         }
         #endregion
 
@@ -39,7 +40,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
             GC.SuppressFinalize(this);
         }
 
-        public void StartLocationUpdates()
+        public void StartLocationUpdatesAsync()
         {
             if (_locationManager == null) return;
 
@@ -116,6 +117,14 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
             };
 
             
+        }
+
+        public Task StartLocationUpdatesAsync(CancellationTokenSource cancellationTokenSource)
+        {
+            return Task.Run(() =>
+            {       
+                StartLocationUpdatesAsync();
+            });
         }
         #endregion
     }

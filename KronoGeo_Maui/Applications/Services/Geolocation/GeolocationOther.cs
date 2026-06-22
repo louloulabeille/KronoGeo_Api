@@ -1,7 +1,10 @@
-﻿using KronoGeo_Maui.Applications.Interface;
+﻿using Android.Locations;
+using KronoGeo_Maui.Applications.Interface;
+using Microsoft.Maui.Devices.Sensors;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using GeolocationMaui = Microsoft.Maui.Devices.Sensors.Geolocation;
 
 namespace KronoGeo_Maui.Applications.Services.Geolocation
 {
@@ -10,25 +13,47 @@ namespace KronoGeo_Maui.Applications.Services.Geolocation
     /// </summary>
     public class GeolocationOther : IServiceGeolocalisation
     {
-        public CancellationTokenSource CancellationTokenSource { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public bool Pause { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        #region public properties
+        public bool Pause { get; set; } = false;
+        #endregion
 
+        #region public event
         public event EventHandler<GeolocationLocationChangedEventArgs>? LocationChanged;
         public event EventHandler<GeolocationListeningFailedEventArgs>? ListeningFailed;
+        #endregion
 
+        #region public method interface
         public void Dispose()
         {
             GC.SuppressFinalize(this);
         }
 
-        public void StartLocationUpdates()
+
+        public async Task StartLocationUpdatesAsync(CancellationTokenSource cancellationTokenSource)
         {
-            throw new NotImplementedException();
+            
+            // Using GeolocationAccuracy.Best
+            // Developers can adjust this value to High or Low based on their specific requirements.
+            var request = new GeolocationListeningRequest(GeolocationAccuracy.Best);
+            var success = await GeolocationMaui.StartListeningForegroundAsync(request);
+
+            if (success)
+            {
+                GeolocationMaui.LocationChanged += LocationChanged;
+            }
         }
 
         public void StopLocationUpdates()
         {
-            throw new NotImplementedException();
+            GeolocationMaui.LocationChanged -= LocationChanged;
+            GeolocationMaui.StopListeningForeground();
         }
+
+        void IServiceGeolocalisation.StartLocationUpdatesAsync()
+        {
+            var cancellationToken = new CancellationTokenSource();
+            StartLocationUpdatesAsync(cancellationToken).Start();
+        }
+        #endregion
     }
 }
