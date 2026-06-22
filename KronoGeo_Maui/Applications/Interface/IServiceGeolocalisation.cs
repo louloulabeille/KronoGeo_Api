@@ -17,8 +17,21 @@ namespace KronoGeo_Maui.Applications.Interface
         #region public method
         public void StartLocationUpdatesAsync();
         public void StopLocationUpdates();
-
         public Task StartLocationUpdatesAsync(CancellationTokenSource cancellationTokenSource);
+
+        /// <summary>
+        /// method qui retourne le localisation Current
+        /// </summary>
+        /// <param name="cancellationTokenSource"></param>
+        /// <returns></returns>
+        public async Task<Location?> GetCurrentLocationAsync(CancellationTokenSource cancellationTokenSource)
+        {
+            GeolocationRequest request = new (GeolocationAccuracy.Best, TimeSpan.FromSeconds(1));
+
+            var location = await Geolocation.Default.GetLocationAsync(request, cancellationTokenSource.Token);
+            return location;
+        }
+
         #endregion
 
     }
