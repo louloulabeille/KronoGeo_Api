@@ -13,7 +13,9 @@ namespace KronoGeo_Maui.ModelViews
         #region constructeur
         public ApplicationPageViewModel()
         {
-            // S'abonne au clic de l'onglet
+            
+
+           /* // S'abonne au clic de l'onglet
             WeakReferenceMessenger.Default.Register<ActionStartGeo>(this, (r, m) =>
             {
                 if ( m.ActionStart ) // -- la geolocation est démarrée
@@ -24,14 +26,15 @@ namespace KronoGeo_Maui.ModelViews
                 { 
 
                 }
-            });
+            });*/
         }
         #endregion
 
         #region public propeties ObservableProperties
         [ObservableProperty]
         public partial string Message { get; set; } = string.Empty;
-
+        [ObservableProperty]
+        public partial bool IsMessageError { get; set; } = false;
         #endregion
 
 
@@ -43,10 +46,12 @@ namespace KronoGeo_Maui.ModelViews
         }
 
         [RelayCommand]
+        // -- déclanché après l'affichage de la page Appearing
         public static async Task AppearingExe(BindableObject bind)
         {
-            Shell.SetTabBarIsVisible(bind, true);
+            //Shell.SetTabBarIsVisible(bind, true);
         }
+
         #endregion
     }
 }

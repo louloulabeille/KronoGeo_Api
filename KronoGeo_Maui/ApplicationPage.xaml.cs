@@ -1,6 +1,7 @@
 using AndroidX.Lifecycle;
 using CommunityToolkit.Maui.Behaviors;
 using KronoGeo_Maui.ModelViews;
+using static Android.App.Assist.AssistStructure;
 //using Map = Microsoft.Maui.Controls.Maps.Map;
 
 namespace KronoGeo_Maui;
@@ -20,6 +21,4 @@ public partial class ApplicationPage : ContentPage
             CommandParameter = this
         });
     }
-
-
 }

@@ -5,13 +5,18 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:KronoGeo_Maui"
     Title="KronoGeo_Maui"
-    Shell.TabBarBackgroundColor="#F9EDE1"
+    Shell.TabBarBackgroundColor="#F9EDE1">
+    
+    <!--<Shell.TabBarBackgroundColor="#F9EDE1"
     Shell.TabBarTitleColor="#51638B"
     Shell.TabBarUnselectedColor="#51638B"
-    >
+    >-->
+    <ShellContent
+    Title=""
+    ContentTemplate="{DataTemplate local:MainPage}"
+    Route="MainPage" />
 
-
-    <TabBar>
+    <!--<TabBar>
         <Tab Title="Start" Route="Start">
             <Tab.Icon>
                 <FontImageSource x:Name="fontImageStart" FontFamily="MaterialIcons-Regular" Glyph="&#xe1c4;" Color="#51638B"/>
@@ -37,4 +42,5 @@
             <ShellContent  ContentTemplate="{DataTemplate local:ParametragePage}"/>
         </Tab>
     </TabBar>
+    -->
 </Shell>

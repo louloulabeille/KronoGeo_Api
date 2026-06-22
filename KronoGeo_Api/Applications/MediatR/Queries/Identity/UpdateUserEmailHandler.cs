@@ -4,6 +4,7 @@ using KronoGeo_Api.Infrastructure.Service.Email;
 using KronoGeo_Api.Infrastructure.Service.Email.MessageFactoryMethod;
 using KronoGeo_Api.Infrastructure.Test;
 using KronoGeo_Api.Interface.Service;
+using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Infrastructure.Email;
 using KronoGeo_Api.Models.Infrastructure.Options;
 using MediatR;
@@ -13,7 +14,7 @@ using Microsoft.Extensions.Options;
 namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
 {
     public class UpdateUserEmailHandler( ILogger<UpdateUserEmailHandler> logger
-        , IOptions<KeyBearer> keyBearer, SignInManager<IdentityUser> signInManager
+        , IOptions<KeyBearer> keyBearer, SignInManager<ApplicationUser> signInManager
         , IServiceSendMessage serviceSendMail
         , IOptions<UrlOptions> urlOptions)
         : UserIdentityHandler (logger, keyBearer, signInManager)

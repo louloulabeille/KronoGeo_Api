@@ -12,9 +12,9 @@ namespace KronoGeo_Maui
             RoutingRegister();
         }
 
-        #region private properties
+        /*#region private properties
         private bool _isStarting = false;
-        #endregion
+        #endregion*/
 
 
         #region method private routing
@@ -29,7 +29,7 @@ namespace KronoGeo_Maui
         }
         #endregion
 
-        protected override void OnNavigating(ShellNavigatingEventArgs args)
+        /*protected override void OnNavigating(ShellNavigatingEventArgs args)
         {
             base.OnNavigating(args);
 
@@ -59,16 +59,16 @@ namespace KronoGeo_Maui
                 // Notifie le ViewModel
                 WeakReferenceMessenger.Default.Send(new ActionCamera());
             }
-        }
+        }*/
     }
 
 
-    #region  classe d'appel pour faire le lien avec le model view 
+    /*#region  classe d'appel pour faire le lien avec le model view 
     // -- start la geolocalisation
     public class ActionStartGeo(bool actionStart) { public bool ActionStart { get; set; } = actionStart; }
     // -- stop la geolocalisation
     public class ActionStopGeo { } 
     // -- ouvre la camera pour photo ou ( - video sera mis en place + tard )
     public class ActionCamera { }
-    #endregion
+    #endregion*/
 }
