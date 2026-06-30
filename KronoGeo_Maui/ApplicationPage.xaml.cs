@@ -1,6 +1,7 @@
 using AndroidX.Lifecycle;
 using CommunityToolkit.Maui.Behaviors;
 using KronoGeo_Maui.ModelViews;
+using Microsoft.Maui.Controls.Maps;
 using static Android.App.Assist.AssistStructure;
 //using Map = Microsoft.Maui.Controls.Maps.Map;
 
@@ -18,6 +19,25 @@ public partial class ApplicationPage : ContentPage
             if (e.PropertyName == nameof(ApplicationPageViewModel.MapRegion) && modelView.MapRegion is not null)
             {
                 googleMap.MoveToRegion(modelView.MapRegion);
+            }
+            if(e.PropertyName == nameof(ApplicationPageViewModel.Location) && modelView.Location is not null )
+            {
+                if (googleMap.MapElements.Count == 0)
+                {
+                    var polyne = new Polyline()
+                    {
+                        StrokeColor = Colors.Blue,
+                        StrokeWidth = 12,
+                    };
+                    polyne.Geopath.Add(modelView.Location);
+                    googleMap.MapElements.Add(polyne);
+                }
+                else
+                {
+                    var element = googleMap.MapElements.FirstOrDefault() as Polyline;
+                    element?.Geopath.Add(modelView.Location);
+                }
+
             }
         };
 

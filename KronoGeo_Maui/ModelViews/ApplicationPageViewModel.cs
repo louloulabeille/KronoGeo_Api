@@ -50,6 +50,8 @@ namespace KronoGeo_Maui.ModelViews
         public partial string PlayPause { get; set; } = "\ue1c4"; // - affichage de play
         [ObservableProperty]
         public partial MapSpan? MapRegion { get; set; } = null;
+        [ObservableProperty]
+        public partial Location? Location { get; set; } = default;
         #endregion
 
 
@@ -162,6 +164,7 @@ namespace KronoGeo_Maui.ModelViews
         public void OnLocalication_Changed(object? sender, GeolocationLocationChangedEventArgs e)
         {
             //_locations.Add(e.Location);
+            Location = e.Location; // -- pour la mise a jour du tracé sur la map
             _localisations.Add(new Localisation()
             {
                 Altitude = e.Location.Altitude,
