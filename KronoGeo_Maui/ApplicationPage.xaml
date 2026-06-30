@@ -28,7 +28,7 @@
     <ScrollView BackgroundColor="#96BD8E" >
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="50" />
+                <!--<RowDefinition Height="50" />-->
                 <RowDefinition Height="*" />
                 <RowDefinition Height="50" />
             </Grid.RowDefinitions>
@@ -37,8 +37,8 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="5" />
             </Grid.ColumnDefinitions>
-            <Label Grid.Column="1" Grid.Row="0" Text="{Binding Message}" IsVisible="{Binding IsMessageError}"
-                   TextColor="Red" FontSize="14" HeightRequest="50"/>
+            <!--<Label Grid.Column="1" Grid.Row="0" Text="{Binding Message}" IsVisible="{Binding IsMessageError}"
+                   TextColor="Red" FontSize="14" HeightRequest="50"/>-->
             <maps:Map Grid.Column="1" Grid.Row="1" MinimumHeightRequest="600" 
                       HeightRequest="650" x:Name="googleMap" IsShowingUser="True"
                       IsScrollEnabled="True" IsZoomEnabled="True"/>

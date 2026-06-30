@@ -48,7 +48,6 @@ namespace KronoGeo_Maui.Applications.Services
             sb.AppendLine("<trk>");
             sb.AppendLine($"<name>{title}</name>\r\n   <desc/>\r\n   <trkseg>");
 
-
             foreach (var localisation in localisations)
             {
                 sb.AppendLine($"<trkpt lat=\"{localisation.Latitude}\" lon=\"{localisation.Longitude}\"/>");

@@ -13,6 +13,14 @@ public partial class ApplicationPage : ContentPage
 		InitializeComponent();
 		BindingContext = modelView;
 
+        modelView.PropertyChanged += (s, e) =>
+        {
+            if (e.PropertyName == nameof(ApplicationPageViewModel.MapRegion) && modelView.MapRegion is not null)
+            {
+                googleMap.MoveToRegion(modelView.MapRegion);
+            }
+        };
+
         // Ajout du behavior directement en C#
         this.Behaviors.Add(new EventToCommandBehavior
         {

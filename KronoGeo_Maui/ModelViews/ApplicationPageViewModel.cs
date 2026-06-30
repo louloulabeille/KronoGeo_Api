@@ -1,12 +1,19 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Android.Gms.Tasks;
+using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Storage;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models;
 using KronoGeo_Maui.Applications.Interface;
+using Microsoft.Extensions.Primitives;
+using Microsoft.Maui.Maps;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using CancellationTokenSource = System.Threading.CancellationTokenSource;
+using Task = System.Threading.Tasks.Task;
 
 namespace KronoGeo_Maui.ModelViews
 {
@@ -28,16 +35,21 @@ namespace KronoGeo_Maui.ModelViews
             _localisations = [];
             _saveLocalisation = saveLocalisation;
             _service.LocationChanged += OnLocalication_Changed;
+
+            Task.Run(async () => await GetUserLocationAsync());
         }
+        #endregion
+
+        #region public properties
+        public bool IsMessageError { get; set; } = false;
+        public string Message { get; set; } = string.Empty;
         #endregion
 
         #region public propeties ObservableProperties
         [ObservableProperty]
-        public partial string Message { get; set; } = string.Empty;
-        [ObservableProperty]
-        public partial bool IsMessageError { get; set; } = false;
-        [ObservableProperty]
         public partial string PlayPause { get; set; } = "\ue1c4"; // - affichage de play
+        [ObservableProperty]
+        public partial MapSpan? MapRegion { get; set; } = null;
         #endregion
 
 
@@ -56,7 +68,7 @@ namespace KronoGeo_Maui.ModelViews
         }
 
         [RelayCommand]
-        public void StartPause()
+        public async Task StartPause()
         {
             IsMessageError = false;
             try
@@ -101,17 +113,25 @@ namespace KronoGeo_Maui.ModelViews
                 Message = "Erreur interne";
                 Console.WriteLine(ex.Message);
             }
+            finally
+            {
+                if ( IsMessageError)
+                {
+                    var cancellationToken = new System.Threading.CancellationToken();
+                    await Toast.Make($"{Message}").Show(cancellationToken);
+                }
+            }
         }
 
         [RelayCommand]
-        public void Stop()
+        public async Task Stop()
         {
             try
             {
                 _service.StopLocationUpdates();
                 if ( _localisations.Count > 0 )
                 {
-                    _saveLocalisation.SaveLocalisation(_localisations, new CancellationToken());
+                    await _saveLocalisation.SaveLocalisation(_localisations, new System.Threading.CancellationToken());
                     _localisations.Clear();
                 }
             }
@@ -120,6 +140,14 @@ namespace KronoGeo_Maui.ModelViews
                 IsMessageError = true;
                 Message = "Erreur interne";
                 Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                if (IsMessageError)
+                {
+                    var cancellationToken = new System.Threading.CancellationToken();
+                    await Toast.Make($"{Message}").Show(cancellationToken);
+                }
             }
         }
 
@@ -134,8 +162,6 @@ namespace KronoGeo_Maui.ModelViews
         public void OnLocalication_Changed(object? sender, GeolocationLocationChangedEventArgs e)
         {
             //_locations.Add(e.Location);
-            Message = e.Location.ToString();
-            IsMessageError = true;
             _localisations.Add(new Localisation()
             {
                 Altitude = e.Location.Altitude,
@@ -148,6 +174,17 @@ namespace KronoGeo_Maui.ModelViews
                 Course = e.Location.Course,
             });
             
+        }
+
+        /// <summary>
+        /// remplace la localication par défaut par la localication réel au niveau de la map
+        /// </summary>
+        /// <returns></returns>
+        public async Task GetUserLocationAsync()
+        {
+            var localition = await _service.GetCurrentLocationAsync( new CancellationTokenSource());
+            if (localition is not null) 
+                MapRegion = MapSpan.FromCenterAndRadius(localition, Distance.FromMeters(500));
         }
         #endregion
     }
