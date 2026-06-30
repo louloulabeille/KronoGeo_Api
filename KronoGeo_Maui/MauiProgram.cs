@@ -44,20 +44,17 @@ namespace KronoGeo_Maui
             #endregion
 
             #region Injection Geolocation
-            #if ANDROID
-            // -- android 26
-                if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.O)
-                    builder.Services.AddSingleton<IServiceGeolocalisation, GeolocationAndroid>();
-                else
-                    builder.Services.AddSingleton <IServiceGeolocalisation,GeolocationOther>();
-            #endif
-
-            #if !ANDROID
-                builder.Services.AddSingleton <IServiceGeolocalisation,GeolocationOther>();
-            #endif
-
+            #if ANDROID26_0_OR_GREATER
+                // -- Android 26
+                builder.Services.AddSingleton<IServiceGeolocalisation, GeolocationAndroid>();
+#elif ANDROID21_0_OR_GREATER
+                builder.Services.AddSingleton<IServiceGeolocalisation, GeolocationOther>();
+#elif !ANDROID
+                builder.Services.AddSingleton<IServiceGeolocalisation, GeolocationOther>();
+#endif
             #endregion
 
+            builder.Services.AddTransient<IServiceSaveLocalisation, InMemorySaveLocalisation>();
             builder.Services.AddSingleton<IDialogService, MauiDialogService>();
             builder.Services.AddScoped<IServiceSaveParametrage, InMemoryMauiParametrage>();
 

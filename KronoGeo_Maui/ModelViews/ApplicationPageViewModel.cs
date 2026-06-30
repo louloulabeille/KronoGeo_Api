@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models;
 using KronoGeo_Maui.Applications.Interface;
 using System;
@@ -16,15 +17,16 @@ namespace KronoGeo_Maui.ModelViews
         // -- mettre le service d'enregistrement
         //private readonly List<Location> _locations;
         private readonly List<Localisation> _localisations;
+        private readonly IServiceSaveLocalisation _saveLocalisation;
         #endregion
 
         #region constructeur
-        public ApplicationPageViewModel(IServiceGeolocalisation service)
+        public ApplicationPageViewModel(IServiceGeolocalisation service
+            , IServiceSaveLocalisation saveLocalisation)
         {
             _service = service;
-            //_locations = [];
             _localisations = [];
-
+            _saveLocalisation = saveLocalisation;
             _service.LocationChanged += OnLocalication_Changed;
         }
         #endregion
@@ -107,6 +109,11 @@ namespace KronoGeo_Maui.ModelViews
             try
             {
                 _service.StopLocationUpdates();
+                if ( _localisations.Count > 0 )
+                {
+                    _saveLocalisation.SaveLocalisation(_localisations, new CancellationToken());
+                    _localisations.Clear();
+                }
             }
             catch(Exception ex)
             {
