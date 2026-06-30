@@ -40,12 +40,13 @@ namespace KronoGeo_Maui.Applications.Services
             
             var guid = Guid.NewGuid();
             var date = DateTime.Now;
+            string title = date.ToString("dd-MM-yyyy") + "-" + guid.ToString("N").AsSpan(25).ToString();
 
             var sb = new StringBuilder();
             sb.AppendLine(" <?xml version=\"1.0\" encoding=\"utf-8\"?>");
             sb.AppendLine("<gpx xmlns=\"http://www.topografix.com/GPX/1/1\" version=\"1.1\" creator=\"\">");
             sb.AppendLine("<trk>");
-            sb.AppendLine("<name>Nouveau parcours</name>\r\n   <desc/>\r\n   <trkseg>");
+            sb.AppendLine($"<name>{title}</name>\r\n   <desc/>\r\n   <trkseg>");
 
 
             foreach (var localisation in localisations)
@@ -56,8 +57,8 @@ namespace KronoGeo_Maui.Applications.Services
             sb.AppendLine("</trkseg></trk></gpx>");
 
             using var stream = new MemoryStream(Encoding.Default.GetBytes(sb.ToString()));
-            string title = date.ToString("dd-MM-yyyy") +"-" + guid.ToString().Substring(25) + ".gps";
-            var fileSaverResult = await FileSaver.Default.SaveAsync(title, stream, cancellationToken);
+            
+            var fileSaverResult = await FileSaver.Default.SaveAsync(title+".gpx", stream, cancellationToken);
             if (fileSaverResult.IsSuccessful)
             {
                 await Toast.Make($"The file was saved successfully to location: {fileSaverResult.FilePath}").Show(cancellationToken);
