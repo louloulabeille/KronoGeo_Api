@@ -28,7 +28,7 @@
     <ScrollView BackgroundColor="#96BD8E" >
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="5" />
+                <RowDefinition Height="50" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="50" />
             </Grid.RowDefinitions>
@@ -37,12 +37,13 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="5" />
             </Grid.ColumnDefinitions>
-            <Label Grid.Column="1" Text="{Binding Message}" IsVisible="{Binding IsMessageError}"
-                   TextColor="Red" FontSize="14"/>
+            <Label Grid.Column="1" Grid.Row="0" Text="{Binding Message}" IsVisible="{Binding IsMessageError}"
+                   TextColor="Red" FontSize="14" HeightRequest="50"/>
             <maps:Map Grid.Column="1" Grid.Row="1" MinimumHeightRequest="600" 
                       HeightRequest="650" x:Name="googleMap" IsShowingUser="True"
                       IsScrollEnabled="True" IsZoomEnabled="True"/>
-            <Border Grid.Row="2" Grid.Column="1" >
+            <Border Grid.Row="2" Grid.Column="1" StrokeThickness="1" 
+                    StrokeShape="RoundRectangle 20,20,20,20" Stroke="#51638B">
                 <Grid VerticalOptions="End" BackgroundColor="#F9EDE1" HeightRequest="50">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -50,11 +51,11 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Button Grid.Column="0" FontFamily="MaterialIcons-Regular" 
-                        Text="&#xe1c4;"  TextColor="#51638B" FontSize="30"
-                        BackgroundColor="#F9EDE1"/>
+                        Text="{Binding PlayPause}"  TextColor="#51638B" FontSize="30"
+                        BackgroundColor="#F9EDE1" Command="{Binding StartPauseCommand}"/>
                     <Button Grid.Column="1" FontFamily="MaterialIcons-Regular" 
                         Text="&#xef71;" TextColor="#51638B" FontSize="30"
-                        BackgroundColor="#F9EDE1"/>
+                        BackgroundColor="#F9EDE1" Command="{Binding StopCommand}"/>
                     <Button Grid.Column="2" FontFamily="MaterialIcons-Regular" 
                         Text="&#xe3af;" TextColor="#51638B" FontSize="30"
                         BackgroundColor="#F9EDE1"/>

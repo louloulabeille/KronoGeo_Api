@@ -31,7 +31,7 @@ namespace KronoGeo_Maui.Applications.Services.Geolocation
 
         public async Task StartLocationUpdatesAsync(CancellationTokenSource cancellationTokenSource)
         {
-            
+            if (Pause) return;
             // Using GeolocationAccuracy.Best
             // Developers can adjust this value to High or Low based on their specific requirements.
             var request = new GeolocationListeningRequest(GeolocationAccuracy.Best);
