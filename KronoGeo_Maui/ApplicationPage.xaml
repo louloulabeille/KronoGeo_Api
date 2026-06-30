@@ -39,10 +39,10 @@
             </Grid.ColumnDefinitions>
             <!--<Label Grid.Column="1" Grid.Row="0" Text="{Binding Message}" IsVisible="{Binding IsMessageError}"
                    TextColor="Red" FontSize="14" HeightRequest="50"/>-->
-            <maps:Map Grid.Column="1" Grid.Row="1" MinimumHeightRequest="600" 
+            <maps:Map Grid.Column="1" Grid.Row="0" MinimumHeightRequest="600" 
                       HeightRequest="650" x:Name="googleMap" IsShowingUser="True"
                       IsScrollEnabled="True" IsZoomEnabled="True"/>
-            <Border Grid.Row="2" Grid.Column="1" StrokeThickness="1" 
+            <Border Grid.Row="1" Grid.Column="1" StrokeThickness="1" 
                     StrokeShape="RoundRectangle 20,20,20,20" Stroke="#51638B">
                 <Grid VerticalOptions="End" BackgroundColor="#F9EDE1" HeightRequest="50">
                     <Grid.ColumnDefinitions>
