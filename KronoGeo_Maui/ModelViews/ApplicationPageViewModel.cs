@@ -37,7 +37,7 @@ namespace KronoGeo_Maui.ModelViews
             _saveLocalisation = saveLocalisation;
             _service.LocationChanged += OnLocalication_Changed;
 
-            //Task.Run(async () => await GetUserLocationAsync());
+            Task.Run(async () => await GetUserLocationAsync());
         }
         #endregion
 

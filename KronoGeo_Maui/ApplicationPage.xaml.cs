@@ -56,13 +56,14 @@ public partial class ApplicationPage : ContentPage
             Command = modelView.AppearingExeCommand,
             CommandParameter = this
         });
-
+        */
         // Ajout du behavior directement en C#
-        this.Behaviors.Add(new EventToCommandBehavior
+        /*this.Behaviors.Add(new EventToCommandBehavior
         {
             EventName = nameof(Loaded),
             Command = modelView.LoadedExeCommand
-        });*/
+        });
+        */
     }
 
 }
