@@ -4,6 +4,7 @@
              xmlns:viewmodels="clr-namespace:KronoGeo_Maui.ModelViews"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:helpers="clr-namespace:KronoGeo_Maui.Applications.Helpers"
+             xmlns:behaviors="clr-namespace:KronoGeo_Maui.Applications.Behaviors"
              xmlns:maps="http://schemas.microsoft.com/dotnet/2021/maui/maps"
              x:DataType="viewmodels:ApplicationPageViewModel"
              x:Class="KronoGeo_Maui.ApplicationPage"
@@ -41,7 +42,12 @@
                    TextColor="Red" FontSize="14" HeightRequest="50"/>-->
             <maps:Map Grid.Column="1" Grid.Row="0" MinimumHeightRequest="600" 
                       HeightRequest="650" x:Name="googleMap" IsShowingUser="True"
-                      IsScrollEnabled="True" IsZoomEnabled="True"/>
+                      IsScrollEnabled="True" IsZoomEnabled="True">
+                <maps:Map.Behaviors>
+                    <!-- Le behavior écoute le Messenger en silence -->
+                    <behaviors:MapMessengerBehavior />
+                </maps:Map.Behaviors>
+            </maps:Map>
             <Border Grid.Row="1" Grid.Column="1" StrokeThickness="1" 
                     StrokeShape="RoundRectangle 20,20,20,20" Stroke="#51638B">
                 <Grid VerticalOptions="End" BackgroundColor="#F9EDE1" HeightRequest="50">

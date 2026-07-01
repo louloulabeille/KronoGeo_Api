@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models;
 using KronoGeo_Maui.Applications.Interface;
+using KronoGeo_Maui.Applications.Message;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Maui.Maps;
 using System;
@@ -36,7 +37,7 @@ namespace KronoGeo_Maui.ModelViews
             _saveLocalisation = saveLocalisation;
             _service.LocationChanged += OnLocalication_Changed;
 
-            Task.Run(async () => await GetUserLocationAsync());
+            //Task.Run(async () => await GetUserLocationAsync());
         }
         #endregion
 
@@ -48,8 +49,8 @@ namespace KronoGeo_Maui.ModelViews
         #region public propeties ObservableProperties
         [ObservableProperty]
         public partial string PlayPause { get; set; } = "\ue1c4"; // - affichage de play
-        [ObservableProperty]
-        public partial MapSpan? MapRegion { get; set; } = null;
+        /*[ObservableProperty]
+        public partial MapSpan? MapRegion { get; set; } = null;*/
         [ObservableProperty]
         public partial Location? Location { get; set; } = default;
         #endregion
@@ -62,12 +63,19 @@ namespace KronoGeo_Maui.ModelViews
             await Shell.Current.GoToAsync("ParametragePage");
         }
 
-        [RelayCommand]
-        // -- déclanché après l'affichage de la page Appearing
-        public static async Task AppearingExe(BindableObject bind)
+        /*[RelayCommand]
+        // -- se déclanche après l'affichage de la page Appearing
+        public async Task AppearingExe(BindableObject bind)
         {
-            //Shell.SetTabBarIsVisible(bind, true);
-        }
+            
+        }*/
+
+        /*[RelayCommand]
+        // -- se déclanche après le chagement de la page
+        public async Task LoadedExe()
+        {
+            await GetUserLocationAsync();
+        }*/
 
         [RelayCommand]
         public async Task StartPause()
@@ -153,6 +161,23 @@ namespace KronoGeo_Maui.ModelViews
             }
         }
 
+        /// <summary>
+        /// remplace la localication par défaut par la localication réel au niveau de la map
+        /// </summary>
+        /// <returns></returns>
+        [RelayCommand]
+        public async Task GetUserLocationAsync()
+        {
+            var localition = await _service.GetCurrentLocationAsync(new CancellationTokenSource());
+            if (localition is not null)
+            {
+                //MapRegion = MapSpan.FromCenterAndRadius(localition, Distance.FromMeters(500));
+                // -- envoie un message pour recentrer la map sur la position de l'utilisateur
+                WeakReferenceMessenger.Default.Send(new RecenterMapMessage(localition));
+            }
+
+        }
+
         #endregion
 
         #region public method event
@@ -179,16 +204,7 @@ namespace KronoGeo_Maui.ModelViews
             
         }
 
-        /// <summary>
-        /// remplace la localication par défaut par la localication réel au niveau de la map
-        /// </summary>
-        /// <returns></returns>
-        public async Task GetUserLocationAsync()
-        {
-            var localition = await _service.GetCurrentLocationAsync( new CancellationTokenSource());
-            if (localition is not null) 
-                MapRegion = MapSpan.FromCenterAndRadius(localition, Distance.FromMeters(500));
-        }
+        
         #endregion
     }
 }

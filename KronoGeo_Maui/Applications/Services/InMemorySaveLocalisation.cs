@@ -5,6 +5,7 @@ using KronoGeo_Api.Models;
 using Npgsql.Internal;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace KronoGeo_Maui.Applications.Services
@@ -50,7 +51,7 @@ namespace KronoGeo_Maui.Applications.Services
 
             foreach (var localisation in localisations)
             {
-                sb.AppendLine($"<trkpt lat=\"{localisation.Latitude}\" lon=\"{localisation.Longitude}\"/>");
+                sb.AppendLine($"<trkpt lat=\"{localisation.Latitude.ToString(CultureInfo.InvariantCulture)}\" lon=\"{localisation.Longitude.ToString(CultureInfo.InvariantCulture)}\"/>");
             }
 
             sb.AppendLine("</trkseg></trk></gpx>");
