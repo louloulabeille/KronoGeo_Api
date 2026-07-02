@@ -126,8 +126,12 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
             return Task.Run(() =>
             {       
                 StartLocationUpdatesAsync();
-            });
+            }, cancellationToken);
         }
         #endregion
     }
-}
+}    
+
+
+
+
