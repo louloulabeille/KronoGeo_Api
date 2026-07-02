@@ -18,7 +18,7 @@ using Task = System.Threading.Tasks.Task;
 
 namespace KronoGeo_Maui.ModelViews
 {
-    public partial class ApplicationPageViewModel : ObservableObject
+    public partial class ApplicationPageViewModel : ObservableObject, IRecipient<LocationChangedMessage>
     {
         #region private readonly properties
         private readonly IServiceGeolocalisation _service;
@@ -180,6 +180,31 @@ namespace KronoGeo_Maui.ModelViews
 
         #endregion
 
+        #region public method interface IRecipient<LocationChangedMessage>
+        /// <summary>
+        /// method qui est appelé lors d'un send sur le message LocationChangedMessage
+        /// il est en écoute
+        /// </summary>
+        /// <param name="message"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        public void Receive(LocationChangedMessage message)
+        {
+            Location = message.Value; // -- pour la mise a jour du tracé sur la map
+            WeakReferenceMessenger.Default.Send(new RecenterMapMessage(message.Value));
+            _localisations.Add(new Localisation()
+            {
+                Altitude = message.Value.Altitude,
+                Latitude = message.Value.Latitude,
+                Longitude = message.Value.Longitude,
+                Accuracy = message.Value.Accuracy,
+                Speed = message.Value.Speed,
+                Timestamp = DateTime.Now,   // -- mettre le DateTime local sinon universel
+                VerticalAccuracy = message.Value.VerticalAccuracy,
+                Course = message.Value.Course,
+            });
+        }
+        #endregion
+
         #region public method event
         /// <summary>
         /// évènement pour 
@@ -206,7 +231,6 @@ namespace KronoGeo_Maui.ModelViews
             
         }
 
-        
         #endregion
     }
 }
