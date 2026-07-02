@@ -114,6 +114,7 @@ namespace KronoGeo_Maui.ModelViews
                 {
                     IsStart = true;
                     PlayPause = "\ue1a2";
+                    intent.SetAction(GeoAndroidService.ActionStart);
                     if (OperatingSystem.IsAndroidVersionAtLeast(26))
                     {
                         Android.App.Application.Context.StartForegroundService(intent);

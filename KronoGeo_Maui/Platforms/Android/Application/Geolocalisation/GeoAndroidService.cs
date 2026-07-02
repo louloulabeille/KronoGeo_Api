@@ -3,6 +3,8 @@ using Android.Content;
 using Android.Media;
 using Android.OS;
 using AndroidX.Core.App;
+using Android.Util;
+using Android.Content.PM;
 using CommunityToolkit.Mvvm.Messaging;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Maui.Applications.Interface;
@@ -15,15 +17,15 @@ using System.Text;
 
 namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
 {
-    //[Service(ForegroundServiceType = Android.Content.PM.ForegroundService.TypeLocation)]
-    [Service]
-    public class GeoAndroidService(IServiceGeolocalisation serviceGeo) : Service
+    [Service(ForegroundServiceType = ForegroundService.TypeLocation)]
+    //[Service]
+    public class GeoAndroidService : Service
     {
         #region private properties
         private const string NOTIFICATION_CHANNEL_ID = "46100";
         private readonly int NOTIFICATION_ID = 1;
         private const string CHANNEL_NAME = "location_notification_channel";
-        private readonly IServiceGeolocalisation _serviceGeo = serviceGeo;
+        private IServiceGeolocalisation? _serviceGeo;
         private readonly CancellationTokenSource _cancellationTokenSource = new ();
         #endregion
 
@@ -32,16 +34,30 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         public const string ActionPause = "Pause_Geolocation";
         public const string ActionStopPause = "StopPause_Geolocation";
         public const string ActionStop = "Stop_Geolocation";
-        #endregion
 
+        #endregion
+        public GeoAndroidService() : base()
+        {
+        }
+        
         #region public method override
         public override IBinder? OnBind(Intent? intent) => null;
+
+        public override void OnCreate()
+        {
+            base.OnCreate();
+            _serviceGeo = IPlatformApplication.Current?.Services.GetService<IServiceGeolocalisation>();
+
+            if( _serviceGeo is null )
+            {
+                // Sécurité au cas où le service de géolocalisation n'est pas disponible
+                Log.Error("GeoAndroidService", "Le service de géolocalisation n'a pas pu être récupéré.");
+            }
+        }
         #endregion
 
         public override StartCommandResult OnStartCommand(Intent? intent, StartCommandFlags flags, int startId)
         {
-            
-
             var action = intent?.Action;
             switch (action)
             {
@@ -74,8 +90,8 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         public override void OnDestroy()
         {
             // Arrêter proprement le GPS ici pour économiser la batterie
-            _serviceGeo.StopLocationUpdates();
-            _serviceGeo.Dispose();
+            _serviceGeo?.StopLocationUpdates();
+            _serviceGeo?.Dispose();
             base.OnDestroy();
         }
 
@@ -89,8 +105,8 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         {
             // -- arrêt des écoutes sur onchanged pour ne pas envoyer de message
             // à l'application MAUI
-            _serviceGeo.LocationChanged -= OnLocalication_Changed;
-            _serviceGeo.Pause = true;
+            _serviceGeo?.LocationChanged -= OnLocalication_Changed;
+            _serviceGeo?.Pause = true;
         }
 
         /// <summary>
@@ -101,8 +117,8 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         {
             // -- arrêt des écoutes sur onchanged pour ne pas envoyer de message
             // à l'application MAUI
-            _serviceGeo.LocationChanged += OnLocalication_Changed;
-            _serviceGeo.Pause = false;
+            _serviceGeo?.LocationChanged += OnLocalication_Changed;
+            _serviceGeo?.Pause = false;
         }
 
         /// <summary>
@@ -112,13 +128,13 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         /// </summary>
         private void StartGeolocalisation()
         {
-            if ( !_serviceGeo.Pause)
+            if (_serviceGeo is not null &&!_serviceGeo.Pause)
             {
-                _serviceGeo.StartLocationUpdatesAsync(_cancellationTokenSource.Token);
+                _serviceGeo?.StartLocationUpdatesAsync(_cancellationTokenSource.Token);
             }
 
-            _serviceGeo.LocationChanged += OnLocalication_Changed;
-            _serviceGeo.Pause = false;
+            _serviceGeo?.LocationChanged += OnLocalication_Changed;
+            _serviceGeo?.Pause = false;
         }
 
 
@@ -153,14 +169,23 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
             }
 
             // 2. Créer la notification qui sera visible par l'utilisateur
-            var notification = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
+            NotificationCompat.Builder notification = new (this, NOTIFICATION_CHANNEL_ID);
             notification.SetAutoCancel(false);
             notification.SetOngoing(true);
             notification.SetSmallIcon(global::Android.Resource.Drawable.IcMenuCompass); // Change l'icône selon tes besoins
             notification.SetContentTitle("Suivi GPS actif");
-            notification.SetContentText("Votre position est enregistrée en arrière-plan.");
+            notification.SetContentText("Votre position est enregistrée en arrière-plan avec KronoGeo.");
+            var notif = notification.Build();
 
-            StartForeground(NOTIFICATION_ID, notification.Build());
+            if (OperatingSystem.IsAndroidVersionAtLeast(29) && notif is not null)
+            {
+                StartForeground(NOTIFICATION_ID, notif, ForegroundService.TypeLocation);
+            }
+            else
+            {
+                StartForeground(NOTIFICATION_ID, notification.Build());
+            }
+            
 
         }
         #endregion

@@ -29,7 +29,7 @@ namespace KronoGeo_Maui.Applications.Services.Geolocation
         }
 
 
-        public async Task StartLocationUpdatesAsync(CancellationTokenSource cancellationTokenSource)
+        public async Task StartLocationUpdatesAsync(CancellationToken cancellationToken)
         {
             if (Pause) return;
             // Using GeolocationAccuracy.Best
@@ -52,7 +52,7 @@ namespace KronoGeo_Maui.Applications.Services.Geolocation
         void IServiceGeolocalisation.StartLocationUpdatesAsync()
         {
             var cancellationToken = new CancellationTokenSource();
-            StartLocationUpdatesAsync(cancellationToken).Start();
+            StartLocationUpdatesAsync(cancellationToken.Token).Start();
         }
         #endregion
     }
