@@ -189,7 +189,9 @@ namespace KronoGeo_Maui.ModelViews
         public void OnLocalication_Changed(object? sender, GeolocationLocationChangedEventArgs e)
         {
             //_locations.Add(e.Location);
+
             Location = e.Location; // -- pour la mise a jour du tracé sur la map
+            WeakReferenceMessenger.Default.Send(new RecenterMapMessage(e.Location));
             _localisations.Add(new Localisation()
             {
                 Altitude = e.Location.Altitude,

@@ -1,6 +1,7 @@
 ﻿using KronoGeo_Maui.Applications.Interface;
 using Android.Content;
 using Android.Locations;
+using Android.App;
 using AndroidApplication = Android.App.Application;
 using System.Runtime.Versioning;
 
@@ -119,7 +120,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
             
         }
 
-        public Task StartLocationUpdatesAsync(CancellationTokenSource cancellationTokenSource)
+        public Task StartLocationUpdatesAsync(CancellationToken cancellationToken)
         {
             return Task.Run(() =>
             {       

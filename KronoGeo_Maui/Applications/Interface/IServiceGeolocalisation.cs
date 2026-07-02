@@ -17,7 +17,7 @@ namespace KronoGeo_Maui.Applications.Interface
         #region public method
         public void StartLocationUpdatesAsync();
         public void StopLocationUpdates();
-        public Task StartLocationUpdatesAsync(CancellationTokenSource cancellationTokenSource);
+        public Task StartLocationUpdatesAsync(CancellationToken cancellationToken);
 
         /// <summary>
         /// method qui retourne le localisation Current
