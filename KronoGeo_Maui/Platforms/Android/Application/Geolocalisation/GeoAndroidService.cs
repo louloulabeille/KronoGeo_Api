@@ -105,7 +105,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         {
             // -- arrêt des écoutes sur onchanged pour ne pas envoyer de message
             // à l'application MAUI
-            _serviceGeo?.LocationChanged -= OnLocalication_Changed;
+            _serviceGeo?.LocationChanged -= OnLocalicationChanged;
             _serviceGeo?.Pause = true;
         }
 
@@ -117,7 +117,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         {
             // -- arrêt des écoutes sur onchanged pour ne pas envoyer de message
             // à l'application MAUI
-            _serviceGeo?.LocationChanged += OnLocalication_Changed;
+            _serviceGeo?.LocationChanged += OnLocalicationChanged;
             _serviceGeo?.Pause = false;
         }
 
@@ -128,31 +128,29 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         /// </summary>
         private void StartGeolocalisation()
         {
-            if (_serviceGeo is not null &&!_serviceGeo.Pause)
+            if (_serviceGeo is not null )
             {
+                _serviceGeo?.LocationChanged += OnLocalicationChanged;
                 _serviceGeo?.StartLocationUpdatesAsync(_cancellationTokenSource.Token);
+                _serviceGeo?.Pause = false;
             }
-
-            _serviceGeo?.LocationChanged += OnLocalication_Changed;
-            _serviceGeo?.Pause = false;
         }
-
 
         /// <summary>
         /// création du canal de notification pour le service foreground
         /// </summary>
-        /// <param name="notificationMnaManager"></param>
-        private static void CreateNotificationChannel(NotificationManager notificationMnaManager)
+        /// <param name="notificationManager"></param>
+        private static void CreateNotificationChannel(NotificationManager notificationManager)
         {
             if (OperatingSystem.IsAndroidVersionAtLeast(26))
             {
-                if (notificationMnaManager.GetNotificationChannel(NOTIFICATION_CHANNEL_ID) != null)
+                if (notificationManager.GetNotificationChannel(NOTIFICATION_CHANNEL_ID) != null)
                 {
                     return; // Le canal existe déjà
                 }
 
                 var channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, CHANNEL_NAME, NotificationImportance.Low);
-                notificationMnaManager.CreateNotificationChannel(channel);
+                notificationManager.CreateNotificationChannel(channel);
             }
         }
 
@@ -161,18 +159,20 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         /// </summary>
         private void StartForegroundService()
         {
-            var notifcationManager = GetSystemService(Context.NotificationService) as NotificationManager;
+
+        
+            var notificationManager = Platform.AppContext.GetSystemService(Context.NotificationService) as NotificationManager;
             // 1. Créer le canal de notification (obligatoire pour Android 8+)
-            if (notifcationManager is not null && OperatingSystem.IsAndroidVersionAtLeast(26))
+            if (notificationManager is not null && OperatingSystem.IsAndroidVersionAtLeast(26))
             {
-                CreateNotificationChannel(notifcationManager);
+                CreateNotificationChannel(notificationManager);
             }
 
             // 2. Créer la notification qui sera visible par l'utilisateur
             NotificationCompat.Builder notification = new (this, NOTIFICATION_CHANNEL_ID);
-            notification.SetAutoCancel(false);
+            //notification.SetAutoCancel(false);
             notification.SetOngoing(true);
-            notification.SetSmallIcon(global::Android.Resource.Drawable.IcMenuCompass); // Change l'icône selon tes besoins
+            notification.SetSmallIcon(Resource.Drawable.notification_bg_normal);
             notification.SetContentTitle("Suivi GPS actif");
             notification.SetContentText("Votre position est enregistrée en arrière-plan avec KronoGeo.");
             var notif = notification.Build();
@@ -197,7 +197,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void OnLocalication_Changed(object? sender, GeolocationLocationChangedEventArgs e)
+        public void OnLocalicationChanged(object? sender, GeolocationLocationChangedEventArgs e)
         {
             WeakReferenceMessenger.Default.Send(new LocationChangedMessage(e.Location));
         }

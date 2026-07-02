@@ -95,6 +95,12 @@ namespace KronoGeo_Maui.ModelViews
             try
             {
 #if ANDROID
+                var status = await Permissions.CheckStatusAsync<Permissions.PostNotifications>();
+                if (status != PermissionStatus.Granted)
+                {
+                    throw new PermissionException("Permission for notifications not granted.");
+                }
+
                 var intent = new Intent(Android.App.Application.Context, typeof(GeoAndroidService));
                 
                 if ( IsPause && IsStart )   // -- en pause et le service a démarré
