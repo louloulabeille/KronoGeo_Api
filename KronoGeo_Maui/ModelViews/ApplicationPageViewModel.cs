@@ -25,7 +25,9 @@ namespace KronoGeo_Maui.ModelViews
     public partial class ApplicationPageViewModel : ObservableObject, IRecipient<LocationChangedMessage>
     {
         #region private readonly properties
-
+#if ANDROID
+        private readonly IServiceForegroundService _foregroundService;
+#endif
         private readonly IServiceGeolocalisation _service;
         private readonly List<Localisation> _localisations;
         private readonly IServiceSaveLocalisation _saveLocalisation;
@@ -33,7 +35,7 @@ namespace KronoGeo_Maui.ModelViews
 
         #region constructeur
         public ApplicationPageViewModel(IServiceGeolocalisation service
-            , IServiceSaveLocalisation saveLocalisation)
+            , IServiceSaveLocalisation saveLocalisation, IServiceForegroundService foregroundService)
         {
             // -- garde le service
             _service = service;
@@ -42,6 +44,9 @@ namespace KronoGeo_Maui.ModelViews
 #endif
             _localisations = [];
             _saveLocalisation = saveLocalisation;
+#if ANDROID
+            _foregroundService = foregroundService;
+#end
 
             Task.Run(async () => await GetUserLocationAsync());
         }
@@ -105,22 +110,26 @@ namespace KronoGeo_Maui.ModelViews
                 
                 if ( IsPause && IsStart )   // -- en pause et le service a démarré
                 {
-                    intent.SetAction(GeoAndroidService.ActionStopPause);
+                    //intent.SetAction(GeoAndroidService.ActionStopPause);
                     IsPause = false;
                     PlayPause = "\ue1a2";
+                    _foregroundService.StopPauseService();
                 }
                 else if (!IsPause && IsStart)
                 {
-                    intent.SetAction(GeoAndroidService.ActionPause);
+                    //intent.SetAction(GeoAndroidService.ActionPause);
                     IsPause = true;
                     PlayPause = "\ue1c4";
+                    _foregroundService.PauseService();
                 }
 
                 if (!IsStart)
                 {
                     IsStart = true;
                     PlayPause = "\ue1a2";
-                    intent.SetAction(GeoAndroidService.ActionStart);
+                    _foregroundService.StartService();
+
+                    /*intent.SetAction(GeoAndroidService.ActionStart);
                     if (OperatingSystem.IsAndroidVersionAtLeast(26))
                     {
                         Android.App.Application.Context.StartForegroundService(intent);
@@ -128,7 +137,7 @@ namespace KronoGeo_Maui.ModelViews
                     else
                     {
                         Android.App.Application.Context.StartService(intent);
-                    }
+                    }*/
                 }
                 
 #endif
@@ -194,16 +203,7 @@ namespace KronoGeo_Maui.ModelViews
             try
             {
 #if ANDROID
-                var intent = new Intent(Android.App.Application.Context, typeof(GeoAndroidService));
-                intent.SetAction(GeoAndroidService.ActionStop);
-                if (OperatingSystem.IsAndroidVersionAtLeast(26))
-                {
-                    Android.App.Application.Context.StartForegroundService(intent);
-                }
-                else
-                {
-                    Android.App.Application.Context.StartService(intent);
-                }
+                _foregroundService.StopService();
 #endif
 
 #if !ANDROID
