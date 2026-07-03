@@ -42,6 +42,10 @@ namespace KronoGeo_Maui.Applications.Behaviors
                         if (message.Value is not null)
                         {
                             element?.Geopath.Add(message.Value);
+                        }else
+                        {
+                            // -- si la localisation est null, on supprime la polyline
+                            bindable.MapElements.Clear();
                         }
                     }
                 });

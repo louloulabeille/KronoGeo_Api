@@ -219,7 +219,12 @@ namespace KronoGeo_Maui.ModelViews
                 {
                     await _saveLocalisation.SaveLocalisation(_localisations, new System.Threading.CancellationToken());
                     _localisations.Clear();
+                    // -- initalisation de la map au niveau de Polyne
+                    WeakReferenceMessenger.Default.Send(new PolyneMapMessage(null));
                 }
+                // -- initialisation de la map sur la position de l'utilisateur
+                await Task.Run(async () => await GetUserLocationAsync());
+
                 PlayPause = "\ue1c4";
                 IsStart = false;
             }
@@ -326,6 +331,8 @@ namespace KronoGeo_Maui.ModelViews
                 WeakReferenceMessenger.Default.Send(new RecenterMapMessage(location));
                 // -- ajoute la localisation dans la liste pour l'enregistrement
                 _localisations.Add(localisation);
+                // -- envoie un message pour mettre à jour le tracé sur la map
+                WeakReferenceMessenger.Default.Send(new PolyneMapMessage(location));
             }
         }
 
