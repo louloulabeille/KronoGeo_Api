@@ -328,7 +328,7 @@ namespace KronoGeo_Maui.ModelViews
             {
                 Location = location; // -- pour la mise a jour du tracé sur la map
                 // -- envoie un message pour recentrer la map sur la position de l'utilisateur
-                WeakReferenceMessenger.Default.Send(new RecenterMapMessage(location));
+                //WeakReferenceMessenger.Default.Send(new RecenterMapMessage(location));
                 // -- ajoute la localisation dans la liste pour l'enregistrement
                 _localisations.Add(localisation);
                 // -- envoie un message pour mettre à jour le tracé sur la map
