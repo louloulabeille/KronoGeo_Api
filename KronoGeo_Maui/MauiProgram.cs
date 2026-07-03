@@ -59,9 +59,6 @@ namespace KronoGeo_Maui
             builder.Services.AddSingleton<IDialogService, MauiDialogService>();
             builder.Services.AddScoped<IServiceSaveParametrage, InMemoryMauiParametrage>();
 
-#if ANDROID
-            builder.Services.AddTransient<IServiceForegroundService, GeoAndroidService>();
-#endif
             return builder.Build();
         }
     }

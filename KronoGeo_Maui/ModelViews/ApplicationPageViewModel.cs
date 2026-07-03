@@ -25,9 +25,6 @@ namespace KronoGeo_Maui.ModelViews
     public partial class ApplicationPageViewModel : ObservableObject, IRecipient<LocationChangedMessage>
     {
         #region private readonly properties
-#if ANDROID
-        private readonly IServiceForegroundService _foregroundService;
-#endif
         private readonly IServiceGeolocalisation _service;
         private readonly List<Localisation> _localisations;
         private readonly IServiceSaveLocalisation _saveLocalisation;
@@ -35,7 +32,7 @@ namespace KronoGeo_Maui.ModelViews
 
         #region constructeur
         public ApplicationPageViewModel(IServiceGeolocalisation service
-            , IServiceSaveLocalisation saveLocalisation, IServiceForegroundService foregroundService)
+            , IServiceSaveLocalisation saveLocalisation)
         {
             // -- garde le service
             _service = service;
@@ -44,10 +41,8 @@ namespace KronoGeo_Maui.ModelViews
 #endif
             _localisations = [];
             _saveLocalisation = saveLocalisation;
-#if ANDROID
-            _foregroundService = foregroundService;
-#endif
-
+            // -- enregistrer dans le registre des messages pour recevoir les messages de type LocationChangedMessage
+            WeakReferenceMessenger.Default.RegisterAll(this);   
             Task.Run(async () => await GetUserLocationAsync());
         }
 #endregion
@@ -110,26 +105,25 @@ namespace KronoGeo_Maui.ModelViews
                 
                 if ( IsPause && IsStart )   // -- en pause et le service a démarré
                 {
-                    //intent.SetAction(GeoAndroidService.ActionStopPause);
                     IsPause = false;
                     PlayPause = "\ue1a2";
-                    _foregroundService.StopPauseService();
+                    intent.SetAction(GeoAndroidService.ActionStopPause);
+                    Android.App.Application.Context.StartService(intent);
                 }
                 else if (!IsPause && IsStart)
                 {
-                    //intent.SetAction(GeoAndroidService.ActionPause);
                     IsPause = true;
                     PlayPause = "\ue1c4";
-                    _foregroundService.PauseService();
+                    intent.SetAction(GeoAndroidService.ActionPause);
+                    Android.App.Application.Context.StartService(intent);
                 }
 
                 if (!IsStart)
                 {
                     IsStart = true;
                     PlayPause = "\ue1a2";
-                    _foregroundService.StartService();
 
-                    /*intent.SetAction(GeoAndroidService.ActionStart);
+                    intent.SetAction(GeoAndroidService.ActionStart);
                     if (OperatingSystem.IsAndroidVersionAtLeast(26))
                     {
                         Android.App.Application.Context.StartForegroundService(intent);
@@ -137,7 +131,8 @@ namespace KronoGeo_Maui.ModelViews
                     else
                     {
                         Android.App.Application.Context.StartService(intent);
-                    }*/
+                    }
+
                 }
                 
 #endif
@@ -203,7 +198,9 @@ namespace KronoGeo_Maui.ModelViews
             try
             {
 #if ANDROID
-                _foregroundService.StopService();
+                var intent = new Intent(Android.App.Application.Context, typeof(GeoAndroidService));
+                intent.SetAction(GeoAndroidService.ActionStop);
+                Android.App.Application.Context.StartService(intent);
 #endif
 
 #if !ANDROID
@@ -262,7 +259,11 @@ namespace KronoGeo_Maui.ModelViews
         /// <exception cref="NotImplementedException"></exception>
         public void Receive(LocationChangedMessage message)
         {
-            TraitementLocalisation(message.Value);
+            // -- faire le traitement dans le thread principal pour éviter les erreurs de cross thread
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                TraitementLocalisation(message.Value);
+            });
         }
         #endregion
 
