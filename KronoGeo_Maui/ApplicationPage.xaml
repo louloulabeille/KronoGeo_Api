@@ -46,6 +46,7 @@
                 <maps:Map.Behaviors>
                     <!-- Le behavior écoute le Messenger en silence -->
                     <behaviors:MapMessengerBehavior />
+                    <behaviors:PolyneMessengerBehavior/>
                 </maps:Map.Behaviors>
             </maps:Map>
             <Border Grid.Row="1" Grid.Column="1" StrokeThickness="1" 

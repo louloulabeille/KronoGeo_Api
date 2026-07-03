@@ -1,12 +1,10 @@
 ﻿using Android.App;
 using Android.Content;
-using Android.Media;
 using Android.OS;
 using AndroidX.Core.App;
 using Android.Util;
 using Android.Content.PM;
 using CommunityToolkit.Mvvm.Messaging;
-using KronoGeo_Api.Interface.Service;
 using KronoGeo_Maui.Applications.Interface;
 using KronoGeo_Maui.Applications.Message;
 using System;
@@ -22,20 +20,21 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
     public class GeoAndroidService : Service
     {
         #region private properties
+        // -- information pour la notification du service foreground
         private const string NOTIFICATION_CHANNEL_ID = "46100";
         private readonly int NOTIFICATION_ID = 1;
         private const string CHANNEL_NAME = "location_notification_channel";
-        private IServiceGeolocalisation? _serviceGeo;
+
+        private IServiceGeolocalisation? _serviceGeo; // -- service de géolocalisation qui sera injecté par OnCreate
         private readonly CancellationTokenSource _cancellationTokenSource = new ();
-        private PowerManager.WakeLock? _wakeLock = null;
+        private PowerManager.WakeLock? _wakeLock = null; // -- WakeLock pour empêcher le téléphone de se mettre en veille pendant que le service est actif
         #endregion
 
-        #region public const properties
+        #region public const properties action pour démarrer le service de géolocalisation
         public const string ActionStart = "Start_Geolocation";
         public const string ActionPause = "Pause_Geolocation";
         public const string ActionStopPause = "StopPause_Geolocation";
         public const string ActionStop = "Stop_Geolocation";
-
         #endregion
         public GeoAndroidService() : base()
         {
@@ -61,12 +60,16 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
             }
             _serviceGeo?.LocationChanged += OnLocalicationChanged;
         }
-        #endregion
 
+        /// <summary>
+        /// method qui est appelé lorsque le service est démarré
+        /// </summary>
+        /// <param name="intent"></param>
+        /// <param name="flags"></param>
+        /// <param name="startId"></param>
+        /// <returns></returns>
         public override StartCommandResult OnStartCommand(Intent? intent, StartCommandFlags flags, int startId)
         {
-
-
             var action = intent?.Action;
             switch (action)
             {
@@ -119,6 +122,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
             StopSelf(); // -- arrêt du service
             base.OnDestroy();
         }
+        #endregion
 
         #region private method
         /// <summary>
@@ -201,8 +205,6 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         /// </summary>
         private void StartForegroundService()
         {
-
-        
             var notificationManager = Platform.AppContext.GetSystemService(Context.NotificationService) as NotificationManager;
             // 1. Créer le canal de notification (obligatoire pour Android 8+)
             if (notificationManager is not null && OperatingSystem.IsAndroidVersionAtLeast(26))

@@ -11,7 +11,11 @@ namespace KronoGeo_Maui.Applications.Behaviors
 {
     public class MapMessengerBehavior : Behavior<Map>
     {
-
+        /// <summary>
+        /// Behavior qui permet de recentrer la carte lorsqu'un message
+        /// RecenterMapMessage est reçu via le CommunityToolkit.Mvvm.Messaging
+        /// </summary>
+        /// <param name="bindable"></param>
         protected override void OnAttachedTo(Map bindable)
         {
             base.OnAttachedTo(bindable);
