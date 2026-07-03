@@ -17,16 +17,19 @@ public partial class ApplicationPage : ContentPage
 		InitializeComponent();
 		BindingContext = modelView;
 
-        modelView.PropertyChanged += (s, e) =>
+        /*modelView.PropertyChanged += (s, e) =>
         {
-            /*if (e.PropertyName == nameof(ApplicationPageViewModel.MapRegion) && modelView.MapRegion is not null)
+            // -- utilisation du message pour notifier le changement de localisation avec behavior
+            *//*if (e.PropertyName == nameof(ApplicationPageViewModel.MapRegion) && modelView.MapRegion is not null)
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
                     googleMap.MoveToRegion(modelView.MapRegion);
                 });
-            }*/
-            if(e.PropertyName == nameof(ApplicationPageViewModel.Location) && modelView.Location is not null )
+            }*//*
+
+            // -- utilisation du message pour notifier le changement de localisation avec behavior
+            *//*if(e.PropertyName == nameof(ApplicationPageViewModel.Location) && modelView.Location is not null )
             {
                 if (googleMap.MapElements.Count == 0)
                 {
@@ -46,8 +49,8 @@ public partial class ApplicationPage : ContentPage
                     element?.Geopath.Add(modelView.Location);
                 }
 
-            }
-        };
+            }*//*
+        };*/
 
         /*// Ajout du behavior directement en C#
         this.Behaviors.Add(new EventToCommandBehavior
