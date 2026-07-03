@@ -60,7 +60,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
                     _locationManager.RequestLocationUpdates(
                     provider,
                     5000,
-                    5,
+                    2, // -- 2 mètres de distance minimale pour déclencher l'événement
                     _locationListener,
                     Looper.MainLooper // -- on injecte l'aiguilleur ici
                     );
@@ -101,7 +101,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
                 double altitude = location.Altitude;
                 float accuracy = location.Accuracy; // Précision en mètres
 
-                if (accuracy > 12) // Seuil de précision (12 mètres dans cet exemple)
+                if (accuracy > 8) // Seuil de précision (8 mètres dans cet exemple)
                 {
                     return; // Ignorer cette position
                 }
