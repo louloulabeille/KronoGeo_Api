@@ -93,6 +93,14 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
             // Arrêter proprement le GPS ici pour économiser la batterie
             _serviceGeo?.StopLocationUpdates();
             _serviceGeo?.Dispose();
+            if (OperatingSystem.IsAndroidVersionAtLeast(24))
+            {
+                StopForeground(StopForegroundFlags.Remove);
+            }
+            else
+            {
+                StopForeground(true);
+            }
             StopSelf(); // -- arrêt du service
             base.OnDestroy();
         }

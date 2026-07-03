@@ -2,6 +2,7 @@
 using Android.Content;
 using Android.Locations;
 using Android.App;
+using Android.OS;
 using AndroidApplication = Android.App.Application;
 using System.Runtime.Versioning;
 
@@ -60,7 +61,8 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
                     provider,
                     5000,
                     5,
-                    _locationListener
+                    _locationListener,
+                    Looper.MainLooper // -- on injecte l'aiguilleur ici
                     );
                 }
                 else
@@ -121,6 +123,13 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
             
         }
 
+        /// <summary>
+        /// Démarre la récupération de la localisation en tâche de fond avec un CancellationToken
+        /// Attention avec les Thread et les Task.Run, il faut faire attention à ne pas bloquer le thread principal 
+        /// et à gérer correctement les exceptions. 
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task StartLocationUpdatesAsync(CancellationToken cancellationToken)
         {
             return Task.Run(() =>

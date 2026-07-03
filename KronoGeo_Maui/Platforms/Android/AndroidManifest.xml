@@ -4,7 +4,8 @@
 		<meta-data android:name="com.google.android.geo.API_KEY"
 				   android:value="AIzaSyBtAASM63b2zvWpMNStVCDpgu58wTYAUMQ" />
 	    <service android:name=".GeoAndroidService"
-				 android:foregroundServiceType="location"/>
+				 android:foregroundServiceType="location"
+				 android:exported/="false"/>
 	</application>
 	
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />

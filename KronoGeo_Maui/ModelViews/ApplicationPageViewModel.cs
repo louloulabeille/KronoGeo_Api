@@ -46,7 +46,7 @@ namespace KronoGeo_Maui.ModelViews
             _saveLocalisation = saveLocalisation;
 #if ANDROID
             _foregroundService = foregroundService;
-#end
+#endif
 
             Task.Run(async () => await GetUserLocationAsync());
         }
