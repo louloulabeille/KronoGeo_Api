@@ -30,7 +30,7 @@ public partial class ApplicationPage : ContentPage
             {
                 if (googleMap.MapElements.Count == 0)
                 {
-                    googleMap.MoveToRegion(MapSpan.FromCenterAndRadius(modelView.Location, Distance.FromMeters(500)));
+                    //googleMap.MoveToRegion(MapSpan.FromCenterAndRadius(modelView.Location, Distance.FromMeters(500)));
 
                     var polyne = new Polyline()
                     {

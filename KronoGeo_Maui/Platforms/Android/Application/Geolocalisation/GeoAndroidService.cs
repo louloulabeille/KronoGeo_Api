@@ -27,6 +27,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         private const string CHANNEL_NAME = "location_notification_channel";
         private IServiceGeolocalisation? _serviceGeo;
         private readonly CancellationTokenSource _cancellationTokenSource = new ();
+        private PowerManager.WakeLock? _wakeLock = null;
         #endregion
 
         #region public const properties
@@ -38,7 +39,6 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         #endregion
         public GeoAndroidService() : base()
         {
-            
         }
         
         #region public method override
@@ -65,6 +65,8 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
 
         public override StartCommandResult OnStartCommand(Intent? intent, StartCommandFlags flags, int startId)
         {
+
+
             var action = intent?.Action;
             switch (action)
             {
@@ -96,6 +98,13 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         /// </summary>
         public override void OnDestroy()
         {
+            if( _wakeLock is not null && _wakeLock.IsHeld )
+            {
+                _wakeLock?.Release();
+                _wakeLock?.Dispose();
+                _wakeLock = null;
+            }
+
             // Arrêter proprement le GPS ici pour économiser la batterie
             _serviceGeo?.StopLocationUpdates();
             _serviceGeo?.Dispose();
@@ -112,7 +121,23 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         }
 
         #region private method
-        
+        /// <summary>
+        /// WakeLock pour empêcher le téléphone de se mettre
+        /// en veille pendant que le service est actif
+        /// </summary>
+        private void AcquireWakeLock()
+        {
+            if (_wakeLock is not null && _wakeLock.IsHeld) return;
+            
+            var powerManager = GetSystemService(Context.PowerService) as PowerManager;
+            if ( powerManager is not null )
+            {
+                _wakeLock = powerManager.NewWakeLock(WakeLockFlags.Partial, "GeoAndroidService:BackgroundTrackingLock");
+                _wakeLock?.Acquire();
+            }
+            
+
+        }
         /// <summary>
         /// Pour mettre en pause le service de géolocalisation,
         /// par exemple lorsque l'utilisateur met l'application en arrière-plan

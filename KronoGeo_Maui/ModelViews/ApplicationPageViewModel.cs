@@ -22,7 +22,7 @@ using Task = System.Threading.Tasks.Task;
 
 namespace KronoGeo_Maui.ModelViews
 {
-    public partial class ApplicationPageViewModel : ObservableObject, IRecipient<LocationChangedMessage>
+    public partial class ApplicationPageViewModel : ObservableObject, IRecipient<LocationChangedMessage>, IDisposable
     {
         #region private readonly properties
         private readonly IServiceGeolocalisation _service;
@@ -42,7 +42,9 @@ namespace KronoGeo_Maui.ModelViews
             _localisations = [];
             _saveLocalisation = saveLocalisation;
             // -- enregistrer dans le registre des messages pour recevoir les messages de type LocationChangedMessage
-            WeakReferenceMessenger.Default.RegisterAll(this);   
+            //WeakReferenceMessenger.Default.RegisterAll(this);
+            WeakReferenceMessenger.Default.Register<LocationChangedMessage>(this);
+
             Task.Run(async () => await GetUserLocationAsync());
         }
 #endregion
@@ -60,8 +62,6 @@ namespace KronoGeo_Maui.ModelViews
         #region public propeties ObservableProperties
         [ObservableProperty]
         public partial string PlayPause { get; set; } = "\ue1c4"; // - affichage de play
-        /*[ObservableProperty]
-        public partial MapSpan? MapRegion { get; set; } = null;*/
         [ObservableProperty]
         public partial Location? Location { get; set; } = default;
         #endregion
@@ -88,6 +88,10 @@ namespace KronoGeo_Maui.ModelViews
             await GetUserLocationAsync();
         }*/
 
+        /// <summary>
+        /// démarre ou met en pause le service de géolocalisation
+        /// </summary>
+        /// <returns></returns>
         [RelayCommand]
         public async Task StartPause()
         {
@@ -192,6 +196,10 @@ namespace KronoGeo_Maui.ModelViews
             }
         }
 
+        /// <summary>
+        /// arrête le service de géolocalisation et enregistre les localisations dans la base de données
+        /// </summary>
+        /// <returns></returns>
         [RelayCommand]
         public async Task Stop()
         {
@@ -267,6 +275,17 @@ namespace KronoGeo_Maui.ModelViews
         }
         #endregion
 
+        #region public method IDisposable
+        /// <summary>
+        /// Dispose method to unregister from the WeakReferenceMessenger and suppress finalization.
+        /// </summary>
+        public void Dispose()
+        {
+            WeakReferenceMessenger.Default.Unregister<LocationChangedMessage>(this);
+            GC.SuppressFinalize(this);
+        }
+        #endregion
+
         #region public method event
         /// <summary>
         /// évènement pour 
@@ -287,11 +306,7 @@ namespace KronoGeo_Maui.ModelViews
         /// <param name="location"></param>
         private void TraitementLocalisation (Location location)
         {
-            Location = location; // -- pour la mise a jour du tracé sur la map
-            // -- envoie un message pour recentrer la map sur la position de l'utilisateur
-            WeakReferenceMessenger.Default.Send(new RecenterMapMessage(location));
-            // -- ajoute la localisation dans la liste pour l'enregistrement
-            _localisations.Add(new Localisation()
+            Localisation localisation = new ()
             {
                 Altitude = location.Altitude,
                 Latitude = location.Latitude,
@@ -301,8 +316,19 @@ namespace KronoGeo_Maui.ModelViews
                 Timestamp = DateTime.Now,   // -- mettre le DateTime local sinon universel
                 VerticalAccuracy = location.VerticalAccuracy,
                 Course = location.Course,
-            });
-        } 
+            };
+
+            // -- y a des doublons au niveau de eventchange Google lors de la mise a jour de la position, donc on ne garde que les nouvelles positions
+            if ( !_localisations.Contains(localisation) )
+            {
+                Location = location; // -- pour la mise a jour du tracé sur la map
+                // -- envoie un message pour recentrer la map sur la position de l'utilisateur
+                WeakReferenceMessenger.Default.Send(new RecenterMapMessage(location));
+                // -- ajoute la localisation dans la liste pour l'enregistrement
+                _localisations.Add(localisation);
+            }
+        }
+
         #endregion
     }
 }
