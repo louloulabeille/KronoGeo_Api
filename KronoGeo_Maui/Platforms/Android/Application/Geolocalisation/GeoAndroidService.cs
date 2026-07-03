@@ -19,7 +19,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
 {
     [Service(ForegroundServiceType = ForegroundService.TypeLocation)]
     //[Service]
-    public class GeoAndroidService : Service
+    public class GeoAndroidService : Service, IServiceForegroundService
     {
         #region private properties
         private const string NOTIFICATION_CHANNEL_ID = "46100";
@@ -38,6 +38,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         #endregion
         public GeoAndroidService() : base()
         {
+            _serviceGeo?.LocationChanged += OnLocalicationChanged;
         }
         
         #region public method override
@@ -92,6 +93,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
             // Arrêter proprement le GPS ici pour économiser la batterie
             _serviceGeo?.StopLocationUpdates();
             _serviceGeo?.Dispose();
+            StopSelf(); // -- arrêt du service
             base.OnDestroy();
         }
 
@@ -119,6 +121,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
             // à l'application MAUI
             _serviceGeo?.LocationChanged += OnLocalicationChanged;
             _serviceGeo?.Pause = false;
+            
         }
 
         /// <summary>
@@ -130,7 +133,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         {
             if (_serviceGeo is not null )
             {
-                _serviceGeo?.LocationChanged += OnLocalicationChanged;
+                //_serviceGeo?.LocationChanged += OnLocalicationChanged;
                 _serviceGeo?.StartLocationUpdatesAsync(_cancellationTokenSource.Token);
                 _serviceGeo?.Pause = false;
             }
@@ -200,6 +203,55 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         public void OnLocalicationChanged(object? sender, GeolocationLocationChangedEventArgs e)
         {
             WeakReferenceMessenger.Default.Send(new LocationChangedMessage(e.Location));
+        }
+        #endregion
+
+        #region public method interface
+        /// <summary>
+        /// méthod de démarrage du service
+        /// </summary>
+        public void StartService()
+        {
+            var intent = new Intent(this, typeof(GeoAndroidService));
+            intent.SetAction(ActionStart);
+            if (OperatingSystem.IsAndroidVersionAtLeast(26))
+            {
+                StartForegroundService(intent);
+            }
+            else
+            {
+                StartService(intent);
+            }
+        }
+
+        /// <summary>
+        /// méthod de pause du service
+        /// </summary>
+        public void PauseService()
+        {
+            var intent = new Intent(this, typeof(GeoAndroidService));
+            intent.SetAction(ActionPause);
+            StartService(intent);
+        }
+
+        /// <summary>
+        /// méthod de reprise du service après une pause
+        /// </summary>
+        public void StopPauseService()
+        {
+            var intent = new Intent(this, typeof(GeoAndroidService));
+            intent.SetAction(ActionStopPause);
+            StartService(intent);
+        }
+
+        /// <summary>
+        /// méthod d'arrêt du service
+        /// </summary>
+        public void StopService()
+        {
+            var intent = new Intent(this, typeof(GeoAndroidService));
+            intent.SetAction(ActionStop);
+            StartService(intent);
         }
         #endregion
     }

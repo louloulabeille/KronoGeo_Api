@@ -98,7 +98,7 @@ namespace KronoGeo_Maui.ModelViews
                 var status = await Permissions.CheckStatusAsync<Permissions.PostNotifications>();
                 if (status != PermissionStatus.Granted)
                 {
-                    throw new PermissionException("Permission for notifications not granted.");
+                    throw new PermissionException("Permission pour les notifications non donnée.");
                 }
 
                 var intent = new Intent(Android.App.Application.Context, typeof(GeoAndroidService));
