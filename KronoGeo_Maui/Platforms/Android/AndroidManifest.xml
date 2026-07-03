@@ -5,7 +5,7 @@
 				   android:value="AIzaSyBtAASM63b2zvWpMNStVCDpgu58wTYAUMQ" />
 	    <service android:name=".GeoAndroidService"
 				 android:foregroundServiceType="location"
-				 android:exported/="false"/>
+				 android:exported="false"/>
 	</application>
 	
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
