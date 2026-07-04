@@ -13,13 +13,13 @@ namespace KronoGeo_Maui.Applications.Services
     public class InMemorySaveLocalisation : IServiceSaveLocalisation
     {
 
-        public async Task SaveLocalisation( List<Localisation> localisations , CancellationToken cancellationToken)
+        public async Task<bool> SaveLocalisation( List<Localisation> localisations , CancellationToken cancellationToken)
         {
-            await RequestStoragePermissionsAndSaveFile(localisations , cancellationToken);
+            return await RequestStoragePermissionsAndSaveFile(localisations , cancellationToken);
         }
 
         #region private method
-        private static async Task RequestStoragePermissionsAndSaveFile (List<Localisation> localisations , CancellationToken cancellationToken)
+        private static async Task<bool> RequestStoragePermissionsAndSaveFile (List<Localisation> localisations , CancellationToken cancellationToken)
         {
             var readPermissionStatus = await Permissions.RequestAsync<Permissions.StorageRead>();
             var writePermissionStatus = await Permissions.RequestAsync<Permissions.StorageWrite>();
@@ -31,13 +31,13 @@ namespace KronoGeo_Maui.Applications.Services
                     .Make("Les permissions d'enregistrement sont obligatoires pour la sauvegarde du fichier.")
                     .Show(cancellationToken);
 
-                return;
+                return false;
             }
 
-            await SaveFile(localisations , cancellationToken);
+            return await SaveFile(localisations , cancellationToken);
         }
 
-        private static async Task SaveFile(List<Localisation> localisations , CancellationToken cancellationToken) {
+        private static async Task<bool> SaveFile(List<Localisation> localisations , CancellationToken cancellationToken) {
             
             var guid = Guid.NewGuid();
             var date = DateTime.Now;
@@ -61,11 +61,13 @@ namespace KronoGeo_Maui.Applications.Services
             var fileSaverResult = await FileSaver.Default.SaveAsync(title+".gpx", stream, cancellationToken);
             if (fileSaverResult.IsSuccessful)
             {
-                await Toast.Make($"The file was saved successfully to location: {fileSaverResult.FilePath}").Show(cancellationToken);
+                await Toast.Make($"Le fichier a bien été enregistré : {fileSaverResult.FilePath}").Show(cancellationToken);
+                return true;
             }
             else
             {
-                await Toast.Make($"The file was not saved successfully with error: {fileSaverResult.Exception.Message}").Show(cancellationToken);
+                await Toast.Make($"Le fichier n'a pas été enregistré avec succès. Erreur: {fileSaverResult.Exception.Message}").Show(cancellationToken);
+                return false;
             }
         }
         #endregion

@@ -217,10 +217,12 @@ namespace KronoGeo_Maui.ModelViews
 #endif
                 if (_localisations.Count > 0)
                 {
-                    await _saveLocalisation.SaveLocalisation(_localisations, new System.Threading.CancellationToken());
-                    _localisations.Clear();
-                    // -- initalisation de la map au niveau de Polyne
-                    WeakReferenceMessenger.Default.Send(new PolyneMapMessage(null));
+                    if ( await _saveLocalisation.SaveLocalisation(_localisations, new System.Threading.CancellationToken()))
+                    { // -- enregistrement ok
+                        _localisations.Clear();
+                        // -- initalisation de la map au niveau de Polyne
+                        WeakReferenceMessenger.Default.Send(new PolyneMapMessage(null));
+                    }
                 }
                 // -- initialisation de la map sur la position de l'utilisateur
                 await Task.Run(async () => await GetUserLocationAsync());

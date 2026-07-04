@@ -59,10 +59,13 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
                     // 1 : Distance minimale en mètres avant notification (1 mètre)
                     _locationManager.RequestLocationUpdates(
                     provider,
-                    5000,
-                    2, // -- 2 mètres de distance minimale pour déclencher l'événement
+                    5000, // -- 5000 millisecondes d'intervalle minimum pour déclencher l'événement
+                    1, // -- 1 mètres de distance minimale pour déclencher l'événement
                     _locationListener,
-                    Looper.MainLooper // -- on injecte l'aiguilleur ici
+                    // -- on injecte l'aiguilleur ici en cas de désynchronisation
+                    // entre eventhandler et la mainthread
+                    // quand la method StartLocationUpdatesAsync est lancé ave Task
+                    Looper.MainLooper 
                     );
                 }
                 else
@@ -101,10 +104,10 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
                 double altitude = location.Altitude;
                 float accuracy = location.Accuracy; // Précision en mètres
 
-                if (accuracy > 8) // Seuil de précision (8 mètres dans cet exemple)
+                /*if (accuracy > 8) // Seuil de précision (8 mètres dans cet exemple)
                 {
                     return; // Ignorer cette position
-                }
+                }*/
 
                 // -- appel de l'événement pour le code partagé --
                 LocationChanged?.Invoke(this,
@@ -119,8 +122,6 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
 
                 // TODO: Envoyer ces données à votre code partagé (via un événement ou Messenger)
             };
-
-            
         }
 
         /// <summary>
