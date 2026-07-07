@@ -28,7 +28,13 @@ namespace KronoGeo_Maui.ModelViews
         private readonly IServiceGeolocalisation _service;
         private readonly List<Localisation> _localisations;
         private readonly IServiceSaveLocalisation _saveLocalisation;
-#endregion
+        #endregion
+
+        #region private properties
+        private Location? _lastLocation { get; set; } = default;
+        private double _distance { get; set; } = 0;
+        #endregion
+
 
         #region constructeur
         public ApplicationPageViewModel(IServiceGeolocalisation service
@@ -61,9 +67,9 @@ namespace KronoGeo_Maui.ModelViews
 
         #region public propeties ObservableProperties
         [ObservableProperty]
-        public partial string PlayPause { get; set; } = "\ue1c4"; // - affichage de play
+        public partial string PlayPause { get; set; } = "\ue1c4"; // - affichage de play 
         [ObservableProperty]
-        public partial Location? Location { get; set; } = default;
+        public partial string MessageDistance { get; set; } = string.Empty;
         #endregion
 
 
@@ -328,13 +334,20 @@ namespace KronoGeo_Maui.ModelViews
             // -- y a des doublons au niveau de eventchange Google lors de la mise a jour de la position, donc on ne garde que les nouvelles positions
             if ( !_localisations.Contains(localisation) )
             {
-                Location = location; // -- pour la mise a jour du tracé sur la map
+                if (_lastLocation is not null)
+                {
+                    // -- calcul de la distance entre la dernière position et la nouvelle
+                    _distance += _lastLocation.CalculateDistance(location, DistanceUnits.Kilometers);
+                    MessageDistance = $"{_distance} km";
+                }
+                _lastLocation = location; // -- pour la mise a jour du dernier point pour le calcul de la distance
                 // -- envoie un message pour recentrer la map sur la position de l'utilisateur
                 //WeakReferenceMessenger.Default.Send(new RecenterMapMessage(location));
                 // -- ajoute la localisation dans la liste pour l'enregistrement
                 _localisations.Add(localisation);
                 // -- envoie un message pour mettre à jour le tracé sur la map
                 WeakReferenceMessenger.Default.Send(new PolyneMapMessage(location));
+                
             }
         }
 

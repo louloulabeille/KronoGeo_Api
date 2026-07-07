@@ -29,8 +29,8 @@
     <ScrollView BackgroundColor="#96BD8E" >
         <Grid>
             <Grid.RowDefinitions>
-                <!--<RowDefinition Height="50" />-->
                 <RowDefinition Height="*" />
+                <RowDefinition Height="25" />
                 <RowDefinition Height="50" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -49,7 +49,9 @@
                     <behaviors:PolyneMessengerBehavior/>
                 </maps:Map.Behaviors>
             </maps:Map>
-            <Border Grid.Row="1" Grid.Column="1" StrokeThickness="1" 
+            <Label Grid.Row="1" Grid.Column="1" Text="{Binding MessageDistance}" HeightRequest="25"
+                   BackgroundColor="#F9EDE1"></Label>
+            <Border Grid.Row="2" Grid.Column="1" StrokeThickness="1" 
                     StrokeShape="RoundRectangle 20,20,20,20" Stroke="#51638B">
                 <Grid VerticalOptions="End" BackgroundColor="#F9EDE1" HeightRequest="50">
                     <Grid.ColumnDefinitions>
