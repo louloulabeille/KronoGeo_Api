@@ -63,6 +63,10 @@ builder.Services.AddCustomlsAuthentification(builder.Configuration);
 builder.Services.AddAuthorizationPolicy();
 #endregion
 
+#region add Repository injection
+builder.Services.AddRepository();
+#endregion
+
 var app = builder.Build();
 
 #region app.Environment.IsDevelopment & app.Environment.IsStaging
