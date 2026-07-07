@@ -18,8 +18,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Applications\MediatR\Commands\Gps\" />
-    <Folder Include="Applications\MediatR\Queries\Gps\" />
     <Folder Include="logs\" />
   </ItemGroup>
 

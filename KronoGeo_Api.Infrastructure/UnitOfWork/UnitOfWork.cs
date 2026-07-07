@@ -12,7 +12,7 @@ namespace KronoGeo_Api.Infrastructure.UnitOfWork
     {
         #region private properties
         private readonly KronoGeoDbContext _context = context;
-        private readonly Dictionary<Type, object> _repositories = new ();
+        private readonly Dictionary<Type, object> _repositories = [];
         private bool _disposed = false;
         #endregion
 
@@ -45,6 +45,10 @@ namespace KronoGeo_Api.Infrastructure.UnitOfWork
         #endregion
 
         #region public method IDisposable implementation
+        /// <summary>
+        /// Disposes the resources used by the UnitOfWork instance.
+        /// </summary>
+        /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)
         {
             if (!this._disposed)

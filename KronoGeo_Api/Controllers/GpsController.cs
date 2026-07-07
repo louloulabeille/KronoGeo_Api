@@ -1,5 +1,8 @@
-﻿using MediatR;
+﻿using KronoGeo_Api.Applications.MediatR.Commands.Gps;
+using KronoGeo_Api.Models.Model.DTO;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Serilog.Core;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -32,9 +35,27 @@ namespace KronoGeo_Api.Controllers
         }
 
         // POST api/<GpsController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        [HttpPost("Save")]
+        public async Task<IActionResult> SaveLocalisations([FromBody] LocalisationGroupDTO value)
         {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest("Invalid model state.");
+                }
+
+                var command = new AddLocalisationsCommand() { LocalisationGroup = value };
+                
+                var result = await _mediaR.Send(command);
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            { 
+                _logger.LogError(ex, "Erreur lors de la sauvegarde des localisations.");
+                return this.Problem("Error while saving localisations.");
+            }
         }
 
         // PUT api/<GpsController>/5
@@ -50,4 +71,5 @@ namespace KronoGeo_Api.Controllers
         }
         #endregion
     }
+}
 }
