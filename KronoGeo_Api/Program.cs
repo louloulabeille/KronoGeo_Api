@@ -67,6 +67,10 @@ builder.Services.AddAuthorizationPolicy();
 builder.Services.AddRepository();
 #endregion
 
+#region Add service Gestion photo
+builder.Services.AddServiceGestionPhoto();
+#endregion
+
 #region Add IOptions 
 builder.Services.AddIOptions(builder.Configuration);
 #endregion

@@ -8,6 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\KronoGeo_Api.Models\KronoGeo_Api.Models.csproj" />
-  </ItemGroup>
+ </ItemGroup>
 
 </Project>

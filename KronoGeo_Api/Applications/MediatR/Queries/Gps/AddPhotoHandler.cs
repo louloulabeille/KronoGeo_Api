@@ -1,5 +1,6 @@
 ﻿using KronoGeo_Api.Applications.MediatR.Commands.Gps;
 using KronoGeo_Api.Infrastructure.Repository;
+using KronoGeo_Api.Interface;
 using KronoGeo_Api.Models.Infrastructure.Options;
 using KronoGeo_Api.Models.Model.DTO;
 using MediatR;
@@ -10,7 +11,8 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
 {
     public class AddPhotoHandler(ILogger<object> logger
         , IWebHostEnvironment webHost
-        , IOptions<PhotoOptions> options) : IRequestHandler<AddPhotoCommand, PhotoDTO>
+        , IOptions<PhotoOptions> options
+        , IServiceGestionPhoto servicePhoto) : IRequestHandler<AddPhotoCommand, PhotoDTO>
     {
 
         #region private fields
@@ -18,6 +20,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
         private readonly IWebHostEnvironment _webhost = webHost;
         private readonly IOptions<PhotoOptions> _options = options;
         private readonly CancellationToken _cancellation = new();
+        private readonly IServiceGestionPhoto _servicePhoto = servicePhoto;
         #endregion
 
         /// <summary>
@@ -33,27 +36,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
            using var stream = new StreamReader(Request.Body);
            var result = await stream.ReadToEndAsync();
            */
-            //string filePath = Path.Combine(_webhost.ContentRootPath, @"images\tmp");
-            string filePath = Path.Combine(_webhost.ContentRootPath, @$"{_options.Value.Tmp_Photo}");
-
-            if (!Directory.Exists(filePath))
-            {
-                Directory.CreateDirectory(filePath);
-            }
-
-            string name = request.FormFile.FileName;
-            filePath = Path.Combine(filePath, name);
-
-            using var stream = new FileStream(filePath, FileMode.OpenOrCreate);
-            await request.FormFile.CopyToAsync(stream, _cancellation );
-
-            var picture = new PhotoDTO()
-            {
-                Name        = name,
-                PathPhoto = @$"{_options.Value.Tmp_Photo}", 
-            };
-                
-            return picture;
+            return await _servicePhoto.SavePhotoHttp(request.FormFile);
         }
     }
 }
