@@ -7,6 +7,6 @@ namespace KronoGeo_Api.Models.Model.DTO
     public class PhotoDTO
     {
         public string? PathPhoto { get; set; } = default;
-        public string? Title { get; set; } = default;
+        public string? Name { get; set; } = default;
     }
 }
