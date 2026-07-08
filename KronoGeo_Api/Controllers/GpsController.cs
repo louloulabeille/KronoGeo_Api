@@ -20,21 +20,21 @@ namespace KronoGeo_Api.Controllers
         #endregion
 
         #region public action methods
-        // GET: api/<GpsController>
+        // GET: api/v1/<GpsController>
         [HttpGet]
         public IEnumerable<string> Get()
         {
             return new string[] { "value1", "value2" };
         }
 
-        // GET api/<GpsController>/5
+        // GET api/v1/<GpsController>/5
         [HttpGet("{id}")]
         public string Get(int id)
         {
             return "value";
         }
 
-        // POST api/<GpsController>
+        // POST api/v1/<GpsController>/Save
         [HttpPost("Save")]
         public async Task<IActionResult> SaveLocalisations([FromBody] LocalisationGroupDTO value)
         {
@@ -58,18 +58,40 @@ namespace KronoGeo_Api.Controllers
             }
         }
 
-        // PUT api/<GpsController>/5
+        // POST api/v1/<GpsController>/SaveImage
+        [HttpPost("SaveImage")]
+        public async Task<IActionResult> SaveImage(IFormFile file)
+        {
+            try
+            {
+                if( !ModelState.IsValid)
+                {
+                    return this.BadRequest("Invalid model state.");
+                }
+
+                var command = new AddPhotoCommand() { };
+
+
+                return this.Ok();
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de l'enregistrement des photos.");
+                return this.Problem("Error while saving photos.");
+            }
+        }
+
+        // PUT api/v1/<GpsController>/5
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] string value)
         {
         }
 
-        // DELETE api/<GpsController>/5
+        // DELETE api/v1/<GpsController>/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
         }
         #endregion
     }
-}
 }
