@@ -69,10 +69,10 @@ namespace KronoGeo_Api.Controllers
                     return this.BadRequest("Invalid model state.");
                 }
 
-                var command = new AddPhotoCommand() { };
+                var command = new AddPhotoCommand() { FormFile = file };
+                var result = await _mediaR.Send(command);
 
-
-                return this.Ok();
+                return this.Ok(result);
             }
             catch(Exception ex)
             {

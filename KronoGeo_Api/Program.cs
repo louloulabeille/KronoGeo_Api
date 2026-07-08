@@ -67,6 +67,10 @@ builder.Services.AddAuthorizationPolicy();
 builder.Services.AddRepository();
 #endregion
 
+#region Add IOptions 
+builder.Services.AddIOptions(builder.Configuration);
+#endregion
+
 var app = builder.Build();
 
 #region app.Environment.IsDevelopment & app.Environment.IsStaging
