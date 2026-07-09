@@ -60,7 +60,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
                     _locationManager.RequestLocationUpdates(
                     provider,
                     3000, // -- 5000 millisecondes d'intervalle minimum pour déclencher l'événement
-                    1, // -- 1 mètres de distance minimale pour déclencher l'événement
+                    3, // -- 1 mètres de distance minimale pour déclencher l'événement
                     _locationListener,
                     // -- on injecte l'aiguilleur ici en cas de désynchronisation
                     // entre eventhandler et la mainthread
