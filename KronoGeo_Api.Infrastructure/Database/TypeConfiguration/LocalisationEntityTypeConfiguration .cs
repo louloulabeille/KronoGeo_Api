@@ -15,9 +15,11 @@ namespace KronoGeo_Api.Infrastructure.Database.TypeConfiguration
             builder.HasKey(l => l.Id);
             builder.Property(l => l.Id).ValueGeneratedOnAdd();
 
-            builder.Property(l => l.Timestamp).IsRequired();
+            builder.Property(l => l.Timestamp).IsRequired()
+                .HasColumnType("timestamp without time zone");
             builder.Property(l => l.Latitude).IsRequired();
             builder.Property(l => l.Longitude).IsRequired();
+
 
             // -- clé étrangère
             builder.HasOne(l => l.LocalisationGroup).WithMany(l => l.Localisations);
