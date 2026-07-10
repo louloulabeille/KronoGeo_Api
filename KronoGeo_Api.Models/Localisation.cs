@@ -6,6 +6,7 @@ namespace KronoGeo_Api.Models
 {
     public class Localisation
     {
+        
         public int Id { get; set; }
         public DateTimeOffset Timestamp { get; set; }
         public double Latitude { get; set; }

@@ -40,7 +40,7 @@ namespace KronoGeo_Maui.Applications.Services
         private static async Task<bool> SaveFile(List<Localisation> localisations , CancellationToken cancellationToken) {
             
             var guid = Guid.NewGuid();
-            var date = DateTime.Now;
+            var date = DateTime.Today;
             string title = date.ToString("dd-MM-yyyy") + "-" + guid.ToString("N").AsSpan(25).ToString();
 
             var sb = new StringBuilder();

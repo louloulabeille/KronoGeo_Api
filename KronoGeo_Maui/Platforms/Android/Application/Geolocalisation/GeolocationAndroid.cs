@@ -115,7 +115,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
                     {
                         Accuracy = (double)accuracy,
                         Speed = (double)location.Speed,
-                        Timestamp = DateTime.Now,
+                        Timestamp = DateTimeOffset.Now,
                         Course = (double)location.Bearing,
                         VerticalAccuracy = (double)location.VerticalAccuracyMeters
                     }));

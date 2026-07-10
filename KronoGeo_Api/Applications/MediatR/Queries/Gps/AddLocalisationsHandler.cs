@@ -4,6 +4,7 @@ using KronoGeo_Api.Interface.Repository;
 using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Model.DTO;
 using MediatR;
+using System.Globalization;
 
 namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
 {
@@ -21,7 +22,9 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
         public Task<LocalisationGroupDTO> Handle(AddLocalisationsCommand request, CancellationToken cancellationToken)
         {
             LocalisationGroup localisationGroup = new() { 
-                Date = DateTime.Now,
+                // -- correction pour erreur avec datetime Utc et postgreSql
+                Date = DateTime.Parse(request.LocalisationGroup.Date.ToString(),null, 
+                System.Globalization.DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal),
                 Name = request.LocalisationGroup.Name,
                 ApplicationUserId = request.LocalisationGroup.ApplicationUserId,
             };
@@ -30,6 +33,8 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
             {
                 foreach (var localisation in request.LocalisationGroup.Localisations)
                 {
+                    /*_logger.LogInformation("Localisation {Id} Date {Date}", 
+                        localisation.Id, localisation.Timestamp);*/
                     localisationGroup.Localisations ??= [];
 
                     if (localisation is LocalisationPhotoDTO localisationPhoto)
@@ -43,7 +48,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
                             Course = localisationPhoto.Course,
                             Speed = localisationPhoto.Speed,
                             VerticalAccuracy = localisationPhoto.VerticalAccuracy,
-                            Timestamp = localisationPhoto.Timestamp,
+                            Timestamp = localisationPhoto.Timestamp.ToUniversalTime(),
                             Name = localisationPhoto.Name,
                             PathPhoto = localisationPhoto.PathPhoto
                         });
@@ -59,7 +64,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
                             Course = localisation.Course,
                             Speed = localisation.Speed,
                             VerticalAccuracy = localisation.VerticalAccuracy,
-                            Timestamp = localisation.Timestamp
+                            Timestamp = localisation.Timestamp.ToUniversalTime()
                         });
                     }
                 }
@@ -84,7 +89,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
                         Course = l.Course,
                         Speed = l.Speed,
                         VerticalAccuracy = l.VerticalAccuracy,
-                        Timestamp = l.Timestamp
+                        Timestamp = l.Timestamp.ToUniversalTime()
                     }).ToList()
                 });
             }

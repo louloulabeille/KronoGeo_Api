@@ -212,6 +212,7 @@ namespace KronoGeo_Maui.ModelViews
             try
             {
 #if ANDROID
+                // -- création d'un service pour marcher en arrière plan
                 var intent = new Intent(Android.App.Application.Context, typeof(GeoAndroidService));
                 intent.SetAction(GeoAndroidService.ActionStop);
                 Android.App.Application.Context.StartService(intent);
@@ -326,7 +327,7 @@ namespace KronoGeo_Maui.ModelViews
                 Longitude = location.Longitude,
                 Accuracy = location.Accuracy,
                 Speed = location.Speed,
-                Timestamp = DateTime.Now,   // -- mettre le DateTime local sinon universel
+                Timestamp = DateTimeOffset.Now,   // -- mettre le DateTime local sinon universel
                 VerticalAccuracy = location.VerticalAccuracy,
                 Course = location.Course,
             };

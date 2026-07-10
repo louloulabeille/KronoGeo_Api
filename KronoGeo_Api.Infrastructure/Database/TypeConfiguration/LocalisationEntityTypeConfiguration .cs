@@ -1,6 +1,7 @@
 ﻿using KronoGeo_Api.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,12 +12,16 @@ namespace KronoGeo_Api.Infrastructure.Database.TypeConfiguration
     {
         public void Configure(EntityTypeBuilder<Localisation> builder)
         {
+            /*var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
+            v => v.Kind == DateTimeKind.Utc ? v : v.ToUniversalTime(),
+            v => DateTime.SpecifyKind(v, DateTimeKind.Utc));*/
+
             builder.ToTable(nameof(Localisation));
             builder.HasKey(l => l.Id);
             builder.Property(l => l.Id).ValueGeneratedOnAdd();
 
-            builder.Property(l => l.Timestamp).IsRequired()
-                .HasColumnType("timestamp without time zone");
+            builder.Property(l => l.Timestamp).IsRequired();
+                //.HasConversion(dateTimeConverter);
             builder.Property(l => l.Latitude).IsRequired();
             builder.Property(l => l.Longitude).IsRequired();
 
