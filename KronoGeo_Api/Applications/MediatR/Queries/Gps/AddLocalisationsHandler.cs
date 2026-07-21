@@ -85,7 +85,9 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
                             Date = localisationGroup.Date,
                             Name = localisationGroup.Name,
                             ApplicationUserId = localisationGroup.ApplicationUserId,
-                            Localisations = localisationGroup.Localisations?.Select(l => new LocalisationDTO
+                            Localisations = localisationGroup.Localisations?.Select(l =>
+                            
+                            new LocalisationDTO
                             {
                                 Id = l.Id,
                                 Latitude = l.Latitude,

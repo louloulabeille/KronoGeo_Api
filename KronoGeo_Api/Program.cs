@@ -75,6 +75,10 @@ builder.Services.AddServiceGestionPhoto();
 builder.Services.AddIOptions(builder.Configuration);
 #endregion
 
+#region AddJsonOptions
+builder.Services.AddJsonOptionsLocalisation();
+#endregion
+
 var app = builder.Build();
 
 #region app.Environment.IsDevelopment & app.Environment.IsStaging

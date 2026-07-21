@@ -1,9 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace KronoGeo_Api.Models.Model.DTO
 {
+    public enum TypeLocalisation
+    {
+        Base,
+        Photo
+    }
+
     public class LocalisationDTO
     {
         public int Id { get; set; }
@@ -15,5 +22,6 @@ namespace KronoGeo_Api.Models.Model.DTO
         public double? VerticalAccuracy { get; set; }
         public double? Speed { get; set; }
         public double? Course { get; set; }
+        public TypeLocalisation TypeObjet { get; set; } = TypeLocalisation.Base;
     }
 }
