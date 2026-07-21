@@ -18,6 +18,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
             if (localisations is not null && localisations.ApplicationUserId == request.IdUser )
             {
                 _unitOfWork.Repository<LocalisationGroup>().Delete( localisations );
+                _unitOfWork.SaveChanges();
                 return new ResponseApiLocalisations()
                 {
                     ApiStatus = EnumApiStatus.Success,
