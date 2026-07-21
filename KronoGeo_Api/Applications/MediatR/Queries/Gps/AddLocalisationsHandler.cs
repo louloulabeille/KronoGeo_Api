@@ -2,6 +2,7 @@
 using KronoGeo_Api.Infrastructure.Database;
 using KronoGeo_Api.Interface.Repository;
 using KronoGeo_Api.Models;
+using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Model.DTO;
 using MediatR;
 using System.Globalization;
@@ -10,7 +11,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
 {
     public class AddLocalisationsHandler(ILogger<AddLocalisationsHandler> logger
         , KronoGeoDbContext context) : RepositoryHandler(logger, context),
-        IRequestHandler<AddLocalisationsCommand, LocalisationGroupDTO>
+        IRequestHandler<AddLocalisationsCommand, ResponseApiLocalisations>
     {
         /// <summary>
         /// ajoute un groupe de localisation à la base de données
@@ -19,7 +20,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public Task<LocalisationGroupDTO> Handle(AddLocalisationsCommand request, CancellationToken cancellationToken)
+        public Task<ResponseApiLocalisations> Handle(AddLocalisationsCommand request, CancellationToken cancellationToken)
         {
             LocalisationGroup localisationGroup = new() { 
                 // -- correction pour erreur avec datetime Utc et postgreSql
@@ -73,28 +74,39 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
 
             if ( _unitOfWork.SaveChanges() > 0 )
             { 
-                return Task.FromResult(new LocalisationGroupDTO
-                {
-                    Id = localisationGroup.Id,
-                    Date = localisationGroup.Date,
-                    Name = localisationGroup.Name,
-                    ApplicationUserId = localisationGroup.ApplicationUserId,
-                    Localisations = localisationGroup.Localisations?.Select(l => new LocalisationDTO
+                return Task.FromResult(
+                    new ResponseApiLocalisations()
                     {
-                        Id = l.Id,
-                        Latitude = l.Latitude,
-                        Longitude = l.Longitude,
-                        Accuracy = l.Accuracy,
-                        Altitude = l.Altitude,
-                        Course = l.Course,
-                        Speed = l.Speed,
-                        VerticalAccuracy = l.VerticalAccuracy,
-                        Timestamp = l.Timestamp.ToUniversalTime()
-                    }).ToList()
-                });
+                        ApiStatus = EnumApiStatus.Success,
+                        Message = "Success Add",
+                        LocalisationGroupDTO = new LocalisationGroupDTO()
+                        {
+                            Id = localisationGroup.Id,
+                            Date = localisationGroup.Date,
+                            Name = localisationGroup.Name,
+                            ApplicationUserId = localisationGroup.ApplicationUserId,
+                            Localisations = localisationGroup.Localisations?.Select(l => new LocalisationDTO
+                            {
+                                Id = l.Id,
+                                Latitude = l.Latitude,
+                                Longitude = l.Longitude,
+                                Accuracy = l.Accuracy,
+                                Altitude = l.Altitude,
+                                Course = l.Course,
+                                Speed = l.Speed,
+                                VerticalAccuracy = l.VerticalAccuracy,
+                                Timestamp = l.Timestamp.ToUniversalTime()
+                            }).ToList()
+                        }
+
+                    });
             }
             
-            return Task.FromResult<LocalisationGroupDTO>(request.LocalisationGroup);
+            return Task.FromResult(new ResponseApiLocalisations() { 
+                ApiStatus = EnumApiStatus.Problem,
+                Message = "No save localisations.",
+                LocalisationGroupDTO = request.LocalisationGroup
+            } );
         }
     }
 }

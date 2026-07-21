@@ -21,8 +21,8 @@ namespace KronoGeo_Api.Controllers
 
         #region public action methods
         // GET: api/v1/<GpsController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        [HttpGet()]
+        public IEnumerable<string> Get(string idUser)
         {
             return new string[] { "value1", "value2" };
         }
@@ -81,16 +81,30 @@ namespace KronoGeo_Api.Controllers
             }
         }
 
-        // PUT api/v1/<GpsController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
         // DELETE api/v1/<GpsController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<IActionResult> Delete(int id, [FromBody] string idUser)
         {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return this.BadRequest("Invalid model state.");
+                }
+                var command = new DeleteLocalisationsCommand()
+                {
+                    IdLocalisationGroup = id,
+                    IdUser = idUser
+                };
+
+                var result = await _mediaR.Send(command);
+
+                return this.Ok(result);
+            }catch(Exception ex)
+            {
+                _logger.LogError(ex,"Erreur lors de la suppression d'un trajet {id} par user {idUser}", id, idUser);
+                return this.Problem("Error while deleting Gps route.");
+            }
         }
         #endregion
     }
