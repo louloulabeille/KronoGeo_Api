@@ -9,7 +9,7 @@ namespace KronoGeo_Api.Models
     {
         public int Id { get; set; }
         public required string Name { get; set; }
-        public required DateTime Date { get; set; } = DateTime.Today;
+        public required DateTimeOffset Date { get; set; } = DateTimeOffset.Now;
         public List<Localisation>? Localisations { get; set; }
 
         public required string ApplicationUserId { get; set; }

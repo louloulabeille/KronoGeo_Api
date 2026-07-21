@@ -83,7 +83,7 @@ namespace KronoGeo_Api.Controllers
 
         // DELETE api/v1/<GpsController>/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id, [FromBody] string idUser)
+        public async Task<IActionResult> Delete(int id, [FromBody] UserIdDTO user)
         {
             try
             {
@@ -94,7 +94,7 @@ namespace KronoGeo_Api.Controllers
                 var command = new DeleteLocalisationsCommand()
                 {
                     IdLocalisationGroup = id,
-                    IdUser = idUser
+                    IdUser = user.Id
                 };
 
                 var result = await _mediaR.Send(command);
@@ -102,7 +102,7 @@ namespace KronoGeo_Api.Controllers
                 return this.Ok(result);
             }catch(Exception ex)
             {
-                _logger.LogError(ex,"Erreur lors de la suppression d'un trajet {id} par user {idUser}", id, idUser);
+                _logger.LogError(ex,"Erreur lors de la suppression d'un trajet {id} par user {idUser}", id, user.Id);
                 return this.Problem("Error while deleting Gps route.");
             }
         }
