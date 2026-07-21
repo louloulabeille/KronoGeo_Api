@@ -23,6 +23,7 @@ namespace KronoGeo_Api.Infrastructure.Database
 
         #region dbSet
         public DbSet<Localisation> Localisations { get; set; }
+        public DbSet<LocalisationPhoto> LocalisationPhotos { get; set; }
         public DbSet<LocalisationGroup> LocalisationGroups { get; set; }
         #endregion
 

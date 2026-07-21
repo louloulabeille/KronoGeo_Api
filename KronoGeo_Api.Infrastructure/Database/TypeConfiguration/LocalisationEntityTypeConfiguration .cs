@@ -34,8 +34,6 @@ namespace KronoGeo_Api.Infrastructure.Database.TypeConfiguration
             builder.HasDiscriminator<string>("TypeLocalisation")
                 .HasValue<Localisation>("Default")
                 .HasValue<LocalisationPhoto>("Photo");
-
-            
         }
     }
 }
