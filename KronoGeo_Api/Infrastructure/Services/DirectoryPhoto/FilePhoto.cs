@@ -95,7 +95,27 @@ namespace KronoGeo_Api.Infrastructure.Services.DirectoryPhoto
 
             return null;
         }
-        
+
+        /// <summary>
+        /// methode pour supprimer le répertoire (si vide) et la photo
+        /// </summary>
+        /// <param name="photo"></param>
+        public void DeletePhotos(string directory)
+        {
+            if (string.IsNullOrEmpty(directory)) return;
+
+            string directoryPath = Path.Combine(_webhost.ContentRootPath, directory);
+            if (!Directory.Exists(directoryPath)) return;
+
+            string[] fileList = Directory.GetFiles(directoryPath);
+            foreach (string file in fileList)
+            {
+                File.Delete(file);
+            }
+
+            Directory.Delete(directoryPath);
+
+        }
         #endregion
 
     }
