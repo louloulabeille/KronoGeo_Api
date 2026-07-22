@@ -10,15 +10,21 @@ namespace KronoGeo_Api.Infrastructure.Services.DirectoryPhoto
     /// classe de  gestion au niveau 
     /// </summary>
     public class FilePhoto(IOptions<PhotoOptions> option
-        , IWebHostEnvironment webHost) : IServiceGestionPhoto
+        , IWebHostEnvironment webHost, ILogger<FilePhoto> logger) : IServiceGestionPhoto
     {
         #region private readonly properties
         private readonly IOptions<PhotoOptions> _option = option;
         private readonly IWebHostEnvironment _webhost = webHost;
         private readonly CancellationToken _cancellation = new();
+        private readonly ILogger<FilePhoto> _logger = logger;
         #endregion
 
-        #region public method
+        #region public method interface
+        /// <summary>
+        /// récupère le flux d'une image au niveau du controleur pourl'enregister au niveau du serveur
+        /// </summary>
+        /// <param name="formFile"></param>
+        /// <returns></returns>
         public async Task<PhotoDTO> SavePhotoHttp(IFormFile formFile)
         {
             string filePath = Path.Combine(_webhost.ContentRootPath, @$"{_option.Value.Tmp_Photo}");
@@ -44,7 +50,52 @@ namespace KronoGeo_Api.Infrastructure.Services.DirectoryPhoto
             return picture;
         }
 
+        /// <summary>
+        /// déplace une image vers son répertoire de stockage
+        /// </summary>
+        /// <param name="directory">répertoire final de copie</param>
+        /// <param name="photo">photo a déplacé</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<PhotoDTO?> CutPhoto(string directory, PhotoDTO photo)
+        {
+            if (!string.IsNullOrEmpty(photo.Name) || !string.IsNullOrEmpty(photo.PathPhoto))
+            {
+                // -- répertoire de copie du fichier
+                string directoryPathCopy = Path.Combine(_webhost.ContentRootPath, @$"{_option.Value.Default_Photo}");
+                directoryPathCopy = Path.Combine(directoryPathCopy, @$"{directory}");
+                // -- répertoire temporaire des images
+                string directoryPath = Path.Combine(_webhost.ContentRootPath, @$"{_option.Value.Tmp_Photo}"); // -- répertoire temporaire
+                var photoDest = new PhotoDTO() { Name = photo.Name, PathPhoto = directoryPathCopy };
 
+                if (!Directory.Exists(directoryPath))
+                {
+                    return null;
+                }
+
+                if ( !Directory.Exists(directoryPathCopy))
+                {
+                    Directory.CreateDirectory(directoryPathCopy);
+                }
+
+                directoryPathCopy = Path.Combine(directoryPathCopy, photo.Name ?? string.Empty);
+                directoryPath = Path.Combine(directoryPath, photo.Name ?? string.Empty);
+                try
+                {
+                    File.Copy(directoryPath, directoryPathCopy );
+                    File.Delete(directoryPath); // -- suppression du fichier dans le répetoire temporaire
+                    return photoDest;
+                }
+                catch(IOException copyError)
+                {
+                    _logger.LogError(copyError, "Erreur de copie de l'image {Source} répertoire {Dest}", directoryPathCopy, directoryPath);
+                    return null;
+                }
+            }
+
+            return null;
+        }
+        
         #endregion
 
     }

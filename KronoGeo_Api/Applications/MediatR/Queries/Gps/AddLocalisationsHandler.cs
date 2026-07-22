@@ -1,18 +1,25 @@
 ﻿using KronoGeo_Api.Applications.MediatR.Commands.Gps;
 using KronoGeo_Api.Infrastructure.Database;
+using KronoGeo_Api.Interface;
 using KronoGeo_Api.Interface.Repository;
 using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Model.DTO;
 using MediatR;
+using Org.BouncyCastle.Security.Certificates;
 using System.Globalization;
 
 namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
 {
     public class AddLocalisationsHandler(ILogger<AddLocalisationsHandler> logger
-        , KronoGeoDbContext context) : RepositoryHandler(logger, context),
+        , KronoGeoDbContext context, IServiceGestionPhoto servicePhoto) : RepositoryHandler(logger, context),
         IRequestHandler<AddLocalisationsCommand, ResponseApiLocalisations>
     {
+        #region private properties
+        private readonly IServiceGestionPhoto _servicePhoto = servicePhoto;
+        #endregion
+
+
         /// <summary>
         /// ajoute un groupe de localisation à la base de données
         /// </summary>
@@ -20,7 +27,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public Task<ResponseApiLocalisations> Handle(AddLocalisationsCommand request, CancellationToken cancellationToken)
+        public async Task<ResponseApiLocalisations> Handle(AddLocalisationsCommand request, CancellationToken cancellationToken)
         {
             LocalisationGroup localisationGroup = new() { 
                 // -- correction pour erreur avec datetime Utc et postgreSql
@@ -65,7 +72,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
                             Course = localisation.Course,
                             Speed = localisation.Speed,
                             VerticalAccuracy = localisation.VerticalAccuracy,
-                            Timestamp = localisation.Timestamp
+                            Timestamp = localisation.Timestamp.ToUniversalTime()
                         });
                     }
                 }
@@ -73,8 +80,32 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
             _unitOfWork.Repository<LocalisationGroup>().Add(localisationGroup);
 
             if ( _unitOfWork.SaveChanges() > 0 )
-            { 
-                return Task.FromResult(
+            {
+                // -- déplace les images dans le bon répertoire 
+                var photos = localisationGroup.Localisations?.Where(p => p is LocalisationPhoto).ToList();
+                if ( photos is not null )
+                {
+                    foreach (var item in photos)
+                    {
+                        var localisationPhoto = item as LocalisationPhoto;
+
+                        var retour = await _servicePhoto.CutPhoto(localisationGroup.Id.ToString(),
+                            new PhotoDTO()
+                            {
+                                Name = localisationPhoto?.Name,
+                                PathPhoto = localisationPhoto?.PathPhoto
+                            });
+
+                        if (retour != null && localisationPhoto is not null)
+                        {
+                            localisationPhoto.PathPhoto = retour.PathPhoto;
+                            _unitOfWork.Repository<LocalisationPhoto>().Update(localisationPhoto);
+                        }
+                    }
+                    _unitOfWork.SaveChanges();
+                }
+                
+                return 
                     new ResponseApiLocalisations()
                     {
                         ApiStatus = EnumApiStatus.Success,
@@ -101,14 +132,14 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
                             }).ToList()
                         }
 
-                    });
+                    };
             }
             
-            return Task.FromResult(new ResponseApiLocalisations() { 
+            return new ResponseApiLocalisations() { 
                 ApiStatus = EnumApiStatus.Problem,
                 Message = "No save localisations.",
                 LocalisationGroupDTO = request.LocalisationGroup
-            } );
+            };
         }
     }
 }

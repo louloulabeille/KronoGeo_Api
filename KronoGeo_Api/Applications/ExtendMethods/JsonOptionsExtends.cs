@@ -10,6 +10,7 @@ namespace KronoGeo_Api.Applications.ExtendMethods
             /// <summary>
             /// ajoute les options de sérialisation pour la classe LocalisationDTO 
             /// & de sa classe fille LocalisationPhotoDTO
+            /// pour la sérialisation au niveau du controleur
             /// </summary>
             /// <returns></returns>
             public IServiceCollection AddJsonOptionsLocalisation(  )
@@ -31,7 +32,6 @@ namespace KronoGeo_Api.Applications.ExtendMethods
                                         TypeDiscriminatorPropertyName = "TypeObjet",
                                         DerivedTypes =
                                         {
-                                            //new JsonDerivedType(typeof(LocalisationDTO), (int)TypeLocalisation.Base),
                                             new JsonDerivedType(typeof(LocalisationDTO), (int)TypeLocalisation.Base),
                                             new JsonDerivedType(typeof(LocalisationPhotoDTO), (int)TypeLocalisation.Photo)
                                         }
