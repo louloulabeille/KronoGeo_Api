@@ -65,7 +65,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
                             Course = localisation.Course,
                             Speed = localisation.Speed,
                             VerticalAccuracy = localisation.VerticalAccuracy,
-                            Timestamp = localisation.Timestamp.ToUniversalTime()
+                            Timestamp = localisation.Timestamp
                         });
                     }
                 }
