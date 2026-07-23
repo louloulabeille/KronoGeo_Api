@@ -11,9 +11,9 @@ namespace KronoGeo_Api.Models.Model.DTO
         //public string? PathPhoto { get; set; }
         public string? PathPhoto { get; set; } = null;
        
-        public LocalisationPhotoDTO()
+        /*public LocalisationPhotoDTO()
         {
             base.TypeObjet = TypeLocalisation.Photo;
-        }
+        }*/
     }
 }

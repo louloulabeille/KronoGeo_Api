@@ -18,7 +18,7 @@ namespace KronoGeo_Api.Applications.ExtendMethods
                 services.AddControllers().AddJsonOptions(options =>
                 {
                     options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-
+                    //options.JsonSerializerOptions.PropertyNamingPolicy = null; // -- respect de la case pour les propirétés
                     options.JsonSerializerOptions.TypeInfoResolver = new DefaultJsonTypeInfoResolver
                     {
                         Modifiers =

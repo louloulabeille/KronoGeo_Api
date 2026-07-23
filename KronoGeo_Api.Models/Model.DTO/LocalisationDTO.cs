@@ -13,6 +13,7 @@ namespace KronoGeo_Api.Models.Model.DTO
 
     public class LocalisationDTO
     {
+        //public TypeLocalisation TypeObjet { get; set; } = TypeLocalisation.Base;
         public int Id { get; set; }
         public DateTimeOffset Timestamp { get; set; }
         public double Latitude { get; set; }
@@ -22,6 +23,6 @@ namespace KronoGeo_Api.Models.Model.DTO
         public double? VerticalAccuracy { get; set; }
         public double? Speed { get; set; }
         public double? Course { get; set; }
-        public TypeLocalisation TypeObjet { get; set; } = TypeLocalisation.Base;
+        
     }
 }

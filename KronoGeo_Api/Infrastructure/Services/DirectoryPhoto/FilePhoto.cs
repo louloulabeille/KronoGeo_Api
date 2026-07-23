@@ -66,7 +66,7 @@ namespace KronoGeo_Api.Infrastructure.Services.DirectoryPhoto
                 directoryPathCopy = Path.Combine(directoryPathCopy, @$"{directory}");
                 // -- répertoire temporaire des images
                 string directoryPath = Path.Combine(_webhost.ContentRootPath, @$"{_option.Value.Tmp_Photo}"); // -- répertoire temporaire
-                var photoDest = new PhotoDTO() { Name = photo.Name, PathPhoto = directoryPathCopy };
+                var photoDest = new PhotoDTO() { Name = photo.Name, PathPhoto = directory };
 
                 if (!Directory.Exists(directoryPath))
                 {
