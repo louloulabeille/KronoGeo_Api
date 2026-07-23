@@ -1,5 +1,6 @@
 ﻿using KronoGeo_Api.Applications.MediatR.Commands.Identity;
 using KronoGeo_Api.Interface.Service;
+using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Infrastructure.Email;
 using KronoGeo_Api.Models.Infrastructure.Options;
 using MediatR;
@@ -9,7 +10,7 @@ using Microsoft.Extensions.Options;
 namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
 {
     public class UpdateUserPasswordHandler(ILogger<UpdateUserPasswordHandler> logger
-        , IOptions<KeyBearer> keyBearer, SignInManager<IdentityUser> signInManager) 
+        , IOptions<KeyBearer> keyBearer, SignInManager<ApplicationUser> signInManager) 
         : UserIdentityHandler(logger, keyBearer, signInManager)
         , IRequestHandler<UpdateUserPasswordCommand, RegisterIdentity>
     {

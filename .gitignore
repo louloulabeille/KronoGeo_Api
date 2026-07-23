@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /KronoGeo_Api.Infrastructure/Database/KronoGeoContextFactory.cs
 /KronoGeo_Maui/ModelViews/MainPageViewModel.cs
+/KronoGeo_Api/images/tmp

@@ -4,11 +4,49 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:KronoGeo_Maui"
-    Title="KronoGeo_Maui">
+    Title="KronoGeo_Maui"
+    Shell.TabBarBackgroundColor="#F9EDE1">
+    
+    <!--<Shell.TabBarBackgroundColor="#F9EDE1"
+    Shell.TabBarTitleColor="#51638B"
+    Shell.TabBarUnselectedColor="#51638B"
+    >-->
+    <!--<ShellContent
+    Title=""
+    ContentTemplate="{DataTemplate local:MainPage}"
+    Route="MainPage" />-->
 
     <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    Title=""
+    ContentTemplate="{DataTemplate local:ApplicationPage}"
+    Route="ApplicationPage" />
 
+
+    <!--<TabBar>
+        <Tab Title="Start" Route="Start">
+            <Tab.Icon>
+                <FontImageSource x:Name="fontImageStart" FontFamily="MaterialIcons-Regular" Glyph="&#xe1c4;" Color="#51638B"/>
+            </Tab.Icon>
+            <ShellContent ContentTemplate="{DataTemplate local:MainPage}" />
+        </Tab>
+        <Tab Title="Stop" Route="Stop">
+            <Tab.Icon>
+                <FontImageSource FontFamily="MaterialIcons-Regular" Glyph="&#xef71;" Color="#51638B"/>
+            </Tab.Icon>
+            <ShellContent  ContentTemplate="{DataTemplate local:ApplicationPage}"/>
+        </Tab>
+        <Tab Title="Camera" Route="Camera">
+            <Tab.Icon>
+                <FontImageSource FontFamily="MaterialIcons-Regular" Glyph="&#xe3af;" Color="#51638B"/>
+            </Tab.Icon>
+            <ShellContent  ContentTemplate="{DataTemplate local:ApplicationPage}"/>
+        </Tab>
+        <Tab Title="Parametrage" Route="Settings">
+            <Tab.Icon>
+                <FontImageSource FontFamily="MaterialIcons-Regular" Glyph="&#xe8b8;" Color="#51638B"/>
+            </Tab.Icon>
+            <ShellContent  ContentTemplate="{DataTemplate local:ParametragePage}"/>
+        </Tab>
+    </TabBar>
+    -->
 </Shell>

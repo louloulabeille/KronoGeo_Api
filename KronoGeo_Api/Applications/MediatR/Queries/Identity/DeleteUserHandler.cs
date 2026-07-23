@@ -1,4 +1,5 @@
 ﻿using KronoGeo_Api.Applications.MediatR.Commands.Identity;
+using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Infrastructure.Options;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -7,7 +8,7 @@ using Microsoft.Extensions.Options;
 namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
 {
     public class DeleteUserHandler(ILogger<DeleteUserHandler> logger,
-            IOptions<KeyBearer> keyBearer, SignInManager<IdentityUser> signInManager)
+            IOptions<KeyBearer> keyBearer, SignInManager<ApplicationUser> signInManager)
         : UserIdentityHandler(logger, keyBearer, signInManager),
         IRequestHandler<DeleteUserCommand, RegisterIdentity>
     {
@@ -80,7 +81,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<bool> CanDeleteUser(IdentityUser user)
+        public async Task<bool> CanDeleteUser(ApplicationUser user)
         {
             // - vérification de ne pas supprimer un utilisateur avec des rôles critiques (ex: admin)
             var roles = await _signInManager.UserManager.GetRolesAsync(user);

@@ -1,5 +1,6 @@
 ﻿using KronoGeo_Api.Applications.Authentification;
 using KronoGeo_Api.Applications.MediatR.Commands.Identity;
+using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Infrastructure.Options;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -17,7 +18,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
     /// <param name="keyBearer"></param>
     /// <param name="signInManager"></param>
     public class LoginUserHandler(ILogger<LoginUserHandler> logger,
-        IOptions<KeyBearer> keyBearer, SignInManager<IdentityUser> signInManager) :
+        IOptions<KeyBearer> keyBearer, SignInManager<ApplicationUser> signInManager) :
         UserIdentityHandler(logger, keyBearer, signInManager)
         , IRequestHandler<LoginUserCommand, RegisterIdentity>
     {

@@ -1,9 +1,11 @@
-﻿using KronoGeo_Api.Interface.Service;
+﻿using CommunityToolkit.Maui;
+using KronoGeo_Api.Interface.Service;
 using KronoGeo_Maui.Applications.ExtendMethods;
-using KronoGeo_Maui.Applications.Services;
-using Microsoft.Extensions.Logging;
-using CommunityToolkit.Maui;
 using KronoGeo_Maui.Applications.Interface;
+using KronoGeo_Maui.Applications.Services;
+using KronoGeo_Maui.Applications.Services.Geolocation;
+using KronoGeo_Maui.Platforms.Android.Application.Geolocalisation;
+using Microsoft.Extensions.Logging;
 
 namespace KronoGeo_Maui
 {
@@ -41,6 +43,19 @@ namespace KronoGeo_Maui
             builder.Services.AddScoped<IServiceSaveUser,InMemoriMauiUser>();
             #endregion
 
+            #region Injection Geolocation
+#if ANDROID26_0_OR_GREATER
+                // -- Android 26
+                if (OperatingSystem.IsAndroidVersionAtLeast(26)) 
+                    builder.Services.AddSingleton<IServiceGeolocalisation, GeolocationAndroid>();
+#elif ANDROID21_0_OR_GREATER
+                builder.Services.AddSingleton<IServiceGeolocalisation, GeolocationOther>();
+#elif !ANDROID
+                builder.Services.AddSingleton<IServiceGeolocalisation, GeolocationOther>();
+#endif
+            #endregion
+
+            builder.Services.AddTransient<IServiceSaveLocalisation, InMemorySaveLocalisation>();
             builder.Services.AddSingleton<IDialogService, MauiDialogService>();
             builder.Services.AddScoped<IServiceSaveParametrage, InMemoryMauiParametrage>();
 

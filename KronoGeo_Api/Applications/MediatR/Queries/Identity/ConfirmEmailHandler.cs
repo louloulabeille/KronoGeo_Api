@@ -11,11 +11,12 @@ using Microsoft.Win32;
 using System.Text;
 using System.Threading.Channels;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using KronoGeo_Api.Models;
 
 namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
 {
     public class ConfirmEmailHandler(ILogger<ConfirmEmailHandler> logger
-        , IOptions<KeyBearer> keyBearer, SignInManager<IdentityUser> signInManager)
+        , IOptions<KeyBearer> keyBearer, SignInManager<ApplicationUser> signInManager)
         : UserIdentityHandler(logger, keyBearer, signInManager)
         , IRequestHandler<ConfirmEmailCommand, RegisterIdentity>
     {

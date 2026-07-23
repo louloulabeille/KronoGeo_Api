@@ -1,4 +1,5 @@
-﻿using KronoGeo_Api.Models.Infrastructure.Options;
+﻿using KronoGeo_Api.Models;
+using KronoGeo_Api.Models.Infrastructure.Options;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -16,7 +17,7 @@ namespace KronoGeo_Api.Applications.Authentification
         /// <param name="options"></param>
         /// <param name="userManager"></param>
         /// <returns></returns>
-        public static async Task<string> GenerateJwtToken(IdentityUser user, KeyBearer options, UserManager<IdentityUser> userManager)
+        public static async Task<string> GenerateJwtToken(ApplicationUser user, KeyBearer options, UserManager<ApplicationUser> userManager)
         {
             // Now its ime to define the jwt token which will be responsible of creating our tokens
             var jwtTokenHandler = new JwtSecurityTokenHandler();

@@ -1,0 +1,28 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace KronoGeo_Api.Models
+{
+    public class Localisation
+    {
+        
+        public int Id { get; set; }
+        public DateTimeOffset Timestamp { get; set; }
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
+        public double? Altitude { get; set; }
+        public double? Accuracy { get; set; }
+        public double? VerticalAccuracy { get; set; }
+        public double? Speed { get; set; }
+        public double? Course { get; set; }
+
+        public int LocalisationGroupId { get; set; }
+        public LocalisationGroup? LocalisationGroup  { get; set; }
+
+        public override string? ToString()
+        {
+            return base.ToString();
+        }
+    }
+}

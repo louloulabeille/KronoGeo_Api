@@ -1,12 +1,14 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using KronoGeo_Api.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace KronoGeo_Api.Infrastructure.Database
 {
-    public class KronoGeoDbContext : IdentityDbContext
+    public class KronoGeoDbContext : IdentityDbContext<ApplicationUser>
     {
         #region constructeur
         public KronoGeoDbContext(DbContextOptions<KronoGeoDbContext> options) : base(options)
@@ -20,7 +22,9 @@ namespace KronoGeo_Api.Infrastructure.Database
 
 
         #region dbSet
-
+        public DbSet<Localisation> Localisations { get; set; }
+        public DbSet<LocalisationPhoto> LocalisationPhotos { get; set; }
+        public DbSet<LocalisationGroup> LocalisationGroups { get; set; }
         #endregion
 
         #region protected overrides

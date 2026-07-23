@@ -1,4 +1,5 @@
 ﻿using KronoGeo_Api.Interface.Service.MessageFactoryMethod;
+using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Infrastructure.Email;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -10,13 +11,13 @@ using System.Text;
 
 namespace KronoGeo_Api.Infrastructure.Service.Email.MessageFactoryMethod
 {
-    public class MessageAuthentification(UserManager<IdentityUser> userManager
-        , IdentityUser user, IOptions<UrlOptions> urlOptions) : IMessageMail
+    public class MessageAuthentification(UserManager<ApplicationUser> userManager
+        , ApplicationUser user, IOptions<UrlOptions> urlOptions) : IMessageMail
     {
 
         #region private properties
-        private readonly UserManager<IdentityUser> _userManager = userManager;
-        private readonly IdentityUser _user = user;
+        private readonly UserManager<ApplicationUser> _userManager = userManager;
+        private readonly ApplicationUser _user = user;
         private readonly IOptions<UrlOptions> _urlOptions = urlOptions;
         #endregion
 

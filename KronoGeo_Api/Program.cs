@@ -10,10 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 // - prochaine etape
-// - installer Npgsql.EntityFrameworkCore.PostgreSQL et créer le dbcontext -- fait table dans la base de données fait 
+// fait - installer Npgsql.EntityFrameworkCore.PostgreSQL et créer le dbcontext -- créer table dans la base de données fait 
 // - il va falloir mettre en place un systeme pour prendre en compte le systeme d'enregistrement de la chaine de connexion dans les variable d'environnmement et le tester 
-// - mettre en place l'authentification - manque toute la partie JWT bearer et enregistrement des param aussi
-// - mettre en place les tests unitaires -- projet créé 
+// fait  - mettre en place l'authentification - manque toute la partie JWT bearer et enregistrement des param aussi
+// commencer - mettre en place les tests unitaires -- projet créé 
 
 #region AddControllers
 builder.Services.AddControllers(options =>
@@ -61,6 +61,22 @@ builder.Host.AddSerilog();
 builder.Services.AddCustonIdentityUser();
 builder.Services.AddCustomlsAuthentification(builder.Configuration);
 builder.Services.AddAuthorizationPolicy();
+#endregion
+
+#region add Repository injection
+builder.Services.AddRepository();
+#endregion
+
+#region Add service Gestion photo
+builder.Services.AddServiceGestionPhoto();
+#endregion
+
+#region Add IOptions 
+builder.Services.AddIOptions(builder.Configuration);
+#endregion
+
+#region AddJsonOptions
+builder.Services.AddJsonOptionsLocalisation();
 #endregion
 
 var app = builder.Build();

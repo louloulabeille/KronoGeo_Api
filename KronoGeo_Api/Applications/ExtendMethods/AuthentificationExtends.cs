@@ -1,5 +1,6 @@
 ﻿using KronoGeo_Api.Applications.CustomTokenProviders;
 using KronoGeo_Api.Infrastructure.Database;
+using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Infrastructure.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -24,7 +25,7 @@ namespace KronoGeo_Api.Applications.ExtendMethods
             /// <returns></returns>
             public IServiceCollection AddCustonIdentityUser()
             {
-                services.AddDefaultIdentity<IdentityUser>(options =>
+                services.AddDefaultIdentity<ApplicationUser>(options =>
                 {
                     options.Password = new PasswordOptions()
                     {
@@ -50,7 +51,7 @@ namespace KronoGeo_Api.Applications.ExtendMethods
                 })
                     .AddRoles<IdentityRole>() // - permet la mise en place de rôles pour les utilisateurs
                     .AddEntityFrameworkStores<KronoGeoDbContext>()
-                    .AddTokenProvider<EmailConfirmationTokenProvider<IdentityUser>>("EmailConfirmation")
+                    .AddTokenProvider<EmailConfirmationTokenProvider<ApplicationUser>>("EmailConfirmation")
                     .AddDefaultTokenProviders(); // - mise en place de la vérification du token
 
                 // - configuration de la durée de vie du token 24h par défaut 24h
@@ -111,7 +112,7 @@ namespace KronoGeo_Api.Applications.ExtendMethods
                     {
                         OnTokenValidated = async tokenValidateContext =>
                         {
-                            var userManager     = tokenValidateContext.HttpContext.RequestServices.GetRequiredService<UserManager<IdentityUser>>();
+                            var userManager     = tokenValidateContext.HttpContext.RequestServices.GetRequiredService<UserManager<ApplicationUser>>();
                             var claimPrincipal  = tokenValidateContext.Principal;
                             var idUser          = claimPrincipal?.FindFirstValue("Id");
                             var securityStamp = claimPrincipal?.FindFirstValue("SecurityStamp");

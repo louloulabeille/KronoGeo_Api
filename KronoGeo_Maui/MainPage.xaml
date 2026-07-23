@@ -6,8 +6,8 @@
              x:DataType="viewmodels:MainPageViewModel"
              x:Class="KronoGeo_Maui.MainPage"
              xmlns:helpers="clr-namespace:KronoGeo_Maui.Applications.Helpers"
-             Title="">
-
+             Shell.TabBarIsVisible="False"
+             Shell.NavBarIsVisible="False">
 
     <ScrollView Orientation="Vertical" VerticalScrollBarVisibility="Never" BackgroundColor="#96BD8E">
         <VerticalStackLayout Padding="30,50" Spacing="25" 

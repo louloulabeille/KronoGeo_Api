@@ -10,11 +10,12 @@ using KronoGeo_Api.Models.Infrastructure.Options;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using KronoGeo_Api.Models;
 
 namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
 {
     public class ConfirmUpdateOrNotEmailHandler(ILogger<ConfirmUpdateOrNotEmailHandler> logger
-        , IOptions<KeyBearer> keyBearer, SignInManager<IdentityUser> signInManager
+        , IOptions<KeyBearer> keyBearer, SignInManager<ApplicationUser> signInManager
         , IOptions<UrlOptions> urlOptions, IServiceSendMessage serviceSendMail)
         : UserIdentityHandler(logger, keyBearer, signInManager)
         , IRequestHandler<ConfirmUpdateOrNotEmailCommand, RegisterIdentity>
