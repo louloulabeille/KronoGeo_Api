@@ -5,6 +5,7 @@ using Android.App;
 using Android.OS;
 using AndroidApplication = Android.App.Application;
 using System.Runtime.Versioning;
+using KronoGeo_Maui.Applications.Outils.Geolocalisation;
 
 namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
 {
@@ -55,12 +56,10 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
                 if (_locationManager.IsProviderEnabled(provider))
                 {
                     // Paramètres de mise à jour :
-                    // 1000 : Intervalle minimum en millisecondes (1 seconde)
-                    // 1 : Distance minimale en mètres avant notification (1 mètre)
                     _locationManager.RequestLocationUpdates(
                     provider,
-                    3000, // -- 5000 millisecondes d'intervalle minimum pour déclencher l'événement
-                    3, // -- 1 mètres de distance minimale pour déclencher l'événement
+                    5000, // -- 5000 millisecondes d'intervalle minimum pour déclencher l'événement
+                    5, // -- 5 mètres de distance minimale pour déclencher l'événement
                     _locationListener,
                     // -- on injecte l'aiguilleur ici en cas de désynchronisation
                     // entre eventhandler et la mainthread
@@ -99,18 +98,34 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
             _locationListener.OnLocationChangedAction = (location) =>
             {
                 // Ici vous récupérez la position précise
-                double latitude = location.Latitude;
+                /*double latitude = location.Latitude;
                 double longitude = location.Longitude;
                 double altitude = location.Altitude;
-                float accuracy = location.Accuracy; // Précision en mètres
+                float accuracy = location.Accuracy; // Précision en mètres*/
 
-                /*if (accuracy > 8) // Seuil de précision (8 mètres dans cet exemple)
+                Microsoft.Maui.Devices.Sensors.Location newLocation = new(
+                    location.Latitude, location.Longitude, location.Altitude
+                    )
+                {
+                    Accuracy = (double)location.Accuracy,
+                    Speed = (double)location.Speed,
+                    Timestamp = DateTimeOffset.Now,
+                    Course = (double)location.Bearing,
+                    VerticalAccuracy = (double)location.VerticalAccuracyMeters
+                };
+                GpsSmoother smoother = new();
+                var locationSmoother = smoother.AcceptableLocationCalcul(newLocation);
+
+                if (locationSmoother is not null)
+                    LocationChanged?.Invoke(this, new GeolocationLocationChangedEventArgs(locationSmoother));
+
+                /*if (accuracy > 15) // Seuil de précision (15 mètres dans cet exemple)
                 {
                     return; // Ignorer cette position
                 }*/
 
                 // -- appel de l'événement pour le code partagé --
-                LocationChanged?.Invoke(this,
+                /*LocationChanged?.Invoke(this,
                     new GeolocationLocationChangedEventArgs(new Microsoft.Maui.Devices.Sensors.Location(latitude, longitude, altitude)
                     {
                         Accuracy = (double)accuracy,
@@ -118,7 +133,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
                         Timestamp = DateTimeOffset.Now,
                         Course = (double)location.Bearing,
                         VerticalAccuracy = (double)location.VerticalAccuracyMeters
-                    }));
+                    }));*/
 
                 // TODO: Envoyer ces données à votre code partagé (via un événement ou Messenger)
             };
