@@ -20,9 +20,15 @@ namespace KronoGeo_Api.Controllers
         #endregion
 
         #region public action methods
-
+        /// <summary>
+        /// Retourne tous les groupes de localisations par UserId
+        /// classé par Id group desc
+        /// </summary>
+        /// <param name="idUser"></param>
+        /// <returns></returns>
         // GET: api/v1/<GpsController>/GetAllGroup/{idUser}
         [HttpGet("GetAllGroup/{idUser}")]
+        //public async Task<IActionResult> Get([FromQuery] string idUser)
         public async Task<IActionResult> Get(string idUser)
         {
             try
@@ -39,17 +45,40 @@ namespace KronoGeo_Api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erreur lors de l'envoi des groupes des localisations.");
+                _logger.LogError(ex, "Erreur lors de l'envoi des groupes des localisations. idUser {idUser}", idUser);
                 return this.Problem("Error search locations.");
             }
                     
         }
 
+        /// <summary>
+        /// retourne un group de localisation par id group
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // GET api/v1/<GpsController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        //public async Task<IActionResult> Get([FromQuery] int id)
+        public async Task<IActionResult> Get(int id)
         {
-            return "value";
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest("Invalid model state.");
+                }
+
+                var command = new GetLocalisationsCommand() { Id = id };
+                var result = await _mediaR.Send(command);
+
+                return this.Ok(result);
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de l'envoi d'un groupe de localisation. id group localisation {id}", id);
+                return this.Problem("Error search location");
+            }
+            
         }
 
         // POST api/v1/<GpsController>/Save

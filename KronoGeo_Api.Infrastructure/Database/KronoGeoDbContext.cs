@@ -1,4 +1,5 @@
-﻿using KronoGeo_Api.Models;
+﻿using KronoGeo_Api.Infrastructure.Database.TypeConfiguration;
+using KronoGeo_Api.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -35,6 +36,10 @@ namespace KronoGeo_Api.Infrastructure.Database
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            // -- Apply configurations 
+            builder.ApplyConfiguration(new LocalisationEntityTypeConfiguration());
+            builder.ApplyConfiguration(new LocalisationGroupEntityTypeConfiguration());
         }
         #endregion
     }
