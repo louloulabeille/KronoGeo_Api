@@ -8,5 +8,6 @@ namespace KronoGeo_Api.Models.Infrastructure.Http
     public class ResponseApiLocalisations : ResponseApi
     {
         public LocalisationGroupDTO? LocalisationGroupDTO { get; set; } = default;
+        public List<LocalisationGroupDTO> GroupsDTO { get; set; } = [];
     }
 }

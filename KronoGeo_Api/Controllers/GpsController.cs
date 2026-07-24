@@ -20,11 +20,29 @@ namespace KronoGeo_Api.Controllers
         #endregion
 
         #region public action methods
-        // GET: api/v1/<GpsController>
-        [HttpGet()]
-        public IEnumerable<string> Get(string idUser)
+
+        // GET: api/v1/<GpsController>/GetAllGroup/{idUser}
+        [HttpGet("GetAllGroup/{idUser}")]
+        public async Task<IActionResult> Get(string idUser)
         {
-            return new string[] { "value1", "value2" };
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest("Invalid model state.");
+                }
+
+                var command = new GetGroupLocalisationsCommand() { IdUser = idUser };
+                var result = await _mediaR.Send(command);
+
+                return this.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de l'envoi des groupes des localisations.");
+                return this.Problem("Error search locations.");
+            }
+                    
         }
 
         // GET api/v1/<GpsController>/5
