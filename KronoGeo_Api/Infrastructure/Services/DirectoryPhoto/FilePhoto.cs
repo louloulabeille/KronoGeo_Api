@@ -66,7 +66,7 @@ namespace KronoGeo_Api.Infrastructure.Services.DirectoryPhoto
                 directoryPathCopy = Path.Combine(directoryPathCopy, @$"{directory}");
                 // -- répertoire temporaire des images
                 string directoryPath = Path.Combine(_webhost.ContentRootPath, @$"{_option.Value.Tmp_Photo}"); // -- répertoire temporaire
-                var photoDest = new PhotoDTO() { Name = photo.Name, PathPhoto = directory };
+                var photoDest = new PhotoDTO() { Name = photo.Name, PathPhoto = @$"{_option.Value.Default_Photo}/{directory}" };
 
                 if (!Directory.Exists(directoryPath))
                 {
@@ -97,7 +97,7 @@ namespace KronoGeo_Api.Infrastructure.Services.DirectoryPhoto
         }
 
         /// <summary>
-        /// methode pour supprimer le répertoire (si vide) et la photo
+        /// methode pour supprimer le répertoire (si vide) et les photos
         /// </summary>
         /// <param name="photo"></param>
         public void DeletePhotos(string directory)

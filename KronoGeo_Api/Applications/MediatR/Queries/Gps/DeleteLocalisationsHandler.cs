@@ -19,29 +19,40 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
         public async Task<ResponseApiLocalisations> Handle(DeleteLocalisationsCommand request, CancellationToken cancellationToken)
         {
             var localisations = _unitOfWork.Repository<LocalisationGroup>().GetById(request.IdLocalisationGroup);
-;            
-
-            if (localisations is not null && localisations.ApplicationUserId == request.IdUser )
+            try
             {
-                var photo = _unitOfWork.Repository<LocalisationPhoto>().Where(p => p.LocalisationGroupId == request.IdLocalisationGroup).FirstOrDefault();
-                if (photo is not null) _servicePhoto.DeletePhotos(photo.PathPhoto ?? string.Empty);
+                if (localisations is not null && localisations.ApplicationUserId == request.IdUser)
+                {
+                    var photo = _unitOfWork.Repository<LocalisationPhoto>().Where(p => p.LocalisationGroupId == request.IdLocalisationGroup).FirstOrDefault();
+                    if (photo is not null) _servicePhoto.DeletePhotos(photo.PathPhoto ?? string.Empty);
 
-                _unitOfWork.Repository<LocalisationGroup>().Delete( localisations );
-                _unitOfWork.SaveChanges();
+                    _unitOfWork.Repository<LocalisationGroup>().Delete(localisations);
+                    _unitOfWork.SaveChanges();
+                    return new ResponseApiLocalisations()
+                    {
+                        ApiStatus = EnumApiStatus.Success,
+                        Message = "Success delete"
+                    };
+                }
+                else
+                {
+                    return new ResponseApiLocalisations()
+                    {
+                        ApiStatus = EnumApiStatus.NotFound,
+                        Message = "Impossible to delete.",
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de la supression des localisations");
                 return new ResponseApiLocalisations()
                 {
-                    ApiStatus = EnumApiStatus.Success,
-                    Message = "Success delete"
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = "Internal error."
                 };
             }
-            else
-            {
-                return new ResponseApiLocalisations()
-                {
-                    ApiStatus = EnumApiStatus.NotFound,
-                    Message = "Impossible to delete.",
-                }; 
-            }
+            
         }
     }
 }
