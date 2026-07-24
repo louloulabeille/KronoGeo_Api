@@ -113,4 +113,9 @@ app.MapControllers();
 app.Logger.LogInformation("L'application KronoGeo_Api a démarré avec succès.");
 #endregion
 
+#region wwwroot
+// -- mise en place du répertoire wwwroot dans l'API
+app.UseStaticFiles();
+#endregion
+
 app.Run();
