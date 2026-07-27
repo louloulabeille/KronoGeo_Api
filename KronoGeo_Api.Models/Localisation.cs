@@ -8,10 +8,10 @@ namespace KronoGeo_Api.Models
     {
         
         public int Id { get; set; }
-        public int OrderIndex { get; set; } = 0;   // -- compteur des localisations pour le tri
-        public DateTimeOffset Timestamp { get; set; }
-        public double Latitude { get; set; }
-        public double Longitude { get; set; }
+        public required int OrderIndex { get; set; } = 0;   // -- compteur des localisations pour le tri
+        public required DateTimeOffset Timestamp { get; set; }
+        public required double Latitude { get; set; }
+        public required double Longitude { get; set; }
         public double? Altitude { get; set; }
         public double? Accuracy { get; set; }
         public double? VerticalAccuracy { get; set; }

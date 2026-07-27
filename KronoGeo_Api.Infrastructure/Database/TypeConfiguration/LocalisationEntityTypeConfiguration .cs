@@ -24,7 +24,7 @@ namespace KronoGeo_Api.Infrastructure.Database.TypeConfiguration
                 //.HasConversion(dateTimeConverter);
             builder.Property(l => l.Latitude).IsRequired();
             builder.Property(l => l.Longitude).IsRequired();
-
+            builder.Property(l=>l.OrderIndex).IsRequired();
 
             // -- clé étrangère
             builder.HasOne(l => l.LocalisationGroup).WithMany(l => l.Localisations);
