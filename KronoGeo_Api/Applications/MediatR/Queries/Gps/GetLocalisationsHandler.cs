@@ -25,9 +25,10 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
         public async Task<ResponseApiLocalisations> Handle(GetLocalisationsCommand request, CancellationToken cancellationToken)
         {
             var result = _unitOfWork.Repository<LocalisationGroup>().GetById(request.Id);
-            var localisations = _unitOfWork.Repository<Localisation>()
-                .Where(w => w.LocalisationGroupId == request.Id).ToList();
-            result?.Localisations?.AddRange(localisations);
+            _unitOfWork.Repository<Localisation>()
+                .Where(w => w.LocalisationGroupId == request.Id)
+                .ToList();
+            //result?.Localisations?.AddRange(localisations);
             if (result is not null)
             {
                 return new ResponseApiLocalisations()
@@ -40,7 +41,8 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
                         Name = result.Name,
                         ApplicationUserId = result.ApplicationUserId,
                         Date = result.Date,
-                        Localisations = result.Localisations?.Select(s =>
+                        Localisations = result.Localisations?.OrderBy(o => o.OrderIndex)
+                        .Select(s =>
                         {
                             if (s is LocalisationPhoto photo)
                             {
