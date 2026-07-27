@@ -49,6 +49,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
                     {
                         localisationGroup.Localisations.Add(new LocalisationPhoto
                         {
+                            OrderIndex = localisationPhoto.OrderIndex,
                             Latitude = localisationPhoto.Latitude,
                             Longitude = localisationPhoto.Longitude,
                             Accuracy = localisationPhoto.Accuracy,
@@ -65,6 +66,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
                     {
                         localisationGroup.Localisations.Add(new Localisation
                         {
+                            OrderIndex = localisation.OrderIndex,
                             Latitude = localisation.Latitude,
                             Longitude = localisation.Longitude,
                             Accuracy = localisation.Accuracy,
