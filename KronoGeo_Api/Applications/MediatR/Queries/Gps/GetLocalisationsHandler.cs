@@ -44,35 +44,11 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
                         {
                             if (s is LocalisationPhoto photo)
                             {
-                                return new LocalisationPhotoDTO()
-                                {
-                                    Id = s.Id,
-                                    Accuracy = photo.Accuracy,
-                                    Altitude = photo.Altitude,
-                                    Latitude = photo.Latitude,
-                                    Longitude = photo.Longitude,
-                                    Course = photo.Course,
-                                    Speed = photo.Speed,
-                                    Timestamp = photo.Timestamp,
-                                    VerticalAccuracy = photo.VerticalAccuracy,
-                                    Name = photo.Name,
-                                    PathPhoto = photo.PathPhoto
-                                };
+                                return LocalisationDTO.Parse(photo);
                             }
                             else
                             {
-                                return new LocalisationDTO()
-                                {
-                                    Id = s.Id,
-                                    Accuracy = s.Accuracy,
-                                    Altitude = s.Altitude,
-                                    Latitude = s.Latitude,
-                                    Longitude = s.Longitude,
-                                    Course = s.Course,
-                                    Speed = s.Speed,
-                                    Timestamp = s.Timestamp,
-                                    VerticalAccuracy = s.VerticalAccuracy
-                                };
+                                return LocalisationDTO.Parse(s);
                             }
                         }).ToList()
                     }

@@ -13,8 +13,10 @@ namespace KronoGeo_Api.Models.Model.DTO
 
     public class LocalisationDTO
     {
+        #region public protperties
         //public TypeLocalisation TypeObjet { get; set; } = TypeLocalisation.Base;
         public int Id { get; set; }
+        public int OrderIndex { get; set; } = 0; // -- compteur des localisations
         public DateTimeOffset Timestamp { get; set; }
         public double Latitude { get; set; }
         public double Longitude { get; set; }
@@ -23,6 +25,49 @@ namespace KronoGeo_Api.Models.Model.DTO
         public double? VerticalAccuracy { get; set; }
         public double? Speed { get; set; }
         public double? Course { get; set; }
-        
+        #endregion
+
+        #region public method
+        /// <summary>
+        /// retourne un object LocalisationPhoto ou LocalisationDTO
+        /// avec un object Localisation en entré
+        /// </summary>
+        /// <param name="localisation"></param>
+        /// <returns></returns>
+        public static LocalisationDTO Parse (Localisation localisation)
+        {
+            if (localisation is LocalisationPhoto photo)
+            {
+                return new LocalisationPhotoDTO() {
+                    Id          = photo.Id,
+                    OrderIndex  = photo.OrderIndex,
+                    Latitude    = photo.Latitude,
+                    Longitude   = photo.Longitude,
+                    Accuracy    = photo.Accuracy,
+                    Altitude    = photo.Altitude,
+                    Course      = photo.Course,
+                    Speed       = photo.Speed,
+                    VerticalAccuracy = photo.VerticalAccuracy,
+                    Timestamp   = photo.Timestamp.ToUniversalTime(),
+                    Name        = photo.Name,
+                    PathPhoto   = photo.PathPhoto
+                };
+            }
+            else
+            return new LocalisationDTO()
+            {
+                Id          = localisation.Id,
+                OrderIndex  = localisation.OrderIndex,
+                Latitude    = localisation.Latitude,
+                Longitude   = localisation.Longitude,
+                Accuracy    = localisation.Accuracy,
+                Altitude    = localisation.Altitude,
+                Course      = localisation.Course,
+                Speed       = localisation.Speed,
+                VerticalAccuracy = localisation.VerticalAccuracy,
+                Timestamp   = localisation.Timestamp.ToUniversalTime()
+            };
+        }
+        #endregion
     }
 }

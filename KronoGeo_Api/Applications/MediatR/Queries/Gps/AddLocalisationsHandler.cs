@@ -120,35 +120,9 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
                             {
                                 if (l is LocalisationPhoto photo)
                                 {
-                                    return new LocalisationPhotoDTO()
-                                    {
-                                        //TypeObjet = TypeLocalisation.Photo,
-                                        Id = l.Id,
-                                        Latitude = l.Latitude,
-                                        Longitude = l.Longitude,
-                                        Accuracy = l.Accuracy,
-                                        Altitude = l.Altitude,
-                                        Course = l.Course,
-                                        Speed = l.Speed,
-                                        VerticalAccuracy = l.VerticalAccuracy,
-                                        Timestamp = l.Timestamp.ToUniversalTime(),
-                                        Name = photo.Name,
-                                        PathPhoto = photo.PathPhoto
-                                    };
+                                    return LocalisationDTO.Parse(photo);
                                 }
-                                return new LocalisationDTO()
-                                {
-                                    //TypeObjet = TypeLocalisation.Base,
-                                    Id = l.Id,
-                                    Latitude = l.Latitude,
-                                    Longitude = l.Longitude,
-                                    Accuracy = l.Accuracy,
-                                    Altitude = l.Altitude,
-                                    Course = l.Course,
-                                    Speed = l.Speed,
-                                    VerticalAccuracy = l.VerticalAccuracy,
-                                    Timestamp = l.Timestamp.ToUniversalTime()
-                                };
+                                return LocalisationDTO.Parse(l);
                             }).ToList()
                         }
 
