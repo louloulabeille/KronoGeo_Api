@@ -18,8 +18,11 @@ namespace KronoGeo_Api.Applications.ExtendMethods
                 services.AddControllers().AddJsonOptions(options =>
                 {
                     options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-
-                    options.JsonSerializerOptions.TypeInfoResolver = new DefaultJsonTypeInfoResolver
+                    //options.JsonSerializerOptions.PropertyNamingPolicy = null; // -- respect de la case pour les propirétés
+                    
+                    // -- plus besoin voir le model DTO voir classe mère qui implémente facilement
+                    // -- le polymorphisme
+                    /*options.JsonSerializerOptions.TypeInfoResolver = new DefaultJsonTypeInfoResolver
                     {
                         Modifiers =
                         {
@@ -39,7 +42,7 @@ namespace KronoGeo_Api.Applications.ExtendMethods
                                 }
                             }
                         }
-                    };
+                    };*/
                 });
                 
 

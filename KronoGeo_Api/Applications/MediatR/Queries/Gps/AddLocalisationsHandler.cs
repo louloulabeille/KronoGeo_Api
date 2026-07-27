@@ -49,6 +49,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
                     {
                         localisationGroup.Localisations.Add(new LocalisationPhoto
                         {
+                            OrderIndex = localisationPhoto.OrderIndex,
                             Latitude = localisationPhoto.Latitude,
                             Longitude = localisationPhoto.Longitude,
                             Accuracy = localisationPhoto.Accuracy,
@@ -65,6 +66,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
                     {
                         localisationGroup.Localisations.Add(new Localisation
                         {
+                            OrderIndex = localisation.OrderIndex,
                             Latitude = localisation.Latitude,
                             Longitude = localisation.Longitude,
                             Accuracy = localisation.Accuracy,
@@ -117,18 +119,12 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
                             Name = localisationGroup.Name,
                             ApplicationUserId = localisationGroup.ApplicationUserId,
                             Localisations = localisationGroup.Localisations?.Select(l =>
-                            
-                            new LocalisationDTO
                             {
-                                Id = l.Id,
-                                Latitude = l.Latitude,
-                                Longitude = l.Longitude,
-                                Accuracy = l.Accuracy,
-                                Altitude = l.Altitude,
-                                Course = l.Course,
-                                Speed = l.Speed,
-                                VerticalAccuracy = l.VerticalAccuracy,
-                                Timestamp = l.Timestamp.ToUniversalTime()
+                                if (l is LocalisationPhoto photo)
+                                {
+                                    return LocalisationDTO.Parse(photo);
+                                }
+                                return LocalisationDTO.Parse(l);
                             }).ToList()
                         }
 

@@ -320,8 +320,9 @@ namespace KronoGeo_Maui.ModelViews
         /// <param name="location"></param>
         private void TraitementLocalisation (Location location)
         {
-            Localisation localisation = new ()
+            Localisation localisation = new()
             {
+                OrderIndex = 0,
                 Altitude = location.Altitude,
                 Latitude = location.Latitude,
                 Longitude = location.Longitude,
@@ -333,7 +334,7 @@ namespace KronoGeo_Maui.ModelViews
             };
 
             // -- y a des doublons au niveau de eventchange Google lors de la mise a jour de la position, donc on ne garde que les nouvelles positions
-            if ( !_localisations.Contains(localisation) )
+            if ( !_localisations.Exists(l=> l.Longitude == localisation.Longitude && l.Latitude == localisation.Latitude) )
             {
                 if (_lastLocation is not null)
                 {
@@ -345,6 +346,8 @@ namespace KronoGeo_Maui.ModelViews
                 // -- envoie un message pour recentrer la map sur la position de l'utilisateur
                 //WeakReferenceMessenger.Default.Send(new RecenterMapMessage(location));
                 // -- ajoute la localisation dans la liste pour l'enregistrement
+                int index = _localisations.Count;
+                localisation.OrderIndex = index; // -- mise a jour de l'index
                 _localisations.Add(localisation);
                 // -- envoie un message pour mettre à jour le tracé sur la map
                 WeakReferenceMessenger.Default.Send(new PolyneMapMessage(location));

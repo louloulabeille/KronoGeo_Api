@@ -51,7 +51,10 @@ namespace KronoGeo_Maui.Applications.Services
 
             foreach (var localisation in localisations)
             {
-                sb.AppendLine($"<trkpt lat=\"{localisation.Latitude.ToString(CultureInfo.InvariantCulture)}\" lon=\"{localisation.Longitude.ToString(CultureInfo.InvariantCulture)}\"/>");
+                sb.AppendLine($"<trkpt lat=\"{localisation.Latitude.ToString(CultureInfo.InvariantCulture)}\" lon=\"{localisation.Longitude.ToString(CultureInfo.InvariantCulture)}\">");
+                sb.AppendLine($"<time>{localisation.Timestamp}</time>");
+                sb.AppendLine($"<geoidheight>{localisation.Altitude}</geoidheight>");
+                sb.AppendLine("</trkpt>");
             }
 
             sb.AppendLine("</trkseg></trk></gpx>");
