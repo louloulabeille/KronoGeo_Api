@@ -5,12 +5,8 @@ using System.Text.Json.Serialization;
 
 namespace KronoGeo_Api.Models.Model.DTO
 {
-    public enum TypeLocalisation
-    {
-        Base,
-        Photo
-    }
-
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "TypeObjet")]
+    [JsonDerivedType(typeof(LocalisationPhotoDTO), typeDiscriminator:1)]
     public class LocalisationDTO
     {
         #region public protperties

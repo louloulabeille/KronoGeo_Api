@@ -87,7 +87,7 @@ namespace KronoGeo_Api.Controllers
         {
             try
             {
-                if (!ModelState.IsValid)
+                if (!ModelState.IsValid || string.IsNullOrEmpty(value.ApplicationUserId))
                 {
                     return BadRequest("Invalid model state.");
                 }
