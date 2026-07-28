@@ -16,12 +16,25 @@
     <!-- Ressources de la page -->
     <ContentPage.Resources>
         <DataTemplate x:Key="MapGeo">
-            <Grid BackgroundColor="LightBlue">
+            <!-- Test<Grid BackgroundColor="LightBlue">
                 <Label Text="Page Map" HorizontalOptions="Center"
                        VerticalOptions="Center" FontSize="30"></Label>
-            </Grid>
+            </Grid>-->
+            <!-- Affichage du template map 
+            Grid.Column="1" Grid.Row="0" MinimumHeightRequest="600" 
+                      HeightRequest="650"
+            -->
+            <maps:Map  x:Name="googleMap" IsShowingUser="True"
+                      IsScrollEnabled="True" IsZoomEnabled="True">
+                <maps:Map.Behaviors>
+                    <!-- Le behavior écoute le Messenger en silence -->
+                    <behaviors:MapMessengerBehavior />
+                    <behaviors:PolyneMessengerBehavior/>
+                </maps:Map.Behaviors>
+            </maps:Map>
         </DataTemplate>
         <DataTemplate x:Key="PhotoGeo">
+            <!-- mettre en place la camera pour mettre en place les photos -->
             <Grid BackgroundColor="LightCoral">
                 <Label Text="Page Camera" HorizontalOptions="Center"
                VerticalOptions="Center" FontSize="30"></Label>
@@ -30,7 +43,7 @@
         
         <!-- aiguilleur du carroussel -->
         <carousel:KronoGeoCarouselTemplateSelector 
-            x:Key="MonSelecteur"
+            x:Key="KronoGeoTemplate"
             MapTemplate="{StaticResource MapGeo}"
             CameraTemplate="{StaticResource PhotoGeo}"
                                                 />
@@ -75,7 +88,7 @@
             </maps:Map>-->
             <CarouselView Grid.Column="1" Grid.Row="0" MinimumHeightRequest="600" 
                             HeightRequest="650" ItemsSource="{Binding MesPages}"
-                            ItemTemplate="{StaticResource MonSelecteur}"
+                            ItemTemplate="{StaticResource KronoGeoTemplate}"
                             Loop="False">
             </CarouselView>
             <Label Grid.Row="1" Grid.Column="1" Text="{Binding MessageDistance}" HeightRequest="25"
