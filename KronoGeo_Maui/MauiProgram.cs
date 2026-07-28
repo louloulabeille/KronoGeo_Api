@@ -4,8 +4,11 @@ using KronoGeo_Maui.Applications.ExtendMethods;
 using KronoGeo_Maui.Applications.Interface;
 using KronoGeo_Maui.Applications.Services;
 using KronoGeo_Maui.Applications.Services.Geolocation;
-using KronoGeo_Maui.Platforms.Android.Application.Geolocalisation;
 using Microsoft.Extensions.Logging;
+
+#if ANDROID
+using KronoGeo_Maui.Platforms.Android.Application.Geolocalisation;
+#endif
 
 namespace KronoGeo_Maui
 {

@@ -1,6 +1,10 @@
-﻿using Android.Content;
+﻿#if ANDROID
+using Android.Content;
 using Android.Gms.Tasks;
 using Android.OS;
+using KronoGeo_Maui.Platforms.Android.Application.Geolocalisation;
+using Xamarin.Google.Crypto.Tink.Signature;
+#endif
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -10,13 +14,11 @@ using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models;
 using KronoGeo_Maui.Applications.Interface;
 using KronoGeo_Maui.Applications.Message;
-using KronoGeo_Maui.Platforms.Android.Application.Geolocalisation;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Maui.Maps;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Xamarin.Google.Crypto.Tink.Signature;
 using CancellationTokenSource = System.Threading.CancellationTokenSource;
 using Task = System.Threading.Tasks.Task;
 
