@@ -5,7 +5,9 @@ using System.Text.Json.Serialization;
 
 namespace KronoGeo_Api.Models.Model.DTO
 {
-    [JsonPolymorphic(TypeDiscriminatorPropertyName = "TypeObjet")]
+    // -- Json serialization properties TypeObjet
+    // -- pas de TypeObject LocalisationDTO sinon TypeObject = 1 => LocalisationPhotoDTO
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "TypeObject")]
     [JsonDerivedType(typeof(LocalisationPhotoDTO), typeDiscriminator:1)]
     public class LocalisationDTO
     {
