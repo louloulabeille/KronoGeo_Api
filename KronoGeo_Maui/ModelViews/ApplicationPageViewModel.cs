@@ -21,9 +21,21 @@ using System.Collections.Generic;
 using System.Text;
 using CancellationTokenSource = System.Threading.CancellationTokenSource;
 using Task = System.Threading.Tasks.Task;
+using System.Collections.ObjectModel;
 
 namespace KronoGeo_Maui.ModelViews
 {
+    /// <summary>
+    /// class de base 
+    /// </summary>
+    public abstract class PageBaseViewModel { }
+
+    /// <summary>
+    /// class MapViewModel et CameraViewModel rajouter les autres classes par la suite
+    /// </summary>
+    public class MapViewModel : PageBaseViewModel { }
+    public class CameraViewModel : PageBaseViewModel { }
+
     public partial class ApplicationPageViewModel : ObservableObject, IRecipient<LocationChangedMessage>, IDisposable
     {
         #region private readonly properties
@@ -37,11 +49,18 @@ namespace KronoGeo_Maui.ModelViews
         private double _distance { get; set; } = 0;
         #endregion
 
+        #region public properties
+        public ObservableCollection<PageBaseViewModel> MesPages { get; set; }
+
+        #endregion
 
         #region constructeur
         public ApplicationPageViewModel(IServiceGeolocalisation service
             , IServiceSaveLocalisation saveLocalisation)
         {
+            MesPages = [];
+            MesPages.Add(new MapViewModel());
+            MesPages.Add(new CameraViewModel());
             // -- garde le service
             _service = service;
 #if !ANDROID

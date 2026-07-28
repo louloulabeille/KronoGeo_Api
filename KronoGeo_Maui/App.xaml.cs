@@ -1,4 +1,6 @@
-﻿using Android.Media.TV;
+﻿#if ANDROID
+using Android.Media.TV;
+#endif
 using Microsoft.Extensions.DependencyInjection;
 
 namespace KronoGeo_Maui

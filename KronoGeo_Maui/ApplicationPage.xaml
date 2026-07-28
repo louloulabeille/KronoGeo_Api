@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:carousel="clr-namespace:KronoGeo_Maui.Applications.Outils.Views"
              xmlns:viewmodels="clr-namespace:KronoGeo_Maui.ModelViews"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:helpers="clr-namespace:KronoGeo_Maui.Applications.Helpers"
@@ -12,7 +13,29 @@
              Shell.BackgroundColor="#F9EDE1"
              Shell.TitleColor="#51638B"
              Shell.BackButtonBehavior="{BackButtonBehavior IsVisible=False}">
-    
+    <!-- Ressources de la page -->
+    <ContentPage.Resources>
+        <DataTemplate x:Key="MapGeo">
+            <Grid BackgroundColor="LightBlue">
+                <Label Text="Page Map" HorizontalOptions="Center"
+                       VerticalOptions="Center" FontSize="30"></Label>
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="PhotoGeo">
+            <Grid BackgroundColor="LightCoral">
+                <Label Text="Page Camera" HorizontalOptions="Center"
+               VerticalOptions="Center" FontSize="30"></Label>
+            </Grid>
+        </DataTemplate>
+        
+        <!-- aiguilleur du carroussel -->
+        <carousel:KronoGeoCarouselTemplateSelector 
+            x:Key="MonSelecteur"
+            MapTemplate="{StaticResource MapGeo}"
+            CameraTemplate="{StaticResource PhotoGeo}"
+                                                />
+    </ContentPage.Resources>
+
     <!-- ToolBar -->
     <ContentPage.ToolbarItems>
         <ToolbarItem Command="{Binding ToolbarItemCommand}">
@@ -38,17 +61,23 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="5" />
             </Grid.ColumnDefinitions>
+            
             <!--<Label Grid.Column="1" Grid.Row="0" Text="{Binding Message}" IsVisible="{Binding IsMessageError}"
                    TextColor="Red" FontSize="14" HeightRequest="50"/>-->
-            <maps:Map Grid.Column="1" Grid.Row="0" MinimumHeightRequest="600" 
+            <!--<maps:Map Grid.Column="1" Grid.Row="0" MinimumHeightRequest="600" 
                       HeightRequest="650" x:Name="googleMap" IsShowingUser="True"
                       IsScrollEnabled="True" IsZoomEnabled="True">
-                <maps:Map.Behaviors>
+                <maps:Map.Behaviors>-->
                     <!-- Le behavior écoute le Messenger en silence -->
-                    <behaviors:MapMessengerBehavior />
+                    <!--<behaviors:MapMessengerBehavior />
                     <behaviors:PolyneMessengerBehavior/>
                 </maps:Map.Behaviors>
-            </maps:Map>
+            </maps:Map>-->
+            <CarouselView Grid.Column="1" Grid.Row="0" MinimumHeightRequest="600" 
+                            HeightRequest="650" ItemsSource="{Binding MesPages}"
+                            ItemTemplate="{StaticResource MonSelecteur}"
+                            Loop="False">
+            </CarouselView>
             <Label Grid.Row="1" Grid.Column="1" Text="{Binding MessageDistance}" HeightRequest="25"
                    BackgroundColor="#F9EDE1"></Label>
             <Border Grid.Row="2" Grid.Column="1" StrokeThickness="1" 
