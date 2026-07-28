@@ -1,4 +1,6 @@
-﻿using Android.Locations;
+﻿#if ANDROID
+using Android.Locations;
+#endif
 using KronoGeo_Maui.Applications.Interface;
 using Microsoft.Maui.Devices.Sensors;
 using System;
@@ -11,9 +13,10 @@ namespace KronoGeo_Maui.Applications.Services.Geolocation
     /// <summary>
     /// implémentation de la geolocalisation pour les autres systemes
     /// </summary>
-    public class GeolocationOther : IServiceGeolocalisation
+    public partial class GeolocationOther : IServiceGeolocalisation
     {
         #region public properties
+
         public bool Pause { get; set; } = false;
         #endregion
 

@@ -1,11 +1,14 @@
-using AndroidX.Lifecycle;
 using CommunityToolkit.Maui.Behaviors;
 using CommunityToolkit.Mvvm.Messaging;
 using KronoGeo_Maui.Applications.Message;
 using KronoGeo_Maui.ModelViews;
 using Microsoft.Maui.Controls.Maps;
 using Microsoft.Maui.Maps;
+#if ANDROID
+using AndroidX.Lifecycle;
 using static Android.App.Assist.AssistStructure;
+#endif
+
 //using Map = Microsoft.Maui.Controls.Maps.Map;
 
 namespace KronoGeo_Maui;
