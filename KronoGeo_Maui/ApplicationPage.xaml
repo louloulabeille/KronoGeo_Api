@@ -72,12 +72,20 @@
             </Grid>
 
         </DataTemplate>
-        
-        <!-- aiguilleur du carroussel -->
+
+        <DataTemplate x:Key="ResumeGeo">
+            <Grid BackgroundColor="LightSeaGreen">
+                <Label Text="Page Resumé" HorizontalOptions="Center"
+               VerticalOptions="Center" FontSize="30"></Label>
+            </Grid>
+        </DataTemplate>
+
+            <!-- aiguilleur du carroussel -->
         <carousel:KronoGeoCarouselTemplateSelector 
             x:Key="KronoGeoTemplate"
             MapTemplate="{StaticResource MapGeo}"
             CameraTemplate="{StaticResource PhotoGeo}"
+            ResumeTemplate="{StaticResource ResumeGeo}"
                                                 />
     </ContentPage.Resources>
 

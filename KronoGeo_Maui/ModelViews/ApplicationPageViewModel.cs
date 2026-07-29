@@ -51,6 +51,7 @@ namespace KronoGeo_Maui.ModelViews
             MesPages = [];
             MesPages.Add(new MapViewModel());
             MesPages.Add(new CameraViewModel());
+            MesPages.Add(new ResumeViewModel());
             // -- garde le service
             _service = service;
 #if !ANDROID
