@@ -39,16 +39,16 @@
                 <Label Text="Page Camera" HorizontalOptions="Center"
                VerticalOptions="Center" FontSize="30"></Label>
             </Grid>-->
-            <Grid ColumnDefinitions="*,*,*" RowDefinitions="*,30">
+            <Grid ColumnDefinitions="*" RowDefinitions="*,50">
                 <toolkit:CameraView
             x:Name="Camera" 
-            Grid.ColumnSpan="3" 
+            Grid.Column="0" 
             Grid.Row="0"
-            SelectedCamera="{Binding SelectedCamera}"
-            ZoomFactor="{Binding CurrentZoom}"
-            CameraFlashMode="{Binding FlashMode}" />
+            SelectedCamera="{Binding SelectedCamera}"/>
+                <!--ZoomFactor="{Binding CurrentZoom}"
+            CameraFlashMode="{Binding FlashMode}" />-->
 
-                <Slider 
+                <!--<Slider 
             Grid.Column="0"
             Grid.Row="1"
             Value="{Binding CurrentZoom}"
@@ -69,6 +69,17 @@
             Title="Available Resolutions"
             ItemsSource="{Binding SelectedCamera.SupportedResolutions}"
             SelectedItem="{Binding SelectedResolution}" />
+            -->
+                <Border Grid.Row="1" Grid.Column="0" StrokeThickness="1" VerticalOptions="Center"
+                        StrokeShape="RoundRectangle 10,10,10,10" Stroke="#51638B"
+                        WidthRequest="200" HeightRequest="50" BackgroundColor="#F9EDE1">
+                    <Grid VerticalOptions="End"  
+                          HeightRequest="50" ColumnDefinitions="*,*,*" RowDefinitions="50">
+                        <Button Grid.Column="0" FontFamily="MaterialIcons-Regular" 
+                            Text="&#xe3af;" TextColor="#51638B" FontSize="30"
+                            BackgroundColor="#F9EDE1"/>
+                    </Grid>
+                </Border>
             </Grid>
 
         </DataTemplate>
@@ -106,7 +117,6 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
-                <RowDefinition Height="25" />
                 <RowDefinition Height="50" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -137,7 +147,6 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Button Grid.Column="0" FontFamily="MaterialIcons-Regular" 
                         Text="{Binding PlayPause}"  TextColor="#51638B" FontSize="30"
@@ -145,9 +154,7 @@
                     <Button Grid.Column="1" FontFamily="MaterialIcons-Regular" 
                         Text="&#xef71;" TextColor="#51638B" FontSize="30"
                         BackgroundColor="#F9EDE1" Command="{Binding StopCommand}"/>
-                    <Button Grid.Column="2" FontFamily="MaterialIcons-Regular" 
-                        Text="&#xe3af;" TextColor="#51638B" FontSize="30"
-                        BackgroundColor="#F9EDE1"/>
+                    
                 </Grid>
             </Border>
             

@@ -45,7 +45,7 @@ namespace KronoGeo_Maui
             builder.Services.AddHttpClientService( builder.Configuration);
             #endregion
 
-            #region injection pour la sauvegarde en memoire de l'utilisation
+            #region injection pour la sauvegarde en memoire de l'utilisateur
             builder.Services.AddScoped<IServiceSaveUser,InMemoriMauiUser>();
             #endregion
 
@@ -59,6 +59,10 @@ namespace KronoGeo_Maui
 #elif !ANDROID
                 builder.Services.AddSingleton<IServiceGeolocalisation, GeolocationOther>();
 #endif
+            #endregion
+
+            #region Camera Injection
+            builder.Services.AddServiceCamera();
             #endregion
 
             builder.Services.AddTransient<IServiceSaveLocalisation, InMemorySaveLocalisation>();
