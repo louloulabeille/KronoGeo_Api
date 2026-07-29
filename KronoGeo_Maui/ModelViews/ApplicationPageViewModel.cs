@@ -22,19 +22,10 @@ using System.Text;
 using CancellationTokenSource = System.Threading.CancellationTokenSource;
 using Task = System.Threading.Tasks.Task;
 using System.Collections.ObjectModel;
+using KronoGeo_Api.Models.Carousel;
 
 namespace KronoGeo_Maui.ModelViews
 {
-    /// <summary>
-    /// class de base 
-    /// </summary>
-    public abstract class PageBaseViewModel { }
-
-    /// <summary>
-    /// class MapViewModel et CameraViewModel rajouter les autres classes par la suite
-    /// </summary>
-    public class MapViewModel : PageBaseViewModel { }
-    public class CameraViewModel : PageBaseViewModel { }
 
     public partial class ApplicationPageViewModel : ObservableObject, IRecipient<LocationChangedMessage>, IDisposable
     {
@@ -51,7 +42,6 @@ namespace KronoGeo_Maui.ModelViews
 
         #region public properties
         public ObservableCollection<PageBaseViewModel> MesPages { get; set; }
-
         #endregion
 
         #region constructeur
@@ -72,6 +62,7 @@ namespace KronoGeo_Maui.ModelViews
             //WeakReferenceMessenger.Default.RegisterAll(this);
             WeakReferenceMessenger.Default.Register<LocationChangedMessage>(this);
 
+            // -- mise a jour dans la Map de la geolocalisation sinon il affiche la map par défaut
             Task.Run(async () => await GetUserLocationAsync());
         }
 #endregion

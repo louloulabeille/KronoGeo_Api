@@ -34,11 +34,43 @@
             </maps:Map>
         </DataTemplate>
         <DataTemplate x:Key="PhotoGeo">
-            <!-- mettre en place la camera pour mettre en place les photos -->
-            <Grid BackgroundColor="LightCoral">
+            <!-- mettre en place la camera -->
+            <!-- test <Grid BackgroundColor="LightCoral">
                 <Label Text="Page Camera" HorizontalOptions="Center"
                VerticalOptions="Center" FontSize="30"></Label>
+            </Grid>-->
+            <Grid ColumnDefinitions="*,*,*" RowDefinitions="*,30">
+                <toolkit:CameraView
+            x:Name="Camera" 
+            Grid.ColumnSpan="3" 
+            Grid.Row="0"
+            SelectedCamera="{Binding SelectedCamera}"
+            ZoomFactor="{Binding CurrentZoom}"
+            CameraFlashMode="{Binding FlashMode}" />
+
+                <Slider 
+            Grid.Column="0"
+            Grid.Row="1"
+            Value="{Binding CurrentZoom}"
+            Maximum="{Binding SelectedCamera.MaximumZoomFactor, FallbackValue=1}"
+            Minimum="{Binding SelectedCamera.MinimumZoomFactor, FallbackValue=1}"/>
+
+                <Picker 
+            Grid.Column="1"
+            Grid.Row="1"
+            Title="Flash"
+            IsVisible="{Binding Path=SelectedCamera.IsFlashSupported, FallbackValue=false}"
+            ItemsSource="{Binding FlashModes}"
+            SelectedItem="{Binding FlashMode}" />
+
+                <Picker 
+            Grid.Column="2"
+            Grid.Row="1"
+            Title="Available Resolutions"
+            ItemsSource="{Binding SelectedCamera.SupportedResolutions}"
+            SelectedItem="{Binding SelectedResolution}" />
             </Grid>
+
         </DataTemplate>
         
         <!-- aiguilleur du carroussel -->
@@ -91,9 +123,7 @@
                             ItemTemplate="{StaticResource KronoGeoTemplate}"
                             Loop="False">
             </CarouselView>
-            <Label Grid.Row="1" Grid.Column="1" Text="{Binding MessageDistance}" HeightRequest="25"
-                   BackgroundColor="#F9EDE1"></Label>
-            <Border Grid.Row="2" Grid.Column="1" StrokeThickness="1" 
+            <Border Grid.Row="1" Grid.Column="1" StrokeThickness="1" 
                     StrokeShape="RoundRectangle 20,20,20,20" Stroke="#51638B">
                 <Grid VerticalOptions="End" BackgroundColor="#F9EDE1" HeightRequest="50">
                     <Grid.ColumnDefinitions>

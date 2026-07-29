@@ -6,12 +6,12 @@ using System.Text;
 namespace KronoGeo_Maui.Applications.Outils.Views
 {
     /// <summary>
-    /// Template selector par défaut Map - 
-    /// systeme d'affichage
+    /// Template selector par défaut Map
+    /// pour le carousel
     /// </summary>
     public class KronoGeoCarouselTemplateSelector : DataTemplateSelector
     {
-        // On déclare nos designs templates pour afficher
+        // On déclare nos designs templates pour les afficher
         public DataTemplate? MapTemplate { get; set; } = default;
         public DataTemplate? CameraTemplate { get; set; } = default;
 
