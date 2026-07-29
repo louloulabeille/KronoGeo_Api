@@ -6,6 +6,7 @@ using KronoGeo_Api.Interface.Service;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using KronoGeo_Maui.Applications.Interface;
 
 namespace KronoGeo_Maui.Applications.ExtendMethods
 {

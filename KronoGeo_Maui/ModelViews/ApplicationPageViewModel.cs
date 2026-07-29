@@ -4,6 +4,7 @@ using Android.Gms.Tasks;
 using Android.OS;
 using KronoGeo_Maui.Platforms.Android.Application.Geolocalisation;
 using Xamarin.Google.Crypto.Tink.Signature;
+using Android.Hardware.Camera2;
 #endif
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Storage;
@@ -30,9 +31,10 @@ namespace KronoGeo_Maui.ModelViews
     public partial class ApplicationPageViewModel : ObservableObject, IRecipient<LocationChangedMessage>, IDisposable
     {
         #region private readonly properties
-        private readonly IServiceGeolocalisation _service;
+        private readonly IServiceGeolocalisation _serviceGeo;
         private readonly List<Localisation> _localisations;
         private readonly IServiceSaveLocalisation _saveLocalisation;
+        private readonly IServiceCamera _camera;
         #endregion
 
         #region private properties
@@ -46,16 +48,22 @@ namespace KronoGeo_Maui.ModelViews
 
         #region constructeur
         public ApplicationPageViewModel(IServiceGeolocalisation service
-            , IServiceSaveLocalisation saveLocalisation)
+            , IServiceSaveLocalisation saveLocalisation, IServiceCamera camera)
         {
+            // -- pour affichage des différentes pages du carousel
             MesPages = [];
             MesPages.Add(new MapViewModel());
             MesPages.Add(new CameraViewModel());
             MesPages.Add(new ResumeViewModel());
-            // -- garde le service
-            _service = service;
+            // -- chargement des services
+            _serviceGeo = service;
+            _camera = camera;
+
 #if !ANDROID
-            _service.LocationChanged += OnLocalication_Changed;
+            _serviceGeo.LocationChanged += OnLocalication_Changed;
+#endif
+#if ANDROID
+            _camera.Context = Android.App.Application.Context;
 #endif
             _localisations = [];
             _saveLocalisation = saveLocalisation;
@@ -107,6 +115,47 @@ namespace KronoGeo_Maui.ModelViews
             await GetUserLocationAsync();
         }*/
 
+        [RelayCommand]
+        public async Task TakePhoto()
+        {
+            byte[]? jpeg = null;
+            IsMessageError = false;
+#if ANDROID
+            // demander la permission CAMERA (runtime)
+            var status = await Permissions.RequestAsync<Permissions.Camera>();
+            if (status != PermissionStatus.Granted)
+                return;
+#endif
+
+            // obtenir les octets JPEG
+            try
+            {
+                jpeg = await _camera.TakePhotoAsync();
+                if (jpeg != null && jpeg.Length > 0)
+                {
+                    var photo = ImageSource.FromStream(() => new MemoryStream(jpeg));
+                    // - enregistrement créer le service
+                    
+                }
+            }
+            catch (Exception ex)
+            {
+                IsMessageError = true;
+                Message = "Erreur de la prise de photo";
+                // gestion d'erreur simple (adapter selon besoins)
+                Console.WriteLine("Erreur lors de la prise de photo \n" + ex.Message);
+            }
+            finally
+            {
+                if (IsMessageError)
+                {
+                    var cancellationToken = new System.Threading.CancellationToken();
+                    await Toast.Make($"{Message}").Show(cancellationToken);
+                }
+            }
+
+        }
+
         /// <summary>
         /// démarre ou met en pause le service de géolocalisation
         /// </summary>
@@ -157,22 +206,22 @@ namespace KronoGeo_Maui.ModelViews
                     }
 
                 }
-                
+
 #endif
 
 #if !ANDROID
                 if (PlayPause == "\ue1c4")
                 {
-                    _service.Pause = true;
+                    _serviceGeo.Pause = true;
                     PlayPause = "\ue1a2";
                 }
                 else
                 {
-                    _service.Pause = false;
+                    _serviceGeo.Pause = false;
                     PlayPause = "\ue1c4";
                 }
 
-                _service.StartLocationUpdatesAsync();
+                _serviceGeo.StartLocationUpdatesAsync();
 #endif
             }
             catch (FeatureNotSupportedException fnsEx)
@@ -232,7 +281,7 @@ namespace KronoGeo_Maui.ModelViews
 #endif
 
 #if !ANDROID
-                _service.StopLocationUpdates();
+                _serviceGeo.StopLocationUpdates();
                 
 #endif
                 if (_localisations.Count > 0)
@@ -273,7 +322,7 @@ namespace KronoGeo_Maui.ModelViews
         [RelayCommand]
         public async Task GetUserLocationAsync()
         {
-            var localition = await _service.GetCurrentLocationAsync(new CancellationTokenSource());
+            var localition = await _serviceGeo.GetCurrentLocationAsync(new CancellationTokenSource());
             if (localition is not null)
             {
                 //MapRegion = MapSpan.FromCenterAndRadius(localition, Distance.FromMeters(500));

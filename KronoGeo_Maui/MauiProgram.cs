@@ -42,7 +42,7 @@ namespace KronoGeo_Maui
             #region AddHttpClient
             builder.Configuration.AddAppsettingsConfiguration();    // - ajout d'un fichier de configuration dans Iconfiguration
             builder.Services.AddUrlApiOptions( builder.Configuration );
-            builder.Services.AddHttpClientService( builder.Configuration);
+            builder.Services.AddHttpClientService();
             #endregion
 
             #region injection pour la sauvegarde en memoire de l'utilisateur

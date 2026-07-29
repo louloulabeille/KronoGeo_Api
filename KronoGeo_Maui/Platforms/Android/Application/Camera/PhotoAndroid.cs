@@ -11,6 +11,7 @@ using Java.Lang;
 using Java.Nio;
 using Java.Util.Concurrent;
 using KronoGeo_Api.Interface.Service;
+using KronoGeo_Maui.Applications.Interface;
 using System;
 using System.Runtime.Versioning;
 using System.Threading;
@@ -18,13 +19,16 @@ using System.Threading.Tasks;
 
 namespace KronoGeo_Maui.Platforms.Android.Application.Camera
 {
-    public class PhotoAndroid(Context context) : IServiceCamera
+    public class PhotoAndroid : IServiceCamera
     {
         #region private properties
-        private readonly Context _context = context;
-
         private const string _version = "android24.0";
         #endregion
+
+        #region public properties interface
+        public Context? Context { get; set; } = default;
+        #endregion
+
 
         #region public method Interface IServiceCamera
 
@@ -35,12 +39,44 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Camera
         /// </summary>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
-        /// <exception cref="TimeoutException"></exception>
+        /// <exception cref="System.TimeoutException"></exception>
+        
+        #endregion
+
+        #region public method
+        public static byte[]? RotateImage(byte[] sourceBytes, float degrees)
+        {
+            // 1. Créer le Bitmap à partir du flux de la caméra
+            Bitmap? sourceBitmap = BitmapFactory.DecodeByteArray(sourceBytes, 0, sourceBytes.Length);
+
+            // 2. Configurer la matrice de rotation
+            Matrix matrix = new();
+            matrix.PostRotate(degrees); // Souvent 90 ou 270 degrés sur Android
+
+            if (sourceBitmap is null) return null;
+            // 3. Créer le nouveau Bitmap pivoté
+            Bitmap rotatedBitmap = Bitmap.CreateBitmap(
+            sourceBitmap, 0, 0, sourceBitmap.Width, sourceBitmap.Height, matrix, true
+            );
+
+            // 4. Recycler et convertir en flux pour MAUI
+            using var stream = new System.IO.MemoryStream();
+
+            var format = Bitmap.CompressFormat.Png;
+
+            if (format is null) return null;
+
+            rotatedBitmap.Compress(format, 100, stream);
+            return stream.ToArray();
+
+        }
+
         [SupportedOSPlatform(_version)]
         public async Task<byte[]?> TakePhotoAsync()
         {
+            
             var tcs = new TaskCompletionSource<byte[]>();
-            var mgr = _context.GetSystemService(Context.CameraService) as CameraManager;
+            var mgr = Context?.GetSystemService(Context.CameraService) as CameraManager;
 
             // Choisir la caméra arrière
             string? cameraId = null;
@@ -137,35 +173,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Camera
 
             return RotateImage(jpeg, 90f);
         }
-        #endregion
-
-        #region public method
-        public byte[]? RotateImage(byte[] sourceBytes, float degrees)
-        {
-            // 1. Créer le Bitmap à partir du flux de la caméra
-            Bitmap? sourceBitmap = BitmapFactory.DecodeByteArray(sourceBytes, 0, sourceBytes.Length);
-
-            // 2. Configurer la matrice de rotation
-            Matrix matrix = new();
-            matrix.PostRotate(degrees); // Souvent 90 ou 270 degrés sur Android
-
-            if (sourceBitmap is null) return null;
-            // 3. Créer le nouveau Bitmap pivoté
-            Bitmap rotatedBitmap = Bitmap.CreateBitmap(
-            sourceBitmap, 0, 0, sourceBitmap.Width, sourceBitmap.Height, matrix, true
-            );
-
-            // 4. Recycler et convertir en flux pour MAUI
-            using var stream = new System.IO.MemoryStream();
-
-            var format = Bitmap.CompressFormat.Png;
-
-            if (format is null) return null;
-
-            rotatedBitmap.Compress(format, 100, stream);
-            return stream.ToArray();
-
-        }
+        
         #endregion
     }
 }

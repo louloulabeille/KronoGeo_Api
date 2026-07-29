@@ -46,7 +46,7 @@ namespace KronoGeo_Maui.Applications.ExtendMethods
             /// ajoute le service AddHttpClient en injection de dépendance
             /// </summary>
             /// <returns></returns>
-            public IServiceCollection AddHttpClientService( IConfiguration configuration )
+            public IServiceCollection AddHttpClientService()
             {
                 // - HttpClient utilisé par injection de dépendance
                 services.AddHttpClient<IServiceHttpKronoGeo, HttpClientKronoGeo>((serviceProvider, client) =>

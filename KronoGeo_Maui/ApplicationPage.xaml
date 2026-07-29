@@ -77,7 +77,8 @@
                           HeightRequest="50" ColumnDefinitions="*,*,*" RowDefinitions="50">
                         <Button Grid.Column="0" FontFamily="MaterialIcons-Regular" 
                             Text="&#xe3af;" TextColor="#51638B" FontSize="30"
-                            BackgroundColor="#F9EDE1"/>
+                            BackgroundColor="#F9EDE1" 
+                            Command="{Binding  Source={RelativeSource AncestorType={x:Type viewmodels:ApplicationPageViewModel}}, Path=TakePhotoCommand}"/>
                     </Grid>
                 </Border>
             </Grid>
