@@ -4,7 +4,6 @@ using Android.Gms.Tasks;
 using Android.OS;
 using KronoGeo_Maui.Platforms.Android.Application.Geolocalisation;
 using Xamarin.Google.Crypto.Tink.Signature;
-using Android.Hardware.Camera2;
 #endif
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Storage;
@@ -24,6 +23,7 @@ using CancellationTokenSource = System.Threading.CancellationTokenSource;
 using Task = System.Threading.Tasks.Task;
 using System.Collections.ObjectModel;
 using KronoGeo_Api.Models.Carousel;
+using System.Diagnostics;
 
 namespace KronoGeo_Maui.ModelViews
 {
@@ -61,9 +61,6 @@ namespace KronoGeo_Maui.ModelViews
 
 #if !ANDROID
             _serviceGeo.LocationChanged += OnLocalication_Changed;
-#endif
-#if ANDROID
-            _camera.Context = Android.App.Application.Context;
 #endif
             _localisations = [];
             _saveLocalisation = saveLocalisation;
@@ -118,24 +115,30 @@ namespace KronoGeo_Maui.ModelViews
         [RelayCommand]
         public async Task TakePhoto()
         {
-            byte[]? jpeg = null;
             IsMessageError = false;
-#if ANDROID
-            // demander la permission CAMERA (runtime)
-            var status = await Permissions.RequestAsync<Permissions.Camera>();
-            if (status != PermissionStatus.Granted)
-                return;
-#endif
-
-            // obtenir les octets JPEG
             try
             {
-                jpeg = await _camera.TakePhotoAsync();
-                if (jpeg != null && jpeg.Length > 0)
+                var photo = await _camera.TakePhotoAsync();
+                if (photo is not null && !string.IsNullOrEmpty(photo.Name) )
                 {
-                    var photo = ImageSource.FromStream(() => new MemoryStream(jpeg));
-                    // - enregistrement créer le service
-                    
+                    var location = await _serviceGeo.GetCurrentLocationAsync(new CancellationTokenSource());
+                    if (location is not null )
+                    { 
+                        _localisations.Add(new LocalisationPhoto()
+                        {
+                            Latitude = location.Latitude,
+                            Longitude = location.Longitude,
+                            OrderIndex = _localisations.Count,
+                            Timestamp = location.Timestamp,
+                            Altitude = location.Altitude,
+                            Accuracy = location.Accuracy,
+                            Course = location.Course,
+                            Speed = location.Speed,
+                            VerticalAccuracy = location.VerticalAccuracy,
+                            Name = photo.Name,
+                            PathPhoto = photo.PathPhoto,
+                        });
+                    }
                 }
             }
             catch (Exception ex)
@@ -143,13 +146,14 @@ namespace KronoGeo_Maui.ModelViews
                 IsMessageError = true;
                 Message = "Erreur de la prise de photo";
                 // gestion d'erreur simple (adapter selon besoins)
-                Console.WriteLine("Erreur lors de la prise de photo \n" + ex.Message);
+                System.Diagnostics.Trace.TraceError("Erreur lors de la prise de photo \n" + ex.Message);
             }
             finally
             {
                 if (IsMessageError)
                 {
                     var cancellationToken = new System.Threading.CancellationToken();
+                    // -- systeme de messagerie 
                     await Toast.Make($"{Message}").Show(cancellationToken);
                 }
             }

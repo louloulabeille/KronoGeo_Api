@@ -35,52 +35,9 @@
         </DataTemplate>
         <DataTemplate x:Key="PhotoGeo">
             <!-- mettre en place la camera -->
-            <!-- test <Grid BackgroundColor="LightCoral">
-                <Label Text="Page Camera" HorizontalOptions="Center"
+            <Grid BackgroundColor="LightCoral">
+                <Label Text="Liste Photos" HorizontalOptions="Center"
                VerticalOptions="Center" FontSize="30"></Label>
-            </Grid>-->
-            <Grid ColumnDefinitions="*" RowDefinitions="*,50">
-                <toolkit:CameraView
-            x:Name="Camera" 
-            Grid.Column="0" 
-            Grid.Row="0"
-            SelectedCamera="{Binding SelectedCamera}"/>
-                <!--ZoomFactor="{Binding CurrentZoom}"
-            CameraFlashMode="{Binding FlashMode}" />-->
-
-                <!--<Slider 
-            Grid.Column="0"
-            Grid.Row="1"
-            Value="{Binding CurrentZoom}"
-            Maximum="{Binding SelectedCamera.MaximumZoomFactor, FallbackValue=1}"
-            Minimum="{Binding SelectedCamera.MinimumZoomFactor, FallbackValue=1}"/>
-
-                <Picker 
-            Grid.Column="1"
-            Grid.Row="1"
-            Title="Flash"
-            IsVisible="{Binding Path=SelectedCamera.IsFlashSupported, FallbackValue=false}"
-            ItemsSource="{Binding FlashModes}"
-            SelectedItem="{Binding FlashMode}" />
-
-                <Picker 
-            Grid.Column="2"
-            Grid.Row="1"
-            Title="Available Resolutions"
-            ItemsSource="{Binding SelectedCamera.SupportedResolutions}"
-            SelectedItem="{Binding SelectedResolution}" />
-            -->
-                <Border Grid.Row="1" Grid.Column="0" StrokeThickness="1" VerticalOptions="Center"
-                        StrokeShape="RoundRectangle 10,10,10,10" Stroke="#51638B"
-                        WidthRequest="200" HeightRequest="50" BackgroundColor="#F9EDE1">
-                    <Grid VerticalOptions="End"  
-                          HeightRequest="50" ColumnDefinitions="*,*,*" RowDefinitions="50">
-                        <Button Grid.Column="0" FontFamily="MaterialIcons-Regular" 
-                            Text="&#xe3af;" TextColor="#51638B" FontSize="30"
-                            BackgroundColor="#F9EDE1" 
-                            Command="{Binding  Source={RelativeSource AncestorType={x:Type viewmodels:ApplicationPageViewModel}}, Path=TakePhotoCommand}"/>
-                    </Grid>
-                </Border>
             </Grid>
 
         </DataTemplate>
@@ -148,6 +105,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Button Grid.Column="0" FontFamily="MaterialIcons-Regular" 
                         Text="{Binding PlayPause}"  TextColor="#51638B" FontSize="30"
@@ -155,7 +113,10 @@
                     <Button Grid.Column="1" FontFamily="MaterialIcons-Regular" 
                         Text="&#xef71;" TextColor="#51638B" FontSize="30"
                         BackgroundColor="#F9EDE1" Command="{Binding StopCommand}"/>
-                    
+                    <Button Grid.Column="2" FontFamily="MaterialIcons-Regular" 
+                        Text="&#xe3af;" TextColor="#51638B" FontSize="30"
+                        BackgroundColor="#F9EDE1" 
+                        Command="{Binding  TakePhotoCommand}"/>
                 </Grid>
             </Border>
             

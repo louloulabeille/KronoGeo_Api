@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace KronoGeo_Maui.Platforms.Android.Application.Camera
 {
-    public class PhotoAndroid : IServiceCamera
+    public class PhotoAndroid
     {
         #region private properties
         private const string _version = "android24.0";

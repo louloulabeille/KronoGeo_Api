@@ -24,7 +24,7 @@ namespace KronoGeo_Maui
                 // pour afficher les cartes de Microsoft.Maui.Controls.Maps
                 .UseMauiMaps() 
                 // Initialize the .NET MAUI Community Toolkit CameraView by adding the below line of code
-                .UseMauiCommunityToolkitCamera()
+                //.UseMauiCommunityToolkitCamera()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");

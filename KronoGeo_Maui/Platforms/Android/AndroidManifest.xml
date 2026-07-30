@@ -14,7 +14,17 @@
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
 	
+	<!-- Needed for Picking photo/video -->
+	<uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+	<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+	<uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+
+	<!-- Needed for Taking photo/video -->
 	<uses-permission android:name="android.permission.CAMERA" />
+
+	<!-- Add these properties if you would like to filter out devices that do not have cameras, or set to false to make them optional -->
+	<uses-feature android:name="android.hardware.camera" android:required="true" />
+	<uses-feature android:name="android.hardware.camera.autofocus" android:required="true" />
 	
 	<uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
