@@ -66,6 +66,21 @@ namespace KronoGeo_Maui.Applications.Services.Camera
             }
         }
 
+        /// <summary>
+        /// supprime un fichier
+        /// </summary>
+        /// <param name="photoPath"></param>
+        /// <returns></returns>
+        public bool DeletePhoto(string photoPath)
+        {
+            if (File.Exists(photoPath))
+            {
+                File.Delete(photoPath); 
+                return true;
+            }
+            return false;
+        }
+
         #endregion
     }
 }

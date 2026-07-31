@@ -48,6 +48,29 @@ namespace KronoGeo_Maui.ModelViews
         public ObservableCollection<PageBaseViewModel> MesPages { get; set; }
         #endregion
 
+        #region public properties
+        public bool IsMessageError { get; set; } = false;
+        public string Message { get; set; } = string.Empty;
+        /// <summary>
+        /// pour savoir si le service est en pause ou non
+        /// </summary>
+        public bool IsPause { get; set; } = false;
+        public bool IsStart { get; set; } = false;
+        #endregion
+
+        #region public propeties ObservableProperties
+        [ObservableProperty]
+        public partial string PlayPause { get; set; } = "\ue1c4"; // - affichage de play 
+        [ObservableProperty]
+        public partial string MessageDistance { get; set; } = string.Empty;
+        [ObservableProperty]
+        public partial ObservableCollection<PhotoDTO> MesPhotos { get; set; } = [];
+        [ObservableProperty]
+        public partial ImageSource? SourcePhoto { get; set; } = default;
+        #endregion
+
+
+
         #region constructeur
         public ApplicationPageViewModel(IServiceGeolocalisation service
             , IServiceSaveLocalisation saveLocalisation, IServiceCamera camera)
@@ -79,48 +102,12 @@ namespace KronoGeo_Maui.ModelViews
         }
 #endregion
 
-        #region public properties
-        public bool IsMessageError { get; set; } = false;
-        public string Message { get; set; } = string.Empty;
-        /// <summary>
-        /// pour savoir si le service est en pause ou non
-        /// </summary>
-        public bool IsPause { get; set; } = false;
-        public bool IsStart { get; set; } = false;
-        #endregion
-
-        #region public propeties ObservableProperties
-        [ObservableProperty]
-        public partial string PlayPause { get; set; } = "\ue1c4"; // - affichage de play 
-        [ObservableProperty]
-        public partial string MessageDistance { get; set; } = string.Empty;
-        [ObservableProperty]
-        public partial ObservableCollection<PhotoDTO> MesPhotos { get; set; } = [];
-        [ObservableProperty]
-        public partial ImageSource? SourcePhoto { get; set; } = default;
-        #endregion
-
-
         #region method RelayCommand
         [RelayCommand]
         public static async Task ToolbarItem()
         {
             await Shell.Current.GoToAsync("ParametragePage");
         }
-
-        /*[RelayCommand]
-        // -- se déclanche après l'affichage de la page Appearing
-        public async Task AppearingExe(BindableObject bind)
-        {
-            
-        }*/
-
-        /*[RelayCommand]
-        // -- se déclanche après le chagement de la page
-        public async Task LoadedExe()
-        {
-            await GetUserLocationAsync();
-        }*/
 
         [RelayCommand]
         public async Task TakePhoto()
@@ -228,11 +215,8 @@ namespace KronoGeo_Maui.ModelViews
                     {
                         Android.App.Application.Context.StartService(intent);
                     }
-
                 }
-
 #endif
-
 #if !ANDROID
                 if (PlayPause == "\ue1c4")
                 {
@@ -354,6 +338,20 @@ namespace KronoGeo_Maui.ModelViews
                 WeakReferenceMessenger.Default.Send(new RecenterMapMessage(localition));
             }
 
+        }
+
+        [RelayCommand]
+        public void DeleteImage( PhotoDTO photo )
+        {
+            if (string.IsNullOrEmpty(photo.Name)) return;
+
+            if ( _camera.DeletePhoto(photo.PathComplet??string.Empty))
+            {
+                MesPhotos.Remove(photo);
+                var local = _localisations.OfType<LocalisationPhoto>()
+                    .FirstOrDefault(x=>x.Name == photo.Name);
+                if (local is not null) _localisations.Remove(local);
+            }
         }
 
 #endregion

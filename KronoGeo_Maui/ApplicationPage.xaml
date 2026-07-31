@@ -17,15 +17,9 @@
              Shell.BackButtonBehavior="{BackButtonBehavior IsVisible=False}">
     <!-- Ressources de la page -->
     <ContentPage.Resources>
+        
+        <!-- Affichage de la map et du tracé -->
         <DataTemplate x:Key="MapGeo" x:DataType="viewmodels:ApplicationPageViewModel">
-            <!-- Test<Grid BackgroundColor="LightBlue">
-                <Label Text="Page Map" HorizontalOptions="Center"
-                       VerticalOptions="Center" FontSize="30"></Label>
-            </Grid>-->
-            <!-- Affichage du template map 
-            Grid.Column="1" Grid.Row="0" MinimumHeightRequest="600" 
-                      HeightRequest="650"
-            -->
             <maps:Map  x:Name="googleMap" IsShowingUser="True"
                       IsScrollEnabled="True" IsZoomEnabled="True">
                 <maps:Map.Behaviors>
@@ -35,6 +29,8 @@
                 </maps:Map.Behaviors>
             </maps:Map>
         </DataTemplate>
+        
+        <!-- liste des images -->
         <DataTemplate x:Key="PhotoGeo" x:DataType="viewmodels:ApplicationPageViewModel">
             <!-- mettre en place la camera -->
             <!--<Grid BackgroundColor="LightCoral">
@@ -54,28 +50,32 @@
                                 <!-- L'image -->
                                 <Image Source="{Binding PathComplet}" Aspect="AspectFill"
                                     HeightRequest="150" Grid.Row="0"/>
-
-                                <!-- Le titre sous l'image -->
-                                <Label Grid.Row="1" Text="{Binding Name}"
-                                    HorizontalTextAlignment="Center"
-                                    Padding="5" FontAttributes="Bold"/>
+                                <!--CommandParameter="{Binding .}"-->
+                                <Button Text="X" HorizontalOptions="End"
+                                        Command="{Binding BindingContext.DeleteImageCommand, Source={x:Reference KronoGeoPage}}"
+                                        CommandParameter="{Binding .}"
+                                        VerticalOptions="Start" Margin="5" WidthRequest="30"
+                                        HeightRequest="30" CornerRadius="15" 
+                                        BackgroundColor="Transparent"
+                                        TextColor="White" FontAttributes="Bold"
+                                        />
                             </Grid>
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
-
             </CollectionView>
-
         </DataTemplate>
-
+        
+        <!-- Résumé du trajet calculé en temps réel à programmer -->
         <DataTemplate x:Key="ResumeGeo" x:DataType="viewmodels:ApplicationPageViewModel">
             <Grid BackgroundColor="LightSeaGreen">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="4*"/>
                     <RowDefinition Height="50" />
                 </Grid.RowDefinitions>
-                <Image BackgroundColor="LightCoral" 
-                       Source="{Binding Source={x:Reference KronoGeoPage}, Path=BindingContext.SourcePhoto}"></Image>
+                <!-- test<Image BackgroundColor="LightCoral" 
+                       Source="{Binding Source={x:Reference KronoGeoPage}, 
+                       Path=BindingContext.SourcePhoto}"></Image>-->
                 <Label Grid.Row="1" Text="Page Resumé" HorizontalOptions="Center"
                VerticalOptions="Center" FontSize="30"></Label>
             </Grid>
