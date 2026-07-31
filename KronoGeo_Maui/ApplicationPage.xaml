@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:carousel="clr-namespace:KronoGeo_Maui.Applications.Outils.Views"
              xmlns:viewmodels="clr-namespace:KronoGeo_Maui.ModelViews"
+             xmlns:models="clr-namespace:KronoGeo_Api.Models.Model.DTO;assembly=KronoGeo_Api.Models"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:helpers="clr-namespace:KronoGeo_Maui.Applications.Helpers"
              xmlns:behaviors="clr-namespace:KronoGeo_Maui.Applications.Behaviors"
@@ -10,12 +11,13 @@
              x:DataType="viewmodels:ApplicationPageViewModel"
              x:Class="KronoGeo_Maui.ApplicationPage"
              Title="KronoGeo"
+             x:Name="KronoGeoPage"
              Shell.BackgroundColor="#F9EDE1"
              Shell.TitleColor="#51638B"
              Shell.BackButtonBehavior="{BackButtonBehavior IsVisible=False}">
     <!-- Ressources de la page -->
     <ContentPage.Resources>
-        <DataTemplate x:Key="MapGeo">
+        <DataTemplate x:Key="MapGeo" x:DataType="viewmodels:ApplicationPageViewModel">
             <!-- Test<Grid BackgroundColor="LightBlue">
                 <Label Text="Page Map" HorizontalOptions="Center"
                        VerticalOptions="Center" FontSize="30"></Label>
@@ -33,27 +35,58 @@
                 </maps:Map.Behaviors>
             </maps:Map>
         </DataTemplate>
-        <DataTemplate x:Key="PhotoGeo">
+        <DataTemplate x:Key="PhotoGeo" x:DataType="viewmodels:ApplicationPageViewModel">
             <!-- mettre en place la camera -->
-            <Grid BackgroundColor="LightCoral">
+            <!--<Grid BackgroundColor="LightCoral">
                 <Label Text="Liste Photos" HorizontalOptions="Center"
                VerticalOptions="Center" FontSize="30"></Label>
-            </Grid>
+            </Grid>-->
+            <CollectionView ItemsSource="{Binding Source={x:Reference KronoGeoPage}, Path=BindingContext.MesPhotos}">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="2"/>
+                </CollectionView.ItemsLayout>
+                <!-- Design de chaque cellule de la grille -->
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:PhotoDTO">
+                        <Border StrokeThickness="1" 
+                            StrokeShape="RoundRectangle 20,20,20,20" Stroke="#51638B">
+                            <Grid RowDefinitions="*, Auto">
+                                <!-- L'image -->
+                                <Image Source="{Binding PathComplet}" Aspect="AspectFill"
+                                    HeightRequest="150" Grid.Row="0"/>
+
+                                <!-- Le titre sous l'image -->
+                                <Label Grid.Row="1" Text="{Binding Name}"
+                                    HorizontalTextAlignment="Center"
+                                    Padding="5" FontAttributes="Bold"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+            </CollectionView>
 
         </DataTemplate>
 
-        <DataTemplate x:Key="ResumeGeo">
+        <DataTemplate x:Key="ResumeGeo" x:DataType="viewmodels:ApplicationPageViewModel">
             <Grid BackgroundColor="LightSeaGreen">
-                <Label Text="Page Resumé" HorizontalOptions="Center"
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="4*"/>
+                    <RowDefinition Height="50" />
+                </Grid.RowDefinitions>
+                <Image BackgroundColor="LightCoral" 
+                       Source="{Binding Source={x:Reference KronoGeoPage}, Path=BindingContext.SourcePhoto}"></Image>
+                <Label Grid.Row="1" Text="Page Resumé" HorizontalOptions="Center"
                VerticalOptions="Center" FontSize="30"></Label>
             </Grid>
         </DataTemplate>
 
+        
             <!-- aiguilleur du carroussel -->
         <carousel:KronoGeoCarouselTemplateSelector 
             x:Key="KronoGeoTemplate"
             MapTemplate="{StaticResource MapGeo}"
-            CameraTemplate="{StaticResource PhotoGeo}"
+            ListImageTemplate="{StaticResource PhotoGeo}"
             ResumeTemplate="{StaticResource ResumeGeo}"
                                                 />
     </ContentPage.Resources>
@@ -82,25 +115,13 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="5" />
             </Grid.ColumnDefinitions>
-            
-            <!--<Label Grid.Column="1" Grid.Row="0" Text="{Binding Message}" IsVisible="{Binding IsMessageError}"
-                   TextColor="Red" FontSize="14" HeightRequest="50"/>-->
-            <!--<maps:Map Grid.Column="1" Grid.Row="0" MinimumHeightRequest="600" 
-                      HeightRequest="650" x:Name="googleMap" IsShowingUser="True"
-                      IsScrollEnabled="True" IsZoomEnabled="True">
-                <maps:Map.Behaviors>-->
-                    <!-- Le behavior écoute le Messenger en silence -->
-                    <!--<behaviors:MapMessengerBehavior />
-                    <behaviors:PolyneMessengerBehavior/>
-                </maps:Map.Behaviors>
-            </maps:Map>-->
             <CarouselView Grid.Column="1" Grid.Row="0" MinimumHeightRequest="600" 
-                            HeightRequest="650" ItemsSource="{Binding MesPages}"
-                            ItemTemplate="{StaticResource KronoGeoTemplate}"
-                            Loop="False">
+                HeightRequest="650" ItemsSource="{Binding MesPages}"
+                ItemTemplate="{StaticResource KronoGeoTemplate}"
+                Loop="False">
             </CarouselView>
             <Border Grid.Row="1" Grid.Column="1" StrokeThickness="1" 
-                    StrokeShape="RoundRectangle 20,20,20,20" Stroke="#51638B">
+        StrokeShape="RoundRectangle 20,20,20,20" Stroke="#51638B">
                 <Grid VerticalOptions="End" BackgroundColor="#F9EDE1" HeightRequest="50">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -108,18 +129,18 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Button Grid.Column="0" FontFamily="MaterialIcons-Regular" 
-                        Text="{Binding PlayPause}"  TextColor="#51638B" FontSize="30"
-                        BackgroundColor="#F9EDE1" Command="{Binding StartPauseCommand}"/>
+            Text="{Binding PlayPause}"  TextColor="#51638B" FontSize="30"
+            BackgroundColor="#F9EDE1" Command="{Binding StartPauseCommand}"/>
                     <Button Grid.Column="1" FontFamily="MaterialIcons-Regular" 
-                        Text="&#xef71;" TextColor="#51638B" FontSize="30"
-                        BackgroundColor="#F9EDE1" Command="{Binding StopCommand}"/>
+            Text="&#xef71;" TextColor="#51638B" FontSize="30"
+            BackgroundColor="#F9EDE1" Command="{Binding StopCommand}"/>
                     <Button Grid.Column="2" FontFamily="MaterialIcons-Regular" 
-                        Text="&#xe3af;" TextColor="#51638B" FontSize="30"
-                        BackgroundColor="#F9EDE1" 
-                        Command="{Binding  TakePhotoCommand}"/>
+            Text="&#xe3af;" TextColor="#51638B" FontSize="30"
+            BackgroundColor="#F9EDE1" 
+            Command="{Binding  TakePhotoCommand}"/>
                 </Grid>
             </Border>
-            
+
         </Grid>
     </ScrollView>
 </ContentPage>

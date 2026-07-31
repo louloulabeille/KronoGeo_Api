@@ -5,6 +5,7 @@ using Android.OS;
 using KronoGeo_Maui.Platforms.Android.Application.Geolocalisation;
 using Xamarin.Google.Crypto.Tink.Signature;
 #endif
+
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -24,6 +25,7 @@ using Task = System.Threading.Tasks.Task;
 using System.Collections.ObjectModel;
 using KronoGeo_Api.Models.Carousel;
 using System.Diagnostics;
+using KronoGeo_Api.Models.Model.DTO;
 
 namespace KronoGeo_Maui.ModelViews
 {
@@ -53,7 +55,7 @@ namespace KronoGeo_Maui.ModelViews
             // -- pour affichage des différentes pages du carousel
             MesPages = [];
             MesPages.Add(new MapViewModel());
-            MesPages.Add(new CameraViewModel());
+            MesPages.Add(new ListImageViewModel());
             MesPages.Add(new ResumeViewModel());
             // -- chargement des services
             _serviceGeo = service;
@@ -70,6 +72,10 @@ namespace KronoGeo_Maui.ModelViews
 
             // -- mise a jour dans la Map de la geolocalisation sinon il affiche la map par défaut
             Task.Run(async () => await GetUserLocationAsync());
+
+            // -- supprime les photos en local
+            _camera.DeletePhotos();
+
         }
 #endregion
 
@@ -88,6 +94,10 @@ namespace KronoGeo_Maui.ModelViews
         public partial string PlayPause { get; set; } = "\ue1c4"; // - affichage de play 
         [ObservableProperty]
         public partial string MessageDistance { get; set; } = string.Empty;
+        [ObservableProperty]
+        public partial ObservableCollection<PhotoDTO> MesPhotos { get; set; } = [];
+        [ObservableProperty]
+        public partial ImageSource? SourcePhoto { get; set; } = default;
         #endregion
 
 
@@ -121,6 +131,16 @@ namespace KronoGeo_Maui.ModelViews
                 var photo = await _camera.TakePhotoAsync();
                 if (photo is not null && !string.IsNullOrEmpty(photo.Name) )
                 {
+                    MesPhotos.Add(photo);
+
+                    // -- test
+                    // 2. Vérifier si le fichier existe toujours dans le cache
+                    if (File.Exists(photo.PathComplet))
+                    {
+                        // Pour l'afficher directement dans un contrôle Image de ton XAML :
+                        SourcePhoto = ImageSource.FromFile(photo.PathComplet);
+                    }
+
                     var location = await _serviceGeo.GetCurrentLocationAsync(new CancellationTokenSource());
                     if (location is not null )
                     { 
@@ -415,6 +435,7 @@ namespace KronoGeo_Maui.ModelViews
                 int index = _localisations.Count;
                 localisation.OrderIndex = index; // -- mise a jour de l'index
                 _localisations.Add(localisation);
+
                 // -- envoie un message pour mettre à jour le tracé sur la map
                 WeakReferenceMessenger.Default.Send(new PolyneMapMessage(location));
                 

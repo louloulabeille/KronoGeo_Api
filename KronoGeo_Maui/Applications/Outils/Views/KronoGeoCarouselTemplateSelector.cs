@@ -14,18 +14,18 @@ namespace KronoGeo_Maui.Applications.Outils.Views
     {
         // On déclare nos designs templates pour les afficher
         public DataTemplate? MapTemplate { get; set; } = default;
-        public DataTemplate? CameraTemplate { get; set; } = default;
+        public DataTemplate? ListImageTemplate { get; set; } = default;
         public DataTemplate? ResumeTemplate { get; set; } = default;
 
         // La méthode magique qui fait le choix
         protected override DataTemplate OnSelectTemplate(object item, BindableObject container)
         {
-            if (MapTemplate is null || CameraTemplate is null 
+            if (MapTemplate is null || ListImageTemplate is null 
                 || ResumeTemplate is null ) return (DataTemplate)item;
             return item switch
             {
                 MapViewModel => MapTemplate,
-                CameraViewModel => CameraTemplate,
+                ListImageViewModel => ListImageTemplate,
                 ResumeViewModel => ResumeTemplate,
                 _ => MapTemplate // Choix par défaut par sécurité
             };

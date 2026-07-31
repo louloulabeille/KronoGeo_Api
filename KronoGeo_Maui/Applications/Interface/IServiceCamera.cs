@@ -8,5 +8,6 @@ namespace KronoGeo_Maui.Applications.Interface
     public interface IServiceCamera
     {
         public Task<PhotoDTO?> TakePhotoAsync();
+        public void DeletePhotos();
     }
 }

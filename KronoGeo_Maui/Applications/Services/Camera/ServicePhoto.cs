@@ -26,8 +26,7 @@ namespace KronoGeo_Maui.Applications.Services.Camera
                 if (photo != null)
                 {
                     // save the file into local storage
-                    string localFilePath = Path.Combine(FileSystem.CacheDirectory, photo.FileName);
-
+                    string localFilePath = Path.Combine(FileSystem.AppDataDirectory, photo.FileName);
                     try
                     {
                         using Stream sourceStream = await photo.OpenReadAsync();
@@ -39,7 +38,7 @@ namespace KronoGeo_Maui.Applications.Services.Camera
                         return new PhotoDTO()
                         {
                             Name = photo.FileName,
-                            PathPhoto = FileSystem.CacheDirectory
+                            PathPhoto = FileSystem.AppDataDirectory,
                         };
                     }
                     catch(Exception ex)
@@ -52,6 +51,21 @@ namespace KronoGeo_Maui.Applications.Services.Camera
             }
             return null;
         }
+
+        /// <summary>
+        /// supprime toutes les photos enregistrer en local avant utilisation
+        /// </summary>
+        public void DeletePhotos()
+        {
+            // Récupère tous les chemins des fichiers se terminant par .jpg dans le cache
+            string[] cachedPhotos = Directory.GetFiles(FileSystem.AppDataDirectory, "*.jpg");
+
+            foreach (string photoPath in cachedPhotos)
+            {
+                File.Delete(photoPath);
+            }
+        }
+
         #endregion
     }
 }

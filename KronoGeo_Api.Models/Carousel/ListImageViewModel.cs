@@ -5,9 +5,9 @@ using System.Text;
 namespace KronoGeo_Api.Models.Carousel
 {
     /// <summary>
-    /// classe de base qui est appelé par le carousel page camera
+    /// classe de base qui est appelé par le carousel page List Images
     /// </summary>
-    public class CameraViewModel : PageBaseViewModel
+    public class ListImageViewModel : PageBaseViewModel
     {
     }
 }
