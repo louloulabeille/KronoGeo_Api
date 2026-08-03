@@ -26,10 +26,16 @@ using System.Collections.ObjectModel;
 using KronoGeo_Api.Models.Carousel;
 using System.Diagnostics;
 using KronoGeo_Api.Models.Model.DTO;
+using Microsoft.Maui.Controls.Maps;
 
 namespace KronoGeo_Maui.ModelViews
 {
-
+    enum MapTypeEnum
+    {
+        Street,
+        Satellite,
+        Hybrid
+    }
     public partial class ApplicationPageViewModel : ObservableObject, IRecipient<LocationChangedMessage>, IDisposable
     {
         #region private readonly properties
@@ -59,14 +65,27 @@ namespace KronoGeo_Maui.ModelViews
         #endregion
 
         #region public propeties ObservableProperties
+        /// <summary>
+        /// pour savoir si le service est en pause ou non
+        /// par rapport à l'affichage de l'icone play ou pause
+        /// </summary>
         [ObservableProperty]
         public partial string PlayPause { get; set; } = "\ue1c4"; // - affichage de play 
+        /// <summary>
+        /// Message d'erreur à afficher ou autre message d'information
+        /// </summary>
         [ObservableProperty]
         public partial string MessageDistance { get; set; } = string.Empty;
+        /// <summary>
+        /// observable collection pour l'affichage des photos dans le carousel
+        /// </summary>
         [ObservableProperty]
         public partial ObservableCollection<PhotoDTO> MesPhotos { get; set; } = [];
+        /// <summary>
+        /// pour savoir si l'affichage de la map est en mode Street ou Satellite ou hybride
+        /// </summary>
         [ObservableProperty]
-        public partial ImageSource? SourcePhoto { get; set; } = default;
+        public partial string MapType { get; set; } = MapTypeEnum.Hybrid.ToString();
         #endregion
 
 
@@ -100,15 +119,23 @@ namespace KronoGeo_Maui.ModelViews
             _camera.DeletePhotos();
 
         }
-#endregion
+        #endregion
 
         #region method RelayCommand
+        /// <summary>
+        /// ouvre la page de paramétrage
+        /// </summary>
+        /// <returns></returns>
         [RelayCommand]
         public static async Task ToolbarItem()
         {
             await Shell.Current.GoToAsync("ParametragePage");
         }
 
+        /// <summary>
+        /// method de prise de photo et enregistrement de la localisation
+        /// </summary>
+        /// <returns></returns>
         [RelayCommand]
         public async Task TakePhoto()
         {
@@ -120,17 +147,19 @@ namespace KronoGeo_Maui.ModelViews
                 {
                     MesPhotos.Add(photo);
 
-                    // -- test
-                    // 2. Vérifier si le fichier existe toujours dans le cache
-                    if (File.Exists(photo.PathComplet))
-                    {
-                        // Pour l'afficher directement dans un contrôle Image de ton XAML :
-                        SourcePhoto = ImageSource.FromFile(photo.PathComplet);
-                    }
-
                     var location = await _serviceGeo.GetCurrentLocationAsync(new CancellationTokenSource());
                     if (location is not null )
-                    { 
+                    {
+                        Pin pin = new()
+                        {
+                            Label   = photo.Name,
+                            Address = $"Altitude : {location.Altitude} & longitude : {location.Longitude}",
+                            Type    = PinType.Place,
+                            Location = location,
+                        };
+                        // -- envoie un message pour ajouter un pin sur la map
+                        WeakReferenceMessenger.Default.Send(new PinMapMessage(pin));
+                        // -- ajoute la localisation dans la liste pour l'enregistrement
                         _localisations.Add(new LocalisationPhoto()
                         {
                             Latitude = location.Latitude,
@@ -340,6 +369,11 @@ namespace KronoGeo_Maui.ModelViews
 
         }
 
+        /// <summary>
+        /// method de suppression d'une photo en mémoire
+        /// et de la localisation associée
+        /// </summary>
+        /// <param name="photo"></param>
         [RelayCommand]
         public void DeleteImage( PhotoDTO photo )
         {
@@ -348,6 +382,8 @@ namespace KronoGeo_Maui.ModelViews
             if ( _camera.DeletePhoto(photo.PathComplet??string.Empty))
             {
                 MesPhotos.Remove(photo);
+                // -- recherche de l'object LocalisationPhoto
+                // -- dans la liste des localisations pour le supprimer
                 var local = _localisations.OfType<LocalisationPhoto>()
                     .FirstOrDefault(x=>x.Name == photo.Name);
                 if (local is not null) _localisations.Remove(local);
@@ -429,6 +465,7 @@ namespace KronoGeo_Maui.ModelViews
                 _lastLocation = location; // -- pour la mise a jour du dernier point pour le calcul de la distance
                 // -- envoie un message pour recentrer la map sur la position de l'utilisateur
                 //WeakReferenceMessenger.Default.Send(new RecenterMapMessage(location));
+
                 // -- ajoute la localisation dans la liste pour l'enregistrement
                 int index = _localisations.Count;
                 localisation.OrderIndex = index; // -- mise a jour de l'index

@@ -20,12 +20,13 @@
         
         <!-- Affichage de la map et du tracé -->
         <DataTemplate x:Key="MapGeo" x:DataType="viewmodels:ApplicationPageViewModel">
-            <maps:Map  x:Name="googleMap" IsShowingUser="True"
+            <maps:Map  x:Name="googleMap" IsShowingUser="True" MapType="{Binding MapType}"
                       IsScrollEnabled="True" IsZoomEnabled="True">
                 <maps:Map.Behaviors>
                     <!-- Le behavior écoute le Messenger en silence -->
                     <behaviors:MapMessengerBehavior />
                     <behaviors:PolyneMessengerBehavior/>
+                    <behaviors:PinMessengerBehavior/>
                 </maps:Map.Behaviors>
             </maps:Map>
         </DataTemplate>

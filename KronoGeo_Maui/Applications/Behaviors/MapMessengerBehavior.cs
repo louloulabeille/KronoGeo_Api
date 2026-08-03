@@ -27,7 +27,8 @@ namespace KronoGeo_Maui.Applications.Behaviors
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
                     bindable.MoveToRegion(
-                        MapSpan.FromCenterAndRadius(message.Value, Distance.FromMeters(500))
+                        //MapSpan.FromCenterAndRadius(message.Value, Distance.FromMeters(500)),
+                        MapSpan.FromCenterAndRadius(message.Value,Distance.FromMeters(0))
                     );
                 });
             });

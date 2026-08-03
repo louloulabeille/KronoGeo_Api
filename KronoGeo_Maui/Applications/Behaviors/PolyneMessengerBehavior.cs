@@ -8,7 +8,7 @@ using KronoGeo_Maui.Applications.Message;
 
 namespace KronoGeo_Maui.Applications.Behaviors
 {
-    public class PolyneMessengerBehavior : Behavior<Map>
+    public partial class PolyneMessengerBehavior : Behavior<Map>
     {
         /// <summary>
         /// Behavior qui permet d'ajouter des points à une polyline 
