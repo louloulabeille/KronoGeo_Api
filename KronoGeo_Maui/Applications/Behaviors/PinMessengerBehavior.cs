@@ -22,7 +22,15 @@ namespace KronoGeo_Maui.Applications.Behaviors
                 {
                     if (message.Value is not null)
                     {
-                        bindable.Pins.Add(message.Value);
+                        if ( message.Value.IsAdded)
+                            bindable.Pins.Add(message.Value.Pin);
+                        else
+                        {
+                            var pin = bindable.Pins.FirstOrDefault(p => p.Label == message.Value.Pin.Label && p.Address == message.Value.Pin.Address);
+                            if (pin is not null)
+                                bindable.Pins.Remove(pin);
+                        }
+                            
                     }
                 });
             });

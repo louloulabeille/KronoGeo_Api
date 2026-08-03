@@ -8,5 +8,6 @@ namespace KronoGeo_Api.Models
     {
         public required string Name { get; set; }
         public string? PathPhoto { get; set; }
+
     }
 }

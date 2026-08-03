@@ -28,5 +28,6 @@ namespace KronoGeo_Api.Models
         {
             return base.ToString();
         }
+
     }
 }

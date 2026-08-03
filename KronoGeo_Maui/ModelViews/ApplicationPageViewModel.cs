@@ -27,6 +27,8 @@ using KronoGeo_Api.Models.Carousel;
 using System.Diagnostics;
 using KronoGeo_Api.Models.Model.DTO;
 using Microsoft.Maui.Controls.Maps;
+using KronoGeo_Maui.Applications.Models;
+using KronoGeo_Maui.Applications.ExtendMethods;
 
 namespace KronoGeo_Maui.ModelViews
 {
@@ -150,15 +152,20 @@ namespace KronoGeo_Maui.ModelViews
                     var location = await _serviceGeo.GetCurrentLocationAsync(new CancellationTokenSource());
                     if (location is not null )
                     {
-                        Pin pin = new()
+                        PinMessage pinMessage = new()
                         {
-                            Label   = photo.Name,
-                            Address = $"Altitude : {location.Altitude} & longitude : {location.Longitude}",
-                            Type    = PinType.Place,
-                            Location = location,
+                            Pin = new()
+                            {
+                                Label = $"Photo: {photo.Name}",
+                                Address = $"Position : latitude {location.Latitude}, longitude {location.Longitude}",
+                                Type = PinType.SavedPin,
+                                Location = location,
+                            },
+                            IsAdded = true
                         };
+                        
                         // -- envoie un message pour ajouter un pin sur la map
-                        WeakReferenceMessenger.Default.Send(new PinMapMessage(pin));
+                        WeakReferenceMessenger.Default.Send(new PinMapMessage(pinMessage));
                         // -- ajoute la localisation dans la liste pour l'enregistrement
                         _localisations.Add(new LocalisationPhoto()
                         {
@@ -380,13 +387,31 @@ namespace KronoGeo_Maui.ModelViews
             if (string.IsNullOrEmpty(photo.Name)) return;
 
             if ( _camera.DeletePhoto(photo.PathComplet??string.Empty))
-            {
+            {               
                 MesPhotos.Remove(photo);
                 // -- recherche de l'object LocalisationPhoto
                 // -- dans la liste des localisations pour le supprimer
                 var local = _localisations.OfType<LocalisationPhoto>()
                     .FirstOrDefault(x=>x.Name == photo.Name);
-                if (local is not null) _localisations.Remove(local);
+                
+                if (local is not null)
+                {
+                    PinMessage pinMessage = new()
+                    {
+                        Pin = new()
+                        {
+                            Label = $"Photo: {photo.Name}",
+                            Address = $"Position : latitude {local.Latitude}, longitude {local.Longitude}",
+                            Type = PinType.Place,
+                            Location = local.GetLocation()
+                        },
+                        IsAdded = false
+                    };
+                    // -- envoi vers le behavior pour supprimer le pin
+                    WeakReferenceMessenger.Default.Send(new PinMapMessage(pinMessage));
+
+                    _localisations.Remove(local);
+                }
             }
         }
 
