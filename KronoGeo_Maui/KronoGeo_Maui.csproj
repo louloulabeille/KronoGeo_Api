@@ -91,6 +91,9 @@
 	  <MauiXaml Update="ParametragePage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="PageHelpers\PopupNameLocalisationGroup.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	</ItemGroup>
 
 </Project>

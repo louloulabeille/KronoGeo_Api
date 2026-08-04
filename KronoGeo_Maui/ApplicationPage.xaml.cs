@@ -1,9 +1,5 @@
-using CommunityToolkit.Maui.Behaviors;
-using CommunityToolkit.Mvvm.Messaging;
-using KronoGeo_Maui.Applications.Message;
 using KronoGeo_Maui.ModelViews;
-using Microsoft.Maui.Controls.Maps;
-using Microsoft.Maui.Maps;
+
 #if ANDROID
 using AndroidX.Lifecycle;
 using static Android.App.Assist.AssistStructure;
@@ -19,7 +15,6 @@ public partial class ApplicationPage : ContentPage
 	{
 		InitializeComponent();
 		BindingContext = modelView;
-
         /*modelView.PropertyChanged += (s, e) =>
         {
             // -- utilisation du message pour notifier le changement de localisation avec behavior
@@ -70,6 +65,7 @@ public partial class ApplicationPage : ContentPage
             Command = modelView.LoadedExeCommand
         });
         */
+        
     }
 
 }

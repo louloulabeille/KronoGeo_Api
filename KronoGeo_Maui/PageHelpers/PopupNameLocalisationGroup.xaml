@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<mct:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="KronoGeo_Maui.PageHelpers.PopupNameLocalisationGroup"
+             CanBeDismissedByTappingOutsideOfPopup="False">
+    <VerticalStackLayout>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="3*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Column="0" Text="Nom du groupe de localisations :"></Label>
+            <Entry Grid.Column="1" Text="{Binding NameLocalisationGroup, Mode=TwoWay}"
+                   Placeholder="Nom du groupe de localisations" />
+        </Grid>
+    </VerticalStackLayout>
+</mct:Popup>

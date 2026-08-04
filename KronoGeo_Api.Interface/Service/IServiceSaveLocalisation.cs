@@ -7,7 +7,7 @@ namespace KronoGeo_Api.Interface.Service
 {
     public interface IServiceSaveLocalisation
     {
-        public Task<bool> SaveLocalisation(List<Localisation> localisations, CancellationToken cancellationToken);
+        public Task<bool> SaveLocalisation(LocalisationGroup localisations, CancellationToken cancellationToken);
     }
 }
  

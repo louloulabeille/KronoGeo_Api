@@ -29,6 +29,10 @@ using KronoGeo_Api.Models.Model.DTO;
 using Microsoft.Maui.Controls.Maps;
 using KronoGeo_Maui.Applications.Models;
 using KronoGeo_Maui.Applications.ExtendMethods;
+using CommunityToolkit.Maui;
+using CancellationToken = System.Threading.CancellationToken;
+using Microsoft.Maui.Controls.Shapes;
+using KronoGeo_Maui.PageHelpers;
 
 namespace KronoGeo_Maui.ModelViews
 {
@@ -45,6 +49,7 @@ namespace KronoGeo_Maui.ModelViews
         private readonly List<Localisation> _localisations;
         private readonly IServiceSaveLocalisation _saveLocalisation;
         private readonly IServiceCamera _camera;
+        private readonly IDialogService _dialogService;
         #endregion
 
         #region private properties
@@ -94,7 +99,8 @@ namespace KronoGeo_Maui.ModelViews
 
         #region constructeur
         public ApplicationPageViewModel(IServiceGeolocalisation service
-            , IServiceSaveLocalisation saveLocalisation, IServiceCamera camera)
+            , IServiceSaveLocalisation saveLocalisation, IServiceCamera camera
+            ,IDialogService dialogService)
         {
             // -- pour affichage des différentes pages du carousel
             MesPages = [];
@@ -104,6 +110,7 @@ namespace KronoGeo_Maui.ModelViews
             // -- chargement des services
             _serviceGeo = service;
             _camera = camera;
+            _dialogService = dialogService;
 
 #if !ANDROID
             _serviceGeo.LocationChanged += OnLocalication_Changed;
@@ -330,7 +337,27 @@ namespace KronoGeo_Maui.ModelViews
 #endif
                 if (_localisations.Count > 0)
                 {
-                    if ( await _saveLocalisation.SaveLocalisation(_localisations, new System.Threading.CancellationToken()))
+                    var popup = new PopupNameLocalisationGroup();
+                    var name = await _dialogService.ShowPopupAsync(popup, new PopupOptions
+                    {
+                        CanBeDismissedByTappingOutsideOfPopup = false,
+                        Shape = new RoundRectangle
+                        {
+                            CornerRadius = new CornerRadius(20, 20, 20, 20),
+                            StrokeThickness = 2,
+                            Stroke = Colors.LightGray
+                        }
+                    }, new CancellationToken());
+
+                    var localisationGroup = new LocalisationGroup()
+                    {
+                        Name = $"Localisation_{DateTime.Now:yyyyMMdd_HHmmss}",
+                        Date = DateTimeOffset.Now,
+                        ApplicationUserId = "User1", // -- à adapter selon l'authentification
+                        Localisations = _localisations
+                    };
+
+                    if ( await _saveLocalisation.SaveLocalisation(localisationGroup, new System.Threading.CancellationToken()))
                     { // -- enregistrement ok
                         _localisations.Clear();
                         // -- initalisation de la map au niveau de Polyne

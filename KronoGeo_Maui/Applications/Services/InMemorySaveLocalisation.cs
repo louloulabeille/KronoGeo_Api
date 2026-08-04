@@ -13,9 +13,12 @@ namespace KronoGeo_Maui.Applications.Services
     public class InMemorySaveLocalisation : IServiceSaveLocalisation
     {
 
-        public async Task<bool> SaveLocalisation( List<Localisation> localisations , CancellationToken cancellationToken)
+        public async Task<bool> SaveLocalisation( LocalisationGroup localisations , CancellationToken cancellationToken)
         {
-            return await RequestStoragePermissionsAndSaveFile(localisations , cancellationToken);
+            if (localisations.Localisations is null || localisations.Localisations.Count == 0)
+                return false;
+            else
+            return await RequestStoragePermissionsAndSaveFile(localisations.Localisations , cancellationToken);
         }
 
         #region private method
