@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+//using static Android.Icu.Text.CaseMap;
 
 namespace KronoGeo_Maui.Applications.Services
 {
@@ -18,11 +19,11 @@ namespace KronoGeo_Maui.Applications.Services
             if (localisations.Localisations is null || localisations.Localisations.Count == 0)
                 return false;
             else
-            return await RequestStoragePermissionsAndSaveFile(localisations.Localisations , cancellationToken);
+            return await RequestStoragePermissionsAndSaveFile(localisations , cancellationToken);
         }
 
         #region private method
-        private static async Task<bool> RequestStoragePermissionsAndSaveFile (List<Localisation> localisations , CancellationToken cancellationToken)
+        private static async Task<bool> RequestStoragePermissionsAndSaveFile (LocalisationGroup localisations , CancellationToken cancellationToken)
         {
             var readPermissionStatus = await Permissions.RequestAsync<Permissions.StorageRead>();
             var writePermissionStatus = await Permissions.RequestAsync<Permissions.StorageWrite>();
@@ -40,19 +41,19 @@ namespace KronoGeo_Maui.Applications.Services
             return await SaveFile(localisations , cancellationToken);
         }
 
-        private static async Task<bool> SaveFile(List<Localisation> localisations , CancellationToken cancellationToken) {
+        private static async Task<bool> SaveFile(LocalisationGroup localisations , CancellationToken cancellationToken) {
             
             var guid = Guid.NewGuid();
             var date = DateTime.Today;
-            string title = date.ToString("dd-MM-yyyy") + "-" + guid.ToString("N").AsSpan(25).ToString();
+            //string title = date.ToString("dd-MM-yyyy") + "-" + guid.ToString("N").AsSpan(25).ToString();
 
             var sb = new StringBuilder();
             sb.AppendLine(" <?xml version=\"1.0\" encoding=\"utf-8\"?>");
             sb.AppendLine("<gpx xmlns=\"http://www.topografix.com/GPX/1/1\" version=\"1.1\" creator=\"\">");
             sb.AppendLine("<trk>");
-            sb.AppendLine($"<name>{title}</name>\r\n   <desc/>\r\n   <trkseg>");
+            sb.AppendLine($"<name>{localisations.Name}</name>\r\n   <desc/>\r\n   <trkseg>");
 
-            foreach (var localisation in localisations)
+            foreach (var localisation in localisations.Localisations)
             {
                 sb.AppendLine($"<trkpt lat=\"{localisation.Latitude.ToString(CultureInfo.InvariantCulture)}\" lon=\"{localisation.Longitude.ToString(CultureInfo.InvariantCulture)}\">");
                 sb.AppendLine($"<time>{localisation.Timestamp}</time>");
@@ -63,8 +64,9 @@ namespace KronoGeo_Maui.Applications.Services
             sb.AppendLine("</trkseg></trk></gpx>");
 
             using var stream = new MemoryStream(Encoding.Default.GetBytes(sb.ToString()));
-            
-            var fileSaverResult = await FileSaver.Default.SaveAsync(title+".gpx", stream, cancellationToken);
+
+            //var fileSaverResult = await FileSaver.Default.SaveAsync(title+".gpx", stream, cancellationToken);
+            var fileSaverResult = await FileSaver.Default.SaveAsync( localisations.Name + ".gpx", stream, cancellationToken);
             if (fileSaverResult.IsSuccessful)
             {
                 await Toast.Make($"Le fichier a bien été enregistré : {fileSaverResult.FilePath}").Show(cancellationToken);

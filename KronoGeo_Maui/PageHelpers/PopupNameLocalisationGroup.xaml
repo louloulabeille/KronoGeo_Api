@@ -2,21 +2,33 @@
 <mct:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:mct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
+             x:TypeArguments="system:String"
              x:Class="KronoGeo_Maui.PageHelpers.PopupNameLocalisationGroup"
-             CanBeDismissedByTappingOutsideOfPopup="False">
+             >
     <VerticalStackLayout>
-        <Grid>
+        <Grid BackgroundColor="#F9EDE1" Padding="10">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"></ColumnDefinition>
-                <ColumnDefinition Width="3*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <Label Grid.Column="0" Text="Nom du groupe de localisations :"></Label>
-            <Entry Grid.Column="1" Text="{Binding NameLocalisationGroup, Mode=TwoWay}"
-                   Placeholder="Nom du groupe de localisations" />
+            <Label Grid.Row="0" TextColor="#51638B" BackgroundColor="#F9EDE1"
+                   FontFamily="MaterialIcons-Regular" FontSize="30"
+                   Text="&#xea4e;"></Label>
+            <Entry Grid.Row="1" BackgroundColor="#F9EDE1" WidthRequest="200"
+                   TextColor="#51638B" Text="" x:Name="NameGroupLocalisation"
+                   Placeholder="mettre un nom pour le groupe de localisation" />
+            <HorizontalStackLayout Grid.Row="2" HorizontalOptions="End">
+                <Button Grid.Column="1" Text="Enregistrer" TextColor="#51638B"
+                    x:Name="OkButton" Clicked="OnClickedClose"></Button>
+            </HorizontalStackLayout>
+                
+            
         </Grid>
     </VerticalStackLayout>
 </mct:Popup>

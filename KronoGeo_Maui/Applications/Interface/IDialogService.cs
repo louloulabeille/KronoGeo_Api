@@ -10,6 +10,6 @@ namespace KronoGeo_Maui.Applications.Interface
     {
         public void ShowPopup(Popup popup);
         public Task ClosePopup(Popup popup);
-        public Task<string> ShowPopupAsync(Popup popup, IPopupOptions options, CancellationToken token);
+        public Task<T?> ShowPopupAsync<T>(Popup popup, IPopupOptions options, CancellationToken token) where T : class;
     }
 }

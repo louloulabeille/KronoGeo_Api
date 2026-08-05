@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Maui;
+using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
 using KronoGeo_Maui.Applications.Interface;
@@ -20,7 +21,7 @@ namespace KronoGeo_Maui.Applications.Services
             Application.Current?.Windows[0]?.Page?.ShowPopup(popup);
         }
 
-        public async Task<string> ShowPopupAsync(Popup popup, IPopupOptions? options,CancellationToken token)
+        public async Task<T?> ShowPopupAsync<T>(Popup popup, IPopupOptions? options,CancellationToken token) where T : class
         {
             var app = Application.Current;
             if (app?.Windows?.Count > 0)
@@ -28,11 +29,11 @@ namespace KronoGeo_Maui.Applications.Services
                 var page = app.Windows[0]?.Page;
                 if (page is not null)
                 {
-                    var result = await page.ShowPopupAsync(popup, options, token);
-                    return result?.ToString() ?? string.Empty;
+                    IPopupResult<T> result = await page.ShowPopupAsync<T>(popup, options, token);
+                    return result.Result;
                 }
             }
-            return string.Empty;
+            return null;
         }
 
     }

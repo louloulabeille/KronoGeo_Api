@@ -338,7 +338,7 @@ namespace KronoGeo_Maui.ModelViews
                 if (_localisations.Count > 0)
                 {
                     var popup = new PopupNameLocalisationGroup();
-                    var name = await _dialogService.ShowPopupAsync(popup, new PopupOptions
+                    var name = await _dialogService.ShowPopupAsync<string>(popup, new PopupOptions
                     {
                         CanBeDismissedByTappingOutsideOfPopup = false,
                         Shape = new RoundRectangle
@@ -351,7 +351,8 @@ namespace KronoGeo_Maui.ModelViews
 
                     var localisationGroup = new LocalisationGroup()
                     {
-                        Name = $"Localisation_{DateTime.Now:yyyyMMdd_HHmmss}",
+                        //Name = $"Localisation_{DateTime.Now:yyyyMMdd_HHmmss}",
+                        Name = name ?? $"Localisation_{DateTime.Now:yyyyMMdd_HHmmss}",
                         Date = DateTimeOffset.Now,
                         ApplicationUserId = "User1", // -- à adapter selon l'authentification
                         Localisations = _localisations
