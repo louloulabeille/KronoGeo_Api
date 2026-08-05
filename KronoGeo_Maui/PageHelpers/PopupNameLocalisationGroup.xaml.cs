@@ -21,14 +21,16 @@ public partial class PopupNameLocalisationGroup : Popup<string>
             string text = "Vous devez saisir un nom pour le groupe de localisation.";
             ToastDuration duration = ToastDuration.Short;
             double fontSize = 14;
-
+            // -- message d'affichage
             var toast = Toast.Make(text, duration, fontSize);
-
-			NameGroupLocalisation.Focus();
+            // -- focus sur le champ de saisie
+            NameGroupLocalisation.Focus();
+            // -- affichage
             await toast.Show(cancellationTokenSource.Token);
         }
         else
         {
+            // -- fermeture et passage du nom du groupe de localisation
             await this.CloseAsync(NameGroupLocalisation.Text);
         }
         

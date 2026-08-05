@@ -65,10 +65,13 @@ namespace KronoGeo_Maui
             builder.Services.AddServiceCamera();
             #endregion
 
-            builder.Services.AddTransient<IServiceSaveLocalisation, InMemorySaveLocalisation>();
+            #region injection divers
+            //builder.Services.AddTransient<IServiceSaveLocalisation, InMemorySaveLocalisation>();
+            builder.Services.AddTransient<IServiceSaveLocalisation, InApiSaveLocalisation>();
             builder.Services.AddSingleton<IDialogService, MauiDialogService>();
             builder.Services.AddScoped<IServiceSaveParametrage, InMemoryMauiParametrage>();
-
+            #endregion
+            
             return builder.Build();
         }
     }

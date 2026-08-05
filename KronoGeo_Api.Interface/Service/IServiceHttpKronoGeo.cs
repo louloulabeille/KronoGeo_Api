@@ -12,5 +12,7 @@ namespace KronoGeo_Api.Interface.Service
     public interface IServiceHttpKronoGeo
     {
         public Task<ResponseApiAuthenticate> AuthenticateAsync( RegisterDTO register );
+        public Task<ResponseApiLocalisations> SaveGroupLocalisationsAsync( LocalisationGroupDTO localisationGroup );
+        public Task<ResponseApiImage> SavePhotoAsync(PhotoDTO photo);
     }
 }

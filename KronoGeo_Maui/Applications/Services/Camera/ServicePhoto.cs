@@ -67,7 +67,7 @@ namespace KronoGeo_Maui.Applications.Services.Camera
         }
 
         /// <summary>
-        /// supprime un fichier
+        /// supprime un fichier chemin complet
         /// </summary>
         /// <param name="photoPath"></param>
         /// <returns></returns>

@@ -11,16 +11,17 @@
     Shell.TabBarTitleColor="#51638B"
     Shell.TabBarUnselectedColor="#51638B"
     >-->
-    <!--<ShellContent
+    
+    <ShellContent
     Title=""
     ContentTemplate="{DataTemplate local:MainPage}"
-    Route="MainPage" />-->
+    Route="MainPage" />
 
-    <ShellContent
+    <!--<ShellContent
     Title=""
     ContentTemplate="{DataTemplate local:ApplicationPage}"
     Route="ApplicationPage" />
-
+    -->
 
     <!--<TabBar>
         <Tab Title="Start" Route="Start">
