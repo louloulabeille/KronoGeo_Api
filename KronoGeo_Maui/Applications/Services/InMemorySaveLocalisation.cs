@@ -43,16 +43,17 @@ namespace KronoGeo_Maui.Applications.Services
 
         private static async Task<bool> SaveFile(LocalisationGroup localisations , CancellationToken cancellationToken) {
             
-            var guid = Guid.NewGuid();
+            /*var guid = Guid.NewGuid();
             var date = DateTime.Today;
-            //string title = date.ToString("dd-MM-yyyy") + "-" + guid.ToString("N").AsSpan(25).ToString();
-
+            string title = date.ToString("dd-MM-yyyy") + "-" + guid.ToString("N").AsSpan(25).ToString();
+*/
             var sb = new StringBuilder();
             sb.AppendLine(" <?xml version=\"1.0\" encoding=\"utf-8\"?>");
             sb.AppendLine("<gpx xmlns=\"http://www.topografix.com/GPX/1/1\" version=\"1.1\" creator=\"\">");
             sb.AppendLine("<trk>");
             sb.AppendLine($"<name>{localisations.Name}</name>\r\n   <desc/>\r\n   <trkseg>");
 
+            if (localisations.Localisations is null || localisations.Localisations.Count == 0) return false;
             foreach (var localisation in localisations.Localisations)
             {
                 sb.AppendLine($"<trkpt lat=\"{localisation.Latitude.ToString(CultureInfo.InvariantCulture)}\" lon=\"{localisation.Longitude.ToString(CultureInfo.InvariantCulture)}\">");

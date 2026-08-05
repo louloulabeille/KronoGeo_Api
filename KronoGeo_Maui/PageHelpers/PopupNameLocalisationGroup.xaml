@@ -6,7 +6,7 @@
              x:TypeArguments="system:String"
              x:Class="KronoGeo_Maui.PageHelpers.PopupNameLocalisationGroup"
              >
-    <VerticalStackLayout>
+    <VerticalStackLayout WidthRequest="250">
         <Grid BackgroundColor="#F9EDE1" Padding="10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -25,7 +25,9 @@
                    Placeholder="mettre un nom pour le groupe de localisation" />
             <HorizontalStackLayout Grid.Row="2" HorizontalOptions="End">
                 <Button Grid.Column="1" Text="Enregistrer" TextColor="#51638B"
-                    x:Name="OkButton" Clicked="OnClickedClose"></Button>
+                        x:Name="OkButton" Clicked="OnClickedClose" 
+                        BackgroundColor="#96BD8E">
+                </Button>
             </HorizontalStackLayout>
                 
             
