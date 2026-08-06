@@ -39,5 +39,17 @@ namespace KronoGeo_Maui.ModelViews
 
         #endregion
 
+        #region public method
+
+        /// <summary>
+        /// method d'appel du bouton retour pour revenir à la page d'application
+        /// </summary>
+        public static void BackButtonPressed()
+        {
+            Shell.Current.GoToAsync("ApplicationPage");
+        }
+        #endregion
+
+
     }
 }

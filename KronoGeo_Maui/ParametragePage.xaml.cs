@@ -19,10 +19,21 @@ public partial class ParametragePage : ContentPage
 
     }
 
+    /// <summary>
+    /// method de gestion du bouton retour pour revenir à la page d'application
+    /// impossible de créer un behavior pour le bouton retour 
+    /// car il n'existe pas d'event pour ce bouton
+    /// </summary>
+    /// <returns></returns>
     protected override bool OnBackButtonPressed()
     {
-        Shell.Current.GoToAsync("ApplicationPage");
-        return true; // -- true pour annuler le comportement par defaut
+        if (BindingContext is ParametragePageViewModel)
+        {
+            ParametragePageViewModel.BackButtonPressed();
+            //Shell.Current.GoToAsync("ApplicationPage");
+            return true; // -- true pour annuler le comportement par defaut
+        }
+        return base.OnBackButtonPressed();
     }
 
 }
