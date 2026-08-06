@@ -5,10 +5,10 @@ namespace KronoGeo_Maui;
 
 public partial class ParametragePage : ContentPage
 {
-	public ParametragePage( ParametragePageViewModel viewModel)
-	{
-		InitializeComponent();
-		BindingContext = viewModel;
+    public ParametragePage(ParametragePageViewModel viewModel)
+    {
+        InitializeComponent();
+        BindingContext = viewModel;
 
         // Ajout du behavior directement en C#
         this.Behaviors.Add(new EventToCommandBehavior
@@ -16,5 +16,13 @@ public partial class ParametragePage : ContentPage
             EventName = nameof(Appearing),
             Command = viewModel.AppearingExeCommand
         });
+
     }
+
+    protected override bool OnBackButtonPressed()
+    {
+        Shell.Current.GoToAsync("ApplicationPage");
+        return true; // -- true pour annuler le comportement par defaut
+    }
+
 }

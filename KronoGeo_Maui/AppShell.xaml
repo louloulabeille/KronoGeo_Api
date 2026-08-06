@@ -21,10 +21,6 @@
         ContentTemplate="{DataTemplate local:ApplicationPage}"
         Route="ApplicationPage" />
 
-    <ShellContent
-        Title="Parametrages"
-        ContentTemplate="{DataTemplate local:ParametragePage}"
-        Route="ParametragePage" />
     <!--
     <TabBar>
         <Tab Title="Start" Route="Start">

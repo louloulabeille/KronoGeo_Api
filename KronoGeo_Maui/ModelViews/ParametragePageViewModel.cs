@@ -26,7 +26,6 @@ namespace KronoGeo_Maui.ModelViews
 
         #endregion
 
-
         #region public method RelayCommand
         /// <summary>
         /// methode d"initalisation de la fenêtre
@@ -37,6 +36,7 @@ namespace KronoGeo_Maui.ModelViews
         {
             IsBiometric = (bool)_saveParametrage.GetParam(nameof(IsBiometric), false);
         }
+
         #endregion
 
     }
