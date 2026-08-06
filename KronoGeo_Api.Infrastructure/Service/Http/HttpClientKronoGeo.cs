@@ -41,7 +41,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
 
             return result;
         }
-        public Task<ResponseApiLocalisations> SaveGroupLocalisationsAsync(LocalisationGroupDTO localisationGroup)
+        public Task<ResponseApiLocalisations> SaveGroupLocalisationsAsync(LocalisationGroupDTO localisationGroup, string tokkenBearer)
         {
             throw new NotImplementedException();
         }
@@ -54,7 +54,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <param name="photo"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task<ResponseApiImage> SavePhotoAsync(PhotoDTO photo)
+        public async Task<ResponseApiImage> SavePhotoAsync(PhotoDTO photo, string tokkenBearer)
         {
             if ( photo.PathComplet is null )
             {
@@ -70,7 +70,8 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             // -- Add the file content to the multipart content
             multipartContent.Add(streamContent);
 
-            // send it 
+            // send it
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokkenBearer);
             using var retour = _httpClient.PostAsync(_options.Value.SavePhoto, multipartContent).Result;
             retour.EnsureSuccessStatusCode();
 

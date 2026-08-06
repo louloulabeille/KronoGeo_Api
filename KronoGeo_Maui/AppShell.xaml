@@ -11,19 +11,22 @@
     Shell.TabBarTitleColor="#51638B"
     Shell.TabBarUnselectedColor="#51638B"
     >-->
-    
     <ShellContent
-    Title=""
-    ContentTemplate="{DataTemplate local:MainPage}"
-    Route="MainPage" />
+        Title="Authentification"
+        ContentTemplate="{DataTemplate local:MainPage}"
+        Route="MainPage" />
 
-    <!--<ShellContent
-    Title=""
-    ContentTemplate="{DataTemplate local:ApplicationPage}"
-    Route="ApplicationPage" />
-    -->
+    <ShellContent
+        Title="Geolocalisation"
+        ContentTemplate="{DataTemplate local:ApplicationPage}"
+        Route="ApplicationPage" />
 
-    <!--<TabBar>
+    <ShellContent
+        Title="Parametrages"
+        ContentTemplate="{DataTemplate local:ParametragePage}"
+        Route="ParametragePage" />
+    <!--
+    <TabBar>
         <Tab Title="Start" Route="Start">
             <Tab.Icon>
                 <FontImageSource x:Name="fontImageStart" FontFamily="MaterialIcons-Regular" Glyph="&#xe1c4;" Color="#51638B"/>

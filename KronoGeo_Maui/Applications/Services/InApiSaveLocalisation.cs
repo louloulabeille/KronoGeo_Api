@@ -10,12 +10,14 @@ using System.Text;
 namespace KronoGeo_Maui.Applications.Services
 {
     public class InApiSaveLocalisation(IServiceHttpKronoGeo serviceHttpKronoGeo
-        , IServiceCamera serviceCamera) : IServiceSaveLocalisation
+        , IServiceCamera serviceCamera , IServiceSaveUser serviceSaveUser) 
+        : IServiceSaveLocalisation
     {
 
         #region private readonly properties
         private readonly IServiceHttpKronoGeo _serviceHttpKronoGeo = serviceHttpKronoGeo;
         private readonly IServiceCamera _serviceCamera = serviceCamera;
+        private readonly IServiceSaveUser _serviceSaveUser = serviceSaveUser;
         #endregion
 
 
@@ -74,7 +76,10 @@ namespace KronoGeo_Maui.Applications.Services
         /// <exception cref="NotImplementedException"></exception>
         private async Task<ResponseApiImage> SavePhotoAsync (PhotoDTO photo)
         {
-            return await _serviceHttpKronoGeo.SavePhotoAsync(photo);
+            var register = await _serviceSaveUser.GetRegister();
+            if (register is null || string.IsNullOrEmpty(register.Token))
+                throw new Exception("Erreur lors de l'enregistrement de la photo. L'utilisateur n'est pas connecté.");
+            return await _serviceHttpKronoGeo.SavePhotoAsync(photo, register.Token);
         }
         #endregion
     }
