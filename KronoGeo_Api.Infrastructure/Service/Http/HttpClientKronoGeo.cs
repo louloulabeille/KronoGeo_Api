@@ -41,9 +41,40 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
 
             return result;
         }
-        public Task<ResponseApiLocalisations> SaveGroupLocalisationsAsync(LocalisationGroupDTO localisationGroup, string tokkenBearer)
+        public async Task<ResponseApiLocalisations> SaveGroupLocalisationsAsync(LocalisationGroupDTO localisationGroup, string tokkenBearer)
         {
-            throw new NotImplementedException();
+            if ( localisationGroup.Localisations is not null )
+            {
+                HttpContent content = new StringContent(JsonSerializer.Serialize(localisationGroup), Encoding.UTF8, "application/json");
+                using var retour = await _httpClient.PostAsync(_options.Value.SaveGroupLocalisations, content);
+                retour.EnsureSuccessStatusCode();
+
+                if (retour.IsSuccessStatusCode)
+                {
+                    var result = JsonSerializer.Deserialize<ResponseApiLocalisations>(retour.Content.ReadAsStringAsync().Result, JsonOptions.GetJsonOptions());
+                        
+                    if ( result is not null )
+                    {
+                        return result;
+                    }
+
+                    return new()
+                    {
+                        ApiStatus = EnumApiStatus.Problem,
+                        Message = "Erreur lors de la désérialisation de la réponse de l'API."
+                    };
+                }
+                else
+                {
+                    return new()
+                    {
+                        ApiStatus = EnumApiStatus.BadRequest,
+                        Message = $" Status Code retour {retour.IsSuccessStatusCode.ToString()}"
+                    };
+                }
+            }
+
+            throw new ArgumentNullException("Les localisations sont nulles. Pas d'enregistrements.");
         }
 
         /// <summary>

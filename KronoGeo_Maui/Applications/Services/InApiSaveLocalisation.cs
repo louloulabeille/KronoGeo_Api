@@ -58,7 +58,60 @@ namespace KronoGeo_Maui.Applications.Services
                         }
                     }
                 }
-                return true;
+
+                string token = await GetToken();
+                LocalisationGroupDTO dTO = new() {
+                    ApplicationUserId = localisations.ApplicationUserId,
+                    Name = localisations.Name,
+                    Date = localisations.Date,
+                    Id = localisations.Id,
+                    Localisations = localisations.Localisations?.Select(s =>
+                    {
+                        if (s is LocalisationPhoto photo)
+                        {
+                            return new LocalisationPhotoDTO()
+                            {
+                                Id = s.Id,
+                                Latitude = s.Latitude,
+                                Longitude = s.Longitude,
+                                Accuracy = s.Accuracy,
+                                Altitude = s.Altitude,
+                                Course = s.Course,
+                                OrderIndex = s.OrderIndex,
+                                Speed = s.Speed,
+                                Timestamp = s.Timestamp,
+                                Name = photo.Name,
+                                PathPhoto = photo.PathPhoto
+                            };
+                        }
+                        else
+                        {
+                            return new LocalisationDTO()
+                            {
+                                Id = s.Id,
+                                Latitude = s.Latitude,
+                                Longitude = s.Longitude,
+                                Accuracy = s.Accuracy,
+                                Altitude = s.Altitude,
+                                Course = s.Course,
+                                OrderIndex = s.OrderIndex,
+                                Speed = s.Speed,
+                                Timestamp = s.Timestamp
+                            };
+                        }
+                        
+                    }
+                    ).ToList()
+                };
+                var retour = await _serviceHttpKronoGeo.SaveGroupLocalisationsAsync(dTO, token);
+
+                if (retour.IsSuccess)
+                {
+                    return true;
+                }else
+                {
+                    return false;
+                }
             }
             catch (Exception ex)
             {
@@ -76,10 +129,22 @@ namespace KronoGeo_Maui.Applications.Services
         /// <exception cref="NotImplementedException"></exception>
         private async Task<ResponseApiImage> SavePhotoAsync (PhotoDTO photo)
         {
+            string token = await GetToken();
+            return await _serviceHttpKronoGeo.SavePhotoAsync(photo, token);
+        }
+
+        /// <summary>
+        /// retourne le token de l'utilisateur
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="System.Exception"></exception>
+        private async Task<string> GetToken()
+        {
             var register = await _serviceSaveUser.GetRegister();
             if (register is null || string.IsNullOrEmpty(register.Token))
-                throw new Exception("Erreur lors de l'enregistrement de la photo. L'utilisateur n'est pas connecté.");
-            return await _serviceHttpKronoGeo.SavePhotoAsync(photo, register.Token);
+                throw new System.Exception("L'utilisateur n'est pas connecté.");
+
+            return register.Token;
         }
         #endregion
     }

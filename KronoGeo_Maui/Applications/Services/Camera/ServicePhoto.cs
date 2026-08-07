@@ -21,6 +21,7 @@ namespace KronoGeo_Maui.Applications.Services.Camera
         {
             if (MediaPicker.Default.IsCaptureSupported)
             {
+                // -- options de compression pour la prise des photos
                 MediaPickerOptions options = new () {
                     CompressionQuality = 50
                 };
