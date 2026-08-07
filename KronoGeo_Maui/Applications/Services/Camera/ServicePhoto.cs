@@ -21,7 +21,10 @@ namespace KronoGeo_Maui.Applications.Services.Camera
         {
             if (MediaPicker.Default.IsCaptureSupported)
             {
-                FileResult? photo = await MediaPicker.Default.CapturePhotoAsync();
+                MediaPickerOptions options = new () {
+                    CompressionQuality = 50
+                };
+                FileResult? photo = await MediaPicker.Default.CapturePhotoAsync(options);
 
                 if (photo != null)
                 {

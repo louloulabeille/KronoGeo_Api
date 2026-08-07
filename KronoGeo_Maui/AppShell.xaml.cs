@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
+using KronoGeo_Maui.Applications.Outils.Route;
 
 namespace KronoGeo_Maui
 {
@@ -23,9 +24,14 @@ namespace KronoGeo_Maui
         /// </summary>
         private static void RoutingRegister()
         {
-            Routing.RegisterRoute("MainPage", typeof(MainPage));
+            /*Routing.RegisterRoute("MainPage", typeof(MainPage));
             Routing.RegisterRoute("ApplicationPage", typeof(ApplicationPage));
-            Routing.RegisterRoute("ParametragePage", typeof(ParametragePage));
+            Routing.RegisterRoute("ParametragePage", typeof(ParametragePage));*/
+
+            /*RouteRegistrar.RegisterOnce("MainPage", typeof(MainPage));*/
+            RouteRegistrar.RegisterOnce("ApplicationPage", typeof(ApplicationPage));
+            RouteRegistrar.RegisterOnce("ParametragePage", typeof(ParametragePage));
+
         }
         #endregion
 

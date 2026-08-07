@@ -50,7 +50,6 @@ namespace KronoGeo_Maui.ModelViews
         private readonly IServiceSaveLocalisation _saveLocalisation;
         private readonly IServiceCamera _camera;
         private readonly IDialogService _dialogService;
-        private readonly IServiceSaveParametrage _saveParametrage;
         #endregion
 
         #region private properties
@@ -101,7 +100,7 @@ namespace KronoGeo_Maui.ModelViews
         #region constructeur
         public ApplicationPageViewModel(IServiceGeolocalisation service
             , IServiceSaveLocalisation saveLocalisation, IServiceCamera camera
-            ,IDialogService dialogService, IServiceSaveParametrage saveParametrage)
+            ,IDialogService dialogService)
         {
             // -- pour affichage des différentes pages du carousel
             MesPages = [];
@@ -112,7 +111,7 @@ namespace KronoGeo_Maui.ModelViews
             _serviceGeo = service;
             _camera = camera;
             _dialogService = dialogService;
-            _saveParametrage = saveParametrage;
+ 
 #if !ANDROID
             _serviceGeo.LocationChanged += OnLocalication_Changed;
 #endif
@@ -358,13 +357,19 @@ namespace KronoGeo_Maui.ModelViews
                         ApplicationUserId = "User1", // -- à adapter selon l'authentification
                         Localisations = _localisations
                     };
-
+                    var popupAttente = new LoadingPage();
+                    _dialogService.ShowPopup(popupAttente);
                     if ( await _saveLocalisation.SaveLocalisation(localisationGroup, new System.Threading.CancellationToken()))
-                    { // -- enregistrement ok
+                    { 
+                        MesPhotos.Clear();
+                        // -- enregistrement ok
                         _localisations.Clear();
                         // -- initalisation de la map au niveau de Polyne
                         WeakReferenceMessenger.Default.Send(new PolyneMapMessage(null));
+                        // -- initialisation des pins sur la map
+                        WeakReferenceMessenger.Default.Send(new PinMapMessage(null));
                     }
+                    await _dialogService.ClosePopup(popupAttente);
                 }
                 // -- initialisation de la map sur la position de l'utilisateur
                 await Task.Run(async () => await GetUserLocationAsync());

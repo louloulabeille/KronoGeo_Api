@@ -18,11 +18,15 @@ namespace KronoGeo_Maui.Applications.Services
 
         public void ShowPopup(Popup popup)
         {
-            Application.Current?.Windows[0]?.Page?.ShowPopup(popup);
+            //Application.Current?.Windows[0]?.Page?.ShowPopup(popup);
+            Shell.Current.CurrentPage.ShowPopup(popup);
         }
 
         public async Task<T?> ShowPopupAsync<T>(Popup popup, IPopupOptions? options,CancellationToken token) where T : class
         {
+            IPopupResult<T?> result = await Shell.Current.CurrentPage.ShowPopupAsync<T>(popup, options, token);
+            return result.Result;
+            /*
             var app = Application.Current;
             if (app?.Windows?.Count > 0)
             {
@@ -33,7 +37,7 @@ namespace KronoGeo_Maui.Applications.Services
                     return result.Result;
                 }
             }
-            return null;
+            return null;*/
         }
 
     }

@@ -16,10 +16,10 @@
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
 
-    <ShellContent
+    <!--<ShellContent
         Title="Geolocalisation"
         ContentTemplate="{DataTemplate local:ApplicationPage}"
-        Route="ApplicationPage" />
+        Route="ApplicationPage" />-->
 
     <!--
     <TabBar>

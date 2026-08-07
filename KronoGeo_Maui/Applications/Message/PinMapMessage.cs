@@ -7,7 +7,7 @@ using System.Text;
 
 namespace KronoGeo_Maui.Applications.Message
 {
-    public class PinMapMessage (PinMessage value ) : ValueChangedMessage<PinMessage>(value)
+    public class PinMapMessage (PinMessage? value ) : ValueChangedMessage<PinMessage?>(value)
     {
     }
 }

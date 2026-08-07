@@ -68,11 +68,11 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/jpg");
 
             // -- Add the file content to the multipart content
-            multipartContent.Add(streamContent);
+            multipartContent.Add(streamContent,"file",photo.Name??string.Empty);
 
             // send it
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokkenBearer);
-            using var retour = _httpClient.PostAsync(_options.Value.SavePhoto, multipartContent).Result;
+            using var retour = await _httpClient.PostAsync(_options.Value.SavePhoto, multipartContent);
             retour.EnsureSuccessStatusCode();
 
             var result = JsonSerializer.Deserialize<PhotoDTO>(retour.Content.ReadAsStringAsync().Result, JsonOptions.GetJsonOptions())

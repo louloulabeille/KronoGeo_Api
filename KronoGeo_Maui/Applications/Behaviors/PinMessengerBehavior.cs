@@ -32,6 +32,10 @@ namespace KronoGeo_Maui.Applications.Behaviors
                         }
                             
                     }
+                    else
+                    {
+                        bindable.Pins.Clear();
+                    }
                 });
             });
         }

@@ -20,7 +20,7 @@
         
         <!-- Affichage de la map et du tracé -->
         <DataTemplate x:Key="MapGeo" x:DataType="viewmodels:ApplicationPageViewModel">
-            <maps:Map  x:Name="googleMap" IsShowingUser="True" MapType="{Binding MapType}"
+            <maps:Map  x:Name="googleMap" IsShowingUser="True" MapType="{Binding Source={x:Reference KronoGeoPage}, Path=BindingContext.MapType}"
                       IsScrollEnabled="True" IsZoomEnabled="True">
                 <maps:Map.Behaviors>
                     <!-- Le behavior écoute le Messenger en silence -->

@@ -68,7 +68,7 @@ namespace KronoGeo_Maui
             #region injection divers
             //builder.Services.AddTransient<IServiceSaveLocalisation, InMemorySaveLocalisation>();
             builder.Services.AddTransient<IServiceSaveLocalisation, InApiSaveLocalisation>();
-            builder.Services.AddSingleton<IDialogService, MauiDialogService>();
+            builder.Services.AddTransient<IDialogService, MauiDialogService>();
             builder.Services.AddScoped<IServiceSaveParametrage, InMemoryMauiParametrage>();
             #endregion
             
