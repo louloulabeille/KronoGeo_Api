@@ -16,7 +16,7 @@ public partial class ParametragePage : ContentPage
             EventName = nameof(Appearing),
             Command = viewModel.AppearingExeCommand
         });
-
+        
     }
 
     /// <summary>

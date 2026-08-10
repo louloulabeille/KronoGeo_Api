@@ -10,10 +10,31 @@
              Shell.TitleColor="#51638B"
              Shell.TabBarIsVisible="False">
 
-    <VerticalStackLayout BackgroundColor="#96BD8E">
-        <HorizontalStackLayout>
-            <Label Text="Connexion par biometrie" HorizontalOptions="Start"></Label>
-            <Switch IsToggled="{Binding IsBiometric}" HorizontalOptions="End" />
+    <VerticalStackLayout BackgroundColor="#96BD8E" Padding="10" >
+        <HorizontalStackLayout Padding="5">
+            <Label Text="Connexion par biometrie" FontSize="16"
+                   HorizontalOptions="Start" VerticalOptions="Center"></Label>
+            <Switch IsToggled="{Binding IsBiometric}" HorizontalOptions="End" 
+                    VerticalOptions="Center"/>
         </HorizontalStackLayout>
+        <Border StrokeThickness="1" StrokeShape="RoundRectangle 10,10,10,10"
+                Stroke="#51638B" Margin="5">
+            <VerticalStackLayout Margin="5">
+                <Label Text="Unité de mesure" FontSize="18"
+                       HorizontalOptions="Center" VerticalOptions="Center"></Label>
+                <HorizontalStackLayout>
+                    <Label Text="kilomètres" FontSize="16"
+                           VerticalOptions="Center"></Label>
+                    <Switch IsToggled="{Binding IsMetric}" 
+                            VerticalOptions="Center" HorizontalOptions="End" />
+                </HorizontalStackLayout>
+                <HorizontalStackLayout>
+                    <Label Text="miles" FontSize="16" 
+                           VerticalOptions="Center"></Label>
+                    <Switch IsToggled="{Binding IsMiles}" HorizontalOptions="End" 
+                            VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </Border>
     </VerticalStackLayout>
 </ContentPage>
