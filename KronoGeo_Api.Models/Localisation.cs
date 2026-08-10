@@ -24,10 +24,13 @@ namespace KronoGeo_Api.Models
         public int LocalisationGroupId { get; set; }
         public LocalisationGroup? LocalisationGroup  { get; set; }
 
+
+        #region public method override
         public override string? ToString()
         {
             return base.ToString();
         }
+        #endregion
 
     }
 }
