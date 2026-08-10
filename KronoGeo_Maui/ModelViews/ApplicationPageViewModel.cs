@@ -93,7 +93,7 @@ namespace KronoGeo_Maui.ModelViews
         /// pour savoir si l'affichage de la map est en mode Street ou Satellite ou hybride
         /// </summary>
         [ObservableProperty]
-        public partial string MapType { get; set; } = MapTypeEnum.Hybrid.ToString();
+        public partial string MapType { get; set; } = "Street";
         /// <summary>
         /// Desactive la possibilité de prendre des photos 
         /// si le service de géolocalisation n'est pas démarré

@@ -26,6 +26,7 @@ namespace KronoGeo_Api.Infrastructure.Database
         public DbSet<Localisation> Localisations { get; set; }
         public DbSet<LocalisationPhoto> LocalisationPhotos { get; set; }
         public DbSet<LocalisationGroup> LocalisationGroups { get; set; }
+        public DbSet<RouteTelemetry> RouteTelemetries { get; set; }
         #endregion
 
         #region protected overrides
@@ -40,6 +41,7 @@ namespace KronoGeo_Api.Infrastructure.Database
             // -- Apply configurations 
             builder.ApplyConfiguration(new LocalisationEntityTypeConfiguration());
             builder.ApplyConfiguration(new LocalisationGroupEntityTypeConfiguration());
+            builder.ApplyConfiguration(new RouteTelemetryEntityTypeConfiguration());
         }
         #endregion
     }

@@ -74,9 +74,7 @@
                     <RowDefinition Height="4*"/>
                     <RowDefinition Height="50" />
                 </Grid.RowDefinitions>
-                <!-- test<Image BackgroundColor="LightCoral" 
-                       Source="{Binding Source={x:Reference KronoGeoPage}, 
-                       Path=BindingContext.SourcePhoto}"></Image>-->
+                
                 <Label Grid.Row="1" Text="Page Resumé" HorizontalOptions="Center"
                VerticalOptions="Center" FontSize="30"></Label>
             </Grid>
