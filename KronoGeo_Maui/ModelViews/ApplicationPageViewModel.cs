@@ -50,6 +50,7 @@ namespace KronoGeo_Maui.ModelViews
         private readonly IServiceSaveLocalisation _saveLocalisation;
         private readonly IServiceCamera _camera;
         private readonly IDialogService _dialogService;
+        private readonly IServiceSaveUser _serviceSaveUser;
         #endregion
 
         #region private properties
@@ -93,6 +94,12 @@ namespace KronoGeo_Maui.ModelViews
         /// </summary>
         [ObservableProperty]
         public partial string MapType { get; set; } = MapTypeEnum.Hybrid.ToString();
+        /// <summary>
+        /// Desactive la possibilité de prendre des photos 
+        /// si le service de géolocalisation n'est pas démarré
+        /// </summary>
+        [ObservableProperty]
+        public partial bool IsEnablePhoto { get; set; } = false;
         #endregion
 
 
@@ -100,7 +107,7 @@ namespace KronoGeo_Maui.ModelViews
         #region constructeur
         public ApplicationPageViewModel(IServiceGeolocalisation service
             , IServiceSaveLocalisation saveLocalisation, IServiceCamera camera
-            ,IDialogService dialogService)
+            ,IDialogService dialogService, IServiceSaveUser serviceSaveUser)
         {
             // -- pour affichage des différentes pages du carousel
             MesPages = [];
@@ -111,7 +118,7 @@ namespace KronoGeo_Maui.ModelViews
             _serviceGeo = service;
             _camera = camera;
             _dialogService = dialogService;
- 
+            _serviceSaveUser = serviceSaveUser;
 #if !ANDROID
             _serviceGeo.LocationChanged += OnLocalication_Changed;
 #endif
@@ -246,6 +253,7 @@ namespace KronoGeo_Maui.ModelViews
 
                 if (!IsStart)
                 {
+                    IsEnablePhoto = true; // -- donne la possibilité de prendre des photos
                     IsStart = true;
                     PlayPause = "\ue1a2";
 
@@ -270,6 +278,7 @@ namespace KronoGeo_Maui.ModelViews
                 {
                     _serviceGeo.Pause = false;
                     PlayPause = "\ue1c4";
+                    IsEnablePhoto = true; // -- donne la possibilité de prendre des photos
                 }
 
                 _serviceGeo.StartLocationUpdatesAsync();
@@ -308,6 +317,7 @@ namespace KronoGeo_Maui.ModelViews
                 {
                     IsStart = false;
                     IsPause = false;
+                    IsEnablePhoto = false; // -- désactive la prise de photo
                     PlayPause = "\ue1c4";
                     var cancellationToken = new System.Threading.CancellationToken();
                     await Toast.Make($"{Message}").Show(cancellationToken);
@@ -322,6 +332,7 @@ namespace KronoGeo_Maui.ModelViews
         [RelayCommand]
         public async Task Stop()
         {
+            IsEnablePhoto = false; // -- désactive la prise de photo
             try
             {
 #if ANDROID
@@ -349,12 +360,21 @@ namespace KronoGeo_Maui.ModelViews
                         }
                     }, new CancellationToken());
 
+                    RegisterDTO? register = await _serviceSaveUser.GetRegister();
+
+                    if (register is null || string.IsNullOrEmpty(register.Id))
+                    {
+                        IsMessageError = true;
+                        Message = "L'utilisateur n'est pas connecté.";
+                        return;
+                    }
+
                     var localisationGroup = new LocalisationGroup()
                     {
                         //Name = $"Localisation_{DateTime.Now:yyyyMMdd_HHmmss}",
                         Name = name ?? $"Localisation_{DateTime.Now:yyyyMMdd_HHmmss}",
                         Date = DateTimeOffset.Now,
-                        ApplicationUserId = "User1", // -- à adapter selon l'authentification
+                        ApplicationUserId = register.Id, // -- à adapter selon l'authentification
                         Localisations = _localisations
                     };
                     var popupAttente = new LoadingPage();

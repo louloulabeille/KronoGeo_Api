@@ -130,15 +130,17 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Button Grid.Column="0" FontFamily="MaterialIcons-Regular" 
-            Text="{Binding PlayPause}"  TextColor="#51638B" FontSize="30"
-            BackgroundColor="#F9EDE1" Command="{Binding StartPauseCommand}"/>
+                            Text="{Binding PlayPause}"  TextColor="#51638B" 
+                            FontSize="30" BackgroundColor="#F9EDE1" 
+                            Command="{Binding StartPauseCommand}"/>
                     <Button Grid.Column="1" FontFamily="MaterialIcons-Regular" 
-            Text="&#xef71;" TextColor="#51638B" FontSize="30"
-            BackgroundColor="#F9EDE1" Command="{Binding StopCommand}"/>
+                            Text="&#xef71;" TextColor="#51638B" FontSize="30"
+                            BackgroundColor="#F9EDE1" Command="{Binding StopCommand}"/>
                     <Button Grid.Column="2" FontFamily="MaterialIcons-Regular" 
-            Text="&#xe3af;" TextColor="#51638B" FontSize="30"
-            BackgroundColor="#F9EDE1" 
-            Command="{Binding  TakePhotoCommand}"/>
+                            Text="&#xe3af;" TextColor="#51638B" FontSize="30"
+                            BackgroundColor="#F9EDE1" IsEnabled="{Binding IsEnablePhoto}" 
+                            IsVisible="{Binding IsEnablePhoto}"
+                            Command="{Binding  TakePhotoCommand}"/>
                 </Grid>
             </Border>
 
