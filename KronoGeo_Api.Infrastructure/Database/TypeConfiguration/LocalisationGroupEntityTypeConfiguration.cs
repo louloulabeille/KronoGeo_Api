@@ -22,7 +22,8 @@ namespace KronoGeo_Api.Infrastructure.Database.TypeConfiguration
 
             // - clé étrangère 
             builder.HasOne(lg => lg.ApplicationUser).WithMany(lg => lg.LocalisationGroups);
-            builder.HasOne(lg => lg.RouteTelemetry).WithOne(rt => rt.LocalisationGroup);
+            builder.HasOne(lg => lg.RouteTelemetry).WithOne(rt => rt.LocalisationGroup)
+                .HasForeignKey<LocalisationGroup>(lg => lg.RouteTelemetryId);
         }
     }
 }
