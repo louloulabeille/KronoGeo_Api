@@ -6,6 +6,7 @@ using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Model.DTO;
 using MediatR;
+using Microsoft.Maui.Devices.Sensors;
 using Org.BouncyCastle.Security.Certificates;
 using System.Globalization;
 
@@ -29,12 +30,28 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
         /// <exception cref="NotImplementedException"></exception>
         public async Task<ResponseApiLocalisations> Handle(AddLocalisationsCommand request, CancellationToken cancellationToken)
         {
+
             LocalisationGroup localisationGroup = new() { 
                 // -- correction pour erreur avec datetime Utc et postgreSql
                 Date = DateTime.Parse(request.LocalisationGroup.Date.ToString(),null, 
                 System.Globalization.DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal),
                 Name = request.LocalisationGroup.Name,
                 ApplicationUserId = request.LocalisationGroup.ApplicationUserId,
+                RouteTelemetry = request.LocalisationGroup.RouteTelemetry is null ? null :
+                 new RouteTelemetry()
+                 {
+                     Id = request.LocalisationGroup.RouteTelemetry.Id,
+                     Distance = request.LocalisationGroup.RouteTelemetry.Distance,
+                     DistanceUnit = request.LocalisationGroup.RouteTelemetry.DistanceUnit,
+                     AverageSpeed = request.LocalisationGroup.RouteTelemetry.AverageSpeed,
+                     PositiveElevationGain = request.LocalisationGroup.RouteTelemetry.PositiveElevationGain,
+                     NegativeElevationGain = request.LocalisationGroup.RouteTelemetry.NegativeElevationGain,
+                     DateTimeBegin = request.LocalisationGroup.RouteTelemetry.DateTimeBegin.ToUniversalTime(),
+                     DateTimeEnd = request.LocalisationGroup.RouteTelemetry.DateTimeEnd.ToUniversalTime(),
+                     TotalTime = request.LocalisationGroup.RouteTelemetry.TotalTime,
+                     TotalTimePaused = request.LocalisationGroup.RouteTelemetry.TotalTimePaused,
+                     TotalLocalisations = request.LocalisationGroup.RouteTelemetry.TotalLocalisations
+                 }
             };
 
             if (request.LocalisationGroup.Localisations is not null ) 
@@ -118,6 +135,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
                             Date = localisationGroup.Date,
                             Name = localisationGroup.Name,
                             ApplicationUserId = localisationGroup.ApplicationUserId,
+                            RouteTelemetry = RouteTelemetryDTO.Parse(localisationGroup.RouteTelemetry),
                             Localisations = localisationGroup.Localisations?.Select(l =>
                             {
                                 if (l is LocalisationPhoto photo)

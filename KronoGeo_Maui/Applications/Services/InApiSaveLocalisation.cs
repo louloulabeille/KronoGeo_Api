@@ -60,11 +60,28 @@ namespace KronoGeo_Maui.Applications.Services
                 }
 
                 string token = await GetToken();
-                LocalisationGroupDTO dTO = new() {
+
+                LocalisationGroupDTO dTO = new()
+                {
                     ApplicationUserId = localisations.ApplicationUserId,
                     Name = localisations.Name,
                     Date = localisations.Date,
                     Id = localisations.Id,
+                    RouteTelemetry = localisations.RouteTelemetry is null ? null : new()
+                    {
+                        DateTimeBegin = localisations.RouteTelemetry.DateTimeBegin,
+                        DateTimeEnd = localisations.RouteTelemetry.DateTimeEnd,
+                        AverageSpeed = localisations.RouteTelemetry.AverageSpeed,
+                        Distance = localisations.RouteTelemetry.Distance,
+                        DistanceUnit = localisations.RouteTelemetry.DistanceUnit,
+                        Id = localisations.RouteTelemetry.Id,
+                        NegativeElevationGain = localisations.RouteTelemetry.NegativeElevationGain,
+                        PositiveElevationGain = localisations.RouteTelemetry.PositiveElevationGain,
+                        TotalLocalisations = localisations.Localisations is null ? 0: localisations.Localisations.Count,
+                        TotalTime = localisations.RouteTelemetry.TotalTime,
+                        TotalTimePaused = localisations.RouteTelemetry.TotalTimePaused,
+
+                    },
                     Localisations = localisations.Localisations?.Select(s =>
                     {
                         if (s is LocalisationPhoto photo)
@@ -99,7 +116,7 @@ namespace KronoGeo_Maui.Applications.Services
                                 Timestamp = s.Timestamp
                             };
                         }
-                        
+
                     }
                     ).ToList()
                 };

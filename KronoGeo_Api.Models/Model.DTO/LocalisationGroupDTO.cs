@@ -11,5 +11,7 @@ namespace KronoGeo_Api.Models.Model.DTO
         public required DateTimeOffset Date { get; set; } = DateTimeOffset.Now;
         public List<LocalisationDTO>? Localisations { get; set; }
         public required string ApplicationUserId { get; set; }
+        public RouteTelemetryDTO? RouteTelemetry { get; set; }
+
     }
 }

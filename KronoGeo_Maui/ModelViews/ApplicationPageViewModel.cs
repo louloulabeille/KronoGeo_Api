@@ -176,7 +176,7 @@ namespace KronoGeo_Maui.ModelViews
                 {
                     MesPhotos.Add(photo);
 
-                    var location = await _serviceGeo.GetCurrentLocationAsync(new CancellationTokenSource());
+                    var location = await _serviceGeo.GetCurrentLocationAsync(new CancellationTokenSource().Token);
                     if (location is not null )
                     {
                         PinMessage pinMessage = new()
@@ -443,7 +443,7 @@ namespace KronoGeo_Maui.ModelViews
         [RelayCommand]
         public async Task GetUserLocationAsync()
         {
-            var localition = await _serviceGeo.GetCurrentLocationAsync(new CancellationTokenSource());
+            var localition = await _serviceGeo.GetCurrentLocationAsync(new CancellationTokenSource().Token);
             if (localition is not null)
             {
                 //MapRegion = MapSpan.FromCenterAndRadius(localition, Distance.FromMeters(500));

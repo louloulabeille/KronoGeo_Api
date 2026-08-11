@@ -41,6 +41,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
                         Name = result.Name,
                         ApplicationUserId = result.ApplicationUserId,
                         Date = result.Date,
+                        RouteTelemetry = RouteTelemetryDTO.Parse(result.RouteTelemetry),
                         Localisations = result.Localisations?.OrderBy(o => o.OrderIndex)
                         .Select(s =>
                         {
