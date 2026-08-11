@@ -72,7 +72,7 @@ namespace KronoGeo_Maui
             builder.Services.AddTransient<IServiceSaveLocalisation, InApiSaveLocalisation>();
             builder.Services.AddTransient<IDialogService, MauiDialogService>();
             builder.Services.AddScoped<IServiceSaveParametrage, InMemoryMauiParametrage>();
-            builder.Services.AddTransient<IServiceTelemetry, CalculateTelemetry>();
+            builder.Services.AddTransient<IServiceTelemetry, ServiceTelemetry>();
             #endregion
 
             return builder.Build();

@@ -101,6 +101,11 @@ namespace KronoGeo_Maui.ModelViews
         /// </summary>
         [ObservableProperty]
         public partial bool IsEnablePhoto { get; set; } = false;
+        /// <summary>
+        /// object de sauvegarde de la télémetrie
+        /// </summary>
+        [ObservableProperty]
+        public partial RouteTelemetry RouteTelemetry { get; set; } = new();
         #endregion
 
 
@@ -125,6 +130,7 @@ namespace KronoGeo_Maui.ModelViews
 #if !ANDROID
             _serviceGeo.LocationChanged += OnLocalication_Changed;
 #endif
+
             _localisations = [];
             _saveLocalisation = saveLocalisation;
             // -- enregistrer dans le registre des messages pour recevoir les messages de type LocationChangedMessage
@@ -260,6 +266,7 @@ namespace KronoGeo_Maui.ModelViews
                     IsStart = true;
                     PlayPause = "\ue1a2";
 
+                    // -- démarrage du service android pour marcher en arrière plan
                     intent.SetAction(GeoAndroidService.ActionStart);
                     if (OperatingSystem.IsAndroidVersionAtLeast(26))
                     {
@@ -316,6 +323,7 @@ namespace KronoGeo_Maui.ModelViews
             }
             finally
             {
+                // -- affichage du message erreur
                 if ( IsMessageError)
                 {
                     IsStart = false;

@@ -15,12 +15,12 @@ namespace KronoGeo_Api.Interface.Service
         /// <param name="first"></param>
         /// <param name="second"></param>
         /// <param name="telemetry"></param>
-        public void CalculateTelemetry(Localisation first, Localisation second, out RouteTelemetry telemetry);
+        public void CalculateTelemetry(Localisation first, Localisation second, ref RouteTelemetry telemetry);
         /// <summary>
         /// calcule la télémétrie à partir d'une collection de localisations et retourne un objet RouteTelemetry
         /// </summary>
         /// <param name="localisations"></param>
         /// <returns></returns>
-        public RouteTelemetry CalculateTelemetry(ICollection<Localisation> localisations);
+        public RouteTelemetry CalculateTelemetry(List<Localisation> localisations);
     }
 }

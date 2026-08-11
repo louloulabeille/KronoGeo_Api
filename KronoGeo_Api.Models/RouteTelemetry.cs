@@ -13,10 +13,10 @@ namespace KronoGeo_Api.Models
         public double AverageSpeed { get; set; } = 0;
         public double PositiveElevationGain { get; set; } = 0;
         public double NegativeElevationGain { get; set; } = 0;
-        public double AverageHeartRate { get; set; } = 0;
         public DateTimeOffset DateTimeBegin { get; set; } = DateTimeOffset.Now;
         public DateTimeOffset DateTimeEnd { get; set; } = DateTimeOffset.Now;
-        public int TotalTimePaused { get; set; } = 0;
+        public double TotalTime { get; set; } = 0;
+        public double TotalTimePaused { get; set; } = 0;
         public int TotalLocalisations { get; set; } = 0;
 
         public int LocalisationGroupId { get; set; }

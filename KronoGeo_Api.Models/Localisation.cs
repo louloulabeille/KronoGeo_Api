@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Maui.Devices.Sensors;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -32,5 +33,25 @@ namespace KronoGeo_Api.Models
         }
         #endregion
 
+        #region public method
+        public Location GetLocation()
+        {
+            return new Location(Latitude, Longitude)
+            {
+                Accuracy = Accuracy,
+                Altitude = Altitude,
+                VerticalAccuracy = VerticalAccuracy,
+                Course = Course,
+                Speed = Speed,
+                Timestamp = Timestamp,
+#if ANDROID
+                    AltitudeReferenceSystem = AltitudeReferenceSystem.Ellipsoid,
+#endif
+#if IOS
+                    AltitudeReferenceSystem = AltitudeReferenceSystem.Geoid,
+#endif
+            };
+        }
+        #endregion
     }
 }
