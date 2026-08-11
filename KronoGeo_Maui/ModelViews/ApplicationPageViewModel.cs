@@ -55,8 +55,10 @@ namespace KronoGeo_Maui.ModelViews
         #endregion
 
         #region private properties
-        private Location? _lastLocation { get; set; } = default;
+        private Localisation? _lastLocation { get; set; } = default;
         private double _distance { get; set; } = 0;
+        private RouteTelemetry _routeTelemetry { get; set; }
+        private DateTimeOffset _startPauseTime { get; set; }
         #endregion
 
         #region public properties
@@ -85,6 +87,12 @@ namespace KronoGeo_Maui.ModelViews
         /// </summary>
         [ObservableProperty]
         public partial string MessageDistance { get; set; } = string.Empty;
+        [ObservableProperty]
+        public partial string MessageVitesseMoyen { get; set; } = string.Empty;
+        [ObservableProperty]
+        public partial string MessagePostiveElevation { get; set; } = string.Empty;
+        [ObservableProperty]
+        public partial string MessageNegativeElevation { get; set; } = string.Empty;
         /// <summary>
         /// observable collection pour l'affichage des photos dans le carousel
         /// </summary>
@@ -101,14 +109,7 @@ namespace KronoGeo_Maui.ModelViews
         /// </summary>
         [ObservableProperty]
         public partial bool IsEnablePhoto { get; set; } = false;
-        /// <summary>
-        /// object de sauvegarde de la télémetrie
-        /// </summary>
-        [ObservableProperty]
-        public partial RouteTelemetry RouteTelemetry { get; set; } = new();
         #endregion
-
-
 
         #region constructeur
         public ApplicationPageViewModel(IServiceGeolocalisation service
@@ -133,6 +134,9 @@ namespace KronoGeo_Maui.ModelViews
 
             _localisations = [];
             _saveLocalisation = saveLocalisation;
+            // -- initialise l'object télémétrie
+            _routeTelemetry = _serviceTelemetry.CalculateTelemetry(_localisations);
+
             // -- enregistrer dans le registre des messages pour recevoir les messages de type LocationChangedMessage
             //WeakReferenceMessenger.Default.RegisterAll(this);
             WeakReferenceMessenger.Default.Register<LocationChangedMessage>(this);
@@ -246,14 +250,19 @@ namespace KronoGeo_Maui.ModelViews
                 var intent = new Intent(Android.App.Application.Context, typeof(GeoAndroidService));
                 
                 if ( IsPause && IsStart )   // -- en pause et le service a démarré
-                {
+                { // -- stop pause
+                    // -- mise a jour de temps de pause en seconde
+                    var timePause = (DateTimeOffset.Now - _startPauseTime).TotalSeconds;
+                    _routeTelemetry.TotalTimePaused += timePause;
+
                     IsPause = false;
                     PlayPause = "\ue1a2";
                     intent.SetAction(GeoAndroidService.ActionStopPause);
                     Android.App.Application.Context.StartService(intent);
                 }
-                else if (!IsPause && IsStart)
+                else if (!IsPause && IsStart) // -- start pause
                 {
+                    _startPauseTime = DateTimeOffset.Now;
                     IsPause = true;
                     PlayPause = "\ue1c4";
                     intent.SetAction(GeoAndroidService.ActionPause);
@@ -262,6 +271,7 @@ namespace KronoGeo_Maui.ModelViews
 
                 if (!IsStart)
                 {
+                    _routeTelemetry.DateTimeBegin = DateTimeOffset.Now;
                     IsEnablePhoto = true; // -- donne la possibilité de prendre des photos
                     IsStart = true;
                     PlayPause = "\ue1a2";
@@ -380,13 +390,15 @@ namespace KronoGeo_Maui.ModelViews
                         return;
                     }
 
+                    _routeTelemetry.DateTimeEnd = DateTimeOffset.Now;
                     var localisationGroup = new LocalisationGroup()
                     {
                         //Name = $"Localisation_{DateTime.Now:yyyyMMdd_HHmmss}",
                         Name = name ?? $"Localisation_{DateTime.Now:yyyyMMdd_HHmmss}",
                         Date = DateTimeOffset.Now,
                         ApplicationUserId = register.Id, // -- à adapter selon l'authentification
-                        Localisations = _localisations
+                        Localisations = _localisations,
+                        RouteTelemetry = _routeTelemetry,
                     };
                     var popupAttente = new LoadingPage();
                     _dialogService.ShowPopup(popupAttente);
@@ -549,10 +561,17 @@ namespace KronoGeo_Maui.ModelViews
                 if (_lastLocation is not null)
                 {
                     // -- calcul de la distance entre la dernière position et la nouvelle
-                    _distance += _lastLocation.CalculateDistance(location, DistanceUnits.Kilometers);
-                    MessageDistance = $"{_distance} km";
+                    //_distance += _lastLocation.CalculateDistance(location, DistanceUnits.Kilometers);
+                    var route = _routeTelemetry;
+                    _serviceTelemetry.CalculateTelemetry(_lastLocation, localisation, ref route);
+                    _routeTelemetry = route;
+                    
+                    MessageDistance = $"{_routeTelemetry.Distance} km";
+                    MessageVitesseMoyen = $"{_routeTelemetry.AverageSpeed} km/h";
+                    MessageNegativeElevation = $"{_routeTelemetry.NegativeElevationGain} m";
+                    MessagePostiveElevation = $"{_routeTelemetry.PositiveElevationGain} m";
                 }
-                _lastLocation = location; // -- pour la mise a jour du dernier point pour le calcul de la distance
+                _lastLocation = localisation; // -- pour la mise a jour du dernier point pour le calcul de la distance
                 // -- envoie un message pour recentrer la map sur la position de l'utilisateur
                 //WeakReferenceMessenger.Default.Send(new RecenterMapMessage(location));
 

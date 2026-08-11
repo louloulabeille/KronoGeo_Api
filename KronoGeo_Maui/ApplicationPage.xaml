@@ -69,14 +69,45 @@
         
         <!-- Résumé du trajet calculé en temps réel à programmer -->
         <DataTemplate x:Key="ResumeGeo" x:DataType="viewmodels:ApplicationPageViewModel">
-            <Grid BackgroundColor="LightSeaGreen">
+            <Grid BackgroundColor="#96BD8E" Padding="5">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="4*"/>
-                    <RowDefinition Height="50" />
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
+                <Border Grid.Row="0" StrokeThickness="1" 
+                    StrokeShape="RoundRectangle 10,10,10,10" Stroke="#51638B">
+                    <Label Text="Page Resumé" HorizontalOptions="Center" FontAttributes="Bold"
+                        VerticalOptions="Center" FontSize="30"></Label>
+                </Border>
+
+                <Border Grid.Row="1" StrokeThickness="1" 
+                    StrokeShape="RoundRectangle 10,10,10,10" Stroke="#51638B">
+                    <VerticalStackLayout>
+                        <HorizontalStackLayout HorizontalOptions="Start" Padding="3"
+                                               VerticalOptions="Center">
+                            <Label Text="Distance parcourue :" FontSize="16"/>
+                            <Label Text="{Binding MessageDistance}" 
+                                   FontSize="16"/>
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout HorizontalOptions="Start" Padding="3"
+                                               VerticalOptions="Center">
+                            <Label Text="Vitesse moyenne:" FontSize="16"/>
+                            <Label Text="{Binding MessageVitesseMoyen}" FontSize="16"/>
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout HorizontalOptions="Start" Padding="3"
+                                VerticalOptions="Center">
+                            <Label Text="Ascension positive:" FontSize="16"/>
+                            <Label Text="{Binding MessagePostiveElevation}" FontSize="16"/>
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout HorizontalOptions="Start" Padding="3"
+                                VerticalOptions="Center">
+                            <Label Text="Ascension negative:" FontSize="16"/>
+                            <Label Text="{Binding MessageNegativeElevation}" FontSize="16"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                    
+                </Border>
                 
-                <Label Grid.Row="1" Text="Page Resumé" HorizontalOptions="Center"
-               VerticalOptions="Center" FontSize="30"></Label>
             </Grid>
         </DataTemplate>
 
@@ -120,7 +151,7 @@
                 Loop="False">
             </CarouselView>
             <Border Grid.Row="1" Grid.Column="1" StrokeThickness="1" 
-        StrokeShape="RoundRectangle 20,20,20,20" Stroke="#51638B">
+                    StrokeShape="RoundRectangle 20,20,20,20" Stroke="#51638B">
                 <Grid VerticalOptions="End" BackgroundColor="#F9EDE1" HeightRequest="50">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />

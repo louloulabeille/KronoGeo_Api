@@ -64,6 +64,12 @@ namespace KronoGeo_Api.Infrastructure.Service.Telemetry
         #endregion
 
         #region private method 
+        /// <summary>
+        /// calcul l'élévation et enregistre le dernier point dont l'altitude est existant
+        /// </summary>
+        /// <param name="first"></param>
+        /// <param name="second"></param>
+        /// <returns></returns>
         private double CalculElevation(Localisation first, Localisation second) { 
         
             if (first.Altitude is not null )
@@ -76,7 +82,9 @@ namespace KronoGeo_Api.Infrastructure.Service.Telemetry
                 else return 0;
             }else if ( lastPointAltitude > 0 && second.Altitude is not null )
             {
-                return (double)second.Altitude - lastPointAltitude;
+                var firstPoint = lastPointAltitude;
+                lastPointAltitude = (double)second.Altitude;
+                return (double)second.Altitude - firstPoint;
             }
 
             return 0;
