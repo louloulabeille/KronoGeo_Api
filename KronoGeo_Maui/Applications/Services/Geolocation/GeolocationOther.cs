@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using GeolocationMaui = Microsoft.Maui.Devices.Sensors.Geolocation;
+using Location = Microsoft.Maui.Devices.Sensors.Location;
 
 namespace KronoGeo_Maui.Applications.Services.Geolocation
 {
@@ -52,11 +53,20 @@ namespace KronoGeo_Maui.Applications.Services.Geolocation
             GeolocationMaui.StopListeningForeground();
         }
 
-        void IServiceGeolocalisation.StartLocationUpdatesAsync()
+        public void StartLocationUpdatesAsync()
         {
-            var cancellationToken = new CancellationTokenSource();
-            StartLocationUpdatesAsync(cancellationToken.Token).Start();
+            CancellationToken token = new ();
+            Task.Run(async () => StartLocationUpdatesAsync(token));
         }
+
+        public async Task<Location?> GetCurrentLocationAsync(CancellationToken token)
+        {
+            GeolocationRequest request = new(GeolocationAccuracy.Best, TimeSpan.FromSeconds(1));
+
+            var location = await GeolocationMaui.Default.GetLocationAsync(request, token);
+            return location;
+        }
+
         #endregion
     }
 }

@@ -22,15 +22,15 @@ namespace KronoGeo_Maui.Applications.Interface
         /// <summary>
         /// method qui retourne le localisation Current
         /// </summary>
-        /// <param name="cancellationTokenSource"></param>
+        /// <param name="token"></param>
         /// <returns></returns>
-        public async Task<Location?> GetCurrentLocationAsync(CancellationTokenSource cancellationTokenSource)
-        {
+        public Task<Location?> GetCurrentLocationAsync(CancellationToken token);
+        /*{
             GeolocationRequest request = new (GeolocationAccuracy.Best, TimeSpan.FromSeconds(1));
 
             var location = await Geolocation.Default.GetLocationAsync(request, cancellationTokenSource.Token);
             return location;
-        }
+        }*/
 
         #endregion
 

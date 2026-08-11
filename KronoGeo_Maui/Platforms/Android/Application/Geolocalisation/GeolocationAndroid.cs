@@ -4,6 +4,7 @@ using Android.Locations;
 using Android.App;
 using Android.OS;
 using AndroidApplication = Android.App.Application;
+using Location = Microsoft.Maui.Devices.Sensors.Location;
 using System.Runtime.Versioning;
 using KronoGeo_Maui.Applications.Outils.Geolocalisation;
 
@@ -16,12 +17,14 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         // -- systeme natif d'android pour la géolocation
         private readonly LocationManager? _locationManager;
         // - systeme découte android pour la géolocation
-        private readonly LocationListener _locationListener = new();    
+        private readonly LocationListener _locationListener = new();
+        private readonly LocationListener _locationOnePoint = new();
         #endregion
 
         #region public properties
         public CancellationTokenSource CancellationTokenSource { get ; set ; } = new CancellationTokenSource();
         public bool Pause { get; set; } = false;
+        public Location? DefaultLocation { get; set; } = default;  
         #endregion
 
         #region event récupération des datas
@@ -152,6 +155,59 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
             {       
                 StartLocationUpdatesAsync();
             }, cancellationToken);
+        }
+
+        public async Task< Location?> GetCurrentLocationAsync(CancellationToken token) {
+
+            if (_locationManager is not null)
+            {
+                try
+                {
+                    // On force l'utilisation exclusive du GPS (Haute précision)
+                    string provider = LocationManager.GpsProvider;
+
+                    if (_locationManager.IsProviderEnabled(provider))
+                    {
+                        // Paramètres de mise à jour :
+                        _locationManager.RequestLocationUpdates(
+                        provider,
+                        0, // -- 0 millisecondes d'intervalle minimum pour déclencher l'événement
+                        0, // -- 0 mètres de distance minimale pour déclencher l'événement
+                        _locationOnePoint
+                        );
+
+                        _locationOnePoint.OnLocationChangedAction = (location) =>
+                        {
+                            Microsoft.Maui.Devices.Sensors.Location newLocation = new(
+                                location.Latitude, location.Longitude, location.Altitude)
+                            {
+                                Accuracy = (double)location.Accuracy,
+                                Speed = (double)location.Speed,
+                                Timestamp = DateTimeOffset.Now,
+                                Course = (double)location.Bearing,
+                                VerticalAccuracy = (double)location.VerticalAccuracyMeters
+                            };
+
+                            DefaultLocation = newLocation;
+                        };
+
+                        if (DefaultLocation is not null)
+                            return DefaultLocation;
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("Le fournisseur GPS n'est pas activé sur l'appareil.");
+                        throw new FeatureNotEnabledException("Le fournisseur GPS n'est pas activé sur l'appareil.");
+                    }
+                }
+                catch (Java.Lang.SecurityException ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Erreur de permission : {ex.Message}");
+                    throw new PermissionException($"Permission de localisation refusée. Veuillez accorder les permissions nécessaires. {ex.Message}");
+                }
+
+            } 
+            return null;
         }
         #endregion
     }
