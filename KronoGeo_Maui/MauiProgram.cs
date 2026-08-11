@@ -5,6 +5,8 @@ using KronoGeo_Maui.Applications.Interface;
 using KronoGeo_Maui.Applications.Services;
 using KronoGeo_Maui.Applications.Services.Geolocation;
 using Microsoft.Extensions.Logging;
+using KronoGeo_Api.Infrastructure.Service.Telemetry;
+
 
 #if ANDROID
 using KronoGeo_Maui.Platforms.Android.Application.Geolocalisation;
@@ -65,13 +67,14 @@ namespace KronoGeo_Maui
             builder.Services.AddServiceCamera();
             #endregion
 
-            #region injection divers
+            #region injection divers - ajouter une method pour tout ces services en injection
             //builder.Services.AddTransient<IServiceSaveLocalisation, InMemorySaveLocalisation>();
             builder.Services.AddTransient<IServiceSaveLocalisation, InApiSaveLocalisation>();
             builder.Services.AddTransient<IDialogService, MauiDialogService>();
             builder.Services.AddScoped<IServiceSaveParametrage, InMemoryMauiParametrage>();
+            builder.Services.AddTransient<IServiceTelemetry, CalculateTelemetry>();
             #endregion
-            
+
             return builder.Build();
         }
     }

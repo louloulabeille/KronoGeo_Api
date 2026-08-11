@@ -51,6 +51,7 @@ namespace KronoGeo_Maui.ModelViews
         private readonly IServiceCamera _camera;
         private readonly IDialogService _dialogService;
         private readonly IServiceSaveUser _serviceSaveUser;
+        private readonly IServiceTelemetry _serviceTelemetry;
         #endregion
 
         #region private properties
@@ -107,7 +108,8 @@ namespace KronoGeo_Maui.ModelViews
         #region constructeur
         public ApplicationPageViewModel(IServiceGeolocalisation service
             , IServiceSaveLocalisation saveLocalisation, IServiceCamera camera
-            ,IDialogService dialogService, IServiceSaveUser serviceSaveUser)
+            , IDialogService dialogService, IServiceSaveUser serviceSaveUser
+            , IServiceTelemetry serviceTelemetry)
         {
             // -- pour affichage des différentes pages du carousel
             MesPages = [];
@@ -119,6 +121,7 @@ namespace KronoGeo_Maui.ModelViews
             _camera = camera;
             _dialogService = dialogService;
             _serviceSaveUser = serviceSaveUser;
+            _serviceTelemetry = serviceTelemetry;
 #if !ANDROID
             _serviceGeo.LocationChanged += OnLocalication_Changed;
 #endif
