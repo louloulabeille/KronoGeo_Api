@@ -24,7 +24,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         #region public properties
         public CancellationTokenSource CancellationTokenSource { get ; set ; } = new CancellationTokenSource();
         public bool Pause { get; set; } = false;
-        public Location? DefaultLocation { get; set; } = default;  
+        //public Location? DefaultLocation { get; set; } = default;  
         #endregion
 
         #region event récupération des datas
@@ -163,19 +163,14 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
             {
                 try
                 {
+                    var tcs = new TaskCompletionSource<Location>();
+                    token.Register(() => tcs.TrySetCanceled());
+
                     // On force l'utilisation exclusive du GPS (Haute précision)
                     string provider = LocationManager.GpsProvider;
-
+                    //_locationManager.GetCurrentLocation
                     if (_locationManager.IsProviderEnabled(provider))
                     {
-                        // Paramètres de mise à jour :
-                        _locationManager.RequestLocationUpdates(
-                        provider,
-                        0, // -- 0 millisecondes d'intervalle minimum pour déclencher l'événement
-                        0, // -- 0 mètres de distance minimale pour déclencher l'événement
-                        _locationOnePoint
-                        );
-
                         _locationOnePoint.OnLocationChangedAction = (location) =>
                         {
                             Microsoft.Maui.Devices.Sensors.Location newLocation = new(
@@ -188,11 +183,21 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
                                 VerticalAccuracy = (double)location.VerticalAccuracyMeters
                             };
 
-                            DefaultLocation = newLocation;
+                            tcs.TrySetResult(newLocation);
+                            _locationManager.RemoveUpdates(_locationOnePoint);
+                            //DefaultLocation = newLocation;
                         };
 
-                        if (DefaultLocation is not null)
-                            return DefaultLocation;
+                        // Paramètres de mise à jour :
+                        _locationManager.RequestLocationUpdates(
+                        provider,
+                        0, // -- 0 millisecondes d'intervalle minimum pour déclencher l'événement
+                        0, // -- 0 mètres de distance minimale pour déclencher l'événement
+                        _locationOnePoint
+                        );
+    
+                        return await tcs.Task;
+                            
                     }
                     else
                     {
@@ -210,6 +215,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
             return null;
         }
         #endregion
+
     }
 }    
 

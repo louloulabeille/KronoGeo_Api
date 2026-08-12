@@ -28,7 +28,6 @@ using System.Diagnostics;
 using KronoGeo_Api.Models.Model.DTO;
 using Microsoft.Maui.Controls.Maps;
 using KronoGeo_Maui.Applications.Models;
-using KronoGeo_Maui.Applications.ExtendMethods;
 using CommunityToolkit.Maui;
 using CancellationToken = System.Threading.CancellationToken;
 using Microsoft.Maui.Controls.Shapes;
@@ -56,7 +55,6 @@ namespace KronoGeo_Maui.ModelViews
 
         #region private properties
         private Localisation? _lastLocation { get; set; } = default;
-        private double _distance { get; set; } = 0;
         private RouteTelemetry _routeTelemetry { get; set; }
         private DateTimeOffset _startPauseTime { get; set; }
         #endregion
@@ -83,7 +81,7 @@ namespace KronoGeo_Maui.ModelViews
         [ObservableProperty]
         public partial string PlayPause { get; set; } = "\ue1c4"; // - affichage de play 
         /// <summary>
-        /// Message d'erreur à afficher ou autre message d'information
+        /// message d'information telemetry
         /// </summary>
         [ObservableProperty]
         public partial string MessageDistance { get; set; } = string.Empty;
