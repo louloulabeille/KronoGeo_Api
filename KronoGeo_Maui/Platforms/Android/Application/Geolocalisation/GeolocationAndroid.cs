@@ -1,12 +1,16 @@
-﻿using KronoGeo_Maui.Applications.Interface;
+﻿using Android.App;
 using Android.Content;
+using Android.Gms.Tasks;
 using Android.Locations;
-using Android.App;
 using Android.OS;
+using KronoGeo_Maui.Applications.Interface;
+using KronoGeo_Maui.Applications.Outils.Geolocalisation;
+using System.Runtime.Versioning;
 using AndroidApplication = Android.App.Application;
 using Location = Microsoft.Maui.Devices.Sensors.Location;
-using System.Runtime.Versioning;
-using KronoGeo_Maui.Applications.Outils.Geolocalisation;
+using CancellationToken = System.Threading.CancellationToken;
+using Task = System.Threading.Tasks.Task;
+using Java.Util.Concurrent;
 
 namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
 {
@@ -22,7 +26,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         #endregion
 
         #region public properties
-        public CancellationTokenSource CancellationTokenSource { get ; set ; } = new CancellationTokenSource();
+        public CancellationToken CancellationToken { get ; set ; } = new ();
         public bool Pause { get; set; } = false;
         //public Location? DefaultLocation { get; set; } = default;  
         #endregion
@@ -157,62 +161,75 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
             }, cancellationToken);
         }
 
-        public async Task< Location?> GetCurrentLocationAsync(CancellationToken token) {
+        public async Task<Location?> GetCurrentLocationAsync(CancellationToken token)
+        {
+            var tcs = new TaskCompletionSource<Location>();
+            token.Register(() => tcs.TrySetCanceled());
 
-            if (_locationManager is not null)
+            if (_locationManager == null)
+                return null;
+
+            // On force l'utilisation exclusive du GPS (Haute précision)
+            string provider = LocationManager.GpsProvider;
+
+            if (!_locationManager.IsProviderEnabled(provider))
             {
-                try
+                // Le fournisseur GPS n'est pas activé, tu peux lever une exception ici si tu gères ça ailleurs
+                return null;
+            }
+
+            // GetCurrentLocation natif est dispo à partir de l'API 30 (Android 11)
+            if (OperatingSystem.IsAndroidVersionAtLeast(31))
+            {
+                var cancellationSignal = new CancellationSignal();
+                token.Register(() => cancellationSignal.Cancel());
+
+                var consumer = new LocationConsumer(androidLocation =>
                 {
-                    var tcs = new TaskCompletionSource<Location>();
-                    token.Register(() => tcs.TrySetCanceled());
-
-                    // On force l'utilisation exclusive du GPS (Haute précision)
-                    string provider = LocationManager.GpsProvider;
-                    //_locationManager.GetCurrentLocation
-                    if (_locationManager.IsProviderEnabled(provider))
+                    if (androidLocation != null)
                     {
-                        _locationOnePoint.OnLocationChangedAction = (location) =>
+                        // Mapping des données Android vers MAUI
+                        var mauiLocation = new Microsoft.Maui.Devices.Sensors.Location
                         {
-                            Microsoft.Maui.Devices.Sensors.Location newLocation = new(
-                                location.Latitude, location.Longitude, location.Altitude)
-                            {
-                                Accuracy = (double)location.Accuracy,
-                                Speed = (double)location.Speed,
-                                Timestamp = DateTimeOffset.Now,
-                                Course = (double)location.Bearing,
-                                VerticalAccuracy = (double)location.VerticalAccuracyMeters
-                            };
-
-                            tcs.TrySetResult(newLocation);
-                            _locationManager.RemoveUpdates(_locationOnePoint);
-                            //DefaultLocation = newLocation;
+                            Latitude = androidLocation.Latitude,
+                            Longitude = androidLocation.Longitude,
+                            Altitude = androidLocation.HasAltitude ? androidLocation.Altitude : null,
+                            Accuracy = androidLocation.HasAccuracy ? androidLocation.Accuracy : null,
+                            Speed = androidLocation.HasSpeed ? androidLocation.Speed : null,
+                            Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(androidLocation.Time),
+                            Course = androidLocation.HasBearing ? androidLocation.Bearing : null
                         };
 
-                        // Paramètres de mise à jour :
-                        _locationManager.RequestLocationUpdates(
-                        provider,
-                        0, // -- 0 millisecondes d'intervalle minimum pour déclencher l'événement
-                        0, // -- 0 mètres de distance minimale pour déclencher l'événement
-                        _locationOnePoint
-                        );
-    
-                        return await tcs.Task;
-                            
+                        // VerticalAccuracy (dispo à partir de l'API 26)
+                        if (OperatingSystem.IsAndroidVersionAtLeast(26) && androidLocation.HasVerticalAccuracy)
+                        {
+                            mauiLocation.VerticalAccuracy = androidLocation.VerticalAccuracyMeters;
+                        }
+
+                        tcs.TrySetResult(mauiLocation);
                     }
                     else
                     {
-                        System.Diagnostics.Debug.WriteLine("Le fournisseur GPS n'est pas activé sur l'appareil.");
-                        throw new FeatureNotEnabledException("Le fournisseur GPS n'est pas activé sur l'appareil.");
+                        // Si Android n'arrive pas à fixer un point du tout
+                        throw (new InvalidNavigationException("Le Gps n'arrive pas à fixer un point gps."));
                     }
-                }
-                catch (Java.Lang.SecurityException ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Erreur de permission : {ex.Message}");
-                    throw new PermissionException($"Permission de localisation refusée. Veuillez accorder les permissions nécessaires. {ex.Message}");
-                }
+                });
 
-            } 
-            return null;
+                // On lance la requête avec un exécuteur sur un thread séparé
+                IExecutorService? executor = Java.Util.Concurrent.Executors.NewSingleThreadExecutor();
+
+                if (executor is not null)
+                {
+                    _locationManager.GetCurrentLocation(
+                    provider,
+                    cancellationSignal,
+                    executor,
+                    consumer);
+                }
+            }
+            
+
+            return await tcs.Task;
         }
         #endregion
 

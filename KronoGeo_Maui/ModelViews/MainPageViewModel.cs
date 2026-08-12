@@ -190,10 +190,15 @@ namespace KronoGeo_Maui.ModelViews
                                 var result = await _http.AuthenticateAsync(_user);
                                 if (result.IsSuccess && result.Register is not null)
                                 {
+                                    // -- enregistre les nouvels données de l'utilisateur
+                                    await _saveUser.SaveUser(result.Register);
+                                    // -- ferme le popup
                                     await _dialogService.ClosePopup(popup);
+                                    // -- ouvre la fenêtre Application
                                     await Shell.Current.GoToAsync("ApplicationPage");
                                 }
-                                await _dialogService.ClosePopup(popup);
+                                else
+                                    await _dialogService.ClosePopup(popup);
                             }
                         }
                     }

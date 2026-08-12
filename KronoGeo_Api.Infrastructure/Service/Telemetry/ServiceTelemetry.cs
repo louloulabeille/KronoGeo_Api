@@ -14,6 +14,10 @@ namespace KronoGeo_Api.Infrastructure.Service.Telemetry
         private double lastPointAltitude = 0;
         #endregion
 
+        #region const public properties
+        public const double BruitGps = 7.0; // -- >= 7.0 mètre calcul de l'élévation
+        #endregion
+
 
         #region private readonly properties
         private readonly IServiceSaveParametrage _serviceSave = serviceSave;
@@ -26,19 +30,23 @@ namespace KronoGeo_Api.Infrastructure.Service.Telemetry
             // -- calcul la distance selon DistanceUnit 
             var p1 = first.GetLocation();
             var p2 = second.GetLocation();
-            telemetry.Distance += Location.CalculateDistance(p1, p2, telemetry.DistanceUnit);
-            
+            double distance = Location.CalculateDistance(p1, p2, telemetry.DistanceUnit);
+            telemetry.Distance += distance;
+
             // -- calcul le temps passé
             telemetry.TotalTime += (p2.Timestamp - p1.Timestamp).TotalSeconds;
 
             // -- calcul vitesse moyenne km/h ou miles/h
             telemetry.AverageSpeed = (telemetry.Distance / telemetry.TotalTime) * 3600;
             
-            // -- calcul élévation 
-            double elevation = CalculElevation(first, second);
-            if ( elevation > 0 ) telemetry.PositiveElevationGain += elevation;
-            else telemetry.NegativeElevationGain += Math.Abs(elevation);
-
+            // -- calcul élévation
+            if ( distance >= BruitGps ) // -- si la distance >= au bruit Gps alors calcul de l'élévation
+            {
+                double elevation = CalculElevation(first, second);
+                if (elevation > 0) telemetry.PositiveElevationGain += elevation;
+                else telemetry.NegativeElevationGain += Math.Abs(elevation);
+            }
+            
         }
 
 
