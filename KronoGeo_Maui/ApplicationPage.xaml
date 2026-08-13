@@ -83,26 +83,30 @@
                 <Border Grid.Row="1" StrokeThickness="1" BackgroundColor="#F9EDE1"
                     StrokeShape="RoundRectangle 10,10,10,10" Stroke="#51638B">
                     <VerticalStackLayout >
-                        <HorizontalStackLayout HorizontalOptions="Start" Padding="3"
+                        <HorizontalStackLayout  Padding="3"
                                                VerticalOptions="Center">
-                            <Label Text="Distance parcourue " FontSize="16" TextColor="#51638B"/>
-                            <Label Text="{Binding MessageDistance}" 
+                            <Label HorizontalOptions="Start" Text="Distance parcourue " FontSize="16" TextColor="#51638B"/>
+                            <Label HorizontalOptions="End"
+                                Text="{Binding Source={x:Reference KronoGeoPage}, Path=BindingContext.MessageDistance}" 
                                    FontSize="16" TextColor="#51638B"/>
                         </HorizontalStackLayout>
-                        <HorizontalStackLayout HorizontalOptions="Start" Padding="3"
+                        <HorizontalStackLayout  Padding="3"
                                                VerticalOptions="Center">
-                            <Label Text="Vitesse moyenne " FontSize="16" TextColor="#51638B"/>
-                            <Label Text="{Binding MessageVitesseMoyen}" FontSize="16" TextColor="#51638B"/>
+                            <Label HorizontalOptions="Start" Text="Vitesse moyenne " FontSize="16" TextColor="#51638B"/>
+                            <Label HorizontalOptions="End" Text="{Binding Source={x:Reference KronoGeoPage}, Path=BindingContext.MessageVitesseMoyen}" FontSize="16" TextColor="#51638B"/>
                         </HorizontalStackLayout>
-                        <HorizontalStackLayout HorizontalOptions="Start" Padding="3"
+                        <HorizontalStackLayout  Padding="3"
                                 VerticalOptions="Center">
-                            <Label Text="Ascension positive " FontSize="16" TextColor="#51638B"/>
-                            <Label Text="{Binding MessagePostiveElevation}" FontSize="16" TextColor="#51638B"/>
+                            <Label HorizontalOptions="Start" 
+                                   Text="Ascension positive " FontSize="16" TextColor="#51638B"/>
+                            <Label HorizontalOptions="End"
+                                Text="{Binding Source={x:Reference KronoGeoPage}, Path=BindingContext.MessagePostiveElevation}" FontSize="16" TextColor="#51638B"/>
                         </HorizontalStackLayout>
-                        <HorizontalStackLayout HorizontalOptions="Start" Padding="3"
+                        <HorizontalStackLayout  Padding="3"
                                 VerticalOptions="Center">
-                            <Label Text="Ascension negative " FontSize="16" TextColor="#51638B"/>
-                            <Label Text="{Binding MessageNegativeElevation}" FontSize="16" TextColor="#51638B"/>
+                            <Label HorizontalOptions="Start" Text="Ascension negative " FontSize="16" TextColor="#51638B"/>
+                            <Label HorizontalOptions="End"
+                                Text="{Binding Source={x:Reference KronoGeoPage}, Path=BindingContext.MessageNegativeElevation}" FontSize="16" TextColor="#51638B"/>
                         </HorizontalStackLayout>
                     </VerticalStackLayout>
                     

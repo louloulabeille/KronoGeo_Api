@@ -564,10 +564,10 @@ namespace KronoGeo_Maui.ModelViews
                     _serviceTelemetry.CalculateTelemetry(_lastLocation, localisation, ref route);
                     _routeTelemetry = route;
                     
-                    MessageDistance = $"{_routeTelemetry.Distance} km";
-                    MessageVitesseMoyen = $"{_routeTelemetry.AverageSpeed} km/h";
-                    MessageNegativeElevation = $"{_routeTelemetry.NegativeElevationGain} m";
-                    MessagePostiveElevation = $"{_routeTelemetry.PositiveElevationGain} m";
+                    MessageDistance = $"{Math.Round(_routeTelemetry.Distance,3)} km";
+                    MessageVitesseMoyen = $"{Math.Round(_routeTelemetry.AverageSpeed,3)} km/h";
+                    MessageNegativeElevation = $"{Math.Round(_routeTelemetry.NegativeElevationGain)} m";
+                    MessagePostiveElevation = $"{Math.Round(_routeTelemetry.PositiveElevationGain)} m";
                 }
                 _lastLocation = localisation; // -- pour la mise a jour du dernier point pour le calcul de la distance
                 // -- envoie un message pour recentrer la map sur la position de l'utilisateur
