@@ -13,7 +13,8 @@ namespace KronoGeo_Maui.Applications.Services
     {
         public async Task ClosePopup(Popup popup)
         {
-            await popup.CloseAsync();
+            if (popup.IsEnabled)
+                await popup.CloseAsync();
         }
 
         public void ShowPopup(Popup popup)

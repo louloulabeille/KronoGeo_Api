@@ -351,6 +351,7 @@ namespace KronoGeo_Maui.ModelViews
         [RelayCommand]
         public async Task Stop()
         {
+            var popupAttente = new LoadingPage();
             IsEnablePhoto = false; // -- désactive la prise de photo
             try
             {
@@ -398,7 +399,7 @@ namespace KronoGeo_Maui.ModelViews
                         Localisations = _localisations,
                         RouteTelemetry = _routeTelemetry,
                     };
-                    var popupAttente = new LoadingPage();
+                    
                     _dialogService.ShowPopup(popupAttente);
                     if ( await _saveLocalisation.SaveLocalisation(localisationGroup, new System.Threading.CancellationToken()))
                     { 
@@ -428,6 +429,7 @@ namespace KronoGeo_Maui.ModelViews
             {
                 if (IsMessageError)
                 {
+                    _dialogService.ClosePopup(popupAttente);
                     var cancellationToken = new System.Threading.CancellationToken();
                     await Toast.Make($"{Message}").Show(cancellationToken);
                 }

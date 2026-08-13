@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Core;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using KronoGeo_Api.Infrastructure.Service.Http;
 using KronoGeo_Api.Interface.Service;
@@ -124,8 +126,12 @@ namespace KronoGeo_Maui.ModelViews
                 }
                 catch(Exception ex)
                 { // - mettre en place d'un systeme pour récupérer les messages d'erreurs ou pas
-                    Console.WriteLine(ex.Message);
+                    //Console.WriteLine(ex.Message);
                     await _dialogService.ClosePopup(popup);
+                    string Message = ex.Message;
+                    var cancellationToken = new System.Threading.CancellationToken();
+                    // -- systeme de messagerie 
+                    await Toast.Make($"{Message}",ToastDuration.Long).Show(cancellationToken);
                 }
             }
         }
@@ -168,6 +174,7 @@ namespace KronoGeo_Maui.ModelViews
         [RelayCommand]
         public async Task BiometrieAction()
         {
+            var popup = new LoadingPage();
             try
             {
                 bool biometrie = (bool) _serviceSave.GetParam("IsBiometric", false);
@@ -181,7 +188,6 @@ namespace KronoGeo_Maui.ModelViews
                         var finger = await CrossFingerprint.Current.AuthenticateAsync(request);
                         if (finger.Authenticated) // - authentification ok
                         {
-                            var popup = new LoadingPage();
 
                             if(_user is not null && !string.IsNullOrEmpty(_user.Login) 
                                 && !string.IsNullOrEmpty(_user.Password) )
@@ -206,7 +212,11 @@ namespace KronoGeo_Maui.ModelViews
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                await _dialogService.ClosePopup(popup);
+                string Message = ex.Message;
+                var cancellationToken = new System.Threading.CancellationToken();
+                // -- systeme de messagerie 
+                await Toast.Make($"{Message}").Show(cancellationToken);
             }
         }
         #endregion

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -30,17 +31,28 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         {
             HttpContent content = new StringContent(JsonSerializer.Serialize(register), Encoding.UTF8, "application/json");
             using HttpResponseMessage response = await _httpClient.PostAsync(_options.Value.Login, content);
+            response.EnsureSuccessStatusCode();
+
+            // -- test quand 5 tentatives au niveau de HttpClient retour erreur
+            if (response.StatusCode == HttpStatusCode.BadGateway
+                || response.StatusCode == HttpStatusCode.InternalServerError
+                || response.StatusCode == HttpStatusCode.RequestTimeout
+                || response.StatusCode == HttpStatusCode.ServiceUnavailable) 
+            {
+                throw new HttpRequestException("Connexion impossible au serveur.");
+            }
 
             var retour = await response.Content.ReadAsStringAsync();
-            var result = JsonSerializer.Deserialize<ResponseApiAuthenticate>(retour , JsonOptions.GetJsonOptions()) 
+            var result = JsonSerializer.Deserialize<ResponseApiAuthenticate>(retour, JsonOptions.GetJsonOptions())
                 ?? new ResponseApiAuthenticate
-                   {
-                        ApiStatus = EnumApiStatus.Problem,
-                        Message = retour
-                   }; 
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = retour
+                };
 
             return result;
         }
+
         public async Task<ResponseApiLocalisations> SaveGroupLocalisationsAsync(LocalisationGroupDTO localisationGroup, string tokkenBearer)
         {
             if ( localisationGroup.Localisations is not null )
