@@ -15,7 +15,7 @@ namespace KronoGeo_Api.Models
         public required string ApplicationUserId { get; set; }
         public ApplicationUser? ApplicationUser { get; set; }
 
-        public int? RouteTelemetryId { get; set; } 
+        //public int? RouteTelemetryId { get; set; } 
         public RouteTelemetry? RouteTelemetry { get; set; }
     }
 }

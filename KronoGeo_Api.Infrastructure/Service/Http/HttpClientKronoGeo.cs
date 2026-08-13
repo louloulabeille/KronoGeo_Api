@@ -31,9 +31,9 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         {
             HttpContent content = new StringContent(JsonSerializer.Serialize(register), Encoding.UTF8, "application/json");
             using HttpResponseMessage response = await _httpClient.PostAsync(_options.Value.Login, content);
-            response.EnsureSuccessStatusCode();
+            //response.EnsureSuccessStatusCode();
 
-            // -- test quand 5 tentatives au niveau de HttpClient retour erreur
+            // -- quand 5 tentatives au niveau de HttpClient retour erreur
             if (response.StatusCode == HttpStatusCode.BadGateway
                 || response.StatusCode == HttpStatusCode.InternalServerError
                 || response.StatusCode == HttpStatusCode.RequestTimeout
