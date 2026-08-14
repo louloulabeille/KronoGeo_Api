@@ -24,6 +24,12 @@ namespace KronoGeo_Api.Infrastructure.Service.Telemetry
         #endregion
 
         #region public method interface IServiceTelemetry
+        /// <summary>
+        /// calcule la telemetry
+        /// </summary>
+        /// <param name="first"></param>
+        /// <param name="second"></param>
+        /// <param name="telemetry"></param>
         public void CalculateTelemetry(Localisation first, Localisation second
             , ref RouteTelemetry telemetry)
         {
@@ -49,7 +55,11 @@ namespace KronoGeo_Api.Infrastructure.Service.Telemetry
             
         }
 
-
+        /// <summary>
+        /// calcule la telemetry avec une liste de localisation
+        /// </summary>
+        /// <param name="trackPoints"></param>
+        /// <returns></returns>
         public RouteTelemetry CalculateTelemetry(List<Localisation> trackPoints)
         {
             var result = new RouteTelemetry();

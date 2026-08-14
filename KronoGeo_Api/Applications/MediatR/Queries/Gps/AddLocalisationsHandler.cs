@@ -38,20 +38,20 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
                 Name = request.LocalisationGroup.Name,
                 ApplicationUserId = request.LocalisationGroup.ApplicationUserId,
                 RouteTelemetry = request.LocalisationGroup.RouteTelemetry is null ? null :
-                 new RouteTelemetry()
-                 {
-                     Id = request.LocalisationGroup.RouteTelemetry.Id,
-                     Distance = request.LocalisationGroup.RouteTelemetry.Distance,
-                     DistanceUnit = request.LocalisationGroup.RouteTelemetry.DistanceUnit,
-                     AverageSpeed = request.LocalisationGroup.RouteTelemetry.AverageSpeed,
-                     PositiveElevationGain = request.LocalisationGroup.RouteTelemetry.PositiveElevationGain,
-                     NegativeElevationGain = request.LocalisationGroup.RouteTelemetry.NegativeElevationGain,
-                     DateTimeBegin = request.LocalisationGroup.RouteTelemetry.DateTimeBegin.ToUniversalTime(),
-                     DateTimeEnd = request.LocalisationGroup.RouteTelemetry.DateTimeEnd.ToUniversalTime(),
-                     TotalTime = request.LocalisationGroup.RouteTelemetry.TotalTime,
-                     TotalTimePaused = request.LocalisationGroup.RouteTelemetry.TotalTimePaused,
-                     TotalLocalisations = request.LocalisationGroup.RouteTelemetry.TotalLocalisations
-                 }
+                    new RouteTelemetry()
+                    {
+                         Id = request.LocalisationGroup.RouteTelemetry.Id,
+                         Distance = request.LocalisationGroup.RouteTelemetry.Distance,
+                         DistanceUnit = request.LocalisationGroup.RouteTelemetry.DistanceUnit,
+                         AverageSpeed = request.LocalisationGroup.RouteTelemetry.AverageSpeed,
+                         PositiveElevationGain = request.LocalisationGroup.RouteTelemetry.PositiveElevationGain,
+                         NegativeElevationGain = request.LocalisationGroup.RouteTelemetry.NegativeElevationGain,
+                         DateTimeBegin = request.LocalisationGroup.RouteTelemetry.DateTimeBegin.ToUniversalTime(),
+                         DateTimeEnd = request.LocalisationGroup.RouteTelemetry.DateTimeEnd.ToUniversalTime(),
+                         TotalTime = request.LocalisationGroup.RouteTelemetry.TotalTime,
+                         TotalTimePaused = request.LocalisationGroup.RouteTelemetry.TotalTimePaused,
+                         TotalLocalisations = request.LocalisationGroup.RouteTelemetry.TotalLocalisations
+                    }
             };
 
             if (request.LocalisationGroup.Localisations is not null ) 

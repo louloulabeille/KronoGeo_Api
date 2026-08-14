@@ -12,14 +12,20 @@ public partial class PopupNameLocalisationGroup : Popup<string>
 	}
 
     #region method public clicked
-	public async void OnClickedClose(object sender, EventArgs e)
+    public async void OnClickedAnnuler(object sender, EventArgs e)
+    {
+        await this.CloseAsync();
+    }
+
+
+    public async void OnClickedClose(object sender, EventArgs e)
 	{
 		if (string.IsNullOrEmpty(NameGroupLocalisation.Text))
 		{
             CancellationTokenSource cancellationTokenSource = new ();
 
             string text = "Vous devez saisir un nom pour le groupe de localisation.";
-            ToastDuration duration = ToastDuration.Short;
+            ToastDuration duration = ToastDuration.Long;
             double fontSize = 14;
             // -- message d'affichage
             var toast = Toast.Make(text, duration, fontSize);

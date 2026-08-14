@@ -352,20 +352,9 @@ namespace KronoGeo_Maui.ModelViews
         public async Task Stop()
         {
             var popupAttente = new LoadingPage();
-            IsEnablePhoto = false; // -- désactive la prise de photo
+            
             try
             {
-#if ANDROID
-                // -- création d'un service pour marcher en arrière plan
-                var intent = new Intent(Android.App.Application.Context, typeof(GeoAndroidService));
-                intent.SetAction(GeoAndroidService.ActionStop);
-                Android.App.Application.Context.StartService(intent);
-#endif
-
-#if !ANDROID
-                _serviceGeo.StopLocationUpdates();
-                
-#endif
                 if (_localisations.Count > 0)
                 {
                     var popup = new PopupNameLocalisationGroup();
@@ -379,6 +368,20 @@ namespace KronoGeo_Maui.ModelViews
                             Stroke = Colors.LightGray
                         }
                     }, new CancellationToken());
+
+                    if (name is null) return;
+
+#if ANDROID
+                    // -- création d'un service pour marcher en arrière plan
+                    var intent = new Intent(Android.App.Application.Context, typeof(GeoAndroidService));
+                    intent.SetAction(GeoAndroidService.ActionStop);
+                    Android.App.Application.Context.StartService(intent);
+#endif
+
+#if !ANDROID
+                _serviceGeo.StopLocationUpdates();
+                
+#endif
 
                     RegisterDTO? register = await _serviceSaveUser.GetRegister();
 
@@ -416,6 +419,7 @@ namespace KronoGeo_Maui.ModelViews
                 // -- initialisation de la map sur la position de l'utilisateur
                 await Task.Run(async () => await GetUserLocationAsync());
 
+                IsEnablePhoto = false; // -- désactive la prise de photo
                 PlayPause = "\ue1c4";
                 IsStart = false;
             }
