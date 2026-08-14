@@ -32,6 +32,7 @@ using CommunityToolkit.Maui;
 using CancellationToken = System.Threading.CancellationToken;
 using Microsoft.Maui.Controls.Shapes;
 using KronoGeo_Maui.PageHelpers;
+using CommunityToolkit.Maui.Core;
 
 namespace KronoGeo_Maui.ModelViews
 {
@@ -433,9 +434,9 @@ namespace KronoGeo_Maui.ModelViews
             {
                 if (IsMessageError)
                 {
-                    _dialogService.ClosePopup(popupAttente);
+                    await _dialogService.ClosePopup(popupAttente);
                     var cancellationToken = new System.Threading.CancellationToken();
-                    await Toast.Make($"{Message}").Show(cancellationToken);
+                    await Toast.Make($"{Message}",ToastDuration.Long).Show(cancellationToken);
                 }
             }
         }
