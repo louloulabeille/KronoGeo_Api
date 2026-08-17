@@ -149,6 +149,37 @@ namespace KronoGeo_Maui.ModelViews
         }
         #endregion
 
+        #region behaviors
+        /// <summary>
+        /// method appeler au chargement de la fenêtre
+        /// </summary>
+        /// <returns></returns>
+        [RelayCommand]
+        public async Task AppearingExe() {
+            var window = Application.Current?.Windows.FirstOrDefault();
+            if (window is not null)
+            {
+                window.Stopped += SaveLocalisation;
+                window.Destroying += SaveLocalisation;
+            }
+        }
+
+        /// <summary>
+        /// method appeler à la fermeture la fenêtre 
+        /// </summary>
+        /// <returns></returns>
+        [RelayCommand]
+        public async Task DisappearingExe()
+        {
+            var window = Application.Current?.Windows.FirstOrDefault();
+            if (window is not null)
+            {
+                window.Stopped -= SaveLocalisation;
+                window.Destroying -= SaveLocalisation;
+            }
+        }
+        #endregion
+
         #region method RelayCommand
         /// <summary>
         /// ouvre la page de paramétrage
@@ -591,6 +622,13 @@ namespace KronoGeo_Maui.ModelViews
             }
         }
 
+        #endregion
+
+        #region public method eventHandler
+        public void SaveLocalisation (object? send, EventArgs args)
+        {
+
+        }
         #endregion
     }
 }

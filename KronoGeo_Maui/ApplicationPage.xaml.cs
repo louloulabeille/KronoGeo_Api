@@ -1,4 +1,9 @@
 using KronoGeo_Maui.ModelViews;
+using CommunityToolkit.Maui.Behaviors;
+using Microsoft.Extensions.Options;
+
+
+
 
 #if ANDROID
 using AndroidX.Lifecycle;
@@ -50,14 +55,19 @@ public partial class ApplicationPage : ContentPage
             }*//*
         };*/
 
-        /*// Ajout du behavior directement en C#
+        // Ajout du behavior directement en C#
         this.Behaviors.Add(new EventToCommandBehavior
         {
-            EventName = nameof(Appearing),
+            EventName = nameof(Appearing), // -- lors du chargement de la fenêtre
             Command = modelView.AppearingExeCommand,
-            CommandParameter = this
         });
-        */
+
+        this.Behaviors.Add(new EventToCommandBehavior
+        {
+            EventName= nameof(Disappearing), // -- sortie de la fenêtre
+            Command = modelView.DisappearingExeCommand,
+        });
+        
         // Ajout du behavior directement en C#
         /*this.Behaviors.Add(new EventToCommandBehavior
         {

@@ -138,7 +138,7 @@
             </ToolbarItem.IconImageSource>
         </ToolbarItem>
     </ContentPage.ToolbarItems>
-    <ScrollView BackgroundColor="#96BD8E" >
+    <VerticalStackLayout BackgroundColor="#96BD8E" >
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
@@ -153,6 +153,7 @@
                 HeightRequest="650" ItemsSource="{Binding MesPages}"
                 ItemTemplate="{StaticResource KronoGeoTemplate}"
                 Loop="False">
+                <!--InputTransparent="True" VerticalOptions="End" -->
             </CarouselView>
             <Border Grid.Row="1" Grid.Column="1" StrokeThickness="1" 
                     StrokeShape="RoundRectangle 20,20,20,20" Stroke="#51638B">
@@ -178,5 +179,5 @@
             </Border>
 
         </Grid>
-    </ScrollView>
+    </VerticalStackLayout>
 </ContentPage>
