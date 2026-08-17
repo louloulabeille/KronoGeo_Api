@@ -75,6 +75,12 @@ namespace KronoGeo_Maui
             builder.Services.AddTransient<IServiceTelemetry, ServiceTelemetry>();
             #endregion
 
+            #region injection en développent du token tunnel de développement sécurisé
+#if DEBUG
+            builder.Services.AddTokenTunnelDeveloppement(builder.Configuration);
+#endif
+            #endregion
+
             return builder.Build();
         }
     }

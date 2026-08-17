@@ -11,14 +11,33 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using static System.Net.WebRequestMethods;
 
 namespace KronoGeo_Api.Infrastructure.Service.Http
 {
-    public class HttpClientKronoGeo ( IOptions<UrlApi> options, HttpClient httpClient ) : IServiceHttpKronoGeo, IDisposable
+    public class HttpClientKronoGeo  : IServiceHttpKronoGeo, IDisposable
     {
         #region private properties
-        private readonly HttpClient _httpClient = httpClient;
-        private readonly IOptions<UrlApi> _options = options;
+        private readonly HttpClient _httpClient;
+        private readonly IOptions<UrlApi> _options;
+        private readonly IOptions<TokenTunnel>? _tokenTunnel;
+        #endregion
+
+        #region constructeur
+        public HttpClientKronoGeo(IOptions<UrlApi> options, HttpClient httpClient
+            , IOptions<TokenTunnel>? tokenTunnel )
+        {
+            _httpClient = httpClient;
+            _options = options;
+
+            // - initialise les protections
+#if DEBUG
+            _tokenTunnel = tokenTunnel;
+            ChargingTokenTunnel();
+#endif
+
+
+        }
         #endregion
 
         #region public method interface IServiceHttpKronoGeo
@@ -53,11 +72,20 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             return result;
         }
 
+        /// <summary>
+        /// Sauvegarde un group de localisation au niveau du serveur Api
+        /// </summary>
+        /// <param name="localisationGroup"></param>
+        /// <param name="tokkenBearer"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public async Task<ResponseApiLocalisations> SaveGroupLocalisationsAsync(LocalisationGroupDTO localisationGroup, string tokkenBearer)
         {
             if ( localisationGroup.Localisations is not null )
             {
                 HttpContent content = new StringContent(JsonSerializer.Serialize(localisationGroup), Encoding.UTF8, "application/json");
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokkenBearer);
+                
                 using var retour = await _httpClient.PostAsync(_options.Value.SaveGroupLocalisations, content);
                 retour.EnsureSuccessStatusCode();
 
@@ -107,7 +135,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             using var multipartContent = new MultipartFormDataContent();
 
             // -- Load the file and set the file's Content-Type header
-            var streamContent = new StreamContent(File.OpenRead(photo.PathComplet));
+            var streamContent = new StreamContent(System.IO.File.OpenRead(photo.PathComplet));
             streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/jpg");
 
             // -- Add the file content to the multipart content
@@ -154,5 +182,22 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             GC.SuppressFinalize(this);
         }
         #endregion
+
+        #region private method
+        /// <summary>
+        /// quand le tunnel de développement est en mode sécurisé
+        /// il faut enregistrer le token pour accéder au tunnel
+        /// ne le faire qu'en développement
+        /// </summary>
+        private void ChargingTokenTunnel()
+        {
+            // -- charge le token du tunnel en Debug pour la sécurité
+            // - ajout du token pour l'utilisation du tonnel sécurisé
+            var token = _tokenTunnel?.Value.Token ?? string.Empty;
+            _httpClient.DefaultRequestHeaders.Add("X-Tunnel-Authorization", $"{token}");
+            //_httpClient.DefaultRequestHeaders.Add("X-Tunnel-Authorization", "tunnel eyJhbGciOiJFUzI1NiIsImtpZCI6IjcyRjZDNUU3OEE2M0UzOEUxM0UyOTE1MjM0NjMyMDFGMDFDMzQ2MTUiLCJ0eXAiOiJKV1QifQ.eyJjbHVzdGVySWQiOiJldXciLCJ0dW5uZWxJZCI6InBlYWNlZnVsLWNoYWlyLWI2Y3ZnYzIiLCJzY3AiOiJjb25uZWN0IiwiZXhwIjoxNzg3MDUxMzQ3LCJpc3MiOiJodHRwczovL3R1bm5lbHMuYXBpLnZpc3VhbHN0dWRpby5jb20vIiwibmJmIjoxNzg2OTY0MDQ3fQ.UBF-WTYmgM1qIUJ9lGL7ElALXBZOqXK4ZXKJ3y4qZ-niUxOoAcvApYd3tFyhpZgAodbtNHEz-CqVmliesx__bw");
+        }
+        #endregion
+
     }
 }
