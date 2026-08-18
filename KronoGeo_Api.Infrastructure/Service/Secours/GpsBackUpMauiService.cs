@@ -1,5 +1,6 @@
 ﻿using KronoGeo_Api.Infrastructure.Applications.Helpers;
 using KronoGeo_Api.Interface.Service;
+using KronoGeo_Api.Models;
 using Microsoft.Maui.Devices.Sensors;
 using Microsoft.Maui.Storage; // -- attention c'est pour Maui
 using System;
@@ -29,7 +30,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Secours
             }
         }
 
-        public List<Location>? ReturnLocalisation()
+        public List<Localisation>? ReturnLocalisation()
         {
             if (!FileExist()) return null;
 
@@ -40,13 +41,13 @@ namespace KronoGeo_Api.Infrastructure.Service.Secours
                 return null;
             }
 
-            var points = JsonSerializer.Deserialize<List<Location>>(json, JsonOptions.GetJsonOptions());
+            var points = JsonSerializer.Deserialize<List<Localisation>>(json, JsonOptions.GetJsonOptions());
             DeleteFile();
 
             return points;
         }
 
-        public void SavePointsLocalisation(List<Location> points)
+        public void SavePointsLocalisation(List<Localisation> points)
         {
             if (FileExist()) DeleteFile();
 

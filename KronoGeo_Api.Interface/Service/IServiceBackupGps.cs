@@ -1,4 +1,5 @@
-﻿using Microsoft.Maui.Devices.Sensors;
+﻿using KronoGeo_Api.Models;
+using Microsoft.Maui.Devices.Sensors;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,12 +18,12 @@ namespace KronoGeo_Api.Interface.Service
         /// sauvegarde la liste de location dans le fichier de backup
         /// </summary>
         /// <param name="points"></param>
-        public void SavePointsLocalisation(List<Location> points);
+        public void SavePointsLocalisation(List<Localisation> points);
         /// <summary>
         /// retourne la liste de location qui se trouve le fichier de backup
         /// </summary>
         /// <returns></returns>
-        public List<Location>? ReturnLocalisation();
+        public List<Localisation>? ReturnLocalisation();
         /// <summary>
         /// method pour vérifier si le fichier de back existe déjà
         /// </summary>

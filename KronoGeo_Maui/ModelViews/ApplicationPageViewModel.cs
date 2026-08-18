@@ -52,6 +52,7 @@ namespace KronoGeo_Maui.ModelViews
         private readonly IDialogService _dialogService;
         private readonly IServiceSaveUser _serviceSaveUser;
         private readonly IServiceTelemetry _serviceTelemetry;
+        private readonly IServiceBackupGps _serviceBackupGps;
         #endregion
 
         #region private properties
@@ -114,7 +115,7 @@ namespace KronoGeo_Maui.ModelViews
         public ApplicationPageViewModel(IServiceGeolocalisation service
             , IServiceSaveLocalisation saveLocalisation, IServiceCamera camera
             , IDialogService dialogService, IServiceSaveUser serviceSaveUser
-            , IServiceTelemetry serviceTelemetry)
+            , IServiceTelemetry serviceTelemetry, IServiceBackupGps serviceBackupGps)
         {
             // -- pour affichage des différentes pages du carousel
             MesPages = [];
@@ -127,6 +128,7 @@ namespace KronoGeo_Maui.ModelViews
             _dialogService = dialogService;
             _serviceSaveUser = serviceSaveUser;
             _serviceTelemetry = serviceTelemetry;
+            _serviceBackupGps = serviceBackupGps;
 #if !ANDROID
             _serviceGeo.LocationChanged += OnLocalication_Changed;
 #endif
@@ -156,12 +158,29 @@ namespace KronoGeo_Maui.ModelViews
         /// <returns></returns>
         [RelayCommand]
         public async Task AppearingExe() {
+            // -- lancement de l'écoute sur les eventHandlers pour sauvegarde des en cas de fermetures accidentel
             var window = Application.Current?.Windows.FirstOrDefault();
             if (window is not null)
             {
                 window.Stopped += SaveLocalisation;
                 window.Destroying += SaveLocalisation;
             }
+
+
+            // - chargement du popup si un backup existe pour recharger les points dedans
+            if ( _serviceBackupGps.FileExist() )
+            {
+                var popup = new PopupRechargementPage();
+                var result = await _dialogService.ShowPopupAsync<string>(popup, new PopupOptions
+                {
+                    CanBeDismissedByTappingOutsideOfPopup = false,
+                }, new CancellationToken());
+                // - traitement du résultat
+
+
+            } 
+            
+
         }
 
         /// <summary>
@@ -171,6 +190,7 @@ namespace KronoGeo_Maui.ModelViews
         [RelayCommand]
         public async Task DisappearingExe()
         {
+            // -- désabonnement des events
             var window = Application.Current?.Windows.FirstOrDefault();
             if (window is not null)
             {
@@ -627,7 +647,14 @@ namespace KronoGeo_Maui.ModelViews
         #region public method eventHandler
         public void SaveLocalisation (object? send, EventArgs args)
         {
+            // - si le fichier existe le back up est déjà fait
+            if (_serviceBackupGps.FileExist()) return; 
 
+            // le service a démarré & il y a des points de localisation
+            if (IsStart && _localisations.Count > 0)
+            { // -- sauvegarde
+                _serviceBackupGps.SavePointsLocalisation(_localisations);
+            }
         }
         #endregion
     }

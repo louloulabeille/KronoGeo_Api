@@ -6,6 +6,8 @@ using KronoGeo_Maui.Applications.Services;
 using KronoGeo_Maui.Applications.Services.Geolocation;
 using Microsoft.Extensions.Logging;
 using KronoGeo_Api.Infrastructure.Service.Telemetry;
+using KronoGeo_Api.Infrastructure.Service.Secours;
+
 
 
 #if ANDROID
@@ -73,6 +75,7 @@ namespace KronoGeo_Maui
             builder.Services.AddTransient<IDialogService, MauiDialogService>();
             builder.Services.AddScoped<IServiceSaveParametrage, InMemoryMauiParametrage>();
             builder.Services.AddTransient<IServiceTelemetry, ServiceTelemetry>();
+            builder.Services.AddSingleton<IServiceBackupGps, GpsBackUpMauiService>();
             #endregion
 
             #region injection en développent du token tunnel de développement sécurisé
