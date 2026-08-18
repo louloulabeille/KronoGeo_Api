@@ -73,8 +73,7 @@ public partial class ApplicationPage : ContentPage
             EventName = nameof(Loaded),
             Command = modelView.LoadedExeCommand
         });
-        
-        
+
     }
 
 }

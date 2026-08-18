@@ -142,11 +142,8 @@ namespace KronoGeo_Maui.ModelViews
             //WeakReferenceMessenger.Default.RegisterAll(this);
             WeakReferenceMessenger.Default.Register<LocationChangedMessage>(this);
 
-            // -- mise a jour dans la Map de la geolocalisation sinon il affiche la map par défaut
-            Task.Run(async () => await GetUserLocationAsync());
-
             // -- supprime les photos en local
-            _camera.DeletePhotos();
+            // _camera.DeletePhotos();
 
         }
         #endregion
@@ -163,7 +160,7 @@ namespace KronoGeo_Maui.ModelViews
             if (window is not null)
             {
                 window.Stopped += SaveLocalisation;
-                window.Destroying += SaveLocalisation;
+                window.Destroying += DestroyingSaveLocalisation;
             }
         }
 
@@ -174,6 +171,9 @@ namespace KronoGeo_Maui.ModelViews
         [RelayCommand]
         public async Task LoadedExe()
         {
+            // -- mise a jour dans la Map de la geolocalisation sinon il affiche la map par défaut
+            await GetUserLocationAsync();
+
             // - chargement du popup si un backup existe pour recharger les points dedans
             if (_serviceBackupGps.FileExist())
             {
@@ -185,7 +185,49 @@ namespace KronoGeo_Maui.ModelViews
                 // - traitement du résultat
                 if ( result is not null && bool.Parse(result) )
                 {   // -- recharge les données
+                    var localisations = _serviceBackupGps.ReturnLocalisation();
+                    if ( localisations is not null && localisations.Count > 0)
+                    {
+                        localisations.AddRange(localisations);
+                        _lastLocation = _localisations.OrderByDescending(oB => oB.OrderIndex).FirstOrDefault();
+                        _routeTelemetry = _serviceTelemetry.CalculateTelemetry(_localisations);
 
+                        MessageDistance = $"{Math.Round(_routeTelemetry.Distance, 3)} km";
+                        MessageVitesseMoyen = $"{Math.Round(_routeTelemetry.AverageSpeed, 3)} km/h";
+                        MessageNegativeElevation = $"{Math.Round(_routeTelemetry.NegativeElevationGain)} m";
+                        MessagePostiveElevation = $"{Math.Round(_routeTelemetry.PositiveElevationGain)} m";
+
+                        // -- mise a jour de la carte
+                        foreach (var item in localisations) {
+                            var location = item.GetLocation();
+                            if (item is LocalisationPhoto photo)
+                            {
+                                MesPhotos.Add(new() 
+                                { 
+                                    Name = photo.Name, PathPhoto = photo.PathPhoto 
+                                });
+                                PinMessage pinMessage = new()
+                                {
+                                    Pin = new()
+                                    {
+                                        Label = $"Photo: {photo.Name}",
+                                        Address = $"Position : latitude {location.Latitude}, longitude {location.Longitude}",
+                                        Type = PinType.SavedPin,
+                                        Location = location,
+                                    },
+                                    IsAdded = true
+                                };
+                                // -- envoie un message pour ajouter un pin sur la map
+                                WeakReferenceMessenger.Default.Send(new PinMapMessage(pinMessage));
+                            }
+                            else
+                            {
+                                // -- envoie un message pour mettre à jour le tracé sur la map
+                                WeakReferenceMessenger.Default.Send(new PolyneMapMessage(location));
+                            }
+                        };
+                        _serviceBackupGps.DeleteFile();
+                    }
                 }
                 else
                 {
@@ -207,7 +249,7 @@ namespace KronoGeo_Maui.ModelViews
             if (window is not null)
             {
                 window.Stopped -= SaveLocalisation;
-                window.Destroying -= SaveLocalisation;
+                window.Destroying -= DestroyingSaveLocalisation;
             }
         }
         #endregion
@@ -435,17 +477,9 @@ namespace KronoGeo_Maui.ModelViews
 
                     if (name is null) return;
 
-#if ANDROID
                     // -- création d'un service pour marcher en arrière plan
-                    var intent = new Intent(Android.App.Application.Context, typeof(GeoAndroidService));
-                    intent.SetAction(GeoAndroidService.ActionStop);
-                    Android.App.Application.Context.StartService(intent);
-#endif
-
-#if !ANDROID
-                _serviceGeo.StopLocationUpdates();
-                
-#endif
+                    // -- pour arrêter le service
+                    StopService();
 
                     RegisterDTO? register = await _serviceSaveUser.GetRegister();
 
@@ -654,6 +688,25 @@ namespace KronoGeo_Maui.ModelViews
             }
         }
 
+        /// <summary>
+        /// méthod qui arrête la prise des points Gps
+        /// </summary>
+        private void StopService()
+        {
+            if (IsStart)    // -- si le service est démarré on peut l'arrêter 
+            {
+#if ANDROID
+                // -- création d'un service pour marcher en arrière plan
+                var intent = new Intent(Android.App.Application.Context, typeof(GeoAndroidService));
+                intent.SetAction(GeoAndroidService.ActionStop);
+                Android.App.Application.Context.StartService(intent);
+#endif
+
+#if !ANDROID
+            _serviceGeo.StopLocationUpdates();    
+#endif
+            }
+        }
         #endregion
 
         #region public method eventHandler
@@ -667,6 +720,18 @@ namespace KronoGeo_Maui.ModelViews
             { // -- sauvegarde
                 _serviceBackupGps.SavePointsLocalisation(_localisations);
             }
+
+        }
+
+        /// <summary>
+        /// method lancer à la fermeture de l'application
+        /// </summary>
+        /// <param name="send"></param>
+        /// <param name="args"></param>
+        public void DestroyingSaveLocalisation (object? send, EventArgs args)
+        {
+            SaveLocalisation(send, args);
+            StopService(); // -- on arrête le service propremement
         }
         #endregion
     }
