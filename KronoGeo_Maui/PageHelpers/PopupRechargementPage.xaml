@@ -10,29 +10,38 @@
 
             <!-- If a boolean result is needed, CloseAsync should return an object (box the bool) -->
 
-    <VerticalStackLayout BackgroundColor="#F9EDE1" Padding="5">
-        <Label Text="Il reste des traces gps, voulez vous les recharger?" 
-               TextColor="#51638B" HorizontalOptions="Center"
-               VerticalOptions="Center"/>
-        <HorizontalStackLayout>
-            <Border Grid.Row="1" Grid.Column="1" StrokeThickness="1" 
-                StrokeShape="RoundRectangle 20,20,20,20" Stroke="#51638B">
+    <VerticalStackLayout BackgroundColor="#F9EDE1">
+        <Grid BackgroundColor="#F9EDE1" Padding="5" RowSpacing="20" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="50"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Row="0" Text="Il reste des traces gps, voulez vous les recharger?" 
+                   TextColor="#51638B" HorizontalOptions="Center" FontSize="18"
+                   VerticalOptions="Center"/>
+            <Border Grid.Row="1" StrokeThickness="1" 
+                    StrokeShape="RoundRectangle 20,20,20,20" Stroke="#51638B">
                 <Grid VerticalOptions="End" BackgroundColor="#F9EDE1" HeightRequest="50">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <Button Text="&#xe5ca;" FontFamily="MaterialIcons-Regular"
-                            TextColor="#51638B" HorizontalOptions="Center"
-                            FontSize="30" VerticalOptions="Center">
+                    <Button Grid.Column="0" Text="&#xe5ca;" FontFamily="MaterialIcons-Regular"
+                                TextColor="#51638B" HorizontalOptions="Center"
+                                FontSize="30" VerticalOptions="Center" 
+                                BackgroundColor="#F9EDE1">
                     </Button>
-                    <Button Text="&#xe5cd;" FontFamily="MaterialIcons-Regular"
-                            TextColor="#51638B" HorizontalOptions="Center"
-                            FontSize="30" VerticalOptions="Center">
+                    <Button Grid.Column="1" Text="&#xe5cd;" FontFamily="MaterialIcons-Regular"
+                                TextColor="#51638B" HorizontalOptions="Center"
+                                FontSize="30" VerticalOptions="Center"
+                                BackgroundColor="#F9EDE1">
                     </Button>
                 </Grid>
             </Border>
-        </HorizontalStackLayout>
-
+        </Grid>
     </VerticalStackLayout>
 </mct:Popup>

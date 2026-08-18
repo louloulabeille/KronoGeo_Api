@@ -165,10 +165,17 @@ namespace KronoGeo_Maui.ModelViews
                 window.Stopped += SaveLocalisation;
                 window.Destroying += SaveLocalisation;
             }
+        }
 
-
+        /// <summary>
+        /// lancement après le chargement de la fenêtre
+        /// </summary>
+        /// <returns></returns>
+        [RelayCommand]
+        public async Task LoadedExe()
+        {
             // - chargement du popup si un backup existe pour recharger les points dedans
-            if ( _serviceBackupGps.FileExist() )
+            if (_serviceBackupGps.FileExist())
             {
                 var popup = new PopupRechargementPage();
                 var result = await _dialogService.ShowPopupAsync<string>(popup, new PopupOptions
@@ -176,11 +183,16 @@ namespace KronoGeo_Maui.ModelViews
                     CanBeDismissedByTappingOutsideOfPopup = false,
                 }, new CancellationToken());
                 // - traitement du résultat
+                if ( result is not null && bool.Parse(result) )
+                {   // -- recharge les données
 
-
-            } 
-            
-
+                }
+                else
+                {
+                    _serviceBackupGps.DeleteFile();
+                    _camera.DeletePhotos();
+                }
+            }
         }
 
         /// <summary>

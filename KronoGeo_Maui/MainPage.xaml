@@ -93,7 +93,7 @@
                             StrokeShape="RoundRectangle 30,30,30,30" BackgroundColor="#F9EDE1">
                         <Button Text="Se connecter" WidthRequest="170" BackgroundColor="Transparent"
                                 TextColor="#51808B"
-                            Command="{Binding GetLoginCommand}"/>
+                                Command="{Binding GetLoginCommand}"/>
                     </Border>
                 </VerticalStackLayout>
             </Grid>
