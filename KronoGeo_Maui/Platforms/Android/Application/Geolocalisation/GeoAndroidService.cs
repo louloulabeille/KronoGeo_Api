@@ -28,6 +28,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         private IServiceGeolocalisation? _serviceGeo; // -- service de géolocalisation qui sera injecté par OnCreate
         private readonly CancellationTokenSource _cancellationTokenSource = new ();
         private PowerManager.WakeLock? _wakeLock = null; // -- WakeLock pour empêcher le téléphone de se mettre en veille pendant que le service est actif
+        private NotificationManager? _notificationManager;
         #endregion
 
         #region public const properties action pour démarrer le service de géolocalisation
@@ -120,6 +121,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
                 StopForeground(true);
             }
             StopSelf(); // -- arrêt du service
+            _notificationManager?.Cancel(NOTIFICATION_ID);
             base.OnDestroy();
         }
         #endregion
@@ -205,11 +207,11 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         /// </summary>
         private void StartForegroundService()
         {
-            var notificationManager = Platform.AppContext.GetSystemService(Context.NotificationService) as NotificationManager;
+            _notificationManager = Platform.AppContext.GetSystemService(Context.NotificationService) as NotificationManager;
             // 1. Créer le canal de notification (obligatoire pour Android 8+)
-            if (notificationManager is not null && OperatingSystem.IsAndroidVersionAtLeast(26))
+            if (_notificationManager is not null && OperatingSystem.IsAndroidVersionAtLeast(26))
             {
-                CreateNotificationChannel(notificationManager);
+                CreateNotificationChannel(_notificationManager);
             }
 
             // 2. Créer la notification qui sera visible par l'utilisateur
