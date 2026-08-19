@@ -188,8 +188,8 @@ namespace KronoGeo_Maui.ModelViews
                     var localisations = _serviceBackupGps.ReturnLocalisation();
                     if ( localisations is not null && localisations.Count > 0)
                     {
-                        localisations.AddRange(localisations);
-                        _lastLocation = _localisations.OrderByDescending(oB => oB.OrderIndex).FirstOrDefault();
+                        localisations.AddRange(localisations.OrderBy(ob => ob.OrderIndex));
+                        _lastLocation = _localisations.OrderByDescending(ob => ob.OrderIndex).FirstOrDefault();
                         _routeTelemetry = _serviceTelemetry.CalculateTelemetry(_localisations);
 
                         MessageDistance = $"{Math.Round(_routeTelemetry.Distance, 3)} km";
@@ -198,7 +198,7 @@ namespace KronoGeo_Maui.ModelViews
                         MessagePostiveElevation = $"{Math.Round(_routeTelemetry.PositiveElevationGain)} m";
 
                         // -- mise a jour de la carte
-                        foreach (var item in localisations) {
+                        foreach (var item in localisations.OrderBy(ob=>ob.OrderIndex)) {
                             var location = item.GetLocation();
                             if (item is LocalisationPhoto photo)
                             {
@@ -260,9 +260,15 @@ namespace KronoGeo_Maui.ModelViews
         /// </summary>
         /// <returns></returns>
         [RelayCommand]
-        public static async Task ToolbarItem()
+        public static async Task BarItemParam()
         {
             await Shell.Current.GoToAsync("ParametragePage");
+        }
+
+        [RelayCommand]
+        public static async Task BarItemClose()
+        {
+            System.Environment.Exit(0);
         }
 
         /// <summary>

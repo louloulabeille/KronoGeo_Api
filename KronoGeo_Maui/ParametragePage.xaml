@@ -8,7 +8,7 @@
              Title="Parametrage"
              Shell.BackgroundColor="#F9EDE1"
              Shell.TitleColor="#51638B"
-             Shell.TabBarIsVisible="False">
+             Shell.TabBarIsVisible="True">
 
     <VerticalStackLayout BackgroundColor="#96BD8E" Padding="10" >
         <HorizontalStackLayout Padding="5">

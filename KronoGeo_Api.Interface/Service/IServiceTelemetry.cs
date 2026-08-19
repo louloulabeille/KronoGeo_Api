@@ -7,6 +7,10 @@ namespace KronoGeo_Api.Interface.Service
 {
     public interface IServiceTelemetry
     {
+        #region public properties const
+        public const double BruitGps = 3.00; // -- >= 3.0 mètre calcul de l'élévation
+        #endregion
+
         //public void SaveTelemetry(RouteTelemetry telemetry);
         /// <summary>
         /// calcule la télémétrie entre deux localisations et le retourne 

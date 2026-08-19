@@ -127,12 +127,12 @@
 
     <!-- ToolBar -->
     <ContentPage.ToolbarItems>
-        <ToolbarItem Command="{Binding ToolbarItemCommand}">
+        <ToolbarItem Command="{Binding BarItemParamCommand}">
             <ToolbarItem.IconImageSource>
                 <FontImageSource FontFamily="MaterialIcons-Regular" Glyph="&#xe7fd;" Color="#51638B"/>
             </ToolbarItem.IconImageSource>
         </ToolbarItem>
-        <ToolbarItem Command="{Binding ToolbarItemCommand}">
+        <ToolbarItem Command="{Binding BarItemCloseCommand}">
             <ToolbarItem.IconImageSource>
                 <FontImageSource FontFamily="MaterialIcons-Regular" Glyph="&#xe8ac;" Color="#51638B"/>
             </ToolbarItem.IconImageSource>
