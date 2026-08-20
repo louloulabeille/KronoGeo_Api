@@ -64,6 +64,8 @@
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 	</ItemGroup>
 
+	<!-- Removed explicit exclusion so Android styles in Platforms/Android/Resources/values are packaged -->
+
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Maui" Version="15.0.0" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
@@ -86,7 +88,7 @@
 	  <MauiXaml Update="ApplicationPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="BottomSheet\ApplicationBottomSheet.xaml">
+	  <MauiXaml Update="BottomSheets\ApplicationBottomSheet.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="PageHelpers\LoadingPage.xaml">

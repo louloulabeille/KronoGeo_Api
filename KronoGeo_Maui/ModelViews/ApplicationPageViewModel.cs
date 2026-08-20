@@ -33,6 +33,9 @@ using CancellationToken = System.Threading.CancellationToken;
 using Microsoft.Maui.Controls.Shapes;
 using KronoGeo_Maui.PageHelpers;
 using CommunityToolkit.Maui.Core;
+using KronoGeo_Maui.BottomSheets;
+using KronoGeo_Maui.ModelViews.BottomSheets;
+using KronoGeo_Api.Models.ModelEventArgs;
 
 namespace KronoGeo_Maui.ModelViews
 {
@@ -53,6 +56,7 @@ namespace KronoGeo_Maui.ModelViews
         private readonly IServiceSaveUser _serviceSaveUser;
         private readonly IServiceTelemetry _serviceTelemetry;
         private readonly IServiceBackupGps _serviceBackupGps;
+        private readonly IServiceProvider _serviceProvider;
         #endregion
 
         #region private properties
@@ -62,7 +66,8 @@ namespace KronoGeo_Maui.ModelViews
         #endregion
 
         #region public properties
-        public ObservableCollection<PageBaseViewModel> MesPages { get; set; }
+        //public ObservableCollection<PageBaseViewModel> MesPages { get; set; }
+        public ApplicationBottomSheetViewModel SheetViewModel { get; }
         #endregion
 
         #region public properties
@@ -115,13 +120,16 @@ namespace KronoGeo_Maui.ModelViews
         public ApplicationPageViewModel(IServiceGeolocalisation service
             , IServiceSaveLocalisation saveLocalisation, IServiceCamera camera
             , IDialogService dialogService, IServiceSaveUser serviceSaveUser
-            , IServiceTelemetry serviceTelemetry, IServiceBackupGps serviceBackupGps)
+            , IServiceTelemetry serviceTelemetry, IServiceBackupGps serviceBackupGps
+            , ApplicationBottomSheetViewModel sheetViewModel
+            ,IServiceProvider serviceProvider)
         {
             // -- pour affichage des différentes pages du carousel
-            MesPages = [];
-            MesPages.Add(new MapViewModel());
+            /*MesPages = [];
+            //MesPages.Add(new MapViewModel());
             MesPages.Add(new ListImageViewModel());
-            MesPages.Add(new ResumeViewModel());
+            MesPages.Add(new ResumeViewModel());*/
+
             // -- chargement des services
             _serviceGeo = service;
             _camera = camera;
@@ -129,6 +137,7 @@ namespace KronoGeo_Maui.ModelViews
             _serviceSaveUser = serviceSaveUser;
             _serviceTelemetry = serviceTelemetry;
             _serviceBackupGps = serviceBackupGps;
+            _serviceProvider = serviceProvider;
 #if !ANDROID
             _serviceGeo.LocationChanged += OnLocalication_Changed;
 #endif
@@ -137,6 +146,10 @@ namespace KronoGeo_Maui.ModelViews
             _saveLocalisation = saveLocalisation;
             // -- initialise l'object télémétrie
             _routeTelemetry = _serviceTelemetry.CalculateTelemetry(_localisations);
+
+            // -- chargement du view model ApplicationBottomSheetViewModel
+            SheetViewModel = sheetViewModel;
+            SheetViewModel.DeletePhoto += DeletePhoto;
 
             // -- enregistrer dans le registre des messages pour recevoir les messages de type LocationChangedMessage
             //WeakReferenceMessenger.Default.RegisterAll(this);
@@ -162,6 +175,7 @@ namespace KronoGeo_Maui.ModelViews
                 window.Stopped += SaveLocalisation;
                 window.Destroying += DestroyingSaveLocalisation;
             }
+
         }
 
         /// <summary>
@@ -202,10 +216,17 @@ namespace KronoGeo_Maui.ModelViews
                             var location = item.GetLocation();
                             if (item is LocalisationPhoto photo)
                             {
-                                MesPhotos.Add(new() 
+                                // -- chargement des photos dans le carroussel correspondant 
+                                // -- du BottomSheet
+                                SheetViewModel.MiseAjourPhoto(new()
+                                {
+                                    Name = photo.Name,
+                                    PathPhoto = photo.PathPhoto
+                                });
+                                /*MesPhotos.Add(new() 
                                 { 
                                     Name = photo.Name, PathPhoto = photo.PathPhoto 
-                                });
+                                });*/
                                 PinMessage pinMessage = new()
                                 {
                                     Pin = new()
@@ -232,7 +253,9 @@ namespace KronoGeo_Maui.ModelViews
                 else
                 {
                     _serviceBackupGps.DeleteFile();
-                    _camera.DeletePhotos();
+                    // -- supprime toutes les photos du BottomSheet
+                    SheetViewModel.ClearAllPhotos();
+                    //_camera.DeletePhotos();
                 }
             }
         }
@@ -250,11 +273,20 @@ namespace KronoGeo_Maui.ModelViews
             {
                 window.Stopped -= SaveLocalisation;
                 window.Destroying -= DestroyingSaveLocalisation;
+                SheetViewModel.DeletePhoto -= DeletePhoto;
             }
         }
         #endregion
 
         #region method RelayCommand
+        [RelayCommand]
+        public async Task OpenButtomSheet()
+        {
+            // -- ouverture du bottomsheetMEs
+            var sheet = _serviceProvider.GetRequiredService<ApplicationBottomSheet>();
+            await sheet.ShowAsync();
+        }
+
         /// <summary>
         /// ouvre la page de paramétrage
         /// </summary>
@@ -284,7 +316,9 @@ namespace KronoGeo_Maui.ModelViews
                 var photo = await _camera.TakePhotoAsync();
                 if (photo is not null && !string.IsNullOrEmpty(photo.Name) )
                 {
-                    MesPhotos.Add(photo);
+                    //MesPhotos.Add(photo);
+                    // -- ajoute la photo dans le BottomSheet
+                    SheetViewModel.MiseAjourPhoto(photo);
 
                     var location = await _serviceGeo.GetCurrentLocationAsync(new CancellationTokenSource().Token);
                     if (location is not null )
@@ -509,8 +543,10 @@ namespace KronoGeo_Maui.ModelViews
                     
                     _dialogService.ShowPopup(popupAttente);
                     if ( await _saveLocalisation.SaveLocalisation(localisationGroup, new System.Threading.CancellationToken()))
-                    { 
-                        MesPhotos.Clear();
+                    {
+                        //MesPhotos.Clear();
+                        SheetViewModel.ClearAllPhotos();
+
                         // -- enregistrement ok
                         _localisations.Clear();
                         // -- initalisation de la map au niveau de Polyne
@@ -561,44 +597,7 @@ namespace KronoGeo_Maui.ModelViews
 
         }
 
-        /// <summary>
-        /// method de suppression d'une photo en mémoire
-        /// et de la localisation associée
-        /// </summary>
-        /// <param name="photo"></param>
-        [RelayCommand]
-        public void DeleteImage( PhotoDTO photo )
-        {
-            if (string.IsNullOrEmpty(photo.Name)) return;
-
-            if ( _camera.DeletePhoto(photo.PathComplet??string.Empty))
-            {               
-                MesPhotos.Remove(photo);
-                // -- recherche de l'object LocalisationPhoto
-                // -- dans la liste des localisations pour le supprimer
-                var local = _localisations.OfType<LocalisationPhoto>()
-                    .FirstOrDefault(x=>x.Name == photo.Name);
-                
-                if (local is not null)
-                {
-                    PinMessage pinMessage = new()
-                    {
-                        Pin = new()
-                        {
-                            Label = $"Photo: {photo.Name}",
-                            Address = $"Position : latitude {local.Latitude}, longitude {local.Longitude}",
-                            Type = PinType.Place,
-                            Location = local.GetLocation()
-                        },
-                        IsAdded = false
-                    };
-                    // -- envoi vers le behavior pour supprimer le pin
-                    WeakReferenceMessenger.Default.Send(new PinMapMessage(pinMessage));
-
-                    _localisations.Remove(local);
-                }
-            }
-        }
+        
 
 #endregion
 
@@ -628,19 +627,6 @@ namespace KronoGeo_Maui.ModelViews
             WeakReferenceMessenger.Default.Unregister<LocationChangedMessage>(this);
             GC.SuppressFinalize(this);
         }
-        #endregion
-
-        #region public method event
-        /// <summary>
-        /// évènement pour 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void OnLocalication_Changed(object? sender, GeolocationLocationChangedEventArgs e)
-        {
-            TraitementLocalisation(e.Location);
-        }
-
         #endregion
 
         #region private method
@@ -716,6 +702,17 @@ namespace KronoGeo_Maui.ModelViews
         #endregion
 
         #region public method eventHandler
+        /// <summary>
+        /// évènement pour 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void OnLocalication_Changed(object? sender, GeolocationLocationChangedEventArgs e)
+        {
+            TraitementLocalisation(e.Location);
+        }
+
+
         public void SaveLocalisation (object? send, EventArgs args)
         {
             // - si le fichier existe le back up est déjà fait
@@ -738,6 +735,42 @@ namespace KronoGeo_Maui.ModelViews
         {
             SaveLocalisation(send, args);
             StopService(); // -- on arrête le service propremement
+        }
+
+        /// <summary>
+        /// method qui est lancer lors de la supression d'une photo
+        /// elle va mettre à jour la liste de localisation
+        /// et du pin sur la map
+        /// </summary>
+        /// <param name="send"></param>
+        /// <param name="args"></param>
+        public void DeletePhoto(object? send, PhotoEventArgs args)
+        {
+            var photo = args.PhotoDTO;
+
+            // -- recherche de l'object LocalisationPhoto
+            // -- dans la liste des localisations pour le supprimer
+            var local = _localisations.OfType<LocalisationPhoto>()
+                .FirstOrDefault(x => x.Name == photo.Name);
+
+            if (local is not null)
+            {
+                PinMessage pinMessage = new()
+                {
+                    Pin = new()
+                    {
+                        Label = $"Photo: {photo.Name}",
+                        Address = $"Position : latitude {local.Latitude}, longitude {local.Longitude}",
+                        Type = PinType.Place,
+                        Location = local.GetLocation()
+                    },
+                    IsAdded = false
+                };
+                // -- envoi vers le behavior pour supprimer le pin
+                WeakReferenceMessenger.Default.Send(new PinMapMessage(pinMessage));
+
+                _localisations.Remove(local);
+            }
         }
         #endregion
     }

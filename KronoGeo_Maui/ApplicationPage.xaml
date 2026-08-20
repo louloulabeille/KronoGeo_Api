@@ -15,115 +15,7 @@
              Shell.BackgroundColor="#F9EDE1"
              Shell.TitleColor="#51638B"
              Shell.BackButtonBehavior="{BackButtonBehavior IsVisible=False}">
-    <!-- Ressources de la page -->
-    <ContentPage.Resources>
-        
-        <!-- Affichage de la map et du tracé -->
-        <DataTemplate x:Key="MapGeo" x:DataType="viewmodels:ApplicationPageViewModel">
-            <maps:Map  x:Name="googleMap" IsShowingUser="True" MapType="{Binding Source={x:Reference KronoGeoPage}, Path=BindingContext.MapType}"
-                      IsScrollEnabled="True" IsZoomEnabled="True">
-                <maps:Map.Behaviors>
-                    <!-- Le behavior écoute le Messenger en silence -->
-                    <behaviors:MapMessengerBehavior />
-                    <behaviors:PolyneMessengerBehavior/>
-                    <behaviors:PinMessengerBehavior/>
-                </maps:Map.Behaviors>
-            </maps:Map>
-        </DataTemplate>
-        
-        <!-- liste des images -->
-        <DataTemplate x:Key="PhotoGeo" x:DataType="viewmodels:ApplicationPageViewModel">
-            <!-- mettre en place la camera -->
-            <!--<Grid BackgroundColor="LightCoral">
-                <Label Text="Liste Photos" HorizontalOptions="Center"
-               VerticalOptions="Center" FontSize="30"></Label>
-            </Grid>-->
-            <CollectionView ItemsSource="{Binding Source={x:Reference KronoGeoPage}, Path=BindingContext.MesPhotos}">
-                <CollectionView.ItemsLayout>
-                    <GridItemsLayout Orientation="Vertical" Span="2"/>
-                </CollectionView.ItemsLayout>
-                <!-- Design de chaque cellule de la grille -->
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="models:PhotoDTO">
-                        <Border StrokeThickness="1" 
-                            StrokeShape="RoundRectangle 20,20,20,20" Stroke="#51638B">
-                            <Grid RowDefinitions="*, Auto">
-                                <!-- L'image -->
-                                <Image Source="{Binding PathComplet}" Aspect="AspectFill"
-                                    HeightRequest="150" Grid.Row="0"/>
-                                <!--CommandParameter="{Binding .}"-->
-                                <Button Text="X" HorizontalOptions="End"
-                                        Command="{Binding BindingContext.DeleteImageCommand, Source={x:Reference KronoGeoPage}}"
-                                        CommandParameter="{Binding .}"
-                                        VerticalOptions="Start" Margin="5" WidthRequest="30"
-                                        HeightRequest="30" CornerRadius="15" 
-                                        BackgroundColor="Transparent"
-                                        TextColor="White" FontAttributes="Bold"
-                                        />
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </DataTemplate>
-        
-        <!-- Résumé du trajet calculé en temps réel à programmer -->
-        <DataTemplate x:Key="ResumeGeo" x:DataType="viewmodels:ApplicationPageViewModel">
-            <Grid BackgroundColor="#96BD8E" Padding="5">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="50"/>
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-                <Border Grid.Row="0" StrokeThickness="1"  BackgroundColor="#F9EDE1"
-                    StrokeShape="RoundRectangle 10,10,10,10" Stroke="#51638B">
-                    <Label Text="Page Resumé" HorizontalOptions="Center" FontAttributes="Bold"
-                        VerticalOptions="Center" FontSize="30" TextColor="#51638B"></Label>
-                </Border>
-
-                <Border Grid.Row="1" StrokeThickness="1" BackgroundColor="#F9EDE1"
-                    StrokeShape="RoundRectangle 10,10,10,10" Stroke="#51638B">
-                    <VerticalStackLayout >
-                        <HorizontalStackLayout  Padding="3"
-                                               VerticalOptions="Center">
-                            <Label HorizontalOptions="Start" Text="Distance parcourue " FontSize="16" TextColor="#51638B"/>
-                            <Label HorizontalOptions="End"
-                                Text="{Binding Source={x:Reference KronoGeoPage}, Path=BindingContext.MessageDistance}" 
-                                   FontSize="16" TextColor="#51638B"/>
-                        </HorizontalStackLayout>
-                        <HorizontalStackLayout  Padding="3"
-                                               VerticalOptions="Center">
-                            <Label HorizontalOptions="Start" Text="Vitesse moyenne " FontSize="16" TextColor="#51638B"/>
-                            <Label HorizontalOptions="End" Text="{Binding Source={x:Reference KronoGeoPage}, Path=BindingContext.MessageVitesseMoyen}" FontSize="16" TextColor="#51638B"/>
-                        </HorizontalStackLayout>
-                        <HorizontalStackLayout  Padding="3"
-                                VerticalOptions="Center">
-                            <Label HorizontalOptions="Start" 
-                                   Text="Ascension positive " FontSize="16" TextColor="#51638B"/>
-                            <Label HorizontalOptions="End"
-                                Text="{Binding Source={x:Reference KronoGeoPage}, Path=BindingContext.MessagePostiveElevation}" FontSize="16" TextColor="#51638B"/>
-                        </HorizontalStackLayout>
-                        <HorizontalStackLayout  Padding="3"
-                                VerticalOptions="Center">
-                            <Label HorizontalOptions="Start" Text="Ascension negative " FontSize="16" TextColor="#51638B"/>
-                            <Label HorizontalOptions="End"
-                                Text="{Binding Source={x:Reference KronoGeoPage}, Path=BindingContext.MessageNegativeElevation}" FontSize="16" TextColor="#51638B"/>
-                        </HorizontalStackLayout>
-                    </VerticalStackLayout>
-                    
-                </Border>
-                
-            </Grid>
-        </DataTemplate>
-
-        
-            <!-- aiguilleur du carroussel -->
-        <carousel:KronoGeoCarouselTemplateSelector 
-            x:Key="KronoGeoTemplate"
-            MapTemplate="{StaticResource MapGeo}"
-            ListImageTemplate="{StaticResource PhotoGeo}"
-            ResumeTemplate="{StaticResource ResumeGeo}"
-                                                />
-    </ContentPage.Resources>
+    
 
     <!-- ToolBar -->
     <ContentPage.ToolbarItems>
@@ -143,18 +35,33 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="50" />
+                <RowDefinition Height="50" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="5" />
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="5" />
             </Grid.ColumnDefinitions>
-            <CarouselView Grid.Column="1" Grid.Row="0" MinimumHeightRequest="600" 
+            <!--<CarouselView Grid.Column="1" Grid.Row="0" MinimumHeightRequest="600" 
                 HeightRequest="650" ItemsSource="{Binding MesPages}"
                 ItemTemplate="{StaticResource KronoGeoTemplate}"
-                Loop="False">
-                <!--InputTransparent="True" VerticalOptions="End" -->
-            </CarouselView>
+                Loop="False">-->
+                <!--InputTransparent="True" VerticalOptions="End"-->
+            <!--</CarouselView>-->
+
+            <!-- Affichage de la map et du tracé -->
+            <maps:Map Grid.Row="0" Grid.Column="1"  x:Name="googleMap"  
+                    MinimumHeightRequest="600" HeightRequest="630"
+                    IsShowingUser="True" MapType="{Binding MapType}"
+                    IsScrollEnabled="True" IsZoomEnabled="True">
+                    <maps:Map.Behaviors>
+                        <!-- Le behavior écoute le Messenger en silence -->
+                        <behaviors:MapMessengerBehavior />
+                        <behaviors:PolyneMessengerBehavior/>
+                        <behaviors:PinMessengerBehavior/>
+                    </maps:Map.Behaviors>
+                </maps:Map>
+
             <Border Grid.Row="1" Grid.Column="1" StrokeThickness="1" 
                     StrokeShape="RoundRectangle 20,20,20,20" Stroke="#51638B">
                 <Grid VerticalOptions="End" BackgroundColor="#F9EDE1" HeightRequest="50">
@@ -177,7 +84,12 @@
                             Command="{Binding  TakePhotoCommand}"/>
                 </Grid>
             </Border>
-
+            <HorizontalStackLayout Grid.Column="1" Grid.Row="2" 
+                                   HorizontalOptions="Center" BackgroundColor="Transparent">
+                <Button FontFamily="MaterialIcons-Regular" Text="&#xe316;" FontSize="40"
+                        TextColor="LightGray" BackgroundColor="Transparent" VerticalOptions="Start"
+                        Command="{Binding OpenButtomSheetCommand}"/>
+            </HorizontalStackLayout>
         </Grid>
     </VerticalStackLayout>
 </ContentPage>

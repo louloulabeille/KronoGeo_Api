@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+	<!--<style name="Maui.MainTheme" parent="Theme.Material3.DayNight"></style>-->
+    <!-- MAUI basculera automatiquement sur ce thème après le Maui.SplashTheme -->
+    <style name="Maui.MainTheme" parent="Theme.Material3.DayNight.NoActionBar">
+	<!--<style name="Maui.MainTheme.NoActionBar" parent="Theme.MaterialComponents.DayNight.NoActionBar">-->
+        <!-- Si vous aviez d'autres personnalisations Android, vous pouvez les mettre ici -->
+    </style>
+</resources>

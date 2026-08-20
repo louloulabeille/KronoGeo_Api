@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<the49:BottomSheet xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:the49="https://schemas.the49.com/dotnet/2023/maui"
+             xmlns:viewmodels="clr-namespace:KronoGeo_Maui.ModelViews.BottomSheets"
+             xmlns:models="clr-namespace:KronoGeo_Api.Models.Model.DTO;assembly=KronoGeo_Api.Models"
+             xmlns:carousel="clr-namespace:KronoGeo_Maui.Applications.Outils.Views"
+             x:Class="KronoGeo_Maui.BottomSheets.ApplicationBottomSheet"
+             x:Name="ApplicationBottom"
+             HasBackdrop="True"
+             IsCancelable="True"
+             HasHandle="True"
+             CornerRadius="16"
+             BackgroundColor="#96BD8E"
+             >
+
+    <!-- Ressources de la page -->
+    <the49:BottomSheet.Resources>
+        <!-- liste des images -->
+        <DataTemplate x:Key="PhotoGeo" x:DataType="viewmodels:ApplicationBottomSheetViewModel">
+            <!-- mettre en place la camera -->
+            <!--<Grid BackgroundColor="LightCoral">
+            <Label Text="Liste Photos" HorizontalOptions="Center"
+           VerticalOptions="Center" FontSize="30"></Label>
+        </Grid>-->
+            <CollectionView ItemsSource="{Binding Source={x:Reference ApplicationBottom},Path=BindingContext.MesPhotos}">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="2"/>
+                </CollectionView.ItemsLayout>
+                <!-- Design de chaque cellule de la grille -->
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:PhotoDTO">
+                        <Border StrokeThickness="1" 
+                        StrokeShape="RoundRectangle 20,20,20,20" Stroke="#51638B">
+                            <Grid RowDefinitions="*, Auto">
+                                <!-- L'image -->
+                                <Image Source="{Binding PathComplet}" Aspect="AspectFill"
+                                HeightRequest="150" Grid.Row="0"/>
+                                <!--CommandParameter="{Binding .}"-->
+                                <Button Text="X" HorizontalOptions="End"
+                                    Command="{Binding BindingContext.Delete, Source={x:Reference ApplicationBottom}}"
+                                    CommandParameter="{Binding .}"
+                                    VerticalOptions="Start" Margin="5" WidthRequest="30"
+                                    HeightRequest="30" CornerRadius="15" 
+                                    BackgroundColor="Transparent"
+                                    TextColor="White" FontAttributes="Bold"
+                                    />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </DataTemplate>
+
+        <!-- Résumé du trajet calculé en temps réel à programmer -->
+        <!--<DataTemplate x:Key="ResumeGeo" x:DataType="viewmodels:ApplicationBottomSheetViewModel">-->
+            <DataTemplate x:Key="ResumeGeo" >
+            <Label Text="Teletry" BackgroundColor="LightBlue" FontSize="30"
+                   TextColor="Black"></Label>
+            <!--<Grid BackgroundColor="#96BD8E" Padding="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Border Grid.Row="0" StrokeThickness="1"  BackgroundColor="#F9EDE1"
+                StrokeShape="RoundRectangle 10,10,10,10" Stroke="#51638B">
+                    <Label Text="Page Resumé" HorizontalOptions="Center" FontAttributes="Bold"
+                    VerticalOptions="Center" FontSize="30" TextColor="#51638B"></Label>
+                </Border>
+
+                <Border Grid.Row="1" StrokeThickness="1" BackgroundColor="#F9EDE1"
+                StrokeShape="RoundRectangle 10,10,10,10" Stroke="#51638B">
+                    <VerticalStackLayout >
+                        <HorizontalStackLayout  Padding="3"
+                                           VerticalOptions="Center">
+                            <Label HorizontalOptions="Start" Text="Distance parcourue " FontSize="16" TextColor="#51638B"/>
+                            <Label HorizontalOptions="End"
+                            Text="{Binding Source={x:Reference ApplicationBottom}, Path=BindingContext.MessageDistance}" 
+                               FontSize="16" TextColor="#51638B"/>
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout  Padding="3"
+                                           VerticalOptions="Center">
+                            <Label HorizontalOptions="Start" Text="Vitesse moyenne " FontSize="16" TextColor="#51638B"/>
+                            <Label HorizontalOptions="End" Text="{Binding Source={x:Reference ApplicationBottom}, Path=BindingContext.MessageVitesseMoyen}" FontSize="16" TextColor="#51638B"/>
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout  Padding="3"
+                            VerticalOptions="Center">
+                            <Label HorizontalOptions="Start" 
+                               Text="Ascension positive " FontSize="16" TextColor="#51638B"/>
+                            <Label HorizontalOptions="End"
+                            Text="{Binding Source={x:Reference ApplicationBottom}, Path=BindingContext.MessagePostiveElevation}" FontSize="16" TextColor="#51638B"/>
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout  Padding="3"
+                            VerticalOptions="Center">
+                            <Label HorizontalOptions="Start" Text="Ascension negative " FontSize="16" TextColor="#51638B"/>
+                            <Label HorizontalOptions="End"
+                            Text="{Binding Source={x:Reference ApplicationBottom}, Path=BindingContext.MessageNegativeElevation}" FontSize="16" TextColor="#51638B"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+
+                </Border>
+
+            </Grid>-->
+        </DataTemplate>
+
+
+        <!-- aiguilleur du carroussel -->
+        <carousel:KronoGeoCarouselTemplateSelector 
+            x:Key="PhotoTeletryTemplate"
+            ListImageTemplate="{StaticResource PhotoGeo}"
+            ResumeTemplate="{StaticResource ResumeGeo}"/>
+        <!--MapTemplate="{StaticResource MapGeo}"-->
+    </the49:BottomSheet.Resources>
+
+    <ScrollView Padding="10">
+        <CarouselView MinimumHeightRequest="600" 
+            HeightRequest="650" ItemsSource="{Binding Source={x:Reference ApplicationBottom}, Path=BindingContext.MesPages}"
+            ItemTemplate="{StaticResource PhotoTeletryTemplate}"
+            Loop="False">
+            <!--InputTransparent="True" VerticalOptions="End"-->
+        </CarouselView>
+    </ScrollView>
+    
+</the49:BottomSheet>
