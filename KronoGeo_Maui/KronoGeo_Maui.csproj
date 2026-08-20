@@ -73,6 +73,7 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.11" />
 		<PackageReference Include="Microsoft.Maui.Controls.Maps" Version="10.0.90" />
 		<PackageReference Include="Plugin.Fingerprint" Version="2.1.5" />
+		<PackageReference Include="The49.Maui.BottomSheet" Version="8.0.3" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -83,6 +84,9 @@
 
 	<ItemGroup>
 	  <MauiXaml Update="ApplicationPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="BottomSheet\ApplicationBottomSheet.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="PageHelpers\LoadingPage.xaml">

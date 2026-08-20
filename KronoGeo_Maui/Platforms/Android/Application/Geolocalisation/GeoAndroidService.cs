@@ -218,7 +218,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
             NotificationCompat.Builder notification = new (this, NOTIFICATION_CHANNEL_ID);
             //notification.SetAutoCancel(false);
             notification.SetOngoing(true);
-            notification.SetSmallIcon(Resource.Drawable.notification_bg_normal);
+            notification.SetSmallIcon(Microsoft.Maui.Resource.Drawable.notification_bg_normal);
             notification.SetContentTitle("Suivi GPS actif");
             notification.SetContentText("Votre position est enregistrée en arrière-plan avec KronoGeo.");
             var notif = notification.Build();

@@ -7,6 +7,8 @@ using KronoGeo_Maui.Applications.Services.Geolocation;
 using Microsoft.Extensions.Logging;
 using KronoGeo_Api.Infrastructure.Service.Telemetry;
 using KronoGeo_Api.Infrastructure.Service.Secours;
+using The49.Maui.BottomSheet;
+
 
 
 
@@ -26,9 +28,11 @@ namespace KronoGeo_Maui
                 // Initialize the .NET MAUI Community Toolkit by adding the below line of code
                 .UseMauiCommunityToolkit()
                 // pour afficher les cartes de Microsoft.Maui.Controls.Maps
-                .UseMauiMaps() 
-                // Initialize the .NET MAUI Community Toolkit CameraView by adding the below line of code
-                //.UseMauiCommunityToolkitCamera()
+                .UseMauiMaps()
+                 // Initialize the .NET MAUI Community Toolkit CameraView by adding the below line of code
+                 //.UseMauiCommunityToolkitCamera()
+                 // Initialize the The49.Maui.BottomSheet librairi
+                 .UseBottomSheet()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
