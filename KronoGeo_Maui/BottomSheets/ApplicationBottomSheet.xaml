@@ -4,8 +4,8 @@
              xmlns:the49="https://schemas.the49.com/dotnet/2023/maui"
              xmlns:viewmodels="clr-namespace:KronoGeo_Maui.ModelViews.BottomSheets"
              xmlns:models="clr-namespace:KronoGeo_Api.Models.Model.DTO;assembly=KronoGeo_Api.Models"
-             xmlns:carousel="clr-namespace:KronoGeo_Maui.Applications.Outils.Views"
-             x:Class="KronoGeo_Maui.BottomSheets.ApplicationBottomSheet"
+             xmlns:carousel="clr-namespace:KronoGeo_Maui.Applications.Outils.Views" x:DataType="viewmodels:ApplicationBottomSheetViewModel"
+                   x:Class="KronoGeo_Maui.BottomSheets.ApplicationBottomSheet"
              x:Name="ApplicationBottom"
              HasBackdrop="True"
              IsCancelable="True"
@@ -29,22 +29,22 @@
                 </CollectionView.ItemsLayout>
                 <!-- Design de chaque cellule de la grille -->
                 <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="models:PhotoDTO">
+                    <DataTemplate x:DataType="models:PhotoDTO" >
                         <Border StrokeThickness="1" 
-                        StrokeShape="RoundRectangle 20,20,20,20" Stroke="#51638B">
+                            StrokeShape="RoundRectangle 20,20,20,20" Stroke="#51638B">
                             <Grid RowDefinitions="*, Auto">
                                 <!-- L'image -->
                                 <Image Source="{Binding PathComplet}" Aspect="AspectFill"
-                                HeightRequest="150" Grid.Row="0"/>
+                                    HeightRequest="150" Grid.Row="0"/>
                                 <!--CommandParameter="{Binding .}"-->
                                 <Button Text="X" HorizontalOptions="End"
-                                    Command="{Binding BindingContext.Delete, Source={x:Reference ApplicationBottom}}"
-                                    CommandParameter="{Binding .}"
-                                    VerticalOptions="Start" Margin="5" WidthRequest="30"
-                                    HeightRequest="30" CornerRadius="15" 
-                                    BackgroundColor="Transparent"
-                                    TextColor="White" FontAttributes="Bold"
-                                    />
+                                        Command="{Binding BindingContext.Delete, Source={x:Reference ApplicationBottom}}"
+                                        CommandParameter="{Binding .}"
+                                        VerticalOptions="Start" Margin="5" WidthRequest="30"
+                                        HeightRequest="30" CornerRadius="15" 
+                                        BackgroundColor="Transparent"
+                                        TextColor="White" FontAttributes="Bold"
+                                        />
                             </Grid>
                         </Border>
                     </DataTemplate>
@@ -56,7 +56,8 @@
         <!--<DataTemplate x:Key="ResumeGeo" x:DataType="viewmodels:ApplicationBottomSheetViewModel">-->
             <DataTemplate x:Key="ResumeGeo" >
             <Label Text="Teletry" BackgroundColor="LightBlue" FontSize="30"
-                   TextColor="Black"></Label>
+                   TextColor="Black" HorizontalOptions="Center"
+                   VerticalOptions="Center"></Label>
             <!--<Grid BackgroundColor="#96BD8E" Padding="5">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="50"/>
@@ -112,13 +113,26 @@
         <!--MapTemplate="{StaticResource MapGeo}"-->
     </the49:BottomSheet.Resources>
 
-    <ScrollView Padding="10">
-        <CarouselView MinimumHeightRequest="600" 
+    <Grid Padding="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Button Grid.Row="0" FontFamily="MaterialIcons-Regular" 
+                Text="&#xe313;" FontSize="40"
+                TextColor="LightGray" BackgroundColor="Transparent"
+                VerticalOptions="Start" 
+                Command="{Binding CloseBottomSheetCommand}"
+                CommandParameter="{Binding Source={x:Reference Self}}"/>
+
+        <CarouselView Grid.Row="1" MinimumHeightRequest="600"
             HeightRequest="650" ItemsSource="{Binding Source={x:Reference ApplicationBottom}, Path=BindingContext.MesPages}"
             ItemTemplate="{StaticResource PhotoTeletryTemplate}"
             Loop="False">
-            <!--InputTransparent="True" VerticalOptions="End"-->
+                    <!--InputTransparent="True" VerticalOptions="End"-->
         </CarouselView>
-    </ScrollView>
+    </Grid>
+    
+    
     
 </the49:BottomSheet>

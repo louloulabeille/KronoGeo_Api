@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
+using The49.Maui.BottomSheet;
 
 namespace KronoGeo_Maui.ModelViews.BottomSheets
 {
@@ -96,6 +97,18 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
                 DeletePhoto?.Invoke(this, new(photo));
 
             }
+        }
+
+        /// <summary>
+        /// Ferme le Bottom Sheet
+        /// </summary>
+        /// <param name="sheet"></param>
+        /// <returns></returns>
+        [RelayCommand]
+        public static async Task CloseBottomSheet (BottomSheet? sheet)
+        {
+            if (sheet is null) return;
+            await sheet.DismissAsync();
         }
         #endregion
 
