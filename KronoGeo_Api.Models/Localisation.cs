@@ -1,10 +1,15 @@
-﻿using Microsoft.Maui.Devices.Sensors;
+﻿using KronoGeo_Api.Models.Model.DTO;
+using Microsoft.Maui.Devices.Sensors;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace KronoGeo_Api.Models
 {
+
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "TypeObject")]
+    [JsonDerivedType(typeof(LocalisationPhoto), typeDiscriminator: 1)]
     public class Localisation
     {
         

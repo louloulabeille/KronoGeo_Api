@@ -63,6 +63,7 @@ namespace KronoGeo_Maui.ModelViews
         private Localisation? _lastLocation { get; set; } = default;
         private RouteTelemetry _routeTelemetry { get; set; }
         private DateTimeOffset _startPauseTime { get; set; }
+        private bool _takePhoto = false;
         #endregion
 
         #region public properties
@@ -87,17 +88,6 @@ namespace KronoGeo_Maui.ModelViews
         /// </summary>
         [ObservableProperty]
         public partial string PlayPause { get; set; } = "\ue1c4"; // - affichage de play 
-        /// <summary>
-        /// message d'information telemetry
-        /// </summary>
-        [ObservableProperty]
-        public partial string MessageDistance { get; set; } = string.Empty;
-        [ObservableProperty]
-        public partial string MessageVitesseMoyen { get; set; } = string.Empty;
-        [ObservableProperty]
-        public partial string MessagePostiveElevation { get; set; } = string.Empty;
-        [ObservableProperty]
-        public partial string MessageNegativeElevation { get; set; } = string.Empty;
         /// <summary>
         /// observable collection pour l'affichage des photos dans le carousel
         /// </summary>
@@ -202,17 +192,18 @@ namespace KronoGeo_Maui.ModelViews
                     var localisations = _serviceBackupGps.ReturnLocalisation();
                     if ( localisations is not null && localisations.Count > 0)
                     {
-                        localisations.AddRange(localisations.OrderBy(ob => ob.OrderIndex));
+                        _localisations.AddRange(localisations.OrderBy(ob => ob.OrderIndex));
                         _lastLocation = _localisations.OrderByDescending(ob => ob.OrderIndex).FirstOrDefault();
                         _routeTelemetry = _serviceTelemetry.CalculateTelemetry(_localisations);
 
-                        MessageDistance = $"{Math.Round(_routeTelemetry.Distance, 3)} km";
-                        MessageVitesseMoyen = $"{Math.Round(_routeTelemetry.AverageSpeed, 3)} km/h";
-                        MessageNegativeElevation = $"{Math.Round(_routeTelemetry.NegativeElevationGain)} m";
-                        MessagePostiveElevation = $"{Math.Round(_routeTelemetry.PositiveElevationGain)} m";
+                        // -- passage de la RouteTelemetry vers le BottomSheet
+                        SheetViewModel.GetRouteTeletry(_routeTelemetry);
+
+                        // -- supprimer en mémoire les photos
+                        SheetViewModel.ClearAllPhotos();
 
                         // -- mise a jour de la carte
-                        foreach (var item in localisations.OrderBy(ob=>ob.OrderIndex)) {
+                        foreach (var item in localisations) {
                             var location = item.GetLocation();
                             if (item is LocalisationPhoto photo)
                             {
@@ -254,7 +245,7 @@ namespace KronoGeo_Maui.ModelViews
                 {
                     _serviceBackupGps.DeleteFile();
                     // -- supprime toutes les photos du BottomSheet
-                    SheetViewModel.ClearAllPhotos();
+                    SheetViewModel.DeleteAllPhotos();
                     //_camera.DeletePhotos();
                 }
             }
@@ -271,7 +262,7 @@ namespace KronoGeo_Maui.ModelViews
             var window = Application.Current?.Windows.FirstOrDefault();
             if (window is not null)
             {
-                window.Stopped -= SaveLocalisation;
+                window.Stopped -= SaveLocalisation; // -- quand l'application perd le focus ou passe en arrière plan
                 window.Destroying -= DestroyingSaveLocalisation;
                 SheetViewModel.DeletePhoto -= DeletePhoto;
             }
@@ -313,6 +304,7 @@ namespace KronoGeo_Maui.ModelViews
             IsMessageError = false;
             try
             {
+                _takePhoto = true;
                 var photo = await _camera.TakePhotoAsync();
                 if (photo is not null && !string.IsNullOrEmpty(photo.Name) )
                 {
@@ -364,11 +356,12 @@ namespace KronoGeo_Maui.ModelViews
             }
             finally
             {
+                _takePhoto = false;
                 if (IsMessageError)
                 {
                     var cancellationToken = new System.Threading.CancellationToken();
                     // -- systeme de messagerie 
-                    await Toast.Make($"{Message}").Show(cancellationToken);
+                    await Toast.Make($"{Message}",ToastDuration.Long).Show(cancellationToken);
                 }
             }
 
@@ -545,7 +538,7 @@ namespace KronoGeo_Maui.ModelViews
                     if ( await _saveLocalisation.SaveLocalisation(localisationGroup, new System.Threading.CancellationToken()))
                     {
                         //MesPhotos.Clear();
-                        SheetViewModel.ClearAllPhotos();
+                        SheetViewModel.DeleteAllPhotos();
 
                         // -- enregistrement ok
                         _localisations.Clear();
@@ -659,11 +652,8 @@ namespace KronoGeo_Maui.ModelViews
                     var route = _routeTelemetry;
                     _serviceTelemetry.CalculateTelemetry(_lastLocation, localisation, ref route);
                     _routeTelemetry = route;
-                    
-                    MessageDistance = $"{Math.Round(_routeTelemetry.Distance,3)} km";
-                    MessageVitesseMoyen = $"{Math.Round(_routeTelemetry.AverageSpeed,3)} km/h";
-                    MessageNegativeElevation = $"{Math.Round(_routeTelemetry.NegativeElevationGain)} m";
-                    MessagePostiveElevation = $"{Math.Round(_routeTelemetry.PositiveElevationGain)} m";
+
+                    SheetViewModel.GetRouteTeletry(_routeTelemetry);
                 }
                 _lastLocation = localisation; // -- pour la mise a jour du dernier point pour le calcul de la distance
                 // -- envoie un message pour recentrer la map sur la position de l'utilisateur
@@ -715,7 +705,10 @@ namespace KronoGeo_Maui.ModelViews
 
         public void SaveLocalisation (object? send, EventArgs args)
         {
-            // - si le fichier existe le back up est déjà fait
+            // -- pendant la prise photo ne pas faire de backup
+            if (_takePhoto) return;
+
+            // -- si le fichier existe le back up est déjà fait
             if (_serviceBackupGps.FileExist()) return; 
 
             // le service a démarré & il y a des points de localisation
@@ -733,6 +726,7 @@ namespace KronoGeo_Maui.ModelViews
         /// <param name="args"></param>
         public void DestroyingSaveLocalisation (object? send, EventArgs args)
         {
+            if (_takePhoto) return;
             SaveLocalisation(send, args);
             StopService(); // -- on arrête le service propremement
         }

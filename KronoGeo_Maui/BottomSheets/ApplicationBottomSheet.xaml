@@ -55,10 +55,10 @@
         <!-- Résumé du trajet calculé en temps réel à programmer -->
         <!--<DataTemplate x:Key="ResumeGeo" x:DataType="viewmodels:ApplicationBottomSheetViewModel">-->
             <DataTemplate x:Key="ResumeGeo" >
-            <Label Text="Teletry" BackgroundColor="LightBlue" FontSize="30"
+            <!--<Label Text="Teletry" BackgroundColor="LightBlue" FontSize="30"
                    TextColor="Black" HorizontalOptions="Center"
-                   VerticalOptions="Center"></Label>
-            <!--<Grid BackgroundColor="#96BD8E" Padding="5">
+                   VerticalOptions="Center"></Label>-->
+            <Grid BackgroundColor="#96BD8E" Padding="5">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="50"/>
                     <RowDefinition Height="*" />
@@ -101,7 +101,7 @@
 
                 </Border>
 
-            </Grid>-->
+            </Grid>
         </DataTemplate>
 
 
@@ -123,7 +123,7 @@
                 TextColor="LightGray" BackgroundColor="Transparent"
                 VerticalOptions="Start" 
                 Command="{Binding CloseBottomSheetCommand}"
-                CommandParameter="{Binding Source={x:Reference Self}}"/>
+                CommandParameter="{Binding Source={x:Reference ApplicationBottom}}"/>
 
         <CarouselView Grid.Row="1" MinimumHeightRequest="600"
             HeightRequest="650" ItemsSource="{Binding Source={x:Reference ApplicationBottom}, Path=BindingContext.MesPages}"

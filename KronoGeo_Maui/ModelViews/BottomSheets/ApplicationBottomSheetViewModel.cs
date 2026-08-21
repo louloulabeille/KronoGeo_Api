@@ -33,9 +33,21 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
         private readonly IServiceCamera _camera;
         #endregion
 
+        #region private method
+        private RouteTelemetry? _routeTelemetry = default;
+        #endregion
+
         #region public observable properties
         [ObservableProperty]
         public partial ObservableCollection<PhotoDTO> MesPhotos { get; set; } = [];
+        [ObservableProperty]
+        public partial string MessageDistance { get; set; } = "0";
+        [ObservableProperty]
+        public partial string MessageVitesseMoyen { get; set; } = "0";
+        [ObservableProperty]
+        public partial string MessageNegativeElevation { get; set; } = "0";
+        [ObservableProperty]
+        public partial string MessagePostiveElevation { get; set; } = "0";
         #endregion
 
         #region public constructeur
@@ -67,15 +79,44 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
         }
 
         /// <summary>
-        /// Supprimes toutes les photos
+        /// supprime les photos dans la liste du BottomSheet
         /// </summary>
         public void ClearAllPhotos()
+        {
+            MesPhotos.Clear();
+        }
+
+        /// <summary>
+        /// Supprimes toutes les photos dans l'applications
+        /// </summary>
+        public void DeleteAllPhotos()
         {
             MainThread.BeginInvokeOnMainThread(() => {
                 MesPhotos.Clear();
                 _camera.DeletePhotos();
             });
         }
+
+        /// <summary>
+        /// method de mise a jour de la telemtry pour le BottomSheet
+        /// </summary>
+        /// <param name="route"></param>
+        public void GetRouteTeletry ( RouteTelemetry route )
+        {
+            _routeTelemetry = route;
+            string unit = "km";
+            string elevation = "m";
+            if ( route.DistanceUnit == DistanceUnits.Miles )
+            {
+                unit = "mi";
+                elevation = "ft";
+            }
+            MessageDistance = $"{Math.Round(_routeTelemetry.Distance, 3)} {unit}";
+            MessageVitesseMoyen = $"{Math.Round(_routeTelemetry.AverageSpeed, 3)} {unit}/h";
+            MessageNegativeElevation = $"{Math.Round(_routeTelemetry.NegativeElevationGain)} {elevation}";
+            MessagePostiveElevation = $"{Math.Round(_routeTelemetry.PositiveElevationGain)} {elevation}";
+        } 
+
         #endregion
 
         #region public method RelayCommand
