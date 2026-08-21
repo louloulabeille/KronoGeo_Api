@@ -38,7 +38,7 @@
                                     HeightRequest="150" Grid.Row="0"/>
                                 <!--CommandParameter="{Binding .}"-->
                                 <Button Text="X" HorizontalOptions="End"
-                                        Command="{Binding BindingContext.Delete, Source={x:Reference ApplicationBottom}}"
+                                        Command="{Binding BindingContext.DeleteImage, Source={x:Reference ApplicationBottom}}"
                                         CommandParameter="{Binding .}"
                                         VerticalOptions="Start" Margin="5" WidthRequest="30"
                                         HeightRequest="30" CornerRadius="15" 
