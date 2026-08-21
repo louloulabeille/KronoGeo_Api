@@ -38,12 +38,14 @@
                 <Button Grid.Column="0" Text="&#xe5c9;" TextColor="#51638B"
                         x:Name="AnnulerButton" Clicked="OnClickedAnnuler"
                         FontFamily="MaterialIcons-Regular"
-                        HorizontalOptions="Start" FontSize="30">  
+                        HorizontalOptions="Center" FontSize="30"
+                        BackgroundColor="#F9EDE1">  
                 </Button>
                 <Button Grid.Column="1" Text="&#xe86c;" TextColor="#51638B"
-                            FontFamily="MaterialIcons-Regular"
-                            x:Name="OkButton" Clicked="OnClickedClose"  
-                            HorizontalOptions="End" FontSize="30">
+                        FontFamily="MaterialIcons-Regular"
+                        x:Name="OkButton" Clicked="OnClickedClose"  
+                        HorizontalOptions="Center" FontSize="30"
+                        BackgroundColor="#F9EDE1">
                 </Button>
             </Grid>
         </Grid>
