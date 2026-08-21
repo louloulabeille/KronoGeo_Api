@@ -1,8 +1,11 @@
 ﻿using Castle.Core.Logging;
 using KronoGeo_Api.Applications.MediatR.Commands.Identity;
 using KronoGeo_Api.Applications.MediatR.Queries.Identity;
-using KronoGeo_Api.Models.Model.DTO;
+using KronoGeo_Api.Interface.Service;
+using KronoGeo_Api.Models;
+using KronoGeo_Api.Models.Infrastructure.Email;
 using KronoGeo_Api.Models.Infrastructure.Options;
+using KronoGeo_Api.Models.Model.DTO;
 using KronoGeo_Api.TestUnitaire.Data;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -17,8 +20,6 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
-using KronoGeo_Api.Interface.Service;
-using KronoGeo_Api.Models.Infrastructure.Email;
 
 namespace KronoGeo_Api.TestUnitaire
 {
@@ -26,7 +27,7 @@ namespace KronoGeo_Api.TestUnitaire
     {
         #region private properties
         private readonly KronoGeoContextMemory _context = new();
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly Mock<IOptions<KeyBearer>> _keyBearer = new();
         private readonly Mock<IOptions<UrlOptions>> _urlOptions = new();
         private readonly Mock<IServiceSendMessage> _send = new();
@@ -37,9 +38,9 @@ namespace KronoGeo_Api.TestUnitaire
         {
             // - configuration de l'environnement de test pour les tests unitaires
             // avec une base de données en mémoire et un SignInManager configuré pour les tests
-            var userStore = new UserStore<IdentityUser>(_context);
-            var userManager = new UserManager<IdentityUser>(userStore, null, new PasswordHasher<IdentityUser>(), null, null, null, null, null, null);
-            _signInManager = new SignInManager<IdentityUser>(userManager, Mock.Of<IHttpContextAccessor>(), Mock.Of<IUserClaimsPrincipalFactory<IdentityUser>>(), null, null, null, null);
+            var userStore = new UserStore<ApplicationUser>(_context);
+            var userManager = new UserManager<ApplicationUser>(userStore, null, new PasswordHasher<ApplicationUser>(), null, null, null, null, null, null);
+            _signInManager = new SignInManager<ApplicationUser>(userManager, Mock.Of<IHttpContextAccessor>(), Mock.Of<IUserClaimsPrincipalFactory<ApplicationUser>>(), null, null, null, null);
 
             // - intialisation de la base de données
             Init();
@@ -88,7 +89,8 @@ namespace KronoGeo_Api.TestUnitaire
         /// <param name="roles"></param>
         private void InitUser(RegisterDTO register, string[] roles)
         {
-            var user = new IdentityUser {
+            var user = new ApplicationUser
+            {
                     UserName = register.Login, 
                     Email = register.Email, 
                     PhoneNumber = register.PhoneNumber,

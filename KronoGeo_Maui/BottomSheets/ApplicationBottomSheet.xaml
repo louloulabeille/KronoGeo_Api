@@ -65,7 +65,7 @@
                 </Grid.RowDefinitions>
                 <Border Grid.Row="0" StrokeThickness="1"  BackgroundColor="#F9EDE1"
                 StrokeShape="RoundRectangle 10,10,10,10" Stroke="#51638B">
-                    <Label Text="Page Resumé" HorizontalOptions="Center" FontAttributes="Bold"
+                    <Label Text="Télémétrie" HorizontalOptions="Center" FontAttributes="Bold"
                     VerticalOptions="Center" FontSize="30" TextColor="#51638B"></Label>
                 </Border>
 

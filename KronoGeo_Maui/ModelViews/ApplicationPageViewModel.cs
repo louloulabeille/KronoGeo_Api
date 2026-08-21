@@ -89,15 +89,10 @@ namespace KronoGeo_Maui.ModelViews
         [ObservableProperty]
         public partial string PlayPause { get; set; } = "\ue1c4"; // - affichage de play 
         /// <summary>
-        /// observable collection pour l'affichage des photos dans le carousel
-        /// </summary>
-        [ObservableProperty]
-        public partial ObservableCollection<PhotoDTO> MesPhotos { get; set; } = [];
-        /// <summary>
         /// pour savoir si l'affichage de la map est en mode Street ou Satellite ou hybride
         /// </summary>
         [ObservableProperty]
-        public partial string MapType { get; set; } = "Street";
+        public partial string MapType { get; set; } = "Hybrid";
         /// <summary>
         /// Desactive la possibilité de prendre des photos 
         /// si le service de géolocalisation n'est pas démarré
@@ -192,6 +187,7 @@ namespace KronoGeo_Maui.ModelViews
                     var localisations = _serviceBackupGps.ReturnLocalisation();
                     if ( localisations is not null && localisations.Count > 0)
                     {
+                        _localisations.Clear();
                         _localisations.AddRange(localisations.OrderBy(ob => ob.OrderIndex));
                         _lastLocation = _localisations.OrderByDescending(ob => ob.OrderIndex).FirstOrDefault();
                         _routeTelemetry = _serviceTelemetry.CalculateTelemetry(_localisations);
@@ -214,10 +210,7 @@ namespace KronoGeo_Maui.ModelViews
                                     Name = photo.Name,
                                     PathPhoto = photo.PathPhoto
                                 });
-                                /*MesPhotos.Add(new() 
-                                { 
-                                    Name = photo.Name, PathPhoto = photo.PathPhoto 
-                                });*/
+                                // -- mise a jour du pîn de la map
                                 PinMessage pinMessage = new()
                                 {
                                     Pin = new()
