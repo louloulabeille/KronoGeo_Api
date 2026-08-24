@@ -67,13 +67,13 @@
 	<!-- Removed explicit exclusion so Android styles in Platforms/Android/Resources/values are packaged -->
 
 	<ItemGroup>
-		<PackageReference Include="CommunityToolkit.Maui" Version="15.0.0" />
+		<PackageReference Include="CommunityToolkit.Maui" Version="15.0.1" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.11" />
 		<PackageReference Include="Microsoft.Extensions.Http.Polly" Version="10.0.11" />
-		<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.90" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.100" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.11" />
-		<PackageReference Include="Microsoft.Maui.Controls.Maps" Version="10.0.90" />
+		<PackageReference Include="Microsoft.Maui.Controls.Maps" Version="10.0.100" />
 		<PackageReference Include="Plugin.Fingerprint" Version="2.1.5" />
 		<PackageReference Include="The49.Maui.BottomSheet" Version="8.0.3" />
 	</ItemGroup>

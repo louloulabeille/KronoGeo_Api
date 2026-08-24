@@ -44,7 +44,8 @@
 	  <string>Fill in a reason why your app needs full accuracy</string>
 	</dict>
 	
-	
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Please allow access to save photo in your photo library</string>
 	
 </dict>
 </plist>

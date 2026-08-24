@@ -80,6 +80,8 @@ namespace KronoGeo_Maui
             builder.Services.AddScoped<IServiceSaveParametrage, InMemoryMauiParametrage>();
             builder.Services.AddTransient<IServiceTelemetry, ServiceTelemetry>();
             builder.Services.AddSingleton<IServiceBackupGps, GpsBackUpMauiService>();
+
+            builder.Services.AddServiceSavePhotoLocal();
             #endregion
 
             #region injection en développent du token tunnel de développement sécurisé
