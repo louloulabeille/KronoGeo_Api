@@ -1,5 +1,6 @@
 using KronoGeo_Blazor.Client.Pages;
 using KronoGeo_Blazor.Components;
+using KronoGeo_Blazor.Infrastructure.Extends;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
+
+#region HttpClient injection
+builder.Services.AddHttpClientExtend();
+#endregion
 
 var app = builder.Build();
 
