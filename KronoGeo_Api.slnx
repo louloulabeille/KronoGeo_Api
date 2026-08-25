@@ -4,9 +4,10 @@
   <Project Path="KronoGeo_Api.Models/KronoGeo_Api.Models.csproj" />
   <Project Path="KronoGeo_Api.TestUnitaire/KronoGeo_Api.TestUnitaire.csproj" Id="e6203e96-3220-4c49-a906-fe324fbd46d9" />
   <Project Path="KronoGeo_Api/KronoGeo_Api.csproj" />
-  <Project Path="Kronogeo_Blazor/Kronogeo_Blazor.Client/Kronogeo_Blazor.Client.csproj" Id="3c66853a-2f86-4817-b219-c5e52dd41daa" />
-  <Project Path="Kronogeo_Blazor/Kronogeo_Blazor/Kronogeo_Blazor.csproj" Id="214d726e-c90b-4ec5-91cc-be3e74e59ca9" />
+  <Project Path="KronoGeo_Blazor/KronoGeo_Blazor.Client/KronoGeo_Blazor.Client.csproj" Id="a254439b-6528-477d-823e-c8e866d94426" />
+  <Project Path="KronoGeo_Blazor/KronoGeo_Blazor/KronoGeo_Blazor.csproj" Id="64467c53-9652-4205-b989-c9cf879f5ac8" />
   <Project Path="KronoGeo_Maui/KronoGeo_Maui.csproj" Id="80fa94dc-9c9e-4d98-a667-19b26ff1e45c">
     <Build Solution="Debug|*" Project="false" />
+    <Deploy Solution="Debug|*" />
   </Project>
 </Solution>

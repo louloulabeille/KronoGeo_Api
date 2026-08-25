@@ -4,21 +4,15 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>aspnet-Kronogeo_Blazor-e78f0eeb-4c7a-4680-86d1-5bcc855c3049</UserSecretsId>
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Kronogeo_Blazor.Client\Kronogeo_Blazor.Client.csproj" />
+    <ProjectReference Include="..\..\KronoGeo_Api.Infrastructure\KronoGeo_Api.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\KronoGeo_Api.Interface\KronoGeo_Api.Interface.csproj" />
+    <ProjectReference Include="..\..\KronoGeo_Api.Models\KronoGeo_Api.Models.csproj" />
+    <ProjectReference Include="..\KronoGeo_Blazor.Client\KronoGeo_Blazor.Client.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.11" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.11" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.11" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.11" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.11" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.11">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
 
 </Project>
