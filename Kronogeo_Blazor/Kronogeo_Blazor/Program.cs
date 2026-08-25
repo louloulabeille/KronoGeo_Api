@@ -9,6 +9,10 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
 
+#region IOptions urlApi
+builder.Services.AddUrlApiExtend(builder.Configuration);
+#endregion
+
 #region HttpClient injection
 builder.Services.AddHttpClientExtend();
 #endregion

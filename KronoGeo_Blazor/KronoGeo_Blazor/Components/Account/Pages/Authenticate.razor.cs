@@ -1,4 +1,5 @@
-﻿using KronoGeo_Api.Interface.Service;
+﻿using KronoGeo_Api.Infrastructure.Service.Email;
+using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models.Model.DTO;
 using Microsoft.AspNetCore.Components;
 
@@ -8,28 +9,30 @@ namespace KronoGeo_Blazor.Components.Account.Pages
     {
         #region private readonly properties 
         [Inject]
-        private IServiceHttpKronoGeo _serviceHttp { get; set; }
+        private IServiceHttpKronoGeo? _serviceHttp { get; set; } = default;
         #endregion
 
         #region protected method 
-        protected RegisterDTO Login { get; set; }
+        protected RegisterDTO Login { get; set; } = new() { Login = string.Empty };
         #endregion
 
-        #region constructeur
-        public AuthenticateBase(IServiceHttpKronoGeo serviceHttp)
+        #region override method
+        protected override void OnInitialized()
         {
-            // -- service
-            _serviceHttp = serviceHttp;
+            base.OnInitialized();
 
-            // -- initialisation du Login
-            Login = new() { Login = string.Empty };
         }
+
         #endregion
 
         #region protected method
-        protected void FormAuthenticate()
+        protected async Task FormAuthenticate()
         {
+            if ( _serviceHttp is not null ) 
+            { 
 
+                var result = await _serviceHttp.AuthenticateAsync(Login);
+            }
         }
         #endregion
     }
