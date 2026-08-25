@@ -1,0 +1,41 @@
+﻿@page "/Account/authenticate"
+@using KronoGeo_Api.Models.Model.DTO
+
+@inherits AuthenticateBase
+
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+<div class="container">
+    <EditForm Model="Login" OnSubmit="FormAuthenticate">
+        <DataAnnotationsValidator/>
+        <div class="form-floating mb-3">
+            <InputText @bind-Value="Login.Login" type="text" class="form-control" id="inputLogin" aria-describedby="loginHelp" />
+            <label for="inputLogin" class="form-label">Login</label>
+            <div id="loginHelp" class="form-text">Utiliser votre login ou email pour vous connecter.</div>
+            <small>
+                <ValidationMessage For="() => Login.Login" />
+            </small>
+        </div>
+        <div class="form-floating mb-3">
+            <!-- pour avoir le text plus petit -sm -->
+            <InputText @bind-Value="Login.Password" type="password" class="form-control form-control-sm" id="inputPassword" />
+            <label for="inputPassword" class="form-label">Password</label>
+            <div id="passwordHelpBlock" class="form-text">
+                Votre mot de passe contient + de 8 caractères, lettres, nombres et des caractères spéciaux, et ne contient pas d'espaces ni d'emoji.
+            </div>
+            <small>
+                <ValidationMessage For="() => Login.Password" />
+            </small>
+        </div>
+
+        <!-- lien vers mot de passe oublié -->
+        <div class="form-group fs-6 mt-0 d-flex justify-content-center">
+            <a class="" href="Account/ForgotPassword">Mot de passe oublié</a>
+        </div>
+
+        <!-- button type submit -->
+        <div class="form-group mt-3">
+            <button type="submit" class="btn btn-secondary">Submit</button>
+        </div>
+    </EditForm>
+</div>

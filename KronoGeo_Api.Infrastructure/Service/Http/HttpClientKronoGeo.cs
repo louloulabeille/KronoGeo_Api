@@ -30,7 +30,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             _httpClient = httpClient;
             _options = options;
 
-            // - initialise les protections
+            // - initialise les protections du tunnel pour le debug
 #if DEBUG
             _tokenTunnel = tokenTunnel;
             ChargingTokenTunnel();
