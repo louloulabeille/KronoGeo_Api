@@ -10,7 +10,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Mapsui.Blazor" Version="5.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.11" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Pages\Layout\" />
   </ItemGroup>
 
 </Project>
