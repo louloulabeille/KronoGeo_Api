@@ -20,6 +20,12 @@ builder.Services.AddUrlApiExtend(builder.Configuration);
 builder.Services.AddHttpClientExtend();
 #endregion
 
+
+#region Logging - log dans la console et dans des fichiers de log quotidiens
+builder.Host.AddSeriLog();
+#endregion
+
+
 #region injection 
 // -- Conteneur de token : un seul par circuit/utilisateur
 builder.Services.AddScoped<UserTokenContainer>();
@@ -30,6 +36,8 @@ builder.Services.AddTransient<TokenHeaderHandler>();
 // -- ProtectedSessionStorage
 builder.Services.AddScoped<ProtectedSessionStorage>();
 #endregion
+
+
 
 var app = builder.Build();
 
@@ -54,5 +62,10 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(KronoGeo_Blazor.Client._Imports).Assembly);
+
+#region Ilogger - lancement de l'application - Message
+// -- démarrage de l'application 
+app.Logger.LogInformation("Le serveur blazor kronogeo a démarré.");
+#endregion
 
 app.Run();

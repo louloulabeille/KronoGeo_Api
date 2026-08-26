@@ -23,6 +23,8 @@ namespace KronoGeo_Blazor.Components.Account.Pages
         private ProtectedSessionStorage? _sessionStorage { get; set; }
         [Inject]
         private NavigationManager? _navigationManager { get; set; }
+        [Inject]
+        private ILogger<AuthenticateBase>? _logger { get; set; }
         #endregion
 
         #region protected method 
@@ -83,6 +85,7 @@ namespace KronoGeo_Blazor.Components.Account.Pages
             }catch(Exception ex)
             {
                 ErreurMessage = true;
+                _logger?.LogError(ex, "Erreur interne {message}", ex.Message);
             }
             
         }
