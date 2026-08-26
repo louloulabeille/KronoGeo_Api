@@ -1,7 +1,12 @@
 ﻿using KronoGeo_Api.Infrastructure.Service.Email;
 using KronoGeo_Api.Interface.Service;
+using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Model.DTO;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using System.Security.Claims;
 
 namespace KronoGeo_Blazor.Components.Account.Pages
 {
@@ -10,6 +15,10 @@ namespace KronoGeo_Blazor.Components.Account.Pages
         #region private readonly properties 
         [Inject]
         private IServiceHttpKronoGeo? _serviceHttp { get; set; } = default;
+        [Inject]
+        private UserTokenContainer? _userTokenContainer { get; set; }
+        [Inject]
+        private ProtectedSessionStorage? _sessionStorage { get; set; }
         #endregion
 
         #region protected method 
@@ -28,11 +37,31 @@ namespace KronoGeo_Blazor.Components.Account.Pages
         #region protected method
         protected async Task FormAuthenticate()
         {
-            if ( _serviceHttp is not null ) 
-            { 
+            try
+            {
+                if (_serviceHttp is not null)
+                {
+                    // -- requete vers l'APi
+                    var result = await _serviceHttp.AuthenticateAsync(Login);
+                    if ( result.IsSuccess)
+                    {
+                        if ( !string.IsNullOrEmpty(result.Register?.Token) )
+                        {
+                            _userTokenContainer?.AccessToken = result.Register?.Token;
+                            _sessionStorage?.SetAsync("userId", result.Register!.Id);
+                            
+                        }
+                    }
+                    else
+                    {
 
-                var result = await _serviceHttp.AuthenticateAsync(Login);
+                    }
+                }
+            }catch(Exception ex)
+            {
+
             }
+            
         }
         #endregion
     }

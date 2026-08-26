@@ -109,13 +109,13 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                     return new()
                     {
                         ApiStatus = EnumApiStatus.BadRequest,
-                        Message = $" Status Code retour {retour.IsSuccessStatusCode.ToString()}"
+                        Message = $" Status Code retour {retour.IsSuccessStatusCode}"
                     };
                 }
             }
 
-            throw new ArgumentNullException("Les localisations sont nulles. Pas d'enregistrements.");
-        }
+            throw new ArgumentNullException(nameof(localisationGroup), "Les localisations sont nulles. Pas d'enregistrements.");
+        }       
 
         /// <summary>
         /// method d'envoi de la photo pour sauvegarde sur le serveur API

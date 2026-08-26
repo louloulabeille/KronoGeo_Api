@@ -12,6 +12,8 @@ namespace KronoGeo_Blazor.Infrastructure.Extends
         {
             /// <summary>
             /// method pour ajouter l'injection de dépendance pour la liaison de donnée par HttpClient
+            /// avec ajout DelegatingHandler -> TokenHeaderHandler
+            /// qui injecter le token dans le header de la requete HttpClient vers le Api
             /// </summary>
             /// <returns></returns>
             public IServiceCollection AddHttpClientExtend()
@@ -21,6 +23,7 @@ namespace KronoGeo_Blazor.Infrastructure.Extends
                     client.BaseAddress = new Uri(options.Value.BasicAdress);
 
                 })
+                    .AddHttpMessageHandler<TokenHeaderHandler>()
                     .AddTransientHttpErrorPolicy(policyBuilder => policyBuilder.WaitAndRetryAsync(
                         retryCount: 3,
                         retryNumber => TimeSpan.FromMilliseconds(50 + retryNumber * 150))); ;

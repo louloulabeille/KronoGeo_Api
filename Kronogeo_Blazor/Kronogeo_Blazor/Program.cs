@@ -1,6 +1,9 @@
+using KronoGeo_Api.Infrastructure.Service.Http;
+using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Blazor.Client.Pages;
 using KronoGeo_Blazor.Components;
 using KronoGeo_Blazor.Infrastructure.Extends;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +18,17 @@ builder.Services.AddUrlApiExtend(builder.Configuration);
 
 #region HttpClient injection
 builder.Services.AddHttpClientExtend();
+#endregion
+
+#region injection 
+// -- Conteneur de token : un seul par circuit/utilisateur
+builder.Services.AddScoped<UserTokenContainer>();
+
+// --  Le handler HTTP
+builder.Services.AddTransient<TokenHeaderHandler>();
+
+// -- ProtectedSessionStorage
+builder.Services.AddScoped<ProtectedSessionStorage>();
 #endregion
 
 var app = builder.Build();
