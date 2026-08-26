@@ -90,7 +90,7 @@ namespace KronoGeo_Api.Controllers
                 {
 
                     _logger.LogWarning("User {Login} account is locked out.", login.Login);
-                    return this.BadRequest( new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.BadRequest, Message = "Your account is locked. Please try again later." });
+                    return this.BadRequest( new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.Locked, Message = "Your account is locked. Please try again later." });
                 }
                 else
                 {

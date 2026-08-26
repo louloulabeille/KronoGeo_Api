@@ -10,6 +10,7 @@ namespace KronoGeo_Api.Models.Infrastructure.Http
         BadRequest,
         Problem,
         NotFound,
+        Locked,
     }
 
     public abstract class ResponseApi
@@ -36,5 +37,6 @@ namespace KronoGeo_Api.Models.Infrastructure.Http
         /// retourne not found quand le resultat de la recherche n'est pas trouvé
         /// </summary>
         public bool IsNotFound { get { return ApiStatus == EnumApiStatus.NotFound; }}
+        public bool IsLocked { get { return ApiStatus == EnumApiStatus.Locked; }}
     }
 }
