@@ -13,8 +13,8 @@ namespace KronoGeo_Blazor.Client.Pages.Account
         private IServiceHttpKronoGeo? _serviceHttp { get; set; } = default;
         [Inject]
         private NavigationManager? _navigationManager { get; set; }
-        [Inject]
-        private ILogger<AuthenticateBase>? _logger { get; set; }
+        /*[Inject]
+        private ILogger<AuthenticateBase>? _logger { get; set; }*/
         #endregion
 
         #region protected method 
@@ -68,7 +68,7 @@ namespace KronoGeo_Blazor.Client.Pages.Account
             catch (Exception ex)
             {
                 ErreurMessage = true;
-                _logger?.LogError(ex, "Erreur interne {message}", ex.Message);
+                //_logger?.LogError(ex, "Erreur interne {message}", ex.Message);
             }
 
         }

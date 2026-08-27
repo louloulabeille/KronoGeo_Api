@@ -19,7 +19,7 @@ namespace KronoGeo_Blazor.Client.Infrastructure.Extends
             {
                 services.AddOptions();
                 services.Configure<UrlApi>(options => {
-                    options.Login = "api/v1/Authenticate";
+                    options.Login = "api/v1/AuthBFF/Authenticate";
                 });
                 return services;
             }

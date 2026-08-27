@@ -46,7 +46,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// </summary>
         /// <param name="register"></param>
         /// <returns></returns>
-        public async Task<ResponseApiAuthenticate> AuthenticateAsync( RegisterDTO register )
+        public virtual async Task<ResponseApiAuthenticate> AuthenticateAsync( RegisterDTO register )
         {
             HttpContent content = new StringContent(JsonSerializer.Serialize(register), Encoding.UTF8, "application/json");
             using HttpResponseMessage response = await _httpClient.PostAsync(_options.Value.Login, content);
@@ -79,7 +79,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <param name="tokkenBearer"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task<ResponseApiLocalisations> SaveGroupLocalisationsAsync(LocalisationGroupDTO localisationGroup, string tokkenBearer)
+        public virtual async Task<ResponseApiLocalisations> SaveGroupLocalisationsAsync(LocalisationGroupDTO localisationGroup, string tokkenBearer)
         {
             if ( localisationGroup.Localisations is not null )
             {
@@ -125,7 +125,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <param name="photo"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task<ResponseApiImage> SavePhotoAsync(PhotoDTO photo, string tokkenBearer)
+        public virtual async Task<ResponseApiImage> SavePhotoAsync(PhotoDTO photo, string tokkenBearer)
         {
             if ( photo.PathComplet is null )
             {
@@ -194,6 +194,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             // -- charge le token du tunnel en Debug pour la sécurité
             // - ajout du token pour l'utilisation du tonnel sécurisé
             var token = _tokenTunnel?.Value.Token ?? string.Empty;
+            if (string.IsNullOrEmpty(token)) return;
             _httpClient.DefaultRequestHeaders.Add("X-Tunnel-Authorization", $"{token}");
             //_httpClient.DefaultRequestHeaders.Add("X-Tunnel-Authorization", "tunnel eyJhbGciOiJFUzI1NiIsImtpZCI6IjcyRjZDNUU3OEE2M0UzOEUxM0UyOTE1MjM0NjMyMDFGMDFDMzQ2MTUiLCJ0eXAiOiJKV1QifQ.eyJjbHVzdGVySWQiOiJldXciLCJ0dW5uZWxJZCI6InBlYWNlZnVsLWNoYWlyLWI2Y3ZnYzIiLCJzY3AiOiJjb25uZWN0IiwiZXhwIjoxNzg3MDUxMzQ3LCJpc3MiOiJodHRwczovL3R1bm5lbHMuYXBpLnZpc3VhbHN0dWRpby5jb20vIiwibmJmIjoxNzg2OTY0MDQ3fQ.UBF-WTYmgM1qIUJ9lGL7ElALXBZOqXK4ZXKJ3y4qZ-niUxOoAcvApYd3tFyhpZgAodbtNHEz-CqVmliesx__bw");
         }

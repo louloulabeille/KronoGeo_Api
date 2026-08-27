@@ -20,6 +20,8 @@ namespace KronoGeo_Blazor.Infrastructure.Extends
             {
                 // -- service pour lire le HttpContext en cours dans le handler
                 services.AddHttpContextAccessor();
+                // -- service pour injecter IMemoryCache appelé dans la classe TokenHeaderHandler
+                services.AddMemoryCache();
 
                 services.AddTransient<TokenHeaderHandler>();
 

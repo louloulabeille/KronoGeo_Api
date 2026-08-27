@@ -15,6 +15,8 @@ builder.Services.AddControllers(options =>
     // et il faudra ajouter l'attribut [AllowAnonymous] pour les routes qui ne nécessitent pas d'authentification
     options.Filters.Add(new AuthorizeFilter());
 });
+
+builder.Services.AddRazorPages();
 #endregion
 
 // Add services to the container.
@@ -38,10 +40,10 @@ builder.Host.AddSeriLog();
 
 #region injection 
 // --  Le handler HTTP
-builder.Services.AddTransient<TokenHeaderHandler>();
+//builder.Services.AddTransient<TokenHeaderHandler>();
 
 // -- ProtectedSessionStorage
-builder.Services.AddScoped<ProtectedSessionStorage>();
+//builder.Services.AddScoped<ProtectedSessionStorage>();
 #endregion
 
 
