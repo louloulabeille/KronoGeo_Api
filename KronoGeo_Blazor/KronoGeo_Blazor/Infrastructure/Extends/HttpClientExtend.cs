@@ -18,12 +18,17 @@ namespace KronoGeo_Blazor.Infrastructure.Extends
             /// <returns></returns>
             public IServiceCollection AddHttpClientExtend()
             {
+                // -- service pour lire le HttpContext en cours dans le handler
+                services.AddHttpContextAccessor();
+
+                services.AddTransient<TokenHeaderHandler>();
+
                 services.AddHttpClient<IServiceHttpKronoGeo, HttpClientKronoGeo>((serviceProvider, client) => {
                     var options = serviceProvider.GetRequiredService<IOptions<UrlApi>>();
                     client.BaseAddress = new Uri(options.Value.BasicAdress);
 
                 })
-                    .AddHttpMessageHandler<TokenHeaderHandler>()
+                    .AddHttpMessageHandler<TokenHeaderHandler>() //-- ajoue du handler qui va chercher le token en memoire selon la session id de l'utilisateur
                     .AddTransientHttpErrorPolicy(policyBuilder => policyBuilder.WaitAndRetryAsync(
                         retryCount: 3,
                         retryNumber => TimeSpan.FromMilliseconds(50 + retryNumber * 150))); ;

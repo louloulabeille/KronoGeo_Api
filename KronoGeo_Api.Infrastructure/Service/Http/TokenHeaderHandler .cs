@@ -23,12 +23,14 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
              var httpContext = _httpContextAccessor.HttpContext;
 
             // -- récupération de id de la session
-            var sessionId = httpContext.User.FindFirst("")
+            var sessionId = httpContext.User.FindFirst("BffSessionId")?.Value;
 
-            if (!string.IsNullOrEmpty(_tokenContainer.AccessToken))
+            if (!string.IsNullOrEmpty(sessionId) && 
+                _memoryCache.TryGetValue($"jwt_{sessionId}", out string? jwtToken))
             {
+                
                 request.Headers.Authorization =
-                    new AuthenticationHeaderValue("Bearer", _tokenContainer.AccessToken);
+                    new AuthenticationHeaderValue("Bearer", jwtToken);
             }
 
             return await base.SendAsync(request, cancellationToken);
