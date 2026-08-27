@@ -2,11 +2,11 @@
 
 @inherits AuthenticateBase
 
-@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@rendermode InteractiveAuto
 
 <div class="container">
     <EditForm Model="Login" OnSubmit="FormAuthenticate">
-        <DataAnnotationsValidator/>
+        <DataAnnotationsValidator />
         <div class="form-floating mb-3">
             <InputText @bind-Value="Login.Login" type="text" class="form-control" id="inputLogin" aria-describedby="loginHelp" />
             <label for="inputLogin" class="form-label">Login ou adresse mail</label>
@@ -37,19 +37,20 @@
             <button type="submit" class="btn btn-secondary">Submit</button>
         </div>
     </EditForm>
-    
-    @if ( ErreurLogin ) {
+
+    @if (ErreurLogin)
+    {
         <div class="mt-4 d-flex justify-content-center alert alert-danger" role="alert">
-                Login ou le mot de passe est invalide.
+            Login ou le mot de passe est invalide.
         </div>
     }
-    @if ( ErreurLock )
+    @if (ErreurLock)
     {
         <div class="mt-4 d-flex justify-content-center alert alert-danger" role="alert">
             Le compte est bloqué pour 10 minutes. Veuillez essayer plus tard de vous reconnecter.
         </div>
     }
-    @if ( ErreurMessage )
+    @if (ErreurMessage)
     {
         <div class="mt-4 d-flex justify-content-center alert alert-danger" role="alert">
             Erreur interne. Veuillez essayer plus tard.

@@ -20,9 +20,11 @@
     <PackageReference Include="SkiaSharp.Views.Blazor" Version="4.151.1" />
     <!--<NativeFileReference Include="$(PKGHarfBuzzSharp_NativeAssets_WebAssembly)\build\netstandard1.0\libHarfBuzzSharp.a\14.2.1.2\libHarfBuzzSharp.a" />-->
 </ItemGroup>
-	
-  <ItemGroup>
-    <Folder Include="Pages\Layout\" />
-  </ItemGroup>
+
+ <ItemGroup>
+   <ProjectReference Include="..\..\KronoGeo_Api.Infrastructure\KronoGeo_Api.Infrastructure.csproj" />
+   <ProjectReference Include="..\..\KronoGeo_Api.Interface\KronoGeo_Api.Interface.csproj" />
+   <ProjectReference Include="..\..\KronoGeo_Api.Models\KronoGeo_Api.Models.csproj" />
+ </ItemGroup>
 
 </Project>

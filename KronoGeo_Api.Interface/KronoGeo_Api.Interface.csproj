@@ -10,4 +10,8 @@
     <ProjectReference Include="..\KronoGeo_Api.Models\KronoGeo_Api.Models.csproj" />
  </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Service\BFF\" />
+  </ItemGroup>
+
 </Project>

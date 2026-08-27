@@ -4,8 +4,18 @@ using KronoGeo_Blazor.Client.Pages;
 using KronoGeo_Blazor.Components;
 using KronoGeo_Blazor.Infrastructure.Extends;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+#region AddControllers  ajoute la possibilité de mettre un controller au niveau serveur blazor
+builder.Services.AddControllers(options =>
+{
+    // - on peut ajouter le AuthorizeFilter au niveau global pour que toutes les routes soient protégées par défaut
+    // et il faudra ajouter l'attribut [AllowAnonymous] pour les routes qui ne nécessitent pas d'authentification
+    options.Filters.Add(new AuthorizeFilter());
+});
+#endregion
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -27,9 +37,6 @@ builder.Host.AddSeriLog();
 
 
 #region injection 
-// -- Conteneur de token : un seul par circuit/utilisateur
-builder.Services.AddScoped<UserTokenContainer>();
-
 // --  Le handler HTTP
 builder.Services.AddTransient<TokenHeaderHandler>();
 
