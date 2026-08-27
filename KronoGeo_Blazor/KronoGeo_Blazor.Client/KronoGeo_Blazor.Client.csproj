@@ -21,4 +21,10 @@
     <!--<NativeFileReference Include="$(PKGHarfBuzzSharp_NativeAssets_WebAssembly)\build\netstandard1.0\libHarfBuzzSharp.a\14.2.1.2\libHarfBuzzSharp.a" />-->
 </ItemGroup>
 
+ <ItemGroup>
+   <ProjectReference Include="..\..\KronoGeo_Api.Infrastructure\KronoGeo_Api.Infrastructure.csproj" />
+   <ProjectReference Include="..\..\KronoGeo_Api.Interface\KronoGeo_Api.Interface.csproj" />
+   <ProjectReference Include="..\..\KronoGeo_Api.Models\KronoGeo_Api.Models.csproj" />
+ </ItemGroup>
+
 </Project>
