@@ -12,6 +12,7 @@
     <ProjectReference Include="..\..\KronoGeo_Api.Interface\KronoGeo_Api.Interface.csproj" />
     <ProjectReference Include="..\..\KronoGeo_Api.Models\KronoGeo_Api.Models.csproj" />
     <ProjectReference Include="..\KronoGeo_Blazor.Client\KronoGeo_Blazor.Client.csproj" />
+    <PackageReference Include="MediatR" Version="14.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.11" />
     <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />

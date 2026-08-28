@@ -65,7 +65,7 @@ namespace KronoGeo_Blazor.Client.Pages.Account
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 ErreurMessage = true;
                 //_logger?.LogError(ex, "Erreur interne {message}", ex.Message);

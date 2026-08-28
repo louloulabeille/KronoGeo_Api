@@ -49,6 +49,14 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// -- CORS 
+app.UseCors(cors => cors
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true)
+                .AllowCredentials()
+            );
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -78,6 +86,16 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(KronoGeo_Blazor.Client._Imports).Assembly);
+
+#region mise en place de l'authentification sur le serveur Blazor
+app.UseAuthentication();
+app.UseAuthorization();
+#endregion
+
+#region lancement des controleurs indispensable pour les requêtes vers l'api
+// -- 
+app.MapControllers();
+#endregion
 
 #region Ilogger - lancement de l'application - Message
 // -- démarrage de l'application 
