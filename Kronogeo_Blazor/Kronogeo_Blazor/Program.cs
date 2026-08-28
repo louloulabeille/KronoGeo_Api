@@ -36,6 +36,9 @@ builder.Services.AddHttpClientExtend();
 builder.Host.AddSeriLog();
 #endregion
 
+#region injection MediatR
+builder.Services.AddServiceMediatR();
+#endregion
 
 #region injection 
 // -- ProtectedSessionStorage
@@ -45,6 +48,10 @@ builder.Host.AddSeriLog();
 #region swagger
 // - appel au swagger
 builder.Services.AddSwaggerGen();
+#endregion
+
+#region mise en place du service d'authentification HttpOnly cookie 
+builder.Services.AddAuthentication().AddCookie("BffCookie");
 #endregion
 
 var app = builder.Build();
