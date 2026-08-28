@@ -13,13 +13,15 @@ namespace KronoGeo_Blazor.Client.Infrastructure.Extends
 
             /// <summary>
             /// ajout des Url Api pour le client
+            /// ne pas mettre de fichier de config, tout est en clair au 
+            /// niveau client
             /// </summary>
             /// <returns></returns>
             public IServiceCollection AddUrlApiExtend()
             {
                 services.AddOptions();
                 services.Configure<UrlApi>(options => {
-                    options.Login = "api/v1/AuthBFF/Authenticate";
+                    options.Login = "api/v1/AuthBFF/Login";
                 });
                 return services;
             }
@@ -33,7 +35,7 @@ namespace KronoGeo_Blazor.Client.Infrastructure.Extends
             public IServiceCollection AddHttpClientBFF (WebAssemblyHostBuilder builder )
             {
                 // -- configuration de Httpclient avec l'adresse de base de url donc de lui même 
-                services.AddHttpClient<IServiceHttpKronoGeo, HttpClientKronoGeo>((serviceProvider, client) => {
+                services.AddHttpClient<IServiceHttpKronoGeo, HttpBlazorClient>((serviceProvider, client) => {
                     client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
                 })
                     .AddTransientHttpErrorPolicy(policyBuilder => policyBuilder.WaitAndRetryAsync(

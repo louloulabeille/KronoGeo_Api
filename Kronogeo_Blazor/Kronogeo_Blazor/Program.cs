@@ -32,21 +32,20 @@ builder.Services.AddUrlApiExtend(builder.Configuration);
 builder.Services.AddHttpClientExtend();
 #endregion
 
-
 #region Logging - log dans la console et dans des fichiers de log quotidiens
 builder.Host.AddSeriLog();
 #endregion
 
 
 #region injection 
-// --  Le handler HTTP
-//builder.Services.AddTransient<TokenHeaderHandler>();
-
 // -- ProtectedSessionStorage
 //builder.Services.AddScoped<ProtectedSessionStorage>();
 #endregion
 
-
+#region swagger
+// - appel au swagger
+builder.Services.AddSwaggerGen();
+#endregion
 
 var app = builder.Build();
 
@@ -61,6 +60,14 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+if (app.Environment.IsStaging() || app.Environment.IsDevelopment()) // - pas en production || app.Environment.IsProduction()
+{
+    // - lancement du swagger
+    app.UseSwagger();
+    app.UseSwaggerUI(); // - https://localhost:7186/swagger/index.html
+}
+
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseHttpsRedirection();
 

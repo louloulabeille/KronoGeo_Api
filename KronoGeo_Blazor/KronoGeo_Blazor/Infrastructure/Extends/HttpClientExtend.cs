@@ -22,9 +22,10 @@ namespace KronoGeo_Blazor.Infrastructure.Extends
                 services.AddHttpContextAccessor();
                 // -- service pour injecter IMemoryCache appelé dans la classe TokenHeaderHandler
                 services.AddMemoryCache();
-
+                // -- injection de la classe TokenHeaderHandler
+                // -- le mettre avant AddHttpClient
                 services.AddTransient<TokenHeaderHandler>();
-
+                // -- injection et options de l'injection du HttpClient
                 services.AddHttpClient<IServiceHttpKronoGeo, HttpClientKronoGeo>((serviceProvider, client) => {
                     var options = serviceProvider.GetRequiredService<IOptions<UrlApi>>();
                     client.BaseAddress = new Uri(options.Value.BasicAdress);

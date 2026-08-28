@@ -28,15 +28,15 @@ namespace KronoGeo_Blazor.Components.Api
         /// <param name="register"></param>
         /// <returns></returns>
         [AllowAnonymous]
-        [HttpPost("Authenticate")]
-        public async Task<IActionResult> Auth([FromBody] RegisterDTO register)
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login([FromBody] RegisterDTO login)
         {
             try
             {
                 if ( _httpKronoGeo is not null )
                 {
                     // -- requete vers l'APi
-                    var result = await _httpKronoGeo.AuthenticateAsync(register);
+                    var result = await _httpKronoGeo.AuthenticateAsync(login);
 
                     if (result.IsSuccess)
                     {

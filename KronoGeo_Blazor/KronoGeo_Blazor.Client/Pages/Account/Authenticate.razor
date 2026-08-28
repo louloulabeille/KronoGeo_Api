@@ -2,10 +2,10 @@
 
 @inherits AuthenticateBase
 
-@rendermode InteractiveAuto
+@rendermode InteractiveWebAssembly
 
 <div class="container">
-    <EditForm Model="Login" OnSubmit="FormAuthenticate">
+    <EditForm Model="Login" OnSubmit="FormAuthenticate" FormName="loginForm">
         <DataAnnotationsValidator />
         <div class="form-floating mb-3">
             <InputText @bind-Value="Login.Login" type="text" class="form-control" id="inputLogin" aria-describedby="loginHelp" />
