@@ -18,10 +18,19 @@ namespace KronoGeo_Blazor.Client.Pages.Account
         #endregion
 
         #region protected method 
-        protected RegisterDTO Login { get; set; } = new() { Login = string.Empty };
+        protected RegisterDTO Login { get; set; } = new() { Login = string.Empty, Password = string.Empty };
         protected bool ErreurLogin { get; set; } = false;
         protected bool ErreurMessage { get; set; } = false;
         protected bool ErreurLock { get; set; } = false;
+        #endregion
+
+        #region method override
+        protected override void OnInitialized()
+        {
+            Login ??= new() { Login = string.Empty, Password = string.Empty };
+            base.OnInitialized();
+        }
+
         #endregion
 
         #region protected method
@@ -30,15 +39,16 @@ namespace KronoGeo_Blazor.Client.Pages.Account
             ErreurMessage = false;
             ErreurLogin = false;
             ErreurLock = false;
+            Console.WriteLine("Test passage");
             try
             {
-                if (_serviceHttp is not null)
+                if (_serviceHttp is not null && Login is not null)
                 {
                     // -- requete vers l'APi
                     var result = await _serviceHttp.AuthenticateAsync(Login);
                     if (result.IsSuccess)
                     {
-                        if (!string.IsNullOrEmpty(result.Register?.Token))
+                        if (string.IsNullOrEmpty(result.Register?.Token))
                         {
                             var sessionId = Guid.NewGuid().ToString();
                             // -- enregistrement 

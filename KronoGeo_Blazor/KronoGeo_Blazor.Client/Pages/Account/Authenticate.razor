@@ -2,9 +2,12 @@
 
 @inherits AuthenticateBase
 
-@rendermode InteractiveWebAssembly
+@{
+    //@rendermode InteractiveWebAssembly
+}
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 
-<div class="container">
+<div class="container" @key='"auth-form-key"'>
     <EditForm Model="Login" OnSubmit="FormAuthenticate" FormName="loginForm">
         <DataAnnotationsValidator />
         <div class="form-floating mb-3">

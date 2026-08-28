@@ -15,7 +15,7 @@ namespace KronoGeo_Blazor.Components.Api
 {
     [Microsoft.AspNetCore.Mvc.Route("api/v1/[controller]")]
     [ApiController]
-    public class AuthBFFController(IServiceHttpKronoGeo httpKronoGeo,  IMediator mediaR
+    public class AuthBFFController(  IMediator mediaR
         , IMemoryCache memoryCache, ILogger<AuthBFFController> logger ) : Controller
     {
         #region private readonly properties
