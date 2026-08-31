@@ -51,7 +51,12 @@ builder.Services.AddSwaggerGen();
 #endregion
 
 #region mise en place du service d'authentification HttpOnly cookie 
-builder.Services.AddAuthentication().AddCookie("BffCookie");
+// -- extend method
+builder.Services.AddAuthentifcateBffServeur();
+#endregion
+
+#region ajout d'une valeur RoleBlazor en cascading parameter au niveau de la racine de l'application
+//builder.Services.AddCcParemRole();
 #endregion
 
 var app = builder.Build();

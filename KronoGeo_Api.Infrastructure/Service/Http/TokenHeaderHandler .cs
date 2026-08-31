@@ -1,4 +1,5 @@
 ﻿using KronoGeo_Api.Models.Infrastructure.Http;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using System;
@@ -8,12 +9,15 @@ using System.Text;
 
 namespace KronoGeo_Api.Infrastructure.Service.Http
 {
-    public class TokenHeaderHandler (IHttpContextAccessor httpContextAccessor
-        , IMemoryCache memoryCache) : DelegatingHandler
+    /// <summary>
+    /// class de mise en place du DelegatingHandler qui sera appélé lors de l'utilisation 
+    /// du Httpclient a qui sera associé pour ajouter le jwtToken.
+    /// </summary>
+    /// <param name="httpContextAccessor"></param>
+    public class TokenHeaderHandler (IHttpContextAccessor httpContextAccessor) : DelegatingHandler
     {
         #region private readonly properties
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
-        private readonly IMemoryCache _memoryCache = memoryCache;
         #endregion
 
         #region protected method
@@ -22,15 +26,15 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         {
              var httpContext = _httpContextAccessor.HttpContext;
 
-            // -- récupération de id de la session
-            var sessionId = httpContext.User.FindFirst("BffSessionId")?.Value;
-
-            if (!string.IsNullOrEmpty(sessionId) && 
-                _memoryCache.TryGetValue($"jwt_{sessionId}", out string? jwtToken))
+            if ( httpContext is not null )
             {
-                
-                request.Headers.Authorization =
+                var jwtToken = await httpContext.GetTokenAsync("jwt_token");
+
+                if ( !string.IsNullOrEmpty(jwtToken) )
+                {
+                    request.Headers.Authorization =
                     new AuthenticationHeaderValue("Bearer", jwtToken);
+                }
             }
 
             return await base.SendAsync(request, cancellationToken);

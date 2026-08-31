@@ -4,23 +4,26 @@ using KronoGeo_Api.Models.Model.DTO;
 using KronoGeo_Blazor.Infrastructure.MediatR.Commands.Auth;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Xml.Linq;
+
 
 namespace KronoGeo_Blazor.Components.Api
 {
     [Microsoft.AspNetCore.Mvc.Route("api/v1/[controller]")]
     [ApiController]
     public class AuthBFFController(  IMediator mediaR
-        , IMemoryCache memoryCache, ILogger<AuthBFFController> logger ) : Controller
+        , ILogger<AuthBFFController> logger ) : Controller
     {
         #region private readonly properties
         private readonly IMediator _mediaR = mediaR;
-        private readonly IMemoryCache _memoryCache = memoryCache;
+        //private readonly IMemoryCache _memoryCache = memoryCache;
         private readonly ILogger<AuthBFFController> _logger = logger;
         #endregion
 
@@ -48,21 +51,35 @@ namespace KronoGeo_Blazor.Components.Api
                 {
                     if (!string.IsNullOrEmpty(result.Register?.Token))
                     {
-                        var sessionId = Guid.NewGuid().ToString();
-                        // -- enregistrement dans le cache du serveur le token 
-                        _memoryCache?.Set($"jwt_{sessionId}", result.Register?.Token, TimeSpan.FromHours(12));
-                        // 4. Émettre le Cookie d'authentification vers le navigateur
+                        var handler = new JwtSecurityTokenHandler();
+                        var jwtToken = handler.ReadJwtToken(result.Register.Token);
+                        var roles = jwtToken.Claims.Where( r => r.Type == ClaimTypes.Role );
+
+                        // -- Émettre le Cookie d'authentification vers le navigateur
                         var claims = new List<Claim>
                         {
-                            new ("Id", result.Register!.Id),
-                            new ("BffSessionId", sessionId) // Clé pour retrouver le JWT plus tard
+                            new (ClaimTypes.Name, result.Register.Login )
                         };
 
-                        var claimsIdentity = new ClaimsIdentity(claims, "BffCookie");
+                        foreach (var role in roles)
+                        {
+                            claims.Add(new Claim(ClaimTypes.Role, role.Value));
+                        }
+
+                        var claimsIdentity = new ClaimsIdentity(claims
+                            , CookieAuthenticationDefaults.AuthenticationScheme);
+                        var authProperties = new AuthenticationProperties();
+
+                        authProperties.StoreTokens(
+                        [
+                            new AuthenticationToken { Name = "jwt_token", Value = result.Register.Token}
+                        ]);
+
                         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
                         // Cette ligne émet le Cookie HttpOnly de façon transparente !
-                        await this.HttpContext.SignInAsync("BffCookie", claimsPrincipal);
+                        await this.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme
+                            , claimsPrincipal, authProperties );
 
                         result.Register.Token = string.Empty;
 
@@ -84,5 +101,7 @@ namespace KronoGeo_Blazor.Components.Api
             }
             
         }
+
+
     }
 }

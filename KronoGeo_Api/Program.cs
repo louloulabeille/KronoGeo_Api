@@ -75,11 +75,23 @@ builder.Services.AddServiceGestionPhoto();
 builder.Services.AddIOptions(builder.Configuration);
 #endregion
 
+
 #region AddJsonOptions
 builder.Services.AddJsonOptionsLocalisation();
 #endregion
 
 var app = builder.Build();
+
+#region Cors a voir pour la suite comment bien protéger le serveur
+// -- CORS 
+app.UseCors(cors => cors
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true)
+                .AllowCredentials()
+            );
+
+#endregion
 
 #region app.Environment.IsDevelopment & app.Environment.IsStaging
 // Configure the HTTP request pipeline.

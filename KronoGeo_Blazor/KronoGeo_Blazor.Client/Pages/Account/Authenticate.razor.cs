@@ -1,5 +1,6 @@
 ﻿using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models.Model.DTO;
+using KronoGeo_Api.Models.Parameter;
 using Mapsui.Logging;
 using Microsoft.AspNetCore.Components;
 
@@ -15,6 +16,11 @@ namespace KronoGeo_Blazor.Client.Pages.Account
         private NavigationManager? _navigationManager { get; set; }
         /*[Inject]
         private ILogger<AuthenticateBase>? _logger { get; set; }*/
+        #endregion
+
+        #region Cascading Parameter
+        [CascadingParameter(Name = "RoleAuth")]
+        protected RoleBlazor? RoleBlazor { get; set; }
         #endregion
 
         #region protected method 
@@ -39,7 +45,7 @@ namespace KronoGeo_Blazor.Client.Pages.Account
             ErreurMessage = false;
             ErreurLogin = false;
             ErreurLock = false;
-            Console.WriteLine("Test passage");
+            
             try
             {
                 if (_serviceHttp is not null && Login is not null)
@@ -50,8 +56,8 @@ namespace KronoGeo_Blazor.Client.Pages.Account
                     {
                         if (string.IsNullOrEmpty(result.Register?.Token))
                         {
-                            var sessionId = Guid.NewGuid().ToString();
-                            // -- enregistrement 
+                            RoleBlazor?.IsAuthenticate = true;
+                            StateHasChanged();
                             _navigationManager?.NavigateTo("Map");
                         }
                     }
