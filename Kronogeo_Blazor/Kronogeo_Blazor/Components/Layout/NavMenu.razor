@@ -1,5 +1,4 @@
-﻿@using KronoGeo_Api.Models.Parameter
-<div class="top-row ps-3 navbar navbar-dark">
+﻿<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="map">KronoGeo</a>
     </div>
@@ -14,27 +13,16 @@
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
             </NavLink>
         </div>
-        @if ( _roleBlazor is null || !_roleBlazor!.IsAuthenticate )
-        {
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="Account/authenticate">
                     <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Authentification
                 </NavLink>
             </div>
-        }
-        else
-        {
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="">
                     <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Modification
                 </NavLink>
             </div>
-        }
-    </nav>
+  </nav>
 </div>
 
-
-@code{
-    [CascadingParameter]
-    private RoleBlazor? _roleBlazor { get; set; }
-}

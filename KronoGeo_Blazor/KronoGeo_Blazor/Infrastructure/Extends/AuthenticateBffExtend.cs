@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using KronoGeo_Api.Infrastructure.Service.Http;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace KronoGeo_Blazor.Infrastructure.Extends
 {
@@ -28,6 +30,7 @@ namespace KronoGeo_Blazor.Infrastructure.Extends
 
 
                 services.AddAuthorization();
+                services.AddScoped<AuthenticationStateProvider, BffAuthentificationStateProvider>();
                 //services.AddCascadingAuthenticationState();
 
                 return services;

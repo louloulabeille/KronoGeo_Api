@@ -18,16 +18,19 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
     public class HttpClientKronoGeo  : IServiceHttpKronoGeo, IDisposable
     {
         #region private properties
-        private readonly HttpClient _httpClient;
         private readonly IOptions<UrlApi> _options;
         private readonly IOptions<TokenTunnel>? _tokenTunnel;
+        #endregion
+
+        #region protected properties
+        protected readonly HttpClient HttpClient;
         #endregion
 
         #region constructeur
         public HttpClientKronoGeo(IOptions<UrlApi> options, HttpClient httpClient
             , IOptions<TokenTunnel>? tokenTunnel )
         {
-            _httpClient = httpClient;
+            HttpClient = httpClient;
             _options = options;
 
             // - initialise les protections du tunnel pour le debug
@@ -49,7 +52,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         public virtual async Task<ResponseApiAuthenticate> AuthenticateAsync( RegisterDTO register )
         {
             HttpContent content = new StringContent(JsonSerializer.Serialize(register), Encoding.UTF8, "application/json");
-            using HttpResponseMessage response = await _httpClient.PostAsync(_options.Value.Login, content);
+            using HttpResponseMessage response = await HttpClient.PostAsync(_options.Value.Login, content);
             //response.EnsureSuccessStatusCode();
 
             // -- quand 5 tentatives au niveau de HttpClient retour erreur
@@ -84,9 +87,9 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             if ( localisationGroup.Localisations is not null )
             {
                 HttpContent content = new StringContent(JsonSerializer.Serialize(localisationGroup), Encoding.UTF8, "application/json");
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokkenBearer);
+                HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokkenBearer);
                 
-                using var retour = await _httpClient.PostAsync(_options.Value.SaveGroupLocalisations, content);
+                using var retour = await HttpClient.PostAsync(_options.Value.SaveGroupLocalisations, content);
                 retour.EnsureSuccessStatusCode();
 
                 if (retour.IsSuccessStatusCode)
@@ -142,8 +145,8 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             multipartContent.Add(streamContent,"file",photo.Name??string.Empty);
 
             // send it
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokkenBearer);
-            using var retour = await _httpClient.PostAsync(_options.Value.SavePhoto, multipartContent);
+            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokkenBearer);
+            using var retour = await HttpClient.PostAsync(_options.Value.SavePhoto, multipartContent);
             retour.EnsureSuccessStatusCode();
 
             var result = JsonSerializer.Deserialize<PhotoDTO>(retour.Content.ReadAsStringAsync().Result, JsonOptions.GetJsonOptions())
@@ -195,7 +198,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             // - ajout du token pour l'utilisation du tonnel sécurisé
             var token = _tokenTunnel?.Value.Token ?? string.Empty;
             if (string.IsNullOrEmpty(token)) return;
-            _httpClient.DefaultRequestHeaders.Add("X-Tunnel-Authorization", $"{token}");
+            HttpClient.DefaultRequestHeaders.Add("X-Tunnel-Authorization", $"{token}");
             //_httpClient.DefaultRequestHeaders.Add("X-Tunnel-Authorization", "tunnel eyJhbGciOiJFUzI1NiIsImtpZCI6IjcyRjZDNUU3OEE2M0UzOEUxM0UyOTE1MjM0NjMyMDFGMDFDMzQ2MTUiLCJ0eXAiOiJKV1QifQ.eyJjbHVzdGVySWQiOiJldXciLCJ0dW5uZWxJZCI6InBlYWNlZnVsLWNoYWlyLWI2Y3ZnYzIiLCJzY3AiOiJjb25uZWN0IiwiZXhwIjoxNzg3MDUxMzQ3LCJpc3MiOiJodHRwczovL3R1bm5lbHMuYXBpLnZpc3VhbHN0dWRpby5jb20vIiwibmJmIjoxNzg2OTY0MDQ3fQ.UBF-WTYmgM1qIUJ9lGL7ElALXBZOqXK4ZXKJ3y4qZ-niUxOoAcvApYd3tFyhpZgAodbtNHEz-CqVmliesx__bw");
         }
         #endregion

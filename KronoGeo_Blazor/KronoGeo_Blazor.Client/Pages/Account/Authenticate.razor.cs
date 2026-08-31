@@ -18,11 +18,6 @@ namespace KronoGeo_Blazor.Client.Pages.Account
         private ILogger<AuthenticateBase>? _logger { get; set; }*/
         #endregion
 
-        #region Cascading Parameter
-        [CascadingParameter(Name = "RoleAuth")]
-        protected RoleBlazor? RoleBlazor { get; set; }
-        #endregion
-
         #region protected method 
         protected RegisterDTO Login { get; set; } = new() { Login = string.Empty, Password = string.Empty };
         protected bool ErreurLogin { get; set; } = false;
@@ -56,8 +51,6 @@ namespace KronoGeo_Blazor.Client.Pages.Account
                     {
                         if (string.IsNullOrEmpty(result.Register?.Token))
                         {
-                            RoleBlazor?.IsAuthenticate = true;
-                            StateHasChanged();
                             _navigationManager?.NavigateTo("Map");
                         }
                     }
