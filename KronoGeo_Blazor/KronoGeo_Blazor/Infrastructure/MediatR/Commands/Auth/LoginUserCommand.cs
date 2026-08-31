@@ -4,7 +4,7 @@ using MediatR;
 
 namespace KronoGeo_Blazor.Infrastructure.MediatR.Commands.Auth
 {
-    public class LoginUserCommand : IRequest<ResponseApiAuthenticate> // -- RegisterDTO retour de valeur
+    public class LoginUserCommand : IRequest<ResponseApiAuthenticateBlazor> // -- RegisterDTO retour de valeur
     {
         public required RegisterDTO Register { get; set; }
     }

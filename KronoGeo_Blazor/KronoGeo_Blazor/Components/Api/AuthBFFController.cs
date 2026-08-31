@@ -50,38 +50,15 @@ namespace KronoGeo_Blazor.Components.Api
                 if (result.IsSuccess)
                 {
                     if (!string.IsNullOrEmpty(result.Register?.Token))
-                    {
-                        var handler = new JwtSecurityTokenHandler();
-                        var jwtToken = handler.ReadJwtToken(result.Register.Token);
-                        var roles = jwtToken.Claims.Where( r => r.Type == ClaimTypes.Role );
-
-                        // -- Émettre le Cookie d'authentification vers le navigateur
-                        var claims = new List<Claim>
+                    {                        
+                        if (result.ClaimsPrincipal is not null && result.AuthenticationProperties is not null)
                         {
-                            new (ClaimTypes.Name, result.Register.Login )
-                        };
+                            // Cette ligne émet le Cookie HttpOnly de façon transparente !
+                            await this.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme
+                                , result.ClaimsPrincipal, result.AuthenticationProperties);
 
-                        foreach (var role in roles)
-                        {
-                            claims.Add(new Claim(ClaimTypes.Role, role.Value));
+                            result.Register.Token = string.Empty;
                         }
-
-                        var claimsIdentity = new ClaimsIdentity(claims
-                            , CookieAuthenticationDefaults.AuthenticationScheme);
-                        var authProperties = new AuthenticationProperties();
-
-                        authProperties.StoreTokens(
-                        [
-                            new AuthenticationToken { Name = "jwt_token", Value = result.Register.Token}
-                        ]);
-
-                        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
-                        // Cette ligne émet le Cookie HttpOnly de façon transparente !
-                        await this.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme
-                            , claimsPrincipal, authProperties );
-
-                        result.Register.Token = string.Empty;
 
                         return Ok(result);
                     }

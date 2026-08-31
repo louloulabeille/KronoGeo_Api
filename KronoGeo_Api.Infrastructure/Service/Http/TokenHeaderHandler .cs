@@ -24,7 +24,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         protected override async Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request, CancellationToken cancellationToken)
         {
-             var httpContext = _httpContextAccessor.HttpContext;
+            var httpContext = _httpContextAccessor.HttpContext;
 
             if ( httpContext is not null )
             {
