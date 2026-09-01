@@ -1,5 +1,7 @@
 ﻿@page "/map"
 
+@attribute [Authorize]
+
 @inherits MapBase
 
 @rendermode @(new InteractiveWebAssemblyRenderMode(prerender:false))

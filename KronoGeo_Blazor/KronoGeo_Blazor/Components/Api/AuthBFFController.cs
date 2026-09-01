@@ -47,7 +47,13 @@ namespace KronoGeo_Blazor.Components.Api
 
                 // -- requete vers l'APi
                 var result = await _mediaR.Send(new LoginUserCommand() { Register = login });
-
+                // -- retour vers le client blazor
+                var retour = new ResponseApiAuthenticate()
+                {
+                    ApiStatus = result.ApiStatus,
+                    Message = result.Message,
+                    Register = result.Register
+                };
                 if (result.IsSuccess)
                 {
                     if (!string.IsNullOrEmpty(result.Register?.Token))
@@ -61,10 +67,11 @@ namespace KronoGeo_Blazor.Components.Api
                             result.Register.Token = string.Empty;
                         }
 
-                        return Ok(result);
+                        return Ok(retour);
                     }
                 }
-                return Ok(result);
+
+                return Ok(retour);
 
             }
             catch( Exception ex)
