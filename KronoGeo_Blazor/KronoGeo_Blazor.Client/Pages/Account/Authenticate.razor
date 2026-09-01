@@ -2,9 +2,8 @@
 
 @inherits AuthenticateBase
 
-@{
-    //@rendermode InteractiveWebAssembly
-}
+@*@rendermode InteractiveWebAssembly*@
+    
 @rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 
 <div class="container" @key='"auth-form-key"'>

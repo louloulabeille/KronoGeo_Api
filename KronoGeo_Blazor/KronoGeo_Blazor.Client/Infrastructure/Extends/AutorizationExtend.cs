@@ -11,6 +11,7 @@ namespace KronoGeo_Blazor.Client.Infrastructure.Extends
             {
                 services.AddAuthorizationCore();
                 services.AddScoped<AuthenticationStateProvider, BffAuthentificationStateProvider>();
+                services.AddCascadingAuthenticationState();
                 return services;
             }
         }

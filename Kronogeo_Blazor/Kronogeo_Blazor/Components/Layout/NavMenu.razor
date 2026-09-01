@@ -1,4 +1,6 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@* Microsoft.AspNetCore.Components.Authorization *@
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="map">KronoGeo</a>
     </div>
@@ -6,23 +8,31 @@
 
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="map" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
+    <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+        <nav class="nav flex-column">
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="Account/authenticate">
-                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Authentification
+                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                    <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
                 </NavLink>
             </div>
+        <AuthorizeView>
+            <NotAuthorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="Account/authenticate">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Authentification
+                    </NavLink>
+                </div>
+            </NotAuthorized>
+            <Authorized>
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="">
-                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Modification
+                <NavLink class="nav-link" href="Map">
+                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Map
                 </NavLink>
             </div>
-  </nav>
-</div>
+            </Authorized>
+        </AuthorizeView>
+        </nav>
+    </div>
+
+
 

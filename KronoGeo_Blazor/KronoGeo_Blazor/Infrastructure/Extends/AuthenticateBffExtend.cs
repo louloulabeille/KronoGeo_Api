@@ -28,9 +28,8 @@ namespace KronoGeo_Blazor.Infrastructure.Extends
 
                 services.AddHttpContextAccessor();
 
-
                 services.AddAuthorization();
-                services.AddScoped<AuthenticationStateProvider, BffAuthentificationStateProvider>();
+                //services.AddScoped<AuthenticationStateProvider, BffAuthentificationStateProvider>();
                 //services.AddCascadingAuthenticationState();
 
                 return services;
