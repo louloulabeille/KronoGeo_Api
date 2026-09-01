@@ -12,5 +12,6 @@ namespace KronoGeo_Api.Interface.Service
     public interface IServiceHttpClientAssembly : IServiceHttpKronoGeo
     {
         public Task<UserInfos> GetUserInfosAsync();
+        public Task<bool> LogoutAsync();
     }
 }

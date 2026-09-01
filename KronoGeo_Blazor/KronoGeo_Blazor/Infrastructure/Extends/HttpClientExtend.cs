@@ -35,6 +35,7 @@ namespace KronoGeo_Blazor.Infrastructure.Extends
                     .AddTransientHttpErrorPolicy(policyBuilder => policyBuilder.WaitAndRetryAsync(
                         retryCount: 3,
                         retryNumber => TimeSpan.FromMilliseconds(50 + retryNumber * 150))); ;
+
                 return services;
             }
         }

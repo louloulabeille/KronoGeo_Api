@@ -1,6 +1,7 @@
 ﻿using KronoGeo_Api.Infrastructure.Service.Http;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models.Infrastructure.Options;
+using KronoGeo_Blazor.Client.Pages.Account;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -23,6 +24,7 @@ namespace KronoGeo_Blazor.Client.Infrastructure.Extends
                 services.Configure<UrlApiBlazorClient>(options => {
                     options.Login = "api/v1/AuthBFF/Login";
                     options.Me = "api/v1/AuthBFF/Me";
+                    options.Logout = "api/v1/AuthBFF/Logout";
                 });
                 return services;
             }

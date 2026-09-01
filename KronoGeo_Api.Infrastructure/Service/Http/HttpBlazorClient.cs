@@ -21,7 +21,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         }
         #endregion
 
-        #region public method
+        #region public method interface IServiceHttpClientAssembly
         /// <summary>
         /// retourne les userinfos de la session du client
         /// </summary>
@@ -35,6 +35,16 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                 IsAuthenticate = false,
                 Id = string.Empty
             };
+        }
+
+        /// <summary>
+        /// logout du client blazor vers le serveur blazor pour la suppression du cookie d'authentification
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> LogoutAsync()
+        {
+            var result = await HttpClient.PostAsync(options.Value.Logout, null);
+            return result.IsSuccessStatusCode;
         }
         #endregion
     }

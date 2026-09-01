@@ -10,5 +10,7 @@ namespace KronoGeo_Api.Models.Infrastructure.Options
     public class UrlApiBlazorClient : UrlApi
     {
         public string Me { get; set; } = string.Empty;
+        public string Logout { get; set; } = string.Empty;
+    
     }
 }
