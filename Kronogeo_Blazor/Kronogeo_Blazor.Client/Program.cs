@@ -14,7 +14,7 @@ builder.Services.AddUrlApiExtend();
 builder.Services.AddHttpClientBFF(builder);
 
 builder.Services.AddAutorizationClient();
-
 #endregion
+
 
 await builder.Build().RunAsync();
