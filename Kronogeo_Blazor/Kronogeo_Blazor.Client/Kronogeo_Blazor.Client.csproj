@@ -12,6 +12,7 @@
   <ItemGroup>
     <PackageReference Include="HarfBuzzSharp.NativeAssets.WebAssembly" Version="14.2.1.2" />
     <PackageReference Include="Mapsui.Blazor" Version="5.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.11" />
   </ItemGroup>
 
