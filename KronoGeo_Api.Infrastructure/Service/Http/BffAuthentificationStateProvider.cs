@@ -83,7 +83,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// </summary>
         public void NotifyAuthenticationStateChanged()
         {
-            _authenticationState = null;
+            _authenticationState = SetAnonymousState();
             NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
         }
         #endregion
