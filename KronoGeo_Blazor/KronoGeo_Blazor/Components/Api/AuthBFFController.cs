@@ -119,6 +119,11 @@ namespace KronoGeo_Blazor.Components.Api
             return Ok(info);
         }
 
+        /// <summary>
+        /// action de déconnexion, supprime le cookie httpOnly côté serveur et envoie la commande
+        /// pour le supprimer côté client
+        /// </summary>
+        /// <returns></returns>
         [Authorize]
         [HttpPost("Logout")]
         public async Task<IActionResult> Logout()
@@ -128,7 +133,7 @@ namespace KronoGeo_Blazor.Components.Api
                 // -- déconnexion au niveau du httpContext, le cookie httpOnly est supprimé sur le serveur
                 await this.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-                // -- suppression du cookie httpOnly côté client
+                // -- commande pour la suppression du cookie httpOnly côté client
                 Response.Cookies.Delete(".AspNetCore.Cookies", new CookieOptions
                 { HttpOnly = true, Secure = true, SameSite = SameSiteMode.Strict });
 

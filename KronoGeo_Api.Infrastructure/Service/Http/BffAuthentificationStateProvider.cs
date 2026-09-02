@@ -7,7 +7,10 @@ using System.Text;
 
 namespace KronoGeo_Api.Infrastructure.Service.Http
 {
-
+    /// <summary>
+    /// classe provider attaché au HttpClient pour la gestion de l'état d'authentification de l'utilisateur
+    /// </summary>
+    /// <param name="httpClient"></param>
     public class BffAuthentificationStateProvider( IServiceHttpClientAssembly httpClient) : AuthenticationStateProvider
     {
 
@@ -20,6 +23,11 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         #endregion
 
         #region public method override
+        /// <summary>
+        /// retourne l'état d'authentification de l'utilisateur,
+        /// cette methode est appelé par le framework Blazor pour déterminer l'état d'authentification de l'utilisateur
+        /// </summary>
+        /// <returns></returns>
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             if ( _authenticationState is not null) return _authenticationState;
@@ -57,6 +65,10 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         #endregion
 
         #region private method
+        /// <summary>
+        /// retourne un état d'authentification anonyme
+        /// </summary>
+        /// <returns></returns>
         private AuthenticationState SetAnonymousState()
         {
             var anomymous = new ClaimsPrincipal(new ClaimsIdentity());
@@ -66,7 +78,9 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         #endregion
 
         #region public method
-
+        /// <summary>
+        /// notifie le changement d'état d'authentification
+        /// </summary>
         public void NotifyAuthenticationStateChanged()
         {
             _authenticationState = null;
