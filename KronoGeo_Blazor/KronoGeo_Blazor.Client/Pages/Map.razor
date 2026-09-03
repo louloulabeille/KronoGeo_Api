@@ -6,19 +6,22 @@
 
 @rendermode @(new InteractiveWebAssemblyRenderMode(prerender:false))
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-4">
-            fdsfdsfsdfdsfsdlkfjlskdf
-<span>dsqkjdhqkdhlqhlkqflqfq</span>
+@if (IsLoading)
+{
+    <Loader>Le chargement peut être un peu long.</Loader>
+}
+else
+{
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
 
-<br />dqsdkjqlsdjlqjdlqjkdlq
-        </div>
-        <div class="col-md-8">
-            <OpenMap />
+            </div>
+            <div class="col-md-8">
+                <OpenMap />
+            </div>
         </div>
     </div>
-</div>
-
+}
 
 

@@ -18,20 +18,33 @@ namespace KronoGeo_Blazor.Client.Pages.Account
         private ILogger<AuthenticateBase>? _logger { get; set; }*/
         #endregion
 
-        #region protected method 
+        #region protected properties 
         protected RegisterDTO Login { get; set; } = new() { Login = string.Empty, Password = string.Empty };
         protected bool ErreurLogin { get; set; } = false;
         protected bool ErreurMessage { get; set; } = false;
         protected bool ErreurLock { get; set; } = false;
+        protected bool IsLoading { get; set; } = false;
         #endregion
 
         #region method override
         protected override void OnInitialized()
         {
             Login ??= new() { Login = string.Empty, Password = string.Empty };
+            IsLoading = true; // -- mise en place du loader
             base.OnInitialized();
         }
 
+        protected override Task OnAfterRenderAsync(bool firstRender)
+        { 
+            if ( firstRender )
+            {
+                // -- après le pré rendu coté serveur
+                IsLoading = false;
+                StateHasChanged();
+            }
+            
+            return base.OnAfterRenderAsync(firstRender);
+        }
         #endregion
 
         #region protected method

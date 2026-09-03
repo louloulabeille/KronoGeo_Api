@@ -1,0 +1,11 @@
+﻿@inherits LoaderBase;
+
+@rendermode InteractiveWebAssembly
+
+<div class="row text-center" >
+    <div class="col"><div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>
+    @if (ShowLoaderMessage)
+    {
+        <p>@ChildContent</p>
+    }
+</div>
