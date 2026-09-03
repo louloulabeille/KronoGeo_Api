@@ -1,6 +1,8 @@
 ﻿using KronoGeo_Api.Infrastructure.Service.Http;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models.Infrastructure.Options;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Options;
 using Polly;
 
@@ -26,7 +28,7 @@ namespace KronoGeo_Blazor.Infrastructure.Extends
                 // -- le mettre avant AddHttpClient
                 services.AddTransient<TokenHeaderHandler>();
                 // -- injection et options de l'injection du HttpClient
-                services.AddHttpClient<IServiceHttpKronoGeo, HttpClientKronoGeo>((serviceProvider, client) => {
+                services.AddHttpClient<IServiceHttpKronoGeo, HttpClientKronoGeo>("api",(serviceProvider, client) => {
                     var options = serviceProvider.GetRequiredService<IOptions<UrlApi>>();
                     client.BaseAddress = new Uri(options.Value.BasicAdress);
 
@@ -36,8 +38,33 @@ namespace KronoGeo_Blazor.Infrastructure.Extends
                         retryCount: 3,
                         retryNumber => TimeSpan.FromMilliseconds(50 + retryNumber * 150))); ;
 
+
                 return services;
             }
+
+
+
+            /// <summary>
+            /// Déclaration du HttpClient pour le client pour l'injection de dépendance 
+            /// du service avec comme base adresse l'adresse du serveur blazor par défaut
+            /// Mise en place sur le serveur pour le pré-rendu
+            /// </summary>
+            /// <param name="builder"></param>
+            /// <returns></returns>
+            public IServiceCollection AddHttpClientBFF()
+            {
+                // -- configuration de Httpclient avec l'adresse de base de url donc de lui même 
+                services.AddHttpClient<IServiceHttpClientAssembly, HttpBlazorClient>("ApiBff", (serviceProvider, client) => {
+                    var options = serviceProvider.GetRequiredService<IOptions<UrlApiBlazorClient>>();
+                    client.BaseAddress = new Uri(options.Value.BasicAdress);
+                })
+                    .AddTransientHttpErrorPolicy(policyBuilder => policyBuilder.WaitAndRetryAsync(
+                        retryCount: 3,
+                        retryNumber => TimeSpan.FromMilliseconds(50 + retryNumber * 150))); ;
+
+                return services;
+            }
+
         }
 
     }

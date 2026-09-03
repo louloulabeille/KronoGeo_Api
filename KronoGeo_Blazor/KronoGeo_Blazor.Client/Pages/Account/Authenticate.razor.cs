@@ -11,7 +11,7 @@ namespace KronoGeo_Blazor.Client.Pages.Account
 
         #region private inject properties
         [Inject]
-        private IServiceHttpKronoGeo? _serviceHttp { get; set; } = default;
+        private IServiceHttpClientAssembly? _serviceHttp { get; set; } = default;
         [Inject]
         private NavigationManager? _navigationManager { get; set; }
         /*[Inject]
@@ -40,7 +40,7 @@ namespace KronoGeo_Blazor.Client.Pages.Account
             ErreurMessage = false;
             ErreurLogin = false;
             ErreurLock = false;
-            
+           
             try
             {
                 if (_serviceHttp is not null && Login is not null)

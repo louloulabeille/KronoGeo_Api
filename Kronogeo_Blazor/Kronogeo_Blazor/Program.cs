@@ -4,6 +4,7 @@ using KronoGeo_Blazor.Client.Pages;
 using KronoGeo_Blazor.Components;
 using KronoGeo_Blazor.Infrastructure.Extends;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Mvc.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,10 +27,12 @@ builder.Services.AddRazorComponents()
 
 #region IOptions urlApi
 builder.Services.AddUrlApiExtend(builder.Configuration);
+builder.Services.AddUrlApiExtend();
 #endregion
 
 #region HttpClient injection
 builder.Services.AddHttpClientExtend();
+builder.Services.AddHttpClientBFF(); 
 #endregion
 
 #region Logging - log dans la console et dans des fichiers de log quotidiens

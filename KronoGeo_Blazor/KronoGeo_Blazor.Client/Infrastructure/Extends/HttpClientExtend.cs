@@ -45,7 +45,6 @@ namespace KronoGeo_Blazor.Client.Infrastructure.Extends
                         retryCount: 3,
                         retryNumber => TimeSpan.FromMilliseconds(50 + retryNumber * 150))); ;
                 
-                services.AddScoped<IServiceHttpKronoGeo>(sp => sp.GetRequiredService<IServiceHttpClientAssembly>());
                 return services;
             }
         }
