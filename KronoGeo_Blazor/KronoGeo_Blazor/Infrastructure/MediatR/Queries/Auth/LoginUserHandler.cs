@@ -13,8 +13,8 @@ using System.Security.Claims;
 namespace KronoGeo_Blazor.Infrastructure.MediatR.Queries.Auth
 {
     public class LoginUserHandler(IServiceHttpKronoGeo httpKronoGeo
-        , IMemoryCache memoryCache, ILogger<LoginUserHandler> logger) 
-        : AuthHandler<LoginUserHandler>( httpKronoGeo, memoryCache, logger)
+        , ILogger<LoginUserHandler> logger) 
+        : AuthHandler<LoginUserHandler>( httpKronoGeo, logger)
         , IRequestHandler<LoginUserCommand, ResponseApiAuthenticateBlazor>
     {
         #region public method interface IRequestHandler

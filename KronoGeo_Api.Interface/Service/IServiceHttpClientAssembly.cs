@@ -16,5 +16,6 @@ namespace KronoGeo_Api.Interface.Service
         public Task<ResponseApiAuthenticate> AuthenticateAsync(RegisterDTO register);
         public Task<UserInfos> GetUserInfosAsync();
         public Task<bool> LogoutAsync();
+        public Task<ResponseApiLocalisations> GetUserGroupLocalisationAsync( string userId );
     }
 }
