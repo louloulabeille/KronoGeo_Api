@@ -1,17 +1,22 @@
 ﻿using System.Linq;
+using System.Security.Claims;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models;
 using Mapsui.UI.Blazor;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace KronoGeo_Blazor.Client.Pages
 {
+    [Authorize]
     public class MapBase : ComponentBase
     {
         #region private inject properties
         [Inject]
         private IServiceHttpClientAssembly? _serviceHttp { get; set; } = default;
-
+        [Inject]
+        private AuthenticationStateProvider? _authenticationStateProvider { get; set; } = default;
         #endregion
 
         #region protected properties view
@@ -22,9 +27,12 @@ namespace KronoGeo_Blazor.Client.Pages
         #region protected override method
         protected async override Task OnInitializedAsync()
         {
-            if (_serviceHttp is not null)
+            if (_serviceHttp is not null && _authenticationStateProvider is not null)
             {
-                var result = await _serviceHttp.GetUserGroupLocalisationAsync("");
+                var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+                var user = authState.User.Identities.FirstOrDefault()?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+                var result = await _serviceHttp.GetUserGroupLocalisationAsync(user?.Value ?? string.Empty);
+
                 LocalisationGroup = result?.GroupsDTO?
                     .Select(lg => new LocalisationGroup()
                     {

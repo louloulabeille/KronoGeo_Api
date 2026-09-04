@@ -41,7 +41,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                     var claims = userinfos.Claims.Select(c => new Claim(c.Key, c.Value)).ToList();
                     if ( !string.IsNullOrEmpty(userinfos.Id) )
                     {
-                        //claims.Add(new Claim(ClaimTypes.NameIdentifier, userinfos.Id));
+                        claims.Add(new Claim(ClaimTypes.NameIdentifier, userinfos.Id));
                         claims.Add(new Claim(ClaimTypes.Name, userinfos.Login));
                         foreach (var role in userinfos.Roles) { 
                             claims.Add(new Claim(ClaimTypes.Role, role));

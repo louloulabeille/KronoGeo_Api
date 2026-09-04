@@ -23,7 +23,7 @@ namespace KronoGeo_Blazor.Infrastructure.Extends
                         options.Cookie.HttpOnly = true;
                         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                         options.Cookie.SameSite = SameSiteMode.Strict;
-                        options.ExpireTimeSpan = TimeSpan.FromHours(12); 
+                        options.ExpireTimeSpan = TimeSpan.FromHours(6); 
                     });
 
                 services.AddHttpContextAccessor();
