@@ -1,4 +1,5 @@
-﻿using Microsoft.Maui.Devices.Sensors;
+﻿using KronoGeo_Api.Models.Model.DTO;
+using Microsoft.Maui.Devices.Sensors;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -21,5 +22,26 @@ namespace KronoGeo_Api.Models
 
         public int LocalisationGroupId { get; set; }
         public LocalisationGroup? LocalisationGroup { get; set; }
+
+        #region public method
+        public RouteTelemetryDTO GetDTO()
+        {
+            return new RouteTelemetryDTO()
+            {
+                Id = this.Id,
+                Distance = this.Distance,
+                DistanceUnit = this.DistanceUnit,
+                AverageSpeed = this.AverageSpeed,
+                PositiveElevationGain = this.PositiveElevationGain,
+                NegativeElevationGain = this.NegativeElevationGain,
+                DateTimeBegin = this.DateTimeBegin,
+                DateTimeEnd = this.DateTimeEnd,
+                TotalTime = this.TotalTime,
+                TotalTimePaused = this.TotalTimePaused,
+                TotalLocalisations = this.TotalLocalisations
+            };
+        }
+        #endregion
+
     }
 }

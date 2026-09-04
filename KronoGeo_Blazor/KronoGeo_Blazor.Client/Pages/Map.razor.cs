@@ -65,20 +65,8 @@ namespace KronoGeo_Blazor.Client.Pages
                         ApplicationUserId = lg.ApplicationUserId,
                         Date = lg.Date,
                         Name = lg.Name,
-                        Localisations = lg.Localisations?.Select(l => new Localisation()
-                        {
-                            Accuracy = l.Accuracy,
-                            Altitude = l.Altitude,
-                            Course = l.Course,
-                            Id = l.Id,
-                            Latitude = l.Latitude,
-                            Longitude = l.Longitude,
-                            OrderIndex = l.OrderIndex,
-                            Speed = l.Speed,
-                            Timestamp = l.Timestamp,
-                            VerticalAccuracy = l.VerticalAccuracy,
-                            LocalisationGroupId = lg.Id
-                        }).ToList()
+                        RouteTelemetry = lg.RouteTelemetry?.Get() ?? null,
+                        Localisations = lg.Localisations?.Select(l => l.Get()).ToList()
                     }).ToList();
             }
         }

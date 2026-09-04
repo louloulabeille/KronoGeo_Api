@@ -31,6 +31,8 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
                     ApplicationUserId = s.ApplicationUserId,
                     Date = s.Date,
                     Name = s.Name,
+                    Localisations = _unitOfWork.Repository<Localisation>().Where(l => l.LocalisationGroupId == s.Id).Select(l => l.GetDTO()).ToList(),
+                    RouteTelemetry = _unitOfWork.Repository<RouteTelemetry>().Where(r => r.LocalisationGroupId == s.Id).Select(r => r.GetDTO()).FirstOrDefault()
                 } ).ToList();
 
             if ( result is not null && result?.Count > 0)

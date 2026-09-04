@@ -66,6 +66,42 @@ namespace KronoGeo_Api.Models.Model.DTO
                 Timestamp   = localisation.Timestamp.ToUniversalTime()
             };
         }
+
+        public Localisation Get()
+        {
+            if (this is LocalisationPhotoDTO photo)
+            {
+                return new LocalisationPhoto()
+                {
+                    Id = photo.Id,
+                    OrderIndex = photo.OrderIndex,
+                    Latitude = photo.Latitude,
+                    Longitude = photo.Longitude,
+                    Accuracy = photo.Accuracy,
+                    Altitude = photo.Altitude,
+                    Course = photo.Course,
+                    Speed = photo.Speed,
+                    VerticalAccuracy = photo.VerticalAccuracy,
+                    Timestamp = photo.Timestamp.ToUniversalTime(),
+                    Name = photo.Name,
+                    PathPhoto = photo.PathPhoto
+                };
+            }
+            else
+                return new Localisation()
+                {
+                    Id = this.Id,
+                    OrderIndex = this.OrderIndex,
+                    Latitude = this.Latitude,
+                    Longitude = this.Longitude,
+                    Accuracy = this.Accuracy,
+                    Altitude = this.Altitude,
+                    Course = this.Course,
+                    Speed = this.Speed,
+                    VerticalAccuracy = this.VerticalAccuracy,
+                    Timestamp = this.Timestamp.ToUniversalTime()
+                };
+        }
         #endregion
     }
 }

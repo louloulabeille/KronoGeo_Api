@@ -40,6 +40,24 @@ namespace KronoGeo_Api.Models.Model.DTO
                 };
             return null;
         }
+
+        public RouteTelemetry Get()
+        {
+            return new()
+            {
+                Id = this.Id,
+                Distance = this.Distance,
+                DistanceUnit = this.DistanceUnit,
+                AverageSpeed = this.AverageSpeed,
+                PositiveElevationGain = this.PositiveElevationGain,
+                NegativeElevationGain = this.NegativeElevationGain,
+                DateTimeBegin = this.DateTimeBegin,
+                DateTimeEnd = this.DateTimeEnd,
+                TotalTime = this.TotalTime,
+                TotalTimePaused = this.TotalTimePaused,
+                TotalLocalisations = this.TotalLocalisations
+            };
+        }
         #endregion
     }
 }

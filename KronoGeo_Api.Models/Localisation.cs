@@ -57,6 +57,23 @@ namespace KronoGeo_Api.Models
 #endif
             };
         }
+
+        public LocalisationDTO GetDTO()
+        {
+            return new LocalisationDTO()
+            {
+                Id = this.Id,
+                OrderIndex = this.OrderIndex,
+                Timestamp = this.Timestamp,
+                Latitude = this.Latitude,
+                Longitude = this.Longitude,
+                Altitude = this.Altitude,
+                Accuracy = this.Accuracy,
+                VerticalAccuracy = this.VerticalAccuracy,
+                Speed = this.Speed,
+                Course = this.Course
+            };
+        }
         #endregion
     }
 }
