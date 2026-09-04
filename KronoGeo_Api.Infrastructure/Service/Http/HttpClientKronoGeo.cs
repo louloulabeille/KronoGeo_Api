@@ -177,6 +177,31 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
 
         }
 
+        /// <summary>
+        /// method de récupération des groupes de localisation pour un utilisateur
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public async Task<ResponseApiLocalisations> GetUserGroupLocalisationAsync(string userId)
+        {
+            if( string.IsNullOrEmpty(userId) ) throw new ArgumentNullException(nameof(userId), "L'identifiant de l'utilisateur est null ou vide.");
+            
+            var url = $"{_options.Value.GetUserGroupLocalisation}/{WebUtility.UrlEncode(userId)}";
+
+            using var retour = await HttpClient.GetAsync( url);
+            retour.EnsureSuccessStatusCode();
+
+            var result = await retour.Content.ReadAsStringAsync();
+            var deserializedResult = JsonSerializer.Deserialize<ResponseApiLocalisations>(result, JsonOptions.GetJsonOptions());
+            return deserializedResult ?? new ResponseApiLocalisations
+            {
+                ApiStatus = EnumApiStatus.NotFound,
+                Message = $"Aucun groupe de localisation trouvé pour l'utilisateur {userId}",
+                LocalisationGroupDTO = null,
+                GroupsDTO = []
+            };
+        }
+
         #endregion
 
         #region public method interface IDisposable
@@ -202,10 +227,6 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             //_httpClient.DefaultRequestHeaders.Add("X-Tunnel-Authorization", "tunnel eyJhbGciOiJFUzI1NiIsImtpZCI6IjcyRjZDNUU3OEE2M0UzOEUxM0UyOTE1MjM0NjMyMDFGMDFDMzQ2MTUiLCJ0eXAiOiJKV1QifQ.eyJjbHVzdGVySWQiOiJldXciLCJ0dW5uZWxJZCI6InBlYWNlZnVsLWNoYWlyLWI2Y3ZnYzIiLCJzY3AiOiJjb25uZWN0IiwiZXhwIjoxNzg3MDUxMzQ3LCJpc3MiOiJodHRwczovL3R1bm5lbHMuYXBpLnZpc3VhbHN0dWRpby5jb20vIiwibmJmIjoxNzg2OTY0MDQ3fQ.UBF-WTYmgM1qIUJ9lGL7ElALXBZOqXK4ZXKJ3y4qZ-niUxOoAcvApYd3tFyhpZgAodbtNHEz-CqVmliesx__bw");
         }
 
-        public Task<ResponseApiLocalisations> GetUserGroupLocalisationAsync(string userId)
-        {
-            throw new NotImplementedException();
-        }
         #endregion
 
     }

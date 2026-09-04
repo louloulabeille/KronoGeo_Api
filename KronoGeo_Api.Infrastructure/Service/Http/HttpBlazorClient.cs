@@ -24,7 +24,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
     /// <param name="httpClient"></param>
     public class HttpBlazorClient(IOptions<UrlApiBlazorClient> options , HttpClient httpClient
         , ILogger<HttpBlazorClient> logger) 
-        : IServiceHttpClientAssembly
+        : IServiceHttpClientAssembly, IDisposable
     {
         #region private readonly properties
         
@@ -90,7 +90,11 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             try
             {
                 var adress = _options.Value.Me;
-                var userInfos = await _httpClient.GetFromJsonAsync<UserInfos>(adress);
+                using var result = await _httpClient.GetAsync(adress);
+                result.EnsureSuccessStatusCode();
+
+                var data = await result.Content.ReadAsStringAsync();
+                var userInfos = JsonSerializer.Deserialize<UserInfos>(data, JsonOptions.GetJsonOptions());
 
                 return userInfos ?? new()
                 {
@@ -121,7 +125,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             {
                 var adress = _options.Value.Logout;
 
-                var result = await _httpClient.PostAsync(adress, null);
+                using var result = await _httpClient.PostAsync(adress, null);
                 return result.IsSuccessStatusCode;
             }
             catch(Exception ex)
@@ -141,9 +145,15 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         {
             try
             {
-                var adress = _options.Value.SaveGroupLocalisations;
-                var result = await _httpClient.GetFromJsonAsync<ResponseApiLocalisations>(adress +"/"+ userId);
-                return result ?? new() { 
+                var adress = _options.Value.GetUserGroupLocalisation;
+                var url = adress + "/" + WebUtility.UrlEncode(userId);
+                using var result = await _httpClient.GetAsync(url);
+                result.EnsureSuccessStatusCode();
+
+                var retour = await result.Content.ReadAsStringAsync();
+                var data = JsonSerializer.Deserialize<ResponseApiLocalisations>(retour, JsonOptions.GetJsonOptions());
+
+                return data ?? new() { 
                     ApiStatus = EnumApiStatus.NotFound,
                     Message = $"Aucun groupe de localisation trouvé pour l'utilisateur {userId}",
                     LocalisationGroupDTO = null,
@@ -159,6 +169,14 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                     Message = $"Erreur lors de la récupération des groupes de localisation pour l'utilisateur {userId}"
                 };
             }
+        }
+
+        #endregion
+
+        #region public method interface IDisposable
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
         }
         #endregion
     }

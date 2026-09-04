@@ -27,6 +27,31 @@ namespace KronoGeo_Blazor.Client.Pages
         #region protected override method
         protected async override Task OnInitializedAsync()
         {
+            IsLoading = true; // -- mise en place du loader trop rapide le chargement
+            await GetLoadGroupLocationAsync();
+            
+            await base.OnInitializedAsync();
+        }
+
+        protected override void OnAfterRender(bool firstRender)
+        {
+            if (firstRender)
+            {
+                IsLoading = false;
+                StateHasChanged();
+            }
+            base.OnAfterRender(firstRender);
+        }
+
+        #endregion
+
+        #region private method 
+        /// <summary>
+        /// method qui va rechercher les groupes de localisation de l'utilisateur connecté
+        /// </summary>
+        /// <returns></returns>
+        private async Task GetLoadGroupLocationAsync()
+        {
             if (_serviceHttp is not null && _authenticationStateProvider is not null)
             {
                 var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
@@ -56,19 +81,6 @@ namespace KronoGeo_Blazor.Client.Pages
                         }).ToList()
                     }).ToList();
             }
-
-            IsLoading = true; // -- mise en place du loader
-            await base.OnInitializedAsync();
-        }
-
-        protected override Task OnAfterRenderAsync(bool firstRender)
-        {
-            if (firstRender)
-            {
-                IsLoading = false;
-                StateHasChanged();
-            }
-            return base.OnAfterRenderAsync(firstRender);
         }
         #endregion
 

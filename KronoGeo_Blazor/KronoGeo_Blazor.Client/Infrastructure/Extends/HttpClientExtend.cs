@@ -25,6 +25,7 @@ namespace KronoGeo_Blazor.Client.Infrastructure.Extends
                     options.Login = "api/v1/AuthBFF/Login";
                     options.Me = "api/v1/AuthBFF/Me";
                     options.Logout = "api/v1/AuthBFF/Logout";
+                    options.GetUserGroupLocalisation = "api/v1/GpsBFF/GetAllGroup";
                 });
                 return services;
             }

@@ -7,12 +7,12 @@ namespace KronoGeo_Blazor.Components.Api
 {
     [Microsoft.AspNetCore.Mvc.Route("api/v1/[controller]")]
     [ApiController]
-    public class GpsController( IMediator mediaR, ILogger<GpsController> logger ) : Controller
+    public class GpsBFFController( IMediator mediaR, ILogger<GpsBFFController> logger ) : Controller
     {
         #region private readonly properties
         private readonly IMediator _mediaR = mediaR;
         //private readonly IMemoryCache _memoryCache = memoryCache;
-        private readonly ILogger<GpsController> _logger = logger;
+        private readonly ILogger<GpsBFFController> _logger = logger;
         #endregion
 
         /// <summary>
