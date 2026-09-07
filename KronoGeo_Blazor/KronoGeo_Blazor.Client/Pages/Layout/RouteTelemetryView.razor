@@ -1,0 +1,40 @@
+﻿@using KronoGeo_Api.Models
+
+@if( Telemetry is not null)
+{
+    <table class="table">
+        <!--
+        <thead>
+            <tr>
+                <th scope="col">Distance</th>
+                <th scope="col">Vitesse moyenne</th>
+                <th scope="col">Positive élévation</th>
+                <th scope="col">Négative élévation</th>
+                <th scope="col">Début</th>
+                <th scope="col">Fin</th>
+            </tr>
+        </thead>
+        -->
+        <tbody>
+
+            <tr>
+                <th scope="row">Distance</th>
+                <th>@Telemetry.Distance</th>
+                <!--<td>@Telemetry.AverageSpeed</td>
+                <td>@Telemetry.PositiveElevationGain</td>
+                <td>@Telemetry.NegativeElevationGain</td>
+                <td>@Telemetry.DateTimeBegin.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>@Telemetry.DateTimeEnd.ToString("dd/MM/yyyy HH:mm")</td>
+                -->
+            </tr>
+
+        </tbody>
+    </table>
+}
+
+
+@code {
+    [Parameter]
+    public RouteTelemetry? Telemetry { get; set; } = default;
+
+}

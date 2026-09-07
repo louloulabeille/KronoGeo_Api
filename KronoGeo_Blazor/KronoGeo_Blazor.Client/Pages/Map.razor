@@ -15,37 +15,57 @@ else
     <div class="container">
         <div class="row">
             <div class="col-md-4">
-                @if (LocalisationGroup is null || LocalisationGroup.Count == 0 )
+                @if (DataOnView is null || DataOnView.Count() == 0)
                 {
-                    <p>Aucun groupe de localisation disponible.</p>
+                    <Loader>Aucun groupe de localisation disponible.</Loader>
                 }
                 else
                 {
-                    @foreach (var item in LocalisationGroup.OrderByDescending(l=>l.Date))
-                    {
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                <h5 class="card-title">@item.Name</h5>
+                    <div class="accordion overflow-y-auto" id="accordionGroupLocation">
+                        @foreach (var item in DataOnView.OrderByDescending(l => l.Id))
+                        {
+                            var headingId = $"heading{item.Id}";
+                            var collapseId = $"collapse{item.Id}";
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="@headingId">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="true" aria-controls="@collapseId">
+                                        @item.Name - @item.Date.ToString("dd/MM/yyyy HH:mm")
+                                    </button>
+                                </h2>
+                                <div id="@collapseId" class="accordion-collapse collapse show" aria-labelledby="@headingId" data-bs-parent="#accordionGroupLocation">
+                                    <div class="accordion-body">
+                                        <RouteTelemetryView Telemetry="@item.RouteTelemetry"></RouteTelemetryView>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    }
-                    <nav aria-label="Page navigation example">
-                        <ul class="pagination">
-                            <li class="page-item">
-                                <a class="page-link" href="#" aria-label="Previous">
-                                    <span aria-hidden="true">&laquo;</span>
-                                </a>
+                        }
+                    </div>
+                    
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination">
+                                <li class="page-item">
+                                    <a class="page-link" href="#" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
                             </li>
-                            <li class="page-item"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            @if (TotalPages >= 3)
+                            {
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            }
+                            else
+                            {
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            }
                             <li class="page-item">
-                                <a class="page-link" href="#" aria-label="Next">
-                                    <span aria-hidden="true">&raquo;</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
+                                    <a class="page-link" href="#" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    
                 }
             </div>
             <div class="col-md-8">

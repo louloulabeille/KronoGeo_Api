@@ -21,7 +21,29 @@ namespace KronoGeo_Blazor.Client.Pages
 
         #region protected properties view
         protected bool IsLoading { get; set; } = false;
-        protected List<LocalisationGroup>? LocalisationGroup { get; set; } = [];
+        /// <summary>
+        /// liste des groupes de localisation de l'utilisateur connecté
+        /// par page de 10 éléments par défaut
+        /// </summary>
+        protected IEnumerable<LocalisationGroup>? DataOnView => _localisationGroup?
+            .OrderByDescending(lg => lg.Date).Skip((_pageActuel - 1) * _pageSize).Take(_pageSize);
+        /// <summary>
+        /// nombre total de page pour la pagination
+        /// nombre / pageSize + 1 si reste > 0 calcul avec le modulo
+        /// </summary>
+        protected int TotalPages =>
+            (_localisationGroup?.Count ?? 0) / _pageSize + ((_localisationGroup?.Count ?? 0) % _pageSize > 0 ? 1 : 0);
+        #endregion
+
+        #region private properties
+        /// <summary>
+        /// data de localisation group de l'utilisateur connecté
+        /// </summary>
+        private List<LocalisationGroup>? _localisationGroup { get; set; } = [];
+        // -- pagination calcul
+        private readonly int _pageActuel = 1;
+        // -- nombre d'éléments par page
+        private readonly int _pageSize = 10;
         #endregion
 
         #region protected override method
@@ -58,7 +80,7 @@ namespace KronoGeo_Blazor.Client.Pages
                 var user = authState.User.Identities.FirstOrDefault()?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
                 var result = await _serviceHttp.GetUserGroupLocalisationAsync(user?.Value ?? string.Empty);
 
-                LocalisationGroup = result?.GroupsDTO?
+                _localisationGroup = result?.GroupsDTO?
                     .Select(lg => new LocalisationGroup()
                     {
                         Id = lg.Id,
