@@ -27,12 +27,14 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         protected override void OnInitialized()
         {
             LoadTelemetryView();
-
             base.OnInitialized();
         }
         #endregion
 
         #region private methods
+        /// <summary>
+        /// méthode de chargement des données de télémétrie dans les propriétés de la vue
+        /// </summary>
         private void LoadTelemetryView()
         {
             if (Telemetry is not null)
@@ -50,8 +52,8 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                 NegativeElevationGain = $"{Math.Round(Telemetry.NegativeElevationGain, 2)} {unitElevation}";
                 DateTimeBegin = Telemetry.DateTimeBegin.LocalDateTime.ToString("dd/MM/yyyy HH:mm:ss");
                 DateTimeEnd = Telemetry.DateTimeEnd.LocalDateTime.ToString("dd/MM/yyyy HH:mm:ss");
-                TotalTime = string.Format("{0}h:{1}m:{2}s", total.Hours, total.Minutes, total.Seconds);
-                TotalTimePaused = string.Format("{0}h:{1}m:{2}s", pause.Hours, pause.Minutes, pause.Seconds); ;
+                TotalTime = string.Format("{0}h {1}m {2}s", total.Hours, total.Minutes, total.Seconds);
+                TotalTimePaused = string.Format("{0}h {1}m {2}s", pause.Hours, pause.Minutes, pause.Seconds); ;
             }
         }
         #endregion
