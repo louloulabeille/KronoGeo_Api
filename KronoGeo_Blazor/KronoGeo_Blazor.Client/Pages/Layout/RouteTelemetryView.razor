@@ -1,4 +1,4 @@
-﻿@using KronoGeo_Api.Models
+﻿@inherits RouteTelemetryViewBase
 
 @if( Telemetry is not null)
 {
@@ -19,22 +19,36 @@
 
             <tr>
                 <th scope="row">Distance</th>
-                <th>@Telemetry.Distance</th>
-                <!--<td>@Telemetry.AverageSpeed</td>
-                <td>@Telemetry.PositiveElevationGain</td>
-                <td>@Telemetry.NegativeElevationGain</td>
-                <td>@Telemetry.DateTimeBegin.ToString("dd/MM/yyyy HH:mm")</td>
-                <td>@Telemetry.DateTimeEnd.ToString("dd/MM/yyyy HH:mm")</td>
-                -->
+                <th>@Distance</th>
             </tr>
-
+            <tr>
+                <th scope="row">Vitesse moyenne</th>
+                <td>@AverageSpeed</td>
+            </tr>
+            <tr>
+                <th scope="row">Elévation positive</th>
+                <td>@PositiveElevationGain</td>
+            </tr>
+            <tr>
+                <th scope="row">Elévation négative</th>
+                <td>@NegativeElevationGain</td>
+            </tr>
+            <tr>
+                <th scope="row">Date de début</th>
+                <td>@DateTimeBegin</td>
+            </tr>
+            <tr>
+                <th scope="row">Date de fin</th>
+                <td>@DateTimeEnd</td>
+            </tr>
+            <tr>
+                <th scope="row">Durée</th>
+                <td>@TotalTime</td>
+            </tr>
+            <tr>
+                <th scope="row">Temps de pause</th>
+                <td>@TotalTimePaused</td>
+            </tr>
         </tbody>
     </table>
-}
-
-
-@code {
-    [Parameter]
-    public RouteTelemetry? Telemetry { get; set; } = default;
-
 }

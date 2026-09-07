@@ -401,7 +401,7 @@ namespace KronoGeo_Maui.ModelViews
 
                 if (!IsStart)
                 {
-                    _routeTelemetry.DateTimeBegin = DateTimeOffset.Now;
+                    _routeTelemetry.DateTimeBegin = DateTimeOffset.Now; // -- type date heure local non utc
                     IsEnablePhoto = true; // -- donne la possibilité de prendre des photos
                     IsStart = true;
                     PlayPause = "\ue1a2";

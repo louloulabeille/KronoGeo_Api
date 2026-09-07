@@ -32,11 +32,12 @@ namespace KronoGeo_Api.Infrastructure.Service.Telemetry
             // -- calcul la distance selon DistanceUnit 
             var p1 = first.GetLocation();
             var p2 = second.GetLocation();
+            var fin = DateTimeOffset.Now;
             double distance = Location.CalculateDistance(p1, p2, telemetry.DistanceUnit);
             telemetry.Distance += distance;
 
             // -- calcul le temps passé
-            telemetry.TotalTime += (p2.Timestamp - p1.Timestamp).TotalSeconds;
+            telemetry.TotalTime = telemetry.DateTimeBegin == DateTimeOffset.MinValue ? 0 : (telemetry.DateTimeBegin - fin).TotalSeconds;
 
             // -- calcul vitesse moyenne km/h ou miles/h
             telemetry.AverageSpeed = (telemetry.Distance / telemetry.TotalTime) * 3600;
