@@ -521,7 +521,7 @@ namespace KronoGeo_Maui.ModelViews
                     {
                         //Name = $"Localisation_{DateTime.Now:yyyyMMdd_HHmmss}",
                         Name = name ?? $"Localisation_{DateTime.Now:yyyyMMdd_HHmmss}",
-                        Date = DateTimeOffset.Now,
+                        Date = DateTimeOffset.Now ,
                         ApplicationUserId = register.Id, // -- à adapter selon l'authentification
                         Localisations = _localisations,
                         RouteTelemetry = _routeTelemetry,

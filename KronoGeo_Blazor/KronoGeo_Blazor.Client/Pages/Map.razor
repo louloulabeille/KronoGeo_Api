@@ -26,7 +26,7 @@ else
                         {
                             var headingId = $"heading{item.Id}";
                             var collapseId = $"collapse{item.Id}";
-                            var titre = $"{item.Name} - {item.Date.LocalDateTime.ToString("dd/MM/yyyy HH:mm")}";
+                            var titre = $"{item.Name[0].ToString().ToUpper() + item.Name.Substring(1)} - {item.Date.LocalDateTime.ToString("dd/MM/yyyy")}";
                             
                             <div class="accordion-item">
                                 <h2 class="accordion-header" id="@headingId">

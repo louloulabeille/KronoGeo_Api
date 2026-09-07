@@ -2,48 +2,35 @@
 
 @if( Telemetry is not null)
 {
-    <table class="table">
-        <!--
-        <thead>
-            <tr>
-                <th scope="col">Distance</th>
-                <th scope="col">Vitesse moyenne</th>
-                <th scope="col">Positive élévation</th>
-                <th scope="col">Négative élévation</th>
-                <th scope="col">Début</th>
-                <th scope="col">Fin</th>
-            </tr>
-        </thead>
-        -->
+    <table class="table-primary table-striped">
         <tbody>
-
-            <tr>
-                <th scope="row">Distance</th>
-                <th>@Distance</th>
+            <tr class="table-primary">
+                <th class="table-primary" scope="row">Distance</th>
+                <th class="table-primary">@Distance</th>
             </tr>
             <tr>
-                <th scope="row">Vitesse moyenne</th>
-                <td>@AverageSpeed</td>
+                <th class ="table-primary" scope="row">Vitesse moyenne</th>
+                <td class="table-primary">@AverageSpeed</td>
             </tr>
             <tr>
-                <th scope="row">Elévation positive</th>
-                <td>@PositiveElevationGain</td>
+                <th class="table-primary" scope="row">Elévation positive</th>
+                <td class="table-primary">@PositiveElevationGain</td>
             </tr>
             <tr>
-                <th scope="row">Elévation négative</th>
-                <td>@NegativeElevationGain</td>
+                <th class="table-primary" scope="row">Elévation négative</th>
+                <td class="table-primary">@NegativeElevationGain</td>
             </tr>
             <tr>
-                <th scope="row">Date de début</th>
-                <td>@DateTimeBegin</td>
+                <th class="table-primary" scope="row">Date de début</th>
+                <td class="table-primary">@DateTimeBegin</td>
             </tr>
             <tr>
-                <th scope="row">Date de fin</th>
-                <td>@DateTimeEnd</td>
+                <th class="table-primary" scope="row">Date de fin</th>
+                <td class="table-primary">@DateTimeEnd</td>
             </tr>
             <tr>
-                <th scope="row">Durée</th>
-                <td>@TotalTime</td>
+                <th class="table-primary" scope="row">Durée</th>
+                <td class="table-primary">@TotalTime</td>
             </tr>
             <tr>
                 <th scope="row">Temps de pause</th>

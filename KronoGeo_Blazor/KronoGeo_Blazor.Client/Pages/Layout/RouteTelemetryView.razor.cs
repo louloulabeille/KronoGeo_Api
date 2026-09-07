@@ -37,6 +37,9 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         {
             if (Telemetry is not null)
             {
+                TimeSpan total = TimeSpan.FromSeconds(Telemetry.TotalTime);
+                TimeSpan pause = TimeSpan.FromSeconds(Telemetry.TotalTimePaused);
+
                 string unitDistance = Telemetry.DistanceUnit == DistanceUnits.Kilometers ? "km" : "m";
                 string unitSpeed = Telemetry.DistanceUnit == DistanceUnits.Kilometers ? "km/h" : "m/s";
                 string unitElevation = Telemetry.DistanceUnit == DistanceUnits.Kilometers ? "m" : "ft";
@@ -47,8 +50,8 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                 NegativeElevationGain = $"{Math.Round(Telemetry.NegativeElevationGain, 2)} {unitElevation}";
                 DateTimeBegin = Telemetry.DateTimeBegin.LocalDateTime.ToString("dd/MM/yyyy HH:mm:ss");
                 DateTimeEnd = Telemetry.DateTimeEnd.LocalDateTime.ToString("dd/MM/yyyy HH:mm:ss");
-                TotalTime = Telemetry.TotalTime.ToString();
-                TotalTimePaused = Telemetry.TotalTimePaused.ToString();
+                TotalTime = string.Format("{0}h:{1}m:{2}s", total.Hours, total.Minutes, total.Seconds);
+                TotalTimePaused = string.Format("{0}h:{1}m:{2}s", pause.Hours, pause.Minutes, pause.Seconds); ;
             }
         }
         #endregion

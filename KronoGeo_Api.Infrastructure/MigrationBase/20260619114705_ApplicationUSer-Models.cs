@@ -19,7 +19,7 @@ namespace KronoGeo_Api.Infrastructure.MigrationBase
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: false),
-                    Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Date = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     ApplicationUserId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>

@@ -143,7 +143,7 @@ namespace KronoGeo_Api.Infrastructure.MigrationBase
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("Date")
+                    b.Property<DateTimeOffset>("Date")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
