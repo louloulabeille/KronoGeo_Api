@@ -21,18 +21,36 @@ namespace KronoGeo_Blazor.Client.Pages
 
         #region protected properties view
         protected bool IsLoading { get; set; } = false;
+
+        // -- pagination calcul
+        protected int PageActuel = 1;
+
         /// <summary>
         /// liste des groupes de localisation de l'utilisateur connecté
         /// par page de 10 éléments par défaut
         /// </summary>
         protected IEnumerable<LocalisationGroup>? DataOnView => _localisationGroup?
-            .OrderByDescending(lg => lg.Date).Skip((_pageActuel - 1) * _pageSize).Take(_pageSize);
+            .OrderByDescending(lg => lg.Date).Skip((PageActuel - 1) * _pageSize).Take(_pageSize).ToList();
+        
         /// <summary>
         /// nombre total de page pour la pagination
         /// nombre / pageSize + 1 si reste > 0 calcul avec le modulo
         /// </summary>
         protected int TotalPages =>
             (_localisationGroup?.Count ?? 0) / _pageSize + ((_localisationGroup?.Count ?? 0) % _pageSize > 0 ? 1 : 0);
+
+        /// <summary>
+        /// indique si le bouton précédent est désactivé ou non
+        /// </summary>
+        protected bool DisabledPreviousPage => PageActuel <= 1;
+        /// <summary>
+        /// indique si le bouton suivant est désactivé ou non
+        /// </summary>
+        protected bool DisabledNextPage => PageActuel >= TotalPages;
+        /// <summary>
+        /// nombre de boutons numériques visibles pour la pagination
+        /// </summary>
+        protected int VisibleNumericButtonCount { get; set; } = 3; 
         #endregion
 
         #region private properties
@@ -40,8 +58,7 @@ namespace KronoGeo_Blazor.Client.Pages
         /// data de localisation group de l'utilisateur connecté
         /// </summary>
         private List<LocalisationGroup>? _localisationGroup { get; set; } = [];
-        // -- pagination calcul
-        private readonly int _pageActuel = 1;
+
         // -- nombre d'éléments par page
         private readonly int _pageSize = 10;
         #endregion
@@ -63,6 +80,35 @@ namespace KronoGeo_Blazor.Client.Pages
                 StateHasChanged();
             }
             base.OnAfterRender(firstRender);
+        }
+
+        #endregion
+
+        #region protected method
+        protected void PreviousPage()
+        {
+            if (PageActuel > 1)
+            {
+                PageActuel--;
+                ChangePage(PageActuel);
+            }
+        }
+
+        protected void NextPage()
+        {
+            if (PageActuel < TotalPages)
+            {
+                PageActuel++;
+                ChangePage(PageActuel);
+            }
+        }
+
+        protected void ChangePage(int page)
+        {
+            if (DataOnView is null || _localisationGroup is null ) return;
+
+            PageActuel = page;
+            StateHasChanged();
         }
 
         #endregion
@@ -92,6 +138,7 @@ namespace KronoGeo_Blazor.Client.Pages
                     }).ToList();
             }
         }
+
         #endregion
 
     }
