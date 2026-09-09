@@ -17,6 +17,8 @@ namespace KronoGeo_Blazor.Client.Pages
         private IServiceHttpClientAssembly? _serviceHttp { get; set; } = default;
         [Inject]
         private AuthenticationStateProvider? _authenticationStateProvider { get; set; } = default;
+        [Inject]
+        private IMapStateService? _mapState { get; set; } = default;
         #endregion
 
         #region protected properties view
@@ -111,6 +113,13 @@ namespace KronoGeo_Blazor.Client.Pages
             StateHasChanged();
         }
 
+        protected void ChargeLocationsOnMap(LocalisationGroup group)
+        {
+            if (group is null || group.Localisations is null || group.Localisations.Count == 0) return;
+
+            _mapState?.OpenMapwithLocalisations(group.Localisations);
+
+        }
         #endregion
 
         #region private method 

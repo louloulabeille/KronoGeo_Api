@@ -30,7 +30,9 @@ else
                             
                             <div class="accordion-item">
                                 <h2 class="accordion-header" id="@headingId">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="false" aria-controls="@collapseId">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#@collapseId" aria-expanded="false" aria-controls="@collapseId"
+                                            @onclick="() => ChargeLocationsOnMap(item)">
                                         @titre
                                     </button>
                                 </h2>

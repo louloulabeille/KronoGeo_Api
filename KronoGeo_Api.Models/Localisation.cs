@@ -60,7 +60,26 @@ namespace KronoGeo_Api.Models
 
         public LocalisationDTO GetDTO()
         {
-            return new LocalisationDTO()
+            if( this is LocalisationPhoto photo )
+            {
+                return new LocalisationPhotoDTO()
+                {
+                    Id = this.Id,
+                    OrderIndex = this.OrderIndex,
+                    Timestamp = this.Timestamp,
+                    Latitude = this.Latitude,
+                    Longitude = this.Longitude,
+                    Altitude = this.Altitude,
+                    Accuracy = this.Accuracy,
+                    VerticalAccuracy = this.VerticalAccuracy,
+                    Speed = this.Speed,
+                    Course = this.Course,
+                    Name = photo.Name,
+                    PathPhoto = photo.PathPhoto
+                };
+            }
+            else
+            return new ()
             {
                 Id = this.Id,
                 OrderIndex = this.OrderIndex,
