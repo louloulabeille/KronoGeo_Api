@@ -2,14 +2,27 @@
 
 @rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 
+
+
 <div class="container">
 
     <div class="row">
 
-        <div class="col border rounded p-2 canvas-container">
-            <MapControlComponent @ref="MapControl" />
-
+        <div class="col border rounded p-2 canvas-container" @onpointermove="HandlerPointerMove">
+            <MapControlComponent @ref="MapControl"  />
         </div>
+
+        @if (IsHovered && !string.IsNullOrEmpty(UrlImg))
+        {
+
+            <div class="card" style="width: 18rem;">
+                <img src="@UrlImg" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <p class="card-text">Test</p>
+                </div>
+            </div>
+
+        }
 
     </div>
 </div>

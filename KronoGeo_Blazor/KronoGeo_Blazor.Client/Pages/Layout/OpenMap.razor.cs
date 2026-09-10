@@ -3,17 +3,20 @@ using KronoGeo_Api.Models;
 using Mapsui;
 using Mapsui.Extensions;
 using Mapsui.Layers;
+using Mapsui.Manipulations;
 using Mapsui.Nts;
 using Mapsui.Projections;
 using Mapsui.Providers;
 using Mapsui.Styles;
+using Mapsui.UI;
 using Mapsui.UI.Blazor;
 using Mapsui.Utilities;
 using Microsoft.AspNetCore.Components;
-using NetTopologySuite.Features;
+using Microsoft.AspNetCore.Components.Web;
 using NetTopologySuite.Geometries;
-using Org.BouncyCastle.Bcpg.Sig;
-using System.Net.Sockets;
+using SkiaSharp;
+using Svg.Skia;
+using static System.Net.WebRequestMethods;
 
 namespace KronoGeo_Blazor.Client.Pages.Layout
 {
@@ -32,6 +35,8 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         #region protected properties
         protected MapControl? MapControl;
         protected List<Localisation>? Localisations { get; set; }
+        protected bool IsHovered { get; set; } = false; // -- affichage de l'image dans une card image boostrap
+        protected string UrlImg { get; set; }  = string.Empty; // -- url de l'image à afficher
         #endregion
 
         #region private properties
@@ -58,21 +63,55 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
 
         #endregion
 
+        #region protected method 
+        /// <summary>
+        /// method pour event onpointermove
+        /// </summary>
+        /// <param name="e"></param>
+        protected void HandlerPointerMove(PointerEventArgs e)
+        {
+            if (MapControl?.Map == null) return;
+
+            // Conversion des coordonnées écran vers la carte Mapsui
+            var viewport = MapControl.Map.Navigator.Viewport;
+            var worldPoint = viewport.ScreenToWorld(e.OffsetX, e.OffsetY);
+            var layers = MapControl?.Map?.Layers;
+
+            if (layers is null) return;
+
+            // Détection si le pointeur survole un point (HitTesting)
+            var mapInfo = MapControl?.GetMapInfo(new ScreenPosition(e.OffsetX, e.OffsetY), layers);
+
+            if (mapInfo?.Feature != null && _featureImageMap.TryGetValue(mapInfo.Feature, out var imgUrl))
+            {
+                UrlImg = new Uri("https://localhost:7291/"+ imgUrl.PathPhoto + imgUrl.Name).ToString();
+                IsHovered = true;
+            }
+            else
+            {
+                IsHovered = false;
+            }
+
+            StateHasChanged();
+        }
+        #endregion
+
+
         #region private methods
         /// <summary>
         /// method qui est appelé lors de la transmission des localisations
         /// </summary>
-        private void HandleOpenRequested()
+        private async void HandleOpenRequested()
         {
             if( MapStateService?.CurrentLocalisations is not null || MapStateService?.CurrentLocalisations?.Count() > 0)
             {
                 ChargingTraceAndPoint(MapStateService.CurrentLocalisations);
-                InvokeAsync(StateHasChanged);
+                await InvokeAsync(StateHasChanged);
             }
         }
 
         /// <summary>
-        /// method qui charge les tracés ou les points sur la map
+        /// method qui charge les tracés et les points sur la map
         /// avec l'aide de layer
         /// </summary>
         /// <param name="localisations"></param>
@@ -100,7 +139,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         }
 
         /// <summary>
-        /// Affiche le layer pour les photos
+        /// Affiche les points layer pour les photos
         /// </summary>
         /// <param name="localisations"></param>
         /// <returns></returns>
@@ -114,17 +153,17 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
 
                 if (photo.PathPhoto is null) continue;
 
+                // -- transformation des points longitude et latitude en points mercator
                 var coordonate = SphericalMercator.FromLonLat(photo.Longitude, photo.Latitude);
                 var feature = new PointFeature(coordonate);
 
-                feature.Styles.Add(new SymbolStyle
-                {
-                    SymbolScale = 0.2,
-                    Fill = new Brush(Color.DeepPink),
-                    Outline = new Pen(Color.MintCream)
-                });
+                feature.Styles.Add(ImgPin());
 
+                // -- ajout dans le dictionnaire pour retrouver les photos par rapport 
+                // -- à leur feature
                 _featureImageMap.Add(feature, photo);
+
+                // -- ajout dans la liste des features pour l'intégrer dans le layer
                 features.Add(feature);
             }
 
@@ -138,11 +177,10 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
 
             return memoryLayer;
 
-
         }
 
         /// <summary>
-        /// créer l'object qui va être pris dans le calque pour afficher les lignes au niveau des points de géolocalisation
+        /// créer l'object qui va afficher les lignes au niveau des points de géolocalisation
         /// </summary>
         /// <param name="localisations"></param>
         /// <returns></returns>
@@ -226,7 +264,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         }
 
         /// <summary>
-        /// fait un zoom en prenant les 4 points min et max d'un tracé
+        /// fait un zoom en prenant les 4 points d'un rectangle min et max d'un tracé
         /// qu'il appelle envelope
         /// </summary>
         /// <param name="env"></param>
@@ -243,7 +281,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         }
 
         /// <summary>
-        /// inisialise la map en suprimant le tracé si déjà affiché
+        /// inisialise la map en suprimant le tracé & les points photos si déjà affiché
         /// </summary>
         private void InitMap ()
         {
@@ -253,9 +291,29 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
             if (_photoLayer is not null)
                 MapControl?.Map?.Layers.Remove(_photoLayer);
         }
+
+        /// <summary>
+        /// Retourne le style image pour qu'il soit afficher
+        /// </summary>
+        /// <returns></returns>
+        private static ImageStyle ImgPin()
+        {
+            var svg = $"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-camera2\" viewBox=\"0 0 16 16\">\r\n  <path d=\"M5 8c0-1.657 2.343-3 4-3V4a4 4 0 0 0-4 4\"/>\r\n  <path d=\"M12.318 3h2.015C15.253 3 16 3.746 16 4.667v6.666c0 .92-.746 1.667-1.667 1.667h-2.015A5.97 5.97 0 0 1 9 14a5.97 5.97 0 0 1-3.318-1H1.667C.747 13 0 12.254 0 11.333V4.667C0 3.747.746 3 1.667 3H2a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1h.682A5.97 5.97 0 0 1 9 2c1.227 0 2.367.368 3.318 1M2 4.5a.5.5 0 1 0-1 0 .5.5 0 0 0 1 0M14 8A5 5 0 1 0 4 8a5 5 0 0 0 10 0\"/>\r\n</svg>";
+            var imageStyle = new ImageStyle
+            {
+                Image = new Image { Source = $"svg-content://{svg}" },
+                SymbolScale = 1,
+            };
+
+            return imageStyle;
+        }
+
+
+       
+
         #endregion
 
-            #region public method interface Idisposable
+        #region public method interface Idisposable
         public void Dispose()
         {
             MapStateService?.OnOpenRequested -= HandleOpenRequested;
