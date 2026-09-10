@@ -35,8 +35,16 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         #region protected properties
         protected MapControl? MapControl;
         protected List<Localisation>? Localisations { get; set; }
+        
+        // ------- card image
         protected bool IsHovered { get; set; } = false; // -- affichage de l'image dans une card image boostrap
         protected string UrlImg { get; set; }  = string.Empty; // -- url de l'image à afficher
+        protected double MouseY { get; set; } = 0;
+        protected double MouseX { get; set; } = 0;
+        protected string ImgDate { get; set; } = string.Empty;
+        protected string ImgLongitude { get;set; } = string.Empty;
+        protected string ImgLatitude { get; set; } = string.Empty;
+        // -------
         #endregion
 
         #region private properties
@@ -75,6 +83,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
             // Conversion des coordonnées écran vers la carte Mapsui
             var viewport = MapControl.Map.Navigator.Viewport;
             var worldPoint = viewport.ScreenToWorld(e.OffsetX, e.OffsetY);
+
             var layers = MapControl?.Map?.Layers;
 
             if (layers is null) return;
@@ -84,13 +93,38 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
 
             if (mapInfo?.Feature != null && _featureImageMap.TryGetValue(mapInfo.Feature, out var imgUrl))
             {
-                UrlImg = new Uri("https://localhost:7291/"+ imgUrl.PathPhoto + imgUrl.Name).ToString();
+                UrlImg = Path.Combine("https://localhost:7291/" + imgUrl.PathPhoto?.Replace("wwwroot/", "") , imgUrl.Name) ;
+                MouseX = e.OffsetX;
+                MouseY = e.OffsetY;
                 IsHovered = true;
+
+                ImgDate = imgUrl.Timestamp.LocalDateTime.ToString("dd/MM/yyyy HH:mm:ss");
+                ImgLongitude = imgUrl.Longitude.ToString();
+                ImgLatitude = imgUrl.Latitude.ToString();
             }
-            else
-            {
-                IsHovered = false;
-            }
+            //else
+            //{
+            //    MouseX = 0;
+            //    MouseY = 0;
+            //    IsHovered = false;
+            //}
+
+            StateHasChanged();
+        }
+
+        /// <summary>
+        /// ferme la card image
+        /// </summary>
+        protected void HandlerCloseCard()
+        {
+            MouseX = 0;
+            MouseY = 0;
+            IsHovered = false;
+            UrlImg = string.Empty;
+
+            ImgDate = string.Empty;
+            ImgLongitude = string.Empty;
+            ImgLatitude = string.Empty;
 
             StateHasChanged();
         }
@@ -151,7 +185,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
 
             foreach (var photo in photos) {
 
-                if (photo.PathPhoto is null) continue;
+                if ( string.IsNullOrEmpty(photo.PathPhoto)) continue;
 
                 // -- transformation des points longitude et latitude en points mercator
                 var coordonate = SphericalMercator.FromLonLat(photo.Longitude, photo.Latitude);

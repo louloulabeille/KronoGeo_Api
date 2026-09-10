@@ -2,11 +2,9 @@
 
 @rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 
-
-
 <div class="container">
 
-    <div class="row">
+    <div class="row" style="position: relative; width: 100%; height:100%">
 
         <div class="col border rounded p-2 canvas-container" @onpointermove="HandlerPointerMove">
             <MapControlComponent @ref="MapControl"  />
@@ -14,11 +12,29 @@
 
         @if (IsHovered && !string.IsNullOrEmpty(UrlImg))
         {
-
-            <div class="card" style="width: 18rem;">
+            <!--18rem-->
+            <div class="card" style="width: 250px; top: @($"{MouseY + 40.0}px"); left: @($"{MouseX - 10.0}px"); z-index: 9999; pointer-events: none;position : absolute;">
+                <button type="button" class="btn-close" aria-label="Close" @onclick="HandlerCloseCard" style="pointer-events: auto;"></button>
                 <img src="@UrlImg" class="card-img-top" alt="...">
                 <div class="card-body">
-                    <p class="card-text">Test</p>
+                    <p class="card-text">
+                        <table class="table-info table-striped">
+                            <tbody>
+                                <tr>
+                                    <th scope="row"><p style="font-size: small">Date/heure</p></th>
+                                    <td><p style="font-size: small">@ImgDate</p></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><p style="font-size: small">Longitude</p></th>
+                                    <td><p style="font-size: small">@ImgLongitude</p></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><p style="font-size: small">Latitude</p></th>
+                                    <td><p style="font-size: small">@ImgLatitude</p></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </p>
                 </div>
             </div>
 
@@ -26,11 +42,3 @@
 
     </div>
 </div>
-
-<!--style>
-    .canvas-container canvas {
-        width: 100%;
-        height: 80vh;
-    }
-</style>
--->
