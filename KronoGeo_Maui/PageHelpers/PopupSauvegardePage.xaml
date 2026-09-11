@@ -27,9 +27,9 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                     <Button Grid.Column="0" Text="Oui" TextColor="#51638B" Clicked="Button_Clicked" CommandParameter="true"
-                        HorizontalOptions="Center" FontSize="17" BackgroundColor="#F9EDE1"/>
+                        HorizontalOptions="Center" FontSize="17" BackgroundColor="#F9EDE1" FontAttributes="Bold"/>
                     <Button Grid.Column="1" Text="Non" TextColor="#51638B" Clicked="Button_Clicked" CommandParameter="false"
-                        HorizontalOptions="Center" FontSize="17" BackgroundColor="#F9EDE1"/>
+                        HorizontalOptions="Center" FontSize="17" BackgroundColor="#F9EDE1" FontAttributes="Bold"/>
             </Grid>
            
         </Grid>
