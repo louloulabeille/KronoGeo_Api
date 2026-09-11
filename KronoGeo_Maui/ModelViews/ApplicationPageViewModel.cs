@@ -393,6 +393,8 @@ namespace KronoGeo_Maui.ModelViews
                     var timePause = (DateTimeOffset.Now - _startPauseTime).TotalSeconds;
                     _routeTelemetry.TotalTimePaused += timePause;
 
+                    IsEnableSave = false;
+                    IsEnablePhoto = true;
                     IsPause = false;
                     PlayPause = "\ue1a2";
                     intent.SetAction(GeoAndroidService.ActionStopPause);
@@ -400,6 +402,8 @@ namespace KronoGeo_Maui.ModelViews
                 }
                 else if (!IsPause && IsStart) // -- start pause
                 {
+                    IsEnableSave = false;
+                    IsEnablePhoto = false;
                     _startPauseTime = DateTimeOffset.Now;
                     IsPause = true;
                     PlayPause = "\ue1c4";

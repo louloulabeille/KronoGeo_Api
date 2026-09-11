@@ -80,6 +80,9 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
                     // Depuis Android 14, il faut impérativement spécifier le type de service ici aussi
                     StartForegroundService();
 
+                    // -- mise en place du WakeLock pour empêcher de mettre en service en pause
+                    AcquireWakeLock();
+
                     // 4. C'est ICI que tu lances ta logique de géolocalisation
                     // (ex: un timer ou un abonnement au GPS qui enregistre tes points)
                     StartGeolocalisation();

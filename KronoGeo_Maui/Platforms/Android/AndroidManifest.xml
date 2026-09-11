@@ -5,6 +5,7 @@
 				   android:value="AIzaSyBtAASM63b2zvWpMNStVCDpgu58wTYAUMQ" />
 	    <service android:name=".GeoAndroidService"
 				 android:foregroundServiceType="location"
+				 android:enabled="true"
 				 android:exported="false"/>
 	</application>
 	
