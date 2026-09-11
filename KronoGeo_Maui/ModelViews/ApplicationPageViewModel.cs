@@ -16,7 +16,6 @@ using KronoGeo_Api.Models;
 using KronoGeo_Maui.Applications.Interface;
 using KronoGeo_Maui.Applications.Message;
 using Microsoft.Extensions.Primitives;
-using Microsoft.Maui.Maps;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -695,7 +694,11 @@ namespace KronoGeo_Maui.ModelViews
             TraitementLocalisation(e.Location);
         }
 
-
+        /// <summary>
+        /// method pour la sauvegarde lors de la fermeture de l'application quand le service est encore lancé
+        /// </summary>
+        /// <param name="send"></param>
+        /// <param name="args"></param>
         public void SaveLocalisation (object? send, EventArgs args)
         {
             // -- pendant la prise photo ne pas faire de backup

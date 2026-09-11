@@ -81,16 +81,17 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
             if (MapControl?.Map == null) return;
 
             // Conversion des coordonnées écran vers la carte Mapsui
-            var viewport = MapControl.Map.Navigator.Viewport;
-            var worldPoint = viewport.ScreenToWorld(e.OffsetX, e.OffsetY);
+            //var viewport = MapControl.Map.Navigator.Viewport;
+            //var worldPoint = viewport.ScreenToWorld(e.OffsetX, e.OffsetY);
 
+            // -- récupération des calques de la map pour avoir les objects qui sont affichés dessus
             var layers = MapControl?.Map?.Layers;
-
             if (layers is null) return;
 
             // Détection si le pointeur survole un point (HitTesting)
             var mapInfo = MapControl?.GetMapInfo(new ScreenPosition(e.OffsetX, e.OffsetY), layers);
 
+            // recherche si un feature existe sur la map && qu'il existe dans le dictionnaire
             if (mapInfo?.Feature != null && _featureImageMap.TryGetValue(mapInfo.Feature, out var imgUrl))
             {
                 UrlImg = Path.Combine("https://localhost:7291/" + imgUrl.PathPhoto?.Replace("wwwroot/", "") , imgUrl.Name) ;
@@ -135,12 +136,21 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         /// <summary>
         /// method qui est appelé lors de la transmission des localisations
         /// </summary>
-        private async void HandleOpenRequested()
+        private  void HandleOpenRequested()
         {
-            if( MapStateService?.CurrentLocalisations is not null || MapStateService?.CurrentLocalisations?.Count() > 0)
+            if( MapStateService?.CurrentLocalisations is not null && MapStateService?.CurrentLocalisations?.Count() > 1)
             {
+                InitMap();
+                HandlerCloseCard();
                 ChargingTraceAndPoint(MapStateService.CurrentLocalisations);
-                await InvokeAsync(StateHasChanged);
+                StateHasChanged();
+            }
+            if( MapStateService?.CurrentLocalisations is not null && MapStateService?.CurrentLocalisations?.Count() == 1)
+            {
+                InitMap();
+                HandlerCloseCard();
+                ZoomTo(MapStateService?.CurrentLocalisations?.First(), 18);
+                StateHasChanged();
             }
         }
 
@@ -152,8 +162,6 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         private void ChargingTraceAndPoint( IEnumerable<Localisation> localisations )
         {
             if (MapControl is null || !localisations.Any()) return;
-
-            InitMap();
 
             // -- chargement des tracés
             var traceLayer = AddTraceLocalisation(localisations, out GeometryFeature outLine);
@@ -178,6 +186,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         /// <param name="localisations"></param>
         /// <returns></returns>
         private MemoryLayer? AddPointImage( IEnumerable<Localisation> localisations ) {
+
             var photos = localisations.OrderBy(x => x.OrderIndex).OfType<LocalisationPhoto>().ToList();
 
             if (photos is null || photos.Count == 0 ) return default;
@@ -284,7 +293,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         /// </summary>
         /// <param name="localistion"></param>
         /// <param name="zoom"></param>
-        private void ZoomTo (Localisation? localistion, double zoom )
+        private void ZoomTo (Localisation? localistion, double zoom = 15 )
         {
             if (localistion is null) return;
 
@@ -295,6 +304,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
             // Set the center of the viewport to the coordinate. The UI will refresh automatically
             // Additionally you might want to set the resolution, this could depend on your specific purpose
             MapControl?.Map.Navigator.CenterOnAndZoomTo(sphericalMercatorCoordinate, zoom);
+            MapControl?.Refresh();
         }
 
         /// <summary>
@@ -312,6 +322,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
             var box = new MRect(minPoint.x, minPoint.y, maxPoint.x, maxPoint.y);
 
             MapControl?.Map.Navigator.ZoomToBox(box, duration: 500);
+            MapControl?.Refresh();
         }
 
         /// <summary>
