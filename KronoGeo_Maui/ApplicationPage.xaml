@@ -81,7 +81,12 @@
                             Text="&#xe3af;" TextColor="#51638B" FontSize="30"
                             BackgroundColor="#F9EDE1" IsEnabled="{Binding IsEnablePhoto}" 
                             IsVisible="{Binding IsEnablePhoto}"
-                            Command="{Binding  TakePhotoCommand}"/>
+                            Command="{Binding TakePhotoCommand}"/>
+                    <Button Grid.Column="2" FontFamily="MaterialIcons-Regular" 
+                            Text="&#xe161;" TextColor="#51638B" FontSize="30"
+                            BackgroundColor="#F9EDE1" IsEnabled="{Binding IsEnableSave}" 
+                            IsVisible="{Binding IsEnableSave}"
+                            Command="{Binding SaveCommand}"/>
                 </Grid>
             </Border>
             <HorizontalStackLayout Grid.Column="1" Grid.Row="2" 

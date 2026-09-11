@@ -3,6 +3,7 @@ using Android.Content;
 using Android.Gms.Tasks;
 using Android.OS;
 using KronoGeo_Maui.Platforms.Android.Application.Geolocalisation;
+using Android.Provider;
 using Xamarin.Google.Crypto.Tink.Signature;
 #endif
 
@@ -98,6 +99,11 @@ namespace KronoGeo_Maui.ModelViews
         /// </summary>
         [ObservableProperty]
         public partial bool IsEnablePhoto { get; set; } = false;
+        /// <summary>
+        /// Affiche - active le bouton de sauvegarde des géolocalisations au niveau du serveur
+        /// </summary>
+        [ObservableProperty]
+        public partial bool IsEnableSave { get; set; } = false;
         #endregion
 
         #region constructeur
@@ -336,6 +342,9 @@ namespace KronoGeo_Maui.ModelViews
                             Name = photo.Name,
                             PathPhoto = photo.PathPhoto,
                         });
+
+                        // -- envoie un message pour mettre à jour le tracé sur la map
+                        WeakReferenceMessenger.Default.Send(new PolyneMapMessage(location));
                     }
                 }
             }
@@ -400,6 +409,19 @@ namespace KronoGeo_Maui.ModelViews
 
                 if (!IsStart)
                 {
+                    var pm = (PowerManager?)Android.App.Application.Context.GetSystemService(Context.PowerService);
+                    string? packageName = Android.App.Application.Context.PackageName;
+
+                    if (OperatingSystem.IsAndroidVersionAtLeast(23) && pm is not null 
+                        && !pm.IsIgnoringBatteryOptimizations(packageName))
+                    {
+                        var intentBat = new Intent(Settings.ActionRequestIgnoreBatteryOptimizations);
+                        intentBat.SetData(Android.Net.Uri.Parse($"package:{packageName}"));
+                        intentBat.AddFlags(ActivityFlags.NewTask);
+                        Android.App.Application.Context.StartActivity(intentBat);
+                    }
+
+
                     _routeTelemetry.DateTimeBegin = DateTimeOffset.Now; // -- type date heure local non utc
                     IsEnablePhoto = true; // -- donne la possibilité de prendre des photos
                     IsStart = true;
@@ -482,64 +504,16 @@ namespace KronoGeo_Maui.ModelViews
         [RelayCommand]
         public async Task Stop()
         {
-            var popupAttente = new LoadingPage();
-            
             try
             {
                 if (_localisations.Count > 0)
                 {
-                    var popup = new PopupNameLocalisationGroup();
-                    var name = await _dialogService.ShowPopupAsync<string>(popup, new PopupOptions
-                    {
-                        CanBeDismissedByTappingOutsideOfPopup = false,
-                        Shape = new RoundRectangle
-                        {
-                            CornerRadius = new CornerRadius(20, 20, 20, 20),
-                            StrokeThickness = 2,
-                            Stroke = Colors.LightGray
-                        }
-                    }, new CancellationToken());
-
-                    if (name is null) return;
-
+                    
                     // -- création d'un service pour marcher en arrière plan
                     // -- pour arrêter le service
                     StopService();
-
-                    RegisterDTO? register = await _serviceSaveUser.GetRegister();
-
-                    if (register is null || string.IsNullOrEmpty(register.Id))
-                    {
-                        IsMessageError = true;
-                        Message = "L'utilisateur n'est pas connecté.";
-                        return;
-                    }
-
-                    _routeTelemetry.DateTimeEnd = DateTimeOffset.Now;
-                    var localisationGroup = new LocalisationGroup()
-                    {
-                        //Name = $"Localisation_{DateTime.Now:yyyyMMdd_HHmmss}",
-                        Name = name ?? $"Localisation_{DateTime.Now:yyyyMMdd_HHmmss}",
-                        Date = DateTimeOffset.Now ,
-                        ApplicationUserId = register.Id, // -- à adapter selon l'authentification
-                        Localisations = _localisations,
-                        RouteTelemetry = _routeTelemetry,
-                    };
+                    IsEnableSave = true;
                     
-                    _dialogService.ShowPopup(popupAttente);
-                    if ( await _saveLocalisation.SaveLocalisation(localisationGroup, new System.Threading.CancellationToken()))
-                    {
-                        //MesPhotos.Clear();
-                        SheetViewModel.DeleteAllPhotos();
-
-                        // -- enregistrement ok
-                        _localisations.Clear();
-                        // -- initalisation de la map au niveau de Polyne
-                        WeakReferenceMessenger.Default.Send(new PolyneMapMessage(null));
-                        // -- initialisation des pins sur la map
-                        WeakReferenceMessenger.Default.Send(new PinMapMessage(null));
-                    }
-                    await _dialogService.ClosePopup(popupAttente);
                 }
                 // -- initialisation de la map sur la position de l'utilisateur
                 await Task.Run(async () => await GetUserLocationAsync());
@@ -558,11 +532,92 @@ namespace KronoGeo_Maui.ModelViews
             {
                 if (IsMessageError)
                 {
-                    await _dialogService.ClosePopup(popupAttente);
+                    //await _dialogService.ClosePopup(popupAttente);
                     var cancellationToken = new System.Threading.CancellationToken();
                     await Toast.Make($"{Message}",ToastDuration.Long).Show(cancellationToken);
                 }
             }
+        }
+
+        /// <summary>
+        /// method qui enregistre les points de localisation au niveau du serveur
+        /// avec les photos
+        /// </summary>
+        /// <returns></returns>
+        [RelayCommand]
+        public async Task SaveAsync()
+        {
+            var popupAttente = new LoadingPage();
+
+            try
+            {
+                var popup = new PopupNameLocalisationGroup();
+                var name = await _dialogService.ShowPopupAsync<string>(popup, new PopupOptions
+                {
+                    CanBeDismissedByTappingOutsideOfPopup = false,
+                    Shape = new RoundRectangle
+                    {
+                        CornerRadius = new CornerRadius(20, 20, 20, 20),
+                        StrokeThickness = 2,
+                        Stroke = Colors.LightGray
+                    }
+                }, new CancellationToken());
+
+                if (name is null) return;
+
+                RegisterDTO? register = await _serviceSaveUser.GetRegister();
+
+                if (register is null || string.IsNullOrEmpty(register.Id))
+                {
+                    IsMessageError = true;
+                    Message = "L'utilisateur n'est pas connecté.";
+                    return;
+                }
+
+                _routeTelemetry.DateTimeEnd = DateTimeOffset.Now;
+                var localisationGroup = new LocalisationGroup()
+                {
+                    //Name = $"Localisation_{DateTime.Now:yyyyMMdd_HHmmss}",
+                    Name = name ?? $"Localisation_{DateTime.Now:yyyyMMdd_HHmmss}",
+                    Date = DateTimeOffset.Now,
+                    ApplicationUserId = register.Id, // -- à adapter selon l'authentification
+                    Localisations = _localisations,
+                    RouteTelemetry = _routeTelemetry,
+                };
+
+                _dialogService.ShowPopup(popupAttente);
+                if (await _saveLocalisation.SaveLocalisation(localisationGroup, new System.Threading.CancellationToken()))
+                {
+                    //MesPhotos.Clear();
+                    SheetViewModel.DeleteAllPhotos();
+
+                    // -- enregistrement ok
+                    _localisations.Clear();
+                    // -- initalisation de la map au niveau de Polyne
+                    WeakReferenceMessenger.Default.Send(new PolyneMapMessage(null));
+                    // -- initialisation des pins sur la map
+                    WeakReferenceMessenger.Default.Send(new PinMapMessage(null));
+                }
+                await _dialogService.ClosePopup(popupAttente);
+                IsEnableSave = false;
+            }
+            catch (Exception ex)
+            {
+                IsMessageError = true;
+                Message = "Erreur interne";
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                if (IsMessageError)
+                {
+                    await _dialogService.ClosePopup(popupAttente);
+                    var cancellationToken = new System.Threading.CancellationToken();
+                    await Toast.Make($"{Message}", ToastDuration.Long).Show(cancellationToken);
+                }
+            }
+
+
         }
 
         /// <summary>

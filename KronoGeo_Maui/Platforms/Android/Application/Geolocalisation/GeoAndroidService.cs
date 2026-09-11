@@ -7,6 +7,7 @@ using Android.Content.PM;
 using CommunityToolkit.Mvvm.Messaging;
 using KronoGeo_Maui.Applications.Interface;
 using KronoGeo_Maui.Applications.Message;
+using Android.Provider;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Versioning;
@@ -231,9 +232,8 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
             {
                 StartForeground(NOTIFICATION_ID, notification.Build());
             }
-            
-
         }
+
         #endregion
 
         #region public method event
