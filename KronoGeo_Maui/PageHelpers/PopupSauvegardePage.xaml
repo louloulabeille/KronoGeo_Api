@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<mct:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+           xmlns:mct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+           xmlns:system="clr-namespace:System;assembly=mscorlib"
+           x:TypeArguments="system:String"
+           x:Class="KronoGeo_Maui.PageHelpers.PopupSauvegardePage"
+             >
+    <VerticalStackLayout BackgroundColor="#F9EDE1" Padding="5">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Padding="5" Grid.Row="0" TextColor="#51638B" FontSize="20" 
+                   Text="Voulez vous sauvegarder les points de géolocalisation ?" />
+
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Text="Oui" TextColor="#51638B" Clicked="Button_Clicked" CommandParameter="true"
+                        HorizontalOptions="Center" FontSize="17" BackgroundColor="#F9EDE1"/>
+                    <Button Grid.Column="1" Text="Non" TextColor="#51638B" Clicked="Button_Clicked" CommandParameter="false"
+                        HorizontalOptions="Center" FontSize="17" BackgroundColor="#F9EDE1"/>
+            </Grid>
+           
+        </Grid>
+    </VerticalStackLayout>
+</mct:Popup>

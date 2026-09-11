@@ -96,6 +96,9 @@
 	  <MauiXaml Update="PageHelpers\PopupRechargementPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="PageHelpers\PopupSauvegardePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="ParametragePage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

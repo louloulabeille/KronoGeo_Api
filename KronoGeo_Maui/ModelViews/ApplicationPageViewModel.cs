@@ -186,6 +186,7 @@ namespace KronoGeo_Maui.ModelViews
                 {
                     CanBeDismissedByTappingOutsideOfPopup = false,
                 }, new CancellationToken());
+
                 // - traitement du résultat
                 if ( result is not null && bool.Parse(result) )
                 {   // -- recharge les données
@@ -516,8 +517,26 @@ namespace KronoGeo_Maui.ModelViews
                     // -- création d'un service pour marcher en arrière plan
                     // -- pour arrêter le service
                     StopService();
-                    IsEnableSave = true;
-                    
+                    var popup = new PopupSauvegardePage();
+                    var result = await _dialogService.ShowPopupAsync<string>(popup, new PopupOptions
+                    {
+                        CanBeDismissedByTappingOutsideOfPopup = false,
+                        Shape = new RoundRectangle
+                        {
+                            CornerRadius = new CornerRadius(20, 20, 20, 20),
+                            StrokeThickness = 2,
+                            Stroke = Colors.LightGray
+                        }
+                    }, new CancellationToken());
+                    if ( result is not null && result == "true" )
+                    {
+                        IsEnableSave = true;
+                    }
+                    else
+                    {
+                        InitWindow();
+                    }
+
                 }
                 // -- initialisation de la map sur la position de l'utilisateur
                 await Task.Run(async () => await GetUserLocationAsync());
@@ -592,15 +611,7 @@ namespace KronoGeo_Maui.ModelViews
                 _dialogService.ShowPopup(popupAttente);
                 if (await _saveLocalisation.SaveLocalisation(localisationGroup, new System.Threading.CancellationToken()))
                 {
-                    //MesPhotos.Clear();
-                    SheetViewModel.DeleteAllPhotos();
-
-                    // -- enregistrement ok
-                    _localisations.Clear();
-                    // -- initalisation de la map au niveau de Polyne
-                    WeakReferenceMessenger.Default.Send(new PolyneMapMessage(null));
-                    // -- initialisation des pins sur la map
-                    WeakReferenceMessenger.Default.Send(new PinMapMessage(null));
+                    InitWindow();
                 }
                 await _dialogService.ClosePopup(popupAttente);
                 IsEnableSave = false;
@@ -674,6 +685,23 @@ namespace KronoGeo_Maui.ModelViews
         #endregion
 
         #region private method
+
+        private void InitWindow()
+        {
+            _lastLocation = null;
+            //MesPhotos.Clear();
+            SheetViewModel.DeleteAllPhotos();
+
+            // -- enregistrement ok
+            _localisations.Clear();
+            // -- initalisation de la map au niveau de Polyne
+            WeakReferenceMessenger.Default.Send(new PolyneMapMessage(null));
+            // -- initialisation des pins sur la map
+            WeakReferenceMessenger.Default.Send(new PinMapMessage(null));
+            // -- reinitalise la telemetrie
+            _routeTelemetry = _serviceTelemetry.CalculateTelemetry(_localisations);
+        }
+
         /// <summary>
         /// Method de traitement de la localisation
         /// </summary>
