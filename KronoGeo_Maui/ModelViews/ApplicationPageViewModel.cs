@@ -2,7 +2,7 @@
 using Android.Content;
 using Android.Gms.Tasks;
 using Android.OS;
-using KronoGeo_Maui.Platforms.Android.Application.Geolocalisation;
+using KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation;
 using Android.Provider;
 using Xamarin.Google.Crypto.Tink.Signature;
 #endif
@@ -132,7 +132,7 @@ namespace KronoGeo_Maui.ModelViews
             _serviceGeo.LocationChanged += OnLocalication_Changed;
 #endif
 
-            _localisations = [];
+            _localisations = new List<Localisation>();
             _saveLocalisation = saveLocalisation;
             // -- initialise l'object télémétrie
             _routeTelemetry = _serviceTelemetry.CalculateTelemetry(_localisations);
@@ -159,7 +159,8 @@ namespace KronoGeo_Maui.ModelViews
         [RelayCommand]
         public async Task AppearingExe() {
             // -- lancement de l'écoute sur les eventHandlers pour sauvegarde des en cas de fermetures accidentel
-            var window = Application.Current?.Windows.FirstOrDefault();
+            var windowList = Application.Current?.Windows;
+            var window = (windowList is not null && windowList.Count > 0) ? windowList[0] : null;
             if (window is not null)
             {
                 window.Stopped += SaveLocalisation;
@@ -195,7 +196,7 @@ namespace KronoGeo_Maui.ModelViews
                     {
                         _localisations.Clear();
                         _localisations.AddRange(localisations.OrderBy(ob => ob.OrderIndex));
-                        _lastLocation = _localisations.OrderByDescending(ob => ob.OrderIndex).FirstOrDefault();
+                        _lastLocation = (_localisations.Count > 0) ? _localisations[_localisations.Count - 1] : null;
                         _routeTelemetry = _serviceTelemetry.CalculateTelemetry(_localisations);
 
                         // -- passage de la RouteTelemetry vers le BottomSheet
@@ -258,7 +259,8 @@ namespace KronoGeo_Maui.ModelViews
         public async Task DisappearingExe()
         {
             // -- désabonnement des events
-            var window = Application.Current?.Windows.FirstOrDefault();
+            var windowList = Application.Current?.Windows;
+            var window = (windowList is not null && windowList.Count > 0) ? windowList[0] : null;
             if (window is not null)
             {
                 window.Stopped -= SaveLocalisation; // -- quand l'application perd le focus ou passe en arrière plan
@@ -827,8 +829,15 @@ namespace KronoGeo_Maui.ModelViews
 
             // -- recherche de l'object LocalisationPhoto
             // -- dans la liste des localisations pour le supprimer
-            var local = _localisations.OfType<LocalisationPhoto>()
-                .FirstOrDefault(x => x.Name == photo.Name);
+            LocalisationPhoto? local = null;
+            for (int i = 0; i < _localisations.Count; i++)
+            {
+                if (_localisations[i] is LocalisationPhoto lp && lp.Name == photo.Name)
+                {
+                    local = lp;
+                    break;
+                }
+            }
 
             if (local is not null)
             {

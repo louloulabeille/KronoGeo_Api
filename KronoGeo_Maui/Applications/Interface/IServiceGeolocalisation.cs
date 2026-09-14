@@ -17,7 +17,20 @@ namespace KronoGeo_Maui.Applications.Interface
         #region public method
         public void StartLocationUpdatesAsync();
         public void StopLocationUpdates();
-        public Task StartLocationUpdatesAsync(CancellationToken cancellationToken);
+        /// <summary>
+        /// Démarre la récupération de la localisation en tâche de fond avec un CancellationToken
+        /// Attention avec les Thread et les Task.Run, il faut faire attention à ne pas bloquer le thread principal 
+        /// et à gérer correctement les exceptions. 
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public virtual Task StartLocationUpdatesAsync(CancellationToken cancellationToken)
+        {
+            return Task.Run(() =>
+            {
+                StartLocationUpdatesAsync();
+            }, cancellationToken);
+        }
 
         /// <summary>
         /// method qui retourne le localisation Current

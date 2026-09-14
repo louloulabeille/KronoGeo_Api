@@ -11,12 +11,12 @@ public partial class PopupRechargementPage : Popup<string>
 
 
     #region public method
-    public async void OnValid_Clicked(object sender, EventArgs e)
+    public async void OnValid_Clicked(object? sender, EventArgs e)
     {
         await this.CloseAsync("true");
     }
 
-    public async void OnCancel_Clicked(object sender, EventArgs e)
+    public async void OnCancel_Clicked(object? sender, EventArgs e)
     {
         await this.CloseAsync("false");
     }

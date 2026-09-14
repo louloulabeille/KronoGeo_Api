@@ -17,7 +17,7 @@ using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace KronoGeo_Maui.Platforms.Android.Application.Camera
+namespace KronoGeo_Maui.Platforms.Android.Applicatif.Camera
 {
     public class PhotoAndroid
     {

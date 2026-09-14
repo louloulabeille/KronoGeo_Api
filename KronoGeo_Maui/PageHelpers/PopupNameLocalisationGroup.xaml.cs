@@ -12,13 +12,13 @@ public partial class PopupNameLocalisationGroup : Popup<string>
 	}
 
     #region method public clicked
-    public async void OnClickedAnnuler(object sender, EventArgs e)
+    public async void OnClickedAnnuler(object? sender, EventArgs e)
     {
         await this.CloseAsync();
     }
 
 
-    public async void OnClickedClose(object sender, EventArgs e)
+    public async void OnClickedClose(object? sender, EventArgs e)
 	{
 		if (string.IsNullOrEmpty(NameGroupLocalisation.Text))
 		{

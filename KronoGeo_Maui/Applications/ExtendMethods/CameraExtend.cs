@@ -1,5 +1,5 @@
 ﻿#if ANDROID
-    using KronoGeo_Maui.Platforms.Android.Application.Camera;
+    using KronoGeo_Maui.Platforms.Android.Applicatif.Camera;
 #endif
 using CommunityToolkit.Maui;
 using KronoGeo_Api.Interface.Service;

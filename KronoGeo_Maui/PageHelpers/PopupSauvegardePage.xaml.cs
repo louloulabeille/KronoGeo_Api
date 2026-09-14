@@ -11,7 +11,12 @@ public partial class PopupSauvegardePage : Popup<string>
 		InitializeComponent();
 	}
 
-    private async void Button_Clicked(object sender, EventArgs e)
+	/// <summary>
+	/// bouton de sortie de la fenêtre et retourne la réponse
+	/// </summary>
+	/// <param name="sender"></param>
+	/// <param name="e"></param>
+    private async void Button_Clicked(object? sender, EventArgs e)
     {
 		var param = (sender as Button)?.CommandParameter;
 		

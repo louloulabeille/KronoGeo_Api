@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>net10.0-android</TargetFrameworks>
@@ -45,6 +45,12 @@
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">23.0</SupportedOSPlatformVersion>
+		
+		<!-- Empêche le warning NU1605 d'être traité comme une erreur bloquant -->
+		<WarningsNotAsErrors>$(WarningsNotErrors);NU1605</WarningsNotAsErrors>
+		<!-- ignore la vérification stricte des conflits de versions  transitives -->
+		<NoWarn>$(NoWarn);NU1605;NU1608</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -69,13 +75,17 @@
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Maui" Version="15.0.1" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.11" />
-		<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.100" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.11" />
-		<PackageReference Include="Microsoft.Maui.Controls.Maps" Version="10.0.100" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.12" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.101" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.12" />
+		<PackageReference Include="Microsoft.Maui.Controls.Maps" Version="10.0.101" />
 		<PackageReference Include="Plugin.Fingerprint" Version="2.1.5" />
 		<PackageReference Include="The49.Maui.BottomSheet" Version="8.0.3" />
 	</ItemGroup>
+
+  <!-- ======================================================== -->
+  <!-- SURCHARGES TEMPORAIRES ANDROIDX (À SUPPRIMER SI MISE À JOUR) -->
+  <!-- ======================================================== -->
 
 	<ItemGroup>
 	  <ProjectReference Include="..\KronoGeo_Api.Infrastructure\KronoGeo_Api.Infrastructure.csproj" />
@@ -106,5 +116,28 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
+	
+	<!-- Fichiers à ignorer lors de la compilation -->
+	  <ItemGroup>
+		<Compile Remove="PhotoAndroid.cs" />
+	  </ItemGroup>
+	<!-- inclusion des packages qui ne sont pas  a jour pour Xamarin.GooglePlayServices.Location 
+		avec mes versions de packages Maui à jour en .net10
+		Xamarin.AndroidX.Collection.Jvm dans mon projet est 1.6.0.1
+		& dans Xamarin.GooglePlayServices.Location il veut 1.5.0.1
+	-->
+	<ItemGroup Condition="'$(TargetFramework)' == 'net10.0-android'">
+		<!-- force l'utilisation d'une seule version  -->
+		<PackageReference Include="Xamarin.AndroidX.Collection.Jvm" Version="1.6.0.1" />
+		<PackageReference Include="Xamarin.AndroidX.Lifecycle.Runtime" Version="2.11.0.1" />
+		<!-- erreur lors du build les 2 versions n'étaient pas à la même version -->
+		<PackageReference Include="Xamarin.AndroidX.Fragment" Version="1.9.0" />
+		<PackageReference Include="Xamarin.AndroidX.Fragment.Ktx" Version="1.9.0" />
+	</ItemGroup>
+	  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-android'">
+	    <PackageReference Include="Xamarin.GooglePlayServices.Location">
+	      <Version>121.4.0.1</Version>
+	    </PackageReference>
+	  </ItemGroup>
 
 </Project>

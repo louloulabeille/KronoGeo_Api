@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 
 #if ANDROID
-    using KronoGeo_Maui.Platforms.Android.Application.Camera;
+    using KronoGeo_Maui.Platforms.Android.Applicatif.Camera;
 #endif
 
 #if IOS

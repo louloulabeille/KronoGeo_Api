@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using Location = Android.Locations.Location;
 
-namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
+namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
 {
     public class LocationListener : Java.Lang.Object, ILocationListener
     {

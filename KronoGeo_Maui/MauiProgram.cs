@@ -8,12 +8,11 @@ using Microsoft.Extensions.Logging;
 using KronoGeo_Api.Infrastructure.Service.Telemetry;
 using KronoGeo_Api.Infrastructure.Service.Secours;
 using The49.Maui.BottomSheet;
-
-
+using Microsoft.Extensions.Logging.Debug;
 
 
 #if ANDROID
-using KronoGeo_Maui.Platforms.Android.Application.Geolocalisation;
+using KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation;
 #endif
 
 namespace KronoGeo_Maui
@@ -60,8 +59,9 @@ namespace KronoGeo_Maui
             #region Injection Geolocation
 #if ANDROID26_0_OR_GREATER
                 // -- Android 26
-                if (OperatingSystem.IsAndroidVersionAtLeast(26)) 
-                    builder.Services.AddSingleton<IServiceGeolocalisation, GeolocationAndroid>();
+                if (OperatingSystem.IsAndroidVersionAtLeast(26))
+                    //builder.Services.AddSingleton<IServiceGeolocalisation, GeolocationAndroid>();
+                    builder.Services.AddSingleton<IServiceGeolocalisation, FusedLocationAndroid>();
 #elif ANDROID21_0_OR_GREATER
                 builder.Services.AddSingleton<IServiceGeolocalisation, GeolocationOther>();
 #elif !ANDROID
@@ -89,6 +89,8 @@ namespace KronoGeo_Maui
             builder.Services.AddTokenTunnelDeveloppement(builder.Configuration);
 #endif
             #endregion
+
+
 
             return builder.Build();
         }

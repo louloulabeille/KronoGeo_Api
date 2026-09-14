@@ -26,7 +26,16 @@ namespace KronoGeo_Maui.Applications.Behaviors
                             bindable.Pins.Add(message.Value.Pin);
                         else
                         {
-                            var pin = bindable.Pins.FirstOrDefault(p => p.Label == message.Value.Pin.Label && p.Address == message.Value.Pin.Address);
+                            var pin = (Microsoft.Maui.Controls.Maps.Pin?)null;
+                            for (int i = 0; i < bindable.Pins.Count; i++)
+                            {
+                                var p = bindable.Pins[i];
+                                if (p.Label == message.Value.Pin.Label && p.Address == message.Value.Pin.Address)
+                                {
+                                    pin = p;
+                                    break;
+                                }
+                            }
                             if (pin is not null)
                                 bindable.Pins.Remove(pin);
                         }

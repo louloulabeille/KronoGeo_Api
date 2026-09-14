@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace KronoGeo_Maui.Platforms.Android.Application.Camera
+namespace KronoGeo_Maui.Platforms.Android.Applicatif.Camera
 {
     internal class CameraCaptureStateCallback(Action<CameraCaptureSession> configured, Action<CameraCaptureSession> failed) : CameraCaptureSession.StateCallback
     {

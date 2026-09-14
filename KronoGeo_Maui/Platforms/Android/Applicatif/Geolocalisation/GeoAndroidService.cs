@@ -14,7 +14,7 @@ using System.Runtime.Versioning;
 using System.Text;
 
 
-namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
+namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
 {
     [Service(ForegroundServiceType = ForegroundService.TypeLocation)]
     //[Service]
@@ -76,6 +76,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
             switch (action)
             {
                 case ActionStart:
+                    Log.Debug("GeoAndroidService", "Début du service OnStartCommand");
                     // 3. Démarrer le service en mode "Foreground"
                     // Depuis Android 14, il faut impérativement spécifier le type de service ici aussi
                     StartForegroundService();
@@ -106,8 +107,17 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         /// </summary>
         public override void OnDestroy()
         {
-            if( _wakeLock is not null && _wakeLock.IsHeld )
+            Log.Debug("GeoAndroidService", "Fin du service OnDestroy");
+            // Demander l'annulation des tâches asynchrones et libérer les ressources
+            try
             {
+                _cancellationTokenSource.Cancel();
+            }
+            catch { }
+
+            if ( _wakeLock is not null && _wakeLock.IsHeld )
+            {
+                // Si un WakeLock est encore détenu, le relâcher proprement
                 _wakeLock?.Release();
                 _wakeLock?.Dispose();
                 _wakeLock = null;
@@ -126,6 +136,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
             }
             StopSelf(); // -- arrêt du service
             _notificationManager?.Cancel(NOTIFICATION_ID);
+            try { _cancellationTokenSource.Dispose(); } catch { }
             base.OnDestroy();
         }
         #endregion
@@ -137,15 +148,25 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         /// </summary>
         private void AcquireWakeLock()
         {
+            // Éviter un WakeLock permanent : n'acquérir que pour une courte durée
             if (_wakeLock is not null && _wakeLock.IsHeld) return;
-            
+
             var powerManager = GetSystemService(Context.PowerService) as PowerManager;
             if ( powerManager is not null )
             {
                 _wakeLock = powerManager.NewWakeLock(WakeLockFlags.Partial, "GeoAndroidService:BackgroundTrackingLock");
-                _wakeLock?.Acquire();
+                try
+                {
+                    // Acquérir avec timeout (10s) pour démarrer proprement la géolocalisation
+                    // cela évite de garder le CPU allumé indéfiniment et économise la batterie
+                    _wakeLock?.Acquire(10_000);
+                }
+                catch
+                {
+                    // fallback : acquérir sans timeout si la plateforme ne supporte pas l'overload
+                    try { _wakeLock?.Acquire(); } catch { }
+                }
             }
-            
 
         }
         /// <summary>
@@ -235,6 +256,8 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
             {
                 StartForeground(NOTIFICATION_ID, notification.Build());
             }
+
+
         }
 
         #endregion

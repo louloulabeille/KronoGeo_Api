@@ -1,18 +1,21 @@
-﻿using Android.App;
+﻿#if ANDROID
+using Android.App;
 using Android.Content;
 using Android.Gms.Tasks;
 using Android.Locations;
 using Android.OS;
+using Android.Util;
+using Java.Util.Concurrent;
 using KronoGeo_Maui.Applications.Interface;
 using KronoGeo_Maui.Applications.Outils.Geolocalisation;
 using System.Runtime.Versioning;
+using static Microsoft.Maui.LifecycleEvents.AndroidLifecycle;
 using AndroidApplication = Android.App.Application;
-using Location = Microsoft.Maui.Devices.Sensors.Location;
 using CancellationToken = System.Threading.CancellationToken;
+using Location = Microsoft.Maui.Devices.Sensors.Location;
 using Task = System.Threading.Tasks.Task;
-using Java.Util.Concurrent;
 
-namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
+namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
 {
     [SupportedOSPlatform("android26.0")]
     public class GeolocationAndroid : IServiceGeolocalisation
@@ -23,6 +26,10 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         // - systeme découte android pour la géolocation
         private readonly LocationListener _locationListener = new();
         private readonly LocationListener _locationOnePoint = new();
+
+        // -- mise en place d'un handler thread pour lancer la géolocalisation sur un thread parallèle au thread principal
+        private readonly HandlerThread _handlerThread = new ("LocationHandlerthread");
+        private Handler? _handler;
         #endregion
 
         #region public properties
@@ -48,15 +55,25 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         #region public method interface
         public void Dispose()
         {
+            _handlerThread.Dispose();
             GC.SuppressFinalize(this);
         }
 
         public void StartLocationUpdatesAsync()
         {
-            if (_locationManager == null) return;
+            if (_locationManager is null) return;
 
             try
             {
+                // -- initial handler thread
+                _handlerThread.Start();
+                if (_handlerThread.Looper is null)
+                {
+                    Log.Error("GeoAndroidService", "handlerThread.looper est null");
+                    return;
+                }
+                _handler = new(_handlerThread.Looper);
+
                 // On force l'utilisation exclusive du GPS (Haute précision)
                 string provider = LocationManager.GpsProvider;
 
@@ -65,31 +82,34 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
                     // Paramètres de mise à jour :
                     _locationManager.RequestLocationUpdates(
                     provider,
-                    15000, // -- 15000 millisecondes d'intervalle minimum pour déclencher l'événement
+                    10000, // -- 15000 millisecondes d'intervalle minimum pour déclencher l'événement
                     5, // -- 5 mètres de distance minimale pour déclencher l'événement
                     _locationListener,
                     // -- on injecte l'aiguilleur ici en cas de désynchronisation
                     // entre eventhandler et la mainthread
                     // quand la method StartLocationUpdatesAsync est lancé avec Task
-                    Looper.MainLooper 
+                    //Looper.MainLooper 
+                    _handler.Looper
                     );
                 }
                 else
                 {
-                    System.Diagnostics.Debug.WriteLine("Le fournisseur GPS n'est pas activé sur l'appareil.");
+                    Log.Error("GeoAndroidService", "Le fournisseur GPS n'est pas activé sur l'appareil.");
+                    //System.Diagnostics.Debug.WriteLine("Le fournisseur GPS n'est pas activé sur l'appareil.");
                     throw new FeatureNotEnabledException("Le fournisseur GPS n'est pas activé sur l'appareil.");
                 }
             }
             catch (Java.Lang.SecurityException ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Erreur de permission : {ex.Message}");
+                Log.Error("GeoAndroidService", $"Le fournisseur GPS n'est pas activé sur l'appareil. \n {ex.Message}");
+                //System.Diagnostics.Debug.WriteLine($"Erreur de permission : {ex.Message}");
                 throw new PermissionException($"Permission de localisation refusée. Veuillez accorder les permissions nécessaires. {ex.Message}");
             }
         }
 
         public void StopLocationUpdates()
         {
-            if ( _locationManager != null && _locationListener != null)
+            if ( _locationManager is not null && _locationListener != null)
             {
                 // Très important pour économiser la batterie quand on n'en a plus besoin
                 _locationManager.RemoveUpdates(_locationListener);
@@ -123,6 +143,8 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
                 GpsSmoother smoother = new();
                 var locationSmoother = smoother.AcceptableLocationCalcul(newLocation);
 
+                Log.Debug("GeoAndroidService", $"Geolocalisation : {newLocation.Latitude} - {newLocation.Longitude}");
+
                 if (locationSmoother is not null)
                     LocationChanged?.Invoke(this, new GeolocationLocationChangedEventArgs(locationSmoother));
 
@@ -144,21 +166,6 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
 
                 // TODO: Envoyer ces données à votre code partagé (via un événement ou Messenger)
             };
-        }
-
-        /// <summary>
-        /// Démarre la récupération de la localisation en tâche de fond avec un CancellationToken
-        /// Attention avec les Thread et les Task.Run, il faut faire attention à ne pas bloquer le thread principal 
-        /// et à gérer correctement les exceptions. 
-        /// </summary>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        public Task StartLocationUpdatesAsync(CancellationToken cancellationToken)
-        {
-            return Task.Run(() =>
-            {       
-                StartLocationUpdatesAsync();
-            }, cancellationToken);
         }
 
         public async Task<Location?> GetCurrentLocationAsync(CancellationToken token)
@@ -188,6 +195,7 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
                 {
                     if (androidLocation != null)
                     {
+                        
                         // Mapping des données Android vers MAUI
                         var mauiLocation = new Microsoft.Maui.Devices.Sensors.Location
                         {
@@ -199,13 +207,13 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
                             Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(androidLocation.Time),
                             Course = androidLocation.HasBearing ? androidLocation.Bearing : null
                         };
-
+                        
                         // VerticalAccuracy (dispo à partir de l'API 26)
                         if (OperatingSystem.IsAndroidVersionAtLeast(26) && androidLocation.HasVerticalAccuracy)
                         {
                             mauiLocation.VerticalAccuracy = androidLocation.VerticalAccuracyMeters;
                         }
-
+                        
                         tcs.TrySetResult(mauiLocation);
                     }
                     else
@@ -234,8 +242,8 @@ namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
         #endregion
 
     }
-}    
+}
 
-
+#endif
 
 

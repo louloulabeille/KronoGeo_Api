@@ -36,7 +36,7 @@ namespace KronoGeo_Maui.Applications.Services
 
             try
             {
-                if (photos is not null || photos?.Count > 0)
+                if (photos is not null && photos.Count > 0)
                 {
                     foreach (var photo in photos)
                     {
@@ -49,9 +49,17 @@ namespace KronoGeo_Maui.Applications.Services
                         if (result.IsSuccess)
                         {
                             // -- modification de localisationPhoto dans la liste pour modifier le path
-                            localisations.Localisations?.OfType<LocalisationPhoto>()?
-                                .FirstOrDefault(f=> f == photo)?.PathPhoto 
-                                = result?.PhotoDTO?.PathPhoto;
+                            if (localisations.Localisations is not null)
+                            {
+                                for (int i = 0; i < localisations.Localisations.Count; i++)
+                                {
+                                    if (localisations.Localisations[i] is LocalisationPhoto lp && lp == photo)
+                                    {
+                                        lp.PathPhoto = result?.PhotoDTO?.PathPhoto;
+                                        break;
+                                    }
+                                }
+                            }
 
                             // -- supprime l'image
                             _serviceCamera.DeletePhoto(photoDTO.PathComplet??string.Empty);

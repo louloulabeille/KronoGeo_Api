@@ -9,7 +9,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KronoGeo_Maui.Platforms.Android.Application.Camera
+namespace KronoGeo_Maui.Platforms.Android.Applicatif.Camera
 {
     public class ServiceSavePhotoLocalAndroid : IServiceSavePhotoOsDirectory
     {

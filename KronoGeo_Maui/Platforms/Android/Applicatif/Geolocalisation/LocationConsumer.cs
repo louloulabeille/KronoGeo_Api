@@ -5,7 +5,7 @@ using System.Text;
 using Android.App;
 using Android.Content;
 
-namespace KronoGeo_Maui.Platforms.Android.Application.Geolocalisation
+namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
 {
     internal class LocationConsumer : Java.Lang.Object, IConsumer
     {

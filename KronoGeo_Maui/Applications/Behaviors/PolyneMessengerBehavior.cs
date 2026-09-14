@@ -38,7 +38,7 @@ namespace KronoGeo_Maui.Applications.Behaviors
                     }
                     else
                     {
-                        var element = bindable.MapElements.FirstOrDefault() as Polyline;
+                        var element = bindable.MapElements.Count > 0 ? bindable.MapElements[0] as Polyline : null;
                         if (message.Value is not null)
                         {
                             element?.Geopath.Add(message.Value);

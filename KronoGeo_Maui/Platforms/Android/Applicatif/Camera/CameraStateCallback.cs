@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace KronoGeo_Maui.Platforms.Android.Application.Camera
+namespace KronoGeo_Maui.Platforms.Android.Applicatif.Camera
 {
     internal class CameraStateCallback(Action<CameraDevice> opened, Action<CameraDevice> disconnected, Action<CameraDevice, CameraError> error) : CameraDevice.StateCallback
     {
