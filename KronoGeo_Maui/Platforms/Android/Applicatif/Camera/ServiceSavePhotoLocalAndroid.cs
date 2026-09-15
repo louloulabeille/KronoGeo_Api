@@ -84,11 +84,11 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Camera
         }
 
         /// <summary>
-        /// Retourne le bitmap ave la bonne orientation pour enregistrement
+        /// Retourne le bitmap avec la bonne orientation pour enregistrement
         /// </summary>
         /// <param name="stream"></param>
         /// <returns></returns>
-        public Bitmap? OrientationMatrix(System.IO.Stream stream)
+        public static Bitmap? OrientationMatrix(System.IO.Stream stream)
         {
             if (OperatingSystem.IsAndroidVersionAtLeast(24))
             {

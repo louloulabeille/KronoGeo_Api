@@ -9,6 +9,9 @@ using KronoGeo_Api.Infrastructure.Service.Telemetry;
 using KronoGeo_Api.Infrastructure.Service.Secours;
 using The49.Maui.BottomSheet;
 using Microsoft.Extensions.Logging.Debug;
+using KronoGeo_Api.Infrastructure.Service.Photo;
+
+
 
 
 #if ANDROID
@@ -80,6 +83,8 @@ namespace KronoGeo_Maui
             builder.Services.AddScoped<IServiceSaveParametrage, InMemoryMauiParametrage>();
             builder.Services.AddTransient<IServiceTelemetry, ServiceTelemetry>();
             builder.Services.AddSingleton<IServiceBackupGps, GpsBackUpMauiService>();
+            builder.Services.AddTransient<IServicePermissions, GestionPermissions>();
+            builder.Services.AddTransient<IServiceCompressPhoto, CompressPhotoSkiaSharp>();
 
             builder.Services.AddServiceSavePhotoLocal();
             #endregion

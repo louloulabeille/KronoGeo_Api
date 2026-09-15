@@ -36,7 +36,9 @@ using CommunityToolkit.Maui.Core;
 using KronoGeo_Maui.BottomSheets;
 using KronoGeo_Maui.ModelViews.BottomSheets;
 using KronoGeo_Api.Models.ModelEventArgs;
-
+#if ANDROID
+using Android.Util;
+#endif
 namespace KronoGeo_Maui.ModelViews
 {
     enum MapTypeEnum
@@ -57,6 +59,7 @@ namespace KronoGeo_Maui.ModelViews
         private readonly IServiceTelemetry _serviceTelemetry;
         private readonly IServiceBackupGps _serviceBackupGps;
         private readonly IServiceProvider _serviceProvider;
+        private readonly IServicePermissions _servicePermissions;
         #endregion
 
         #region private properties
@@ -112,7 +115,7 @@ namespace KronoGeo_Maui.ModelViews
             , IDialogService dialogService, IServiceSaveUser serviceSaveUser
             , IServiceTelemetry serviceTelemetry, IServiceBackupGps serviceBackupGps
             , ApplicationBottomSheetViewModel sheetViewModel
-            ,IServiceProvider serviceProvider)
+            ,IServiceProvider serviceProvider , IServicePermissions servicePermissions)
         {
             // -- pour affichage des différentes pages du carousel
             /*MesPages = [];
@@ -128,11 +131,12 @@ namespace KronoGeo_Maui.ModelViews
             _serviceTelemetry = serviceTelemetry;
             _serviceBackupGps = serviceBackupGps;
             _serviceProvider = serviceProvider;
+            _servicePermissions = servicePermissions;
 #if !ANDROID
             _serviceGeo.LocationChanged += OnLocalication_Changed;
 #endif
 
-            _localisations = new List<Localisation>();
+            _localisations = [];
             _saveLocalisation = saveLocalisation;
             // -- initialise l'object télémétrie
             _routeTelemetry = _serviceTelemetry.CalculateTelemetry(_localisations);
@@ -176,8 +180,10 @@ namespace KronoGeo_Maui.ModelViews
         [RelayCommand]
         public async Task LoadedExe()
         {
+
             // -- mise a jour dans la Map de la geolocalisation sinon il affiche la map par défaut
             await GetUserLocationAsync();
+
 
             // - chargement du popup si un backup existe pour recharger les points dedans
             if (_serviceBackupGps.FileExist())
@@ -302,6 +308,7 @@ namespace KronoGeo_Maui.ModelViews
         [RelayCommand]
         public async Task TakePhoto()
         {
+            Message = string.Empty;
             IsMessageError = false;
             try
             {
@@ -357,6 +364,11 @@ namespace KronoGeo_Maui.ModelViews
                 Message = "Erreur de la prise de photo";
                 // gestion d'erreur simple (adapter selon besoins)
                 System.Diagnostics.Trace.TraceError("Erreur lors de la prise de photo \n" + ex.Message);
+
+#if ANDROID
+                Log.Error("GeoAndroidService", ex.Message);
+#endif
+
             }
             finally
             {
@@ -378,14 +390,17 @@ namespace KronoGeo_Maui.ModelViews
         [RelayCommand]
         public async Task StartPause()
         {
+            Message = string.Empty;
             IsMessageError = false;
+
             try
             {
 #if ANDROID
-                var status = await Permissions.CheckStatusAsync<Permissions.PostNotifications>();
-                if (status != PermissionStatus.Granted)
+                // -- demande de permission pour les notifications 
+                if ( await _servicePermissions.GetNotificationPermissionAsync() == false )
                 {
-                    throw new PermissionException("Permission pour les notifications non donnée.");
+                    IsMessageError = true;
+                    Message = "Impossible de lancer le suivie sans la permission de notification au niveau de l'application.";
                 }
 
                 var intent = new Intent(Android.App.Application.Context, typeof(GeoAndroidService));
@@ -468,19 +483,29 @@ namespace KronoGeo_Maui.ModelViews
                 IsMessageError = true;
                 Message = "Votre matériel n'est pas supporté.";
                 Console.WriteLine(fnsEx.Message);
+#if ANDROID
+                Log.Error("GeoAndroidService", fnsEx.Message);
+#endif
             }
             catch (FeatureNotEnabledException fneEx)
             {
                 IsMessageError = true;
                 Message = "La géolocalisation n'est pas activée. Veuillez l'activer.";
                 Console.WriteLine(fneEx.Message);
+#if ANDROID
+                Log.Error("GeoAndroidService", fneEx.Message);
+#endif
             }
             catch (PermissionException pEx)
             {
                 // Handle permission exception
                 IsMessageError = true;
-                Message = "La permission pour la géolocalisation n'a pas été donnée.";
+                Message = "La permission pour la géolocalisation ou notification n'ont pas été données.";
                 Console.WriteLine(pEx.Message);
+#if ANDROID
+                Log.Error("GeoAndroidService", pEx.Message);
+#endif
+
             }
             catch (Exception ex)
             {
@@ -488,6 +513,10 @@ namespace KronoGeo_Maui.ModelViews
                 IsMessageError = true;
                 Message = "Erreur interne";
                 Console.WriteLine(ex.Message);
+#if ANDROID
+                Log.Error("GeoAndroidService", ex.Message);
+#endif
+
             }
             finally
             {
@@ -511,6 +540,8 @@ namespace KronoGeo_Maui.ModelViews
         [RelayCommand]
         public async Task Stop()
         {
+            Message = string.Empty;
+            IsMessageError = false;
             try
             {
                 if (_localisations.Count > 0)
@@ -552,6 +583,10 @@ namespace KronoGeo_Maui.ModelViews
                 IsMessageError = true;
                 Message = "Erreur interne";
                 Console.WriteLine(ex.Message);
+#if ANDROID
+                Log.Error("GeoAndroidService", ex.Message);
+#endif
+
             }
             finally
             {
@@ -573,6 +608,8 @@ namespace KronoGeo_Maui.ModelViews
         public async Task SaveAsync()
         {
             var popupAttente = new LoadingPage();
+            Message = string.Empty;
+            IsMessageError = false;
 
             try
             {
@@ -623,6 +660,10 @@ namespace KronoGeo_Maui.ModelViews
                 IsMessageError = true;
                 Message = "Erreur interne";
                 Console.WriteLine(ex.Message);
+#if ANDROID
+                Log.Error("GeoAndroidService", ex.Message);
+#endif
+
             }
             finally
             {
@@ -644,14 +685,44 @@ namespace KronoGeo_Maui.ModelViews
         [RelayCommand]
         public async Task GetUserLocationAsync()
         {
-            var localition = await _serviceGeo.GetCurrentLocationAsync(new CancellationTokenSource().Token);
-            if (localition is not null)
+            Message = string.Empty;
+            IsMessageError = false;
+            try
             {
-                //MapRegion = MapSpan.FromCenterAndRadius(localition, Distance.FromMeters(500));
-                // -- envoie un message pour recentrer la map sur la position de l'utilisateur
-                WeakReferenceMessenger.Default.Send(new RecenterMapMessage(localition));
+                if (await _servicePermissions.GetLocalisationPermissionAsync())
+                {
+                    var localition = await _serviceGeo.GetCurrentLocationAsync(new CancellationTokenSource().Token);
+                    if (localition is not null)
+                    {
+                        //MapRegion = MapSpan.FromCenterAndRadius(localition, Distance.FromMeters(500));
+                        // -- envoie un message pour recentrer la map sur la position de l'utilisateur
+                        WeakReferenceMessenger.Default.Send(new RecenterMapMessage(localition));
+                    }
+                }
+                else
+                {
+                    IsMessageError = true;
+                    Message = "Vous n'avez pas donné la permission d'utiliser la géolocalisation.";
+                }
+            } 
+            catch( Exception ex )
+            {
+                IsMessageError = true;
+                Message = "Gps désactivé, time out ou autres erreurs.";
+                Console.WriteLine(ex.Message);
+#if ANDROID
+                Log.Error("GeoAndroidService",$"{ex.Message}");
+#endif
             }
-
+            finally
+            {
+                if ( IsMessageError )
+                {
+                    var cancellationToken = new System.Threading.CancellationToken();
+                    await Toast.Make($"{Message}", ToastDuration.Long).Show(cancellationToken);
+                }
+            }
+            
         }
 
         
@@ -693,6 +764,8 @@ namespace KronoGeo_Maui.ModelViews
             _lastLocation = null;
             //MesPhotos.Clear();
             SheetViewModel.DeleteAllPhotos();
+            Message = string.Empty;
+            IsMessageError = false;
 
             // -- enregistrement ok
             _localisations.Clear();

@@ -23,7 +23,7 @@ namespace KronoGeo_Maui.Applications.Services.Geolocation
 
         #region public event
         public event EventHandler<GeolocationLocationChangedEventArgs>? LocationChanged;
-        public event EventHandler<GeolocationListeningFailedEventArgs>? ListeningFailed;
+        //public event EventHandler<GeolocationListeningFailedEventArgs>? ListeningFailed;
         #endregion
 
         #region public method interface

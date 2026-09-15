@@ -95,7 +95,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         }
 
         public event EventHandler<GeolocationLocationChangedEventArgs>? LocationChanged;
-        public event EventHandler<GeolocationListeningFailedEventArgs>? ListeningFailed;
+        //public event EventHandler<GeolocationListeningFailedEventArgs>? ListeningFailed;
         #endregion
 
         #region pulic method interface IServiceGeolocalisation
@@ -111,55 +111,63 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         /// <returns></returns>
         public async Task<Location?> GetCurrentLocationAsync(CancellationToken token)
         {
-            // -- création de l'object pour custom la location request 
-            var request = new CurrentLocationRequest.Builder().SetPriority(Priority.PriorityHighAccuracy)
-            .SetDurationMillis(10000)
-            .Build();
-
-            // -- mise en place du task pour traiter l'api google avec une méthode asynchrone de c#
-            var tcs = new TaskCompletionSource<Location?>();
-
-            using (token.Register(() => tcs.TrySetCanceled()))
+            try
             {
-                // Appel de la méthode Java native
-                var javaTask = _locationClient?.GetCurrentLocation(request, null);
+                // -- création de l'object pour custom la location request 
+                var request = new CurrentLocationRequest.Builder().SetPriority(Priority.PriorityHighAccuracy)
+                .SetDurationMillis(10000)
+                .Build();
 
-                // Conversion en Task C# via les listeners Java
-                javaTask?.AddOnSuccessListener(new OnSuccessListener(location =>
+                // -- mise en place du task pour traiter l'api google avec une méthode asynchrone de c#
+                var tcs = new TaskCompletionSource<Location?>();
+
+                using (token.Register(() => tcs.TrySetCanceled()))
                 {
-                    // -- récuépration de location android 
-                    var localAndroid = location as LocationA;
-                    // -- création du location de miscrosoft pour être traité dans le code c#
-                    Location? loc = default;
-                    if (localAndroid is not null)
+                    // Appel de la méthode Java native
+                    var javaTask = _locationClient?.GetCurrentLocation(request, null);
+
+                    // Conversion en Task C# via les listeners Java
+                    javaTask?.AddOnSuccessListener(new OnSuccessListener(location =>
                     {
-                        loc = new Location
+                        // -- récuépration de location android 
+                        var localAndroid = location as LocationA;
+                        // -- création du location de miscrosoft pour être traité dans le code c#
+                        Location? loc = default;
+                        if (localAndroid is not null)
                         {
-                            Accuracy = localAndroid.Accuracy,
-                            Altitude = localAndroid.Altitude,
-                            AltitudeReferenceSystem = AltitudeReferenceSystem.Ellipsoid,    // système de reférence utiliser dans android
-                            Latitude = localAndroid.Latitude,
-                            Longitude = localAndroid.Longitude,
-                            Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(localAndroid.Time).ToLocalTime(), // -- conversion de milliseconde Unix mesure en DateTimeOffset
-                            Speed = localAndroid.Speed,
-                            VerticalAccuracy = // -- ne marche pas pour les versions android en dessous de 26
-                                OperatingSystem.IsAndroidVersionAtLeast(26) ? (double)(localAndroid.VerticalAccuracyMeters) : 0,
-                            ReducedAccuracy = false, // -- ne marche que pour IOS
-                            Course = localAndroid.Bearing
-                        };
-                    }
-                    // -- retourne si success la location    
-                    tcs.TrySetResult(loc);
-                }));
+                            loc = new Location
+                            {
+                                Accuracy = localAndroid.Accuracy,
+                                Altitude = localAndroid.Altitude,
+                                AltitudeReferenceSystem = AltitudeReferenceSystem.Ellipsoid,    // système de reférence utiliser dans android
+                                Latitude = localAndroid.Latitude,
+                                Longitude = localAndroid.Longitude,
+                                Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(localAndroid.Time).ToLocalTime(), // -- conversion de milliseconde Unix mesure en DateTimeOffset
+                                Speed = localAndroid.Speed,
+                                VerticalAccuracy = // -- ne marche pas pour les versions android en dessous de 26
+                                    OperatingSystem.IsAndroidVersionAtLeast(26) ? (double)(localAndroid.VerticalAccuracyMeters) : 0,
+                                ReducedAccuracy = false, // -- ne marche que pour IOS
+                                Course = localAndroid.Bearing
+                            };
+                        }
+                        // -- retourne si success la location    
+                        tcs.TrySetResult(loc);
+                    }));
 
-                // -- en cas de problème on lève une exception 
-                // -- je ne sais plus si je le traite derrière :) 
-                javaTask?.AddOnFailureListener(new OnFailureListener(exception =>
-                {
-                    tcs.TrySetException(exception);
-                }));
-                // -- retourn le résultat
-                return await tcs.Task;
+                    // -- en cas de problème on lève une exception 
+                    // -- je ne sais plus si je le traite derrière :) 
+                    javaTask?.AddOnFailureListener(new OnFailureListener(exception =>
+                    {
+                        tcs.TrySetException(exception);
+                    }));
+                    // -- retourn le résultat
+                    return await tcs.Task;
+                }
+            
+            } catch (Java.Lang.SecurityException ex)
+            {
+                Log.Error("GeoAndroidService", $"{ex.Message}");
+                throw new PermissionException("Permission de localisation refusée. Veuillez accorder les permissions nécessaires.");
             }
 
         }

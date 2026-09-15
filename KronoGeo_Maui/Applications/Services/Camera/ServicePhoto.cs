@@ -1,4 +1,7 @@
-﻿using CommunityToolkit.Maui.Media;
+﻿#if ANDROID
+using Android.Util;
+#endif
+using CommunityToolkit.Maui.Media;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models.Model.DTO;
 using KronoGeo_Maui.Applications.Interface;
@@ -12,34 +15,56 @@ namespace KronoGeo_Maui.Applications.Services.Camera
     /// <summary>
     /// service de prise de photo
     /// </summary>
-    public class ServicePhoto(IServiceSavePhotoOsDirectory savePhotoOsDirectory ) : IServiceCamera
+    public class ServicePhoto(IServiceSavePhotoOsDirectory savePhotoOsDirectory
+        , IServiceCompressPhoto compressPhoto ) : IServiceCamera
     {
         #region private readonly properties
         private readonly IServiceSavePhotoOsDirectory _savePhotoOsDirectory = savePhotoOsDirectory;
+        private readonly IServiceCompressPhoto _compressPhoto = compressPhoto;
         #endregion
 
         #region public method interface IServiceCamera
+        /// <summary>
+        /// methode de prise de photo et d'enregistrement
+        /// </summary>
+        /// <returns></returns>
         public async Task<PhotoDTO?> TakePhotoAsync()
         {
             if (MediaPicker.Default.IsCaptureSupported)
             {
-                // -- options de compression pour la prise des photos
-                MediaPickerOptions options = new () {
+                // -- options de compression pour la prise des photos qui se fait avant la prise
+                // -- dans prendre en compte la taille de l'image
+                /*MediaPickerOptions options = new () {
                     CompressionQuality = 50
-                };
-                FileResult? photo = await MediaPicker.Default.CapturePhotoAsync(options);
+                };*/
+                FileResult? photo = await MediaPicker.Default.CapturePhotoAsync();
 
                 if (photo != null)
                 {
-                    // save the file into local storage
-                    string localFilePath = Path.Combine(FileSystem.AppDataDirectory, photo.FileName);
+                    
                     try
                     {
+                        // save the file into local storage
+                        string localFilePath = Path.Combine(FileSystem.AppDataDirectory, photo.FileName);
+                        // -- stream de la photo 
                         using System.IO.Stream sourceStream = await photo.OpenReadAsync();
-                        using FileStream localFileStream = File.OpenWrite(localFilePath);
+                        
+                        // -- compression de la photo photo
+                        var photoCompress = await _compressPhoto.GetCompressPhoto(photo);
 
-                        // copie de la photo en local
-                        await sourceStream.CopyToAsync(localFileStream);
+                        if (photoCompress is null)
+                        {
+                            using FileStream localFileStream = File.OpenWrite(localFilePath);
+                            // copie de la photo en local au niveau de l'applicatif
+                            await sourceStream.CopyToAsync(localFileStream);
+                            
+                        }
+                        else
+                        {
+                            await File.WriteAllBytesAsync(localFilePath, photoCompress);
+                        }
+
+                        // copie dans le répertoire des images selon OS
                         string filename = photo.FileName;
                         await _savePhotoOsDirectory.SavePhotoLocalAlbumAsync(sourceStream, filename);
 
@@ -48,10 +73,14 @@ namespace KronoGeo_Maui.Applications.Services.Camera
                             Name = photo.FileName,
                             PathPhoto = FileSystem.AppDataDirectory,
                         };
+
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         Trace.TraceError(ex.Message);
+#if ANDROID
+                        Log.Error("GeoAndroidService", ex.Message);
+#endif
                         return null;
                     }
 

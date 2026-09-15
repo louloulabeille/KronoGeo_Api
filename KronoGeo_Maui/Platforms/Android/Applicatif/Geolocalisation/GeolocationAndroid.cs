@@ -45,7 +45,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         #region event récupération des datas
         // -- changement de localisation l'event n'est plus utiliser -- utilisation de ValueChangedMessage<Location>
         public event EventHandler<GeolocationLocationChangedEventArgs>? LocationChanged;
-        public event EventHandler<GeolocationListeningFailedEventArgs>? ListeningFailed;
+        //public event EventHandler<GeolocationListeningFailedEventArgs>? ListeningFailed;
         #endregion
 
         #region constructeur

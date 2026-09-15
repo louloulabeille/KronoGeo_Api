@@ -160,7 +160,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Camera
             var sessionConfig = new SessionConfiguration(0, outputs, executor, new MyStateCallback());
             camera?.CreateCaptureSession(sessionConfig);*/
 
-            camera?.CreateCaptureSession([imageReader.Surface], sessionCb!, handler);
+            //camera?.CreateCaptureSession([imageReader.Surface], sessionCb!, handler);
 
             // Récupérer octets JPEG depuis tcs (déclenché par ImageReaderListener)
             var jpeg = await tcs.Task;
