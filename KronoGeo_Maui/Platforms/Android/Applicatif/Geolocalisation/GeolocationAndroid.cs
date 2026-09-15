@@ -17,6 +17,10 @@ using Task = System.Threading.Tasks.Task;
 
 namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
 {
+    /// <summary>
+    /// Problème avec Location Manager qui marche mal avec la gestion de la batterie
+    /// ForegroundService et wake lock
+    /// </summary>
     [SupportedOSPlatform("android26.0")]
     public class GeolocationAndroid : IServiceGeolocalisation
     {

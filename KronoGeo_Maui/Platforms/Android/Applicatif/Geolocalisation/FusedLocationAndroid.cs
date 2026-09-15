@@ -55,7 +55,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
 	    /// </PackageReference>
 	    /// </ItemGroup>
 
-        ///  inclusion des packages qui ne sont pas  a jour pour Xamarin.GooglePlayServices.Location 
+        /// Inclusion des packages qui ne sont pas  a jour pour Xamarin.GooglePlayServices.Location 
 		/// avec mes versions de packages Maui à jour en.net10
         /// Xamarin.AndroidX.Collection.Jvm dans mon projet est 1.6.0.1
 		/// et dans Xamarin.GooglePlayServices.Location il veut 1.5.0.1 de même 
@@ -68,11 +68,31 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         private Handler? _handler;
         private LocationCallback? _locationCallback = default;
         private readonly IFusedLocationProviderClient? _locationClient = LocationServices.GetFusedLocationProviderClient(Application.Context);
+        private bool _pause = false;
         #endregion
 
-
         #region public properties interface IServiceGeolocalisation
-        public bool Pause { get; set; } // -- modifié pour faire mettre en arrêt le systeme lors des pauses
+        /// <summary>
+        /// gestion du système de pause 
+        /// </summary>
+        public bool Pause
+        {
+            get
+            {
+                return _pause;
+            }
+            set
+            {
+                if ( value == false ) 
+                {
+                    StopLocationUpdates();  // -- arrête le systeme de prise de location
+                } else 
+                {
+                    StartLocationUpdatesAsync();    // -- redémarre le système de prise de location
+                }
+                _pause = value;
+            }
+        }
 
         public event EventHandler<GeolocationLocationChangedEventArgs>? LocationChanged;
         public event EventHandler<GeolocationListeningFailedEventArgs>? ListeningFailed;
@@ -231,6 +251,11 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
 
         #region internal method
         // Helpers pour les listeners Java/Android Tasks vers c#
+        /// <summary>
+        /// helpers pour gérer les retours des api Java/android pour gérer les retour task de java
+        /// et faire le pont avec celui de c#
+        /// </summary>
+        /// <param name="action"></param>
         internal class OnSuccessListener(Action<Java.Lang.Object?> action) : Java.Lang.Object, IOnSuccessListener
         {
             private readonly Action<Java.Lang.Object?> _action = action;
