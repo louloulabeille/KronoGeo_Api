@@ -79,7 +79,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                     Log.Debug("GeoAndroidService", "Début du service OnStartCommand");
                     // 3. Démarrer le service en mode "Foreground"
                     // Depuis Android 14, il faut impérativement spécifier le type de service ici aussi
-                    StartForegroundService();
+                    StartForegroundServiceGeo();
 
                     // -- mise en place du WakeLock pour empêcher de mettre en service en pause
                     AcquireWakeLock();
@@ -230,7 +230,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         /// <summary>
         /// Démarre le service en mode "Foreground" avec une notification persistante
         /// </summary>
-        private void StartForegroundService()
+        private void StartForegroundServiceGeo()
         {
             _notificationManager = Platform.AppContext.GetSystemService(Context.NotificationService) as NotificationManager;
             // 1. Créer le canal de notification (obligatoire pour Android 8+)

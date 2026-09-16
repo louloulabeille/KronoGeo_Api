@@ -194,12 +194,19 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                     // -- object du custom request 
                     var locationRequest = new LocationRequest.Builder(Priority.PriorityHighAccuracy, 5000) // 5 sec
                     .SetMinUpdateIntervalMillis(2000)
+                    .SetMinUpdateDistanceMeters(5)
+                    //.SetMinUpdateIntervalMillis(2000)
                     .Build();
 
                     // -- traitement à faire pour le retour du Callback de base ici 
                     // -- un callback spécifique
                     _locationCallback = new CustomLocationCallback(location =>
                     {
+                        //if (location is null)
+                        //{
+                        //    Log.Warn("GeoAndroidService", "OnLocationResult: location is null, ignoring callback.");
+                        //    return;
+                        //}
                         // Traite le point GPS ici (ex. enregistrement BDD local ou envoi à un ViewModel)
                         var loc = new Location(location.Latitude, location.Longitude)
                         {
@@ -219,26 +226,32 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                         GpsSmoother smoother = new();
                         var locationSmoother = smoother.AcceptableLocationCalcul(loc);
 
+                        if (locationSmoother is null)
+                        {
+                            Log.Debug("GeoAndroidService", $"locationSmoother is null");
+                            return;
+                        }
+
                         Log.Debug("GeoAndroidService", $"Latitude : {location.Latitude}, Longitude : {location.Longitude}");
                         // -- appel de eventhandler pour appeler le code qui doit être traité
-                        LocationChanged?.Invoke(this, new GeolocationLocationChangedEventArgs(locationSmoother!));
+                        LocationChanged?.Invoke(this, new GeolocationLocationChangedEventArgs(locationSmoother));
                     });
 
                     // -- appel de la fonction du lancement de l'écoute
                     _locationClient?.RequestLocationUpdates(locationRequest, _locationCallback, _handler.Looper);
                 }
 
-
-                //Log.Error("GeoAndroidService", "Le fournisseur GPS n'est pas activé sur l'appareil. {}");
-                ////System.Diagnostics.Debug.WriteLine("Le fournisseur GPS n'est pas activé sur l'appareil.");
-                //throw new FeatureNotEnabledException("Le fournisseur GPS n'est pas activé sur l'appareil.");  
-
             }
-            catch (Java.Lang.SecurityException ex)
+            catch (Java.Lang.SecurityException exS)
             {
-                Log.Error("GeoAndroidService", $"Permission de localisation refusée. Veuillez accorder les permissions nécessaires \n {ex.Message}");
+                Log.Error("GeoAndroidService", $"Permission de localisation refusée. Veuillez accorder les permissions nécessaires \n {exS.Message}");
                 //System.Diagnostics.Debug.WriteLine($"Erreur de permission : {ex.Message}");
                 throw new PermissionException($"Permission de localisation refusée. Veuillez accorder les permissions nécessaires.");
+            }
+            catch(Java.Lang.Exception ex)
+            {
+                Log.Error("GeoAndroidService", $"{ex.Message}");
+                throw new System.Exception(ex.Message); 
             }
         }
 
@@ -287,7 +300,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
 
         public override void OnLocationResult(LocationResult result)
         {
-            if (result?.LastLocation != null)
+            if (result?.LastLocation is not null)
                 _onLocationReceived(result.LastLocation);
         }
     }
