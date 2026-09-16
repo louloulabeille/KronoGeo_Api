@@ -184,7 +184,6 @@ namespace KronoGeo_Maui.ModelViews
             // -- mise a jour dans la Map de la geolocalisation sinon il affiche la map par défaut
             await GetUserLocationAsync();
 
-
             // - chargement du popup si un backup existe pour recharger les points dedans
             if (_serviceBackupGps.FileExist())
             {
