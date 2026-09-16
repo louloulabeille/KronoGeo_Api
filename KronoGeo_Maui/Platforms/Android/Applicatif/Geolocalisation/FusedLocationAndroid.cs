@@ -1,15 +1,19 @@
 #if ANDROID
 using Android.App;
+using Android.Content;
 using Android.Gms.Common.Apis;
 using Android.Gms.Location;
 using Android.Gms.Tasks;
 using Android.OS;
 using Android.Runtime;
 using Android.Util;
+using CommunityToolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.Mvvm.Messaging;
 using Java.Lang;
 using Kotlin.Jvm.Internal;
 using KronoGeo_Api.Models;
 using KronoGeo_Maui.Applications.Interface;
+using KronoGeo_Maui.Applications.Message;
 using KronoGeo_Maui.Applications.Outils.Geolocalisation;
 using System;
 using System.Collections.Generic;
@@ -32,7 +36,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
     /// Attention au mise à jour du package Xamarin.GooglePlayServices.Location aave le reste des 
     /// dépendances sur projet MAUI
     /// </summary>
-    public class FusedLocationAndroid : IServiceGeolocalisation
+    public class FusedLocationAndroid : IServiceGeolocalisation , IRecipient<LocationBroadcastMessage>
     {
         /// dans la partie PropertyGroup
         /// Empêche le warning NU1605 d'être traité comme une erreur bloquant
@@ -64,38 +68,29 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
 
         #region private properties
         // -- mise en place d'un handler thread pour lancer la géolocalisation sur un thread parallèle au thread principal
-        private readonly HandlerThread _handlerThread = new("LocationHandlerthread");
-        private Handler? _handler;
+        //private readonly HandlerThread _handlerThread = new("LocationHandlerthread");
+        //private Handler? _handler;
         private LocationCallback? _locationCallback = default;
-        private readonly IFusedLocationProviderClient? _locationClient = LocationServices.GetFusedLocationProviderClient(Application.Context);
-        private bool _pause = false;
+        private PendingIntent? _locationPendingIntent = default;
+        private readonly IFusedLocationProviderClient? _locationClient;
         #endregion
 
         #region public properties interface IServiceGeolocalisation
         /// <summary>
         /// gestion du système de pause 
         /// </summary>
-        public bool Pause
-        {
-            get
-            {
-                return _pause;
-            }
-            set
-            {
-                if ( value == false ) 
-                {
-                    StopLocationUpdates();  // -- arrête le systeme de prise de location
-                } else 
-                {
-                    StartLocationUpdatesAsync();    // -- redémarre le système de prise de location
-                }
-                _pause = value;
-            }
-        }
+        public bool Pause { get; set; } = false;
 
         public event EventHandler<GeolocationLocationChangedEventArgs>? LocationChanged;
         //public event EventHandler<GeolocationListeningFailedEventArgs>? ListeningFailed;
+        #endregion
+
+        #region public constructeur
+        public FusedLocationAndroid ()
+        {
+            _locationClient = LocationServices.GetFusedLocationProviderClient(Application.Context);
+            InitPendingIntent();
+        }
         #endregion
 
         #region pulic method interface IServiceGeolocalisation
@@ -129,7 +124,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                     // Conversion en Task C# via les listeners Java
                     javaTask?.AddOnSuccessListener(new OnSuccessListener(location =>
                     {
-                        // -- récuépration de location android 
+                        // -- récupération de location android 
                         var localAndroid = location as LocationA;
                         // -- création du location de miscrosoft pour être traité dans le code c#
                         Location? loc = default;
@@ -175,38 +170,39 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         /// <summary>
         /// method qui lance la prise des localisations en continue
         /// </summary>
-        public void StartLocationUpdatesAsync()
+        public async void StartLocationUpdatesAsync()
         {
             try
             {
                 if (LocationChanged is not null)
                 {
-                    // -- initial handler thread
+                    // -- initial handler thread plus besoin en utilisant un intent
                     // sert à lancer dans un autre thread que le principal
-                    _handlerThread.Start(); 
-                    if (_handlerThread.Looper is null)
-                    {
-                        Log.Error("GeoAndroidService", "handlerThread.looper est null");
-                        return;
-                    }
-                    _handler = new(_handlerThread.Looper);
+                    //_handlerThread.Start(); 
+                    //if (_handlerThread.Looper is null)
+                    //{
+                    //    Log.Error("GeoAndroidService", "handlerThread.looper est null");
+                    //    return;
+                    //}
+                    //_handler = new(_handlerThread.Looper);
 
                     // -- object du custom request 
                     var locationRequest = new LocationRequest.Builder(Priority.PriorityHighAccuracy, 5000) // 5 sec
                     .SetMinUpdateIntervalMillis(2000)
-                    .SetMinUpdateDistanceMeters(5)
+                    //.SetMinUpdateDistanceMeters(5)
                     //.SetMinUpdateIntervalMillis(2000)
                     .Build();
 
                     // -- traitement à faire pour le retour du Callback de base ici 
                     // -- un callback spécifique
-                    _locationCallback = new CustomLocationCallback(location =>
+                    /*_locationCallback = new CustomLocationCallback(location =>
                     {
-                        //if (location is null)
-                        //{
-                        //    Log.Warn("GeoAndroidService", "OnLocationResult: location is null, ignoring callback.");
-                        //    return;
-                        //}
+                        if (Pause)
+                        {
+                            Log.Debug("GeoAndroidService", "Mise en Pause");
+                            return;
+                        }
+
                         // Traite le point GPS ici (ex. enregistrement BDD local ou envoi à un ViewModel)
                         var loc = new Location(location.Latitude, location.Longitude)
                         {
@@ -235,10 +231,15 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                         Log.Debug("GeoAndroidService", $"Latitude : {location.Latitude}, Longitude : {location.Longitude}");
                         // -- appel de eventhandler pour appeler le code qui doit être traité
                         LocationChanged?.Invoke(this, new GeolocationLocationChangedEventArgs(locationSmoother));
-                    });
+                    });*/
 
                     // -- appel de la fonction du lancement de l'écoute
-                    _locationClient?.RequestLocationUpdates(locationRequest, _locationCallback, _handler.Looper);
+                    //_locationClient?.RequestLocationUpdates(locationRequest, _locationCallback, _handler.Looper);
+                    if (_locationPendingIntent is not null && _locationClient is not null)
+                    {
+                        await _locationClient.RequestLocationUpdatesAsync(locationRequest, _locationPendingIntent);
+                    }
+                        
                 }
 
             }
@@ -265,9 +266,66 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
             {
                 _locationClient.RemoveLocationUpdates(_locationCallback);
                 _locationCallback = null;
+                Log.Debug("GeoAndroidService", "Arrêt du Fuse");
             }
         }
 
+        #endregion
+
+        #region public method IRecipient<LocationBroadcastMessage>
+        /// <summary>
+        /// Method qui est appelé lors d'un send 
+        /// </summary>
+        /// <param name="message"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        public void Receive(LocationBroadcastMessage message)
+        {
+            TraitementLocationMessenger(message.Value);
+        }
+        #endregion
+
+        #region private method
+        private void TraitementLocationMessenger ( Location location)
+        {
+            // - gestion de la pause
+            if (Pause)
+            {
+                Log.Debug("GeoAndroidService", "Mise en Pause");
+                return;
+            }
+
+            // -- va lisser les points GPS selon le degrès d'exactitude
+            GpsSmoother smoother = new();
+            var locationSmoother = smoother.AcceptableLocationCalcul(location);
+
+            if (locationSmoother is null)
+            {
+                Log.Debug("GeoAndroidService", $"locationSmoother is null");
+                return;
+            }
+
+            Log.Debug("GeoAndroidService", $"Latitude : {location.Latitude}, Longitude : {location.Longitude}");
+            // -- appel de eventhandler pour appeler le code qui doit être traité
+            LocationChanged?.Invoke(this, new GeolocationLocationChangedEventArgs(locationSmoother));
+
+        }
+        private void InitPendingIntent()
+        {
+            // -- context de l'application Android.App.Application.Context
+            var context = Application.Context;
+
+            // Initialisation du PendingIntent pointant vers le BroadcastReceiver
+            var intent = new Intent(context, typeof(LocationBroadcastReceiver));
+
+            // Mutability flag requis à partir d'Android 12 (API 31+)
+            var flags = PendingIntentFlags.UpdateCurrent;
+            if(OperatingSystem.IsAndroidVersionAtLeast(31))
+            {
+                flags |= PendingIntentFlags.Mutable;
+            }
+
+            _locationPendingIntent = PendingIntent.GetBroadcast(context, 0, intent, flags);
+        }
         #endregion
 
         #region internal method
@@ -294,6 +352,11 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
 
     }
 
+    /// <summary>
+    /// Class de LocationCallback pour la réception des locations probleme avec des fuites de données
+    /// passage vers un Broadcast avec un message
+    /// </summary>
+    /// <param name="onLocationReceived"></param>
     public class CustomLocationCallback(Action<global::Android.Locations.Location> onLocationReceived) : LocationCallback
     {
         private readonly Action<global::Android.Locations.Location> _onLocationReceived = onLocationReceived;
@@ -302,6 +365,48 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         {
             if (result?.LastLocation is not null)
                 _onLocationReceived(result.LastLocation);
+        }
+    }
+
+
+    /// <summary>
+    /// Création d'un BroadcastReceiver pour recevoir les locations d'Android
+    /// </summary>
+    [BroadcastReceiver(Enabled = true, Exported = false)]
+    public class LocationBroadcastReceiver : BroadcastReceiver
+    {
+        public override void OnReceive(Context? context, Intent? intent)
+        {
+            if (intent == null) return;
+
+            // Extraction du résultat de géolocalisation depuis l'Intent
+            if (LocationResult.HasResult(intent))
+            {
+                var result = LocationResult.ExtractResult(intent);
+                var lastLocation = result?.LastLocation;
+
+                if (lastLocation is not null)
+                {
+                    // Traite le point GPS ici (ex. enregistrement BDD local ou envoi à un ViewModel)
+                    var loc = new Location(lastLocation.Latitude, lastLocation.Longitude)
+                    {
+                        Accuracy = lastLocation.Accuracy,
+                        Altitude = lastLocation.Altitude,
+                        AltitudeReferenceSystem = AltitudeReferenceSystem.Ellipsoid,
+                        // -- conversion de milliseconde Unix mesure en DateTimeOffset localtime
+                        Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(lastLocation.Time).ToLocalTime(),
+                        Speed = lastLocation.Speed,
+                        VerticalAccuracy =  // -- ne marche pas pour les versions android en dessous de 26
+                            OperatingSystem.IsAndroidVersionAtLeast(26) ? (double)(lastLocation.VerticalAccuracyMeters) : 0,
+                        ReducedAccuracy = false,    // -- ne marche que pour IOS
+                        Course = lastLocation.Bearing
+                    };
+
+                    // -- Traitement de la position envoi vers l'interface IServiceGeolocalisation
+                    // -- en utilisant un système de messenger
+                    WeakReferenceMessenger.Default.Send(new LocationBroadcastMessage(loc));
+                }
+            }
         }
     }
 }

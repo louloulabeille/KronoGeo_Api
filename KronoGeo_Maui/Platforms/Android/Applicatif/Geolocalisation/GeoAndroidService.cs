@@ -121,11 +121,14 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                 _wakeLock?.Release();
                 _wakeLock?.Dispose();
                 _wakeLock = null;
+                Log.Debug("GeoAndroidService", "Stop le wakelock");
             }
 
             // Arrêter proprement le GPS ici pour économiser la batterie
             _serviceGeo?.StopLocationUpdates();
             _serviceGeo?.Dispose();
+
+            // -- arrêt du service
             if (OperatingSystem.IsAndroidVersionAtLeast(24))
             {
                 StopForeground(StopForegroundFlags.Remove);
@@ -134,6 +137,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
             {
                 StopForeground(true);
             }
+
             StopSelf(); // -- arrêt du service
             _notificationManager?.Cancel(NOTIFICATION_ID);
             try { _cancellationTokenSource.Dispose(); } catch { }
@@ -205,7 +209,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
             {
                 //_serviceGeo?.LocationChanged += OnLocalicationChanged;
                 _serviceGeo?.StartLocationUpdatesAsync(_cancellationTokenSource.Token);
-                _serviceGeo?.Pause = false;
+                //_serviceGeo?.Pause = false;
             }
         }
 
