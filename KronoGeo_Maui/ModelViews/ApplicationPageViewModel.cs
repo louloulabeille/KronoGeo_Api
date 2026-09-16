@@ -202,7 +202,9 @@ namespace KronoGeo_Maui.ModelViews
                     {
                         _localisations.Clear();
                         _localisations.AddRange(localisations.OrderBy(ob => ob.OrderIndex));
-                        _lastLocation = (_localisations.Count > 0) ? _localisations[_localisations.Count - 1] : null;
+                        //_lastLocation = (_localisations.Count > 0) ? _localisations[_localisations.Count - 1] : null;
+                        _lastLocation = (_localisations.Count > 0) ? _localisations[^1] : null;
+
                         _routeTelemetry = _serviceTelemetry.CalculateTelemetry(_localisations);
 
                         // -- passage de la RouteTelemetry vers le BottomSheet
@@ -567,6 +569,7 @@ namespace KronoGeo_Maui.ModelViews
                     }
                     else
                     {
+                        IsEnableSave = false;
                         InitWindow();
                     }
 
@@ -795,7 +798,9 @@ namespace KronoGeo_Maui.ModelViews
                 VerticalAccuracy = location.VerticalAccuracy,
                 Course = location.Course,
             };
-
+#if ANDROID
+            Log.Debug("GeoAndroidService", $"Accuracy :{localisation.Accuracy} - Longitude : {localisation.Longitude} - Latitude : {localisation.Latitude}" );
+#endif
             // -- y a des doublons au niveau de eventchange Google lors de la mise a jour de la position, donc on ne garde que les nouvelles positions
             if ( !_localisations.Exists(l=> l.Longitude == localisation.Longitude && l.Latitude == localisation.Latitude) )
             {
@@ -817,7 +822,9 @@ namespace KronoGeo_Maui.ModelViews
                 int index = _localisations.Count;
                 localisation.OrderIndex = index; // -- mise a jour de l'index
                 _localisations.Add(localisation);
-
+#if ANDROID
+                Log.Debug("GeoAndroidService", $"Ajout localisation - Longitude : {localisation.Longitude}");
+#endif
                 // -- envoie un message pour mettre à jour le tracé sur la map
                 WeakReferenceMessenger.Default.Send(new PolyneMapMessage(location));
                 

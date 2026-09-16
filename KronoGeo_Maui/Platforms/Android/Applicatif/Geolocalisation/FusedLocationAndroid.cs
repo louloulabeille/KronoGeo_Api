@@ -96,6 +96,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         #region pulic method interface IServiceGeolocalisation
         public void Dispose()
         {
+            WeakReferenceMessenger.Default.UnregisterAll(this);
             GC.SuppressFinalize(this);
         }
 
@@ -113,7 +114,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                 .SetDurationMillis(10000)
                 .Build();
 
-                // -- mise en place du task pour traiter l'api google avec une méthode asynchrone de c#
+                // -- mise en place du task java pour traiter l'api google avec une méthode asynchrone de c#
                 var tcs = new TaskCompletionSource<Location?>();
 
                 using (token.Register(() => tcs.TrySetCanceled()))
@@ -176,6 +177,9 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
             {
                 if (LocationChanged is not null)
                 {
+                    // -- mise en place du messenger 
+                    StartMessenger();
+
                     // -- initial handler thread plus besoin en utilisant un intent
                     // sert à lancer dans un autre thread que le principal
                     //_handlerThread.Start(); 
@@ -237,6 +241,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                     //_locationClient?.RequestLocationUpdates(locationRequest, _locationCallback, _handler.Looper);
                     if (_locationPendingIntent is not null && _locationClient is not null)
                     {
+                        Log.Debug("GeoAndroidService", "Lancement de la geolocalisation -- StartLocationUpdatesAsync");
                         await _locationClient.RequestLocationUpdatesAsync(locationRequest, _locationPendingIntent);
                     }
                         
@@ -262,10 +267,12 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         /// </summary>
         public void StopLocationUpdates()
         {
-            if (_locationClient != null && _locationCallback != null)
+            if (_locationClient is not null && _locationPendingIntent is not null )
             {
-                _locationClient.RemoveLocationUpdates(_locationCallback);
+                _locationClient.RemoveLocationUpdates(_locationPendingIntent);
                 _locationCallback = null;
+                // -- arrêt du register pour ne pas l'avoir en double
+                WeakReferenceMessenger.Default.Unregister<LocationBroadcastMessage>(this);
                 Log.Debug("GeoAndroidService", "Arrêt du Fuse");
             }
         }
@@ -300,7 +307,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
 
             if (locationSmoother is null)
             {
-                Log.Debug("GeoAndroidService", $"locationSmoother is null");
+                Log.Debug("GeoAndroidService", $"locationSmoother is null - Accuracy : { location.Accuracy }");
                 return;
             }
 
@@ -325,6 +332,20 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
             }
 
             _locationPendingIntent = PendingIntent.GetBroadcast(context, 0, intent, flags);
+        }
+
+        /// <summary>
+        /// Pour gérer le lancement et relancement du système de géolocalisation 
+        /// </summary>
+        private void StartMessenger()
+        {
+            // -- arrêt du register pour ne pas l'avoir en double
+            WeakReferenceMessenger.Default.Unregister<LocationBroadcastMessage>(this);
+            // -- register du messenger 
+            WeakReferenceMessenger.Default.Register<LocationBroadcastMessage>(this, (recipient, message ) => {
+                Receive(message);
+            });
+
         }
         #endregion
 
@@ -402,6 +423,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                         Course = lastLocation.Bearing
                     };
 
+                    Log.Debug("GeoAndroidService", $"location latitude {loc.Latitude} au niveau LocationBroadcastReceiver");
                     // -- Traitement de la position envoi vers l'interface IServiceGeolocalisation
                     // -- en utilisant un système de messenger
                     WeakReferenceMessenger.Default.Send(new LocationBroadcastMessage(loc));

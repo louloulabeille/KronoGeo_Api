@@ -17,6 +17,9 @@ namespace KronoGeo_Maui.Applications.Outils.Geolocalisation
         #region public const properties
         // -- const accuracy acceptable 0 - 30 & 8 - 30 calcul de l'indice pour le lissage
         public const double MaxAcceptableAccuracy = 30.0;
+        // -- const accuracy acceptable 0 - 45 & 8 - 45 calcul de l'indice
+        // -- pour le lissage quand l'application est en arrière plan
+        public const double MaxAcceptableAccuracyInBackGround = 45.0;
         public const double ExcellentAccuracy = 8.0;
         #endregion
 
@@ -33,8 +36,13 @@ namespace KronoGeo_Maui.Applications.Outils.Geolocalisation
                 return newLocation;
             }
 
-            // > 30 on ignore
-            if (newLocation.Accuracy > MaxAcceptableAccuracy) return null;
+            // -- selon si l'apllcation est en arrière plan on augemente la tolérance
+            // -- cela peut se passer quand l'apllication marche en arrière plan, les points locations se dégradent
+            // -- à cause de la gestion de l'énergie
+            var maxAcceptableAccuracy = IsAppInBackGround() ? MaxAcceptableAccuracyInBackGround : MaxAcceptableAccuracy;
+            
+            // > 30  ou 45 metre on ignore
+            if (newLocation.Accuracy > maxAcceptableAccuracy) return null;
 
             // -- best precision pas besoin de calcul ou le premier point
             if (newLocation.Accuracy <= ExcellentAccuracy || _lastAcceptedLocation is null)
@@ -47,7 +55,7 @@ namespace KronoGeo_Maui.Applications.Outils.Geolocalisation
             {
                 // Exemple : si accuracy = 19m, le calcul fera (30 - 19) / (30 - 8) = 11 / 22 = 0.5
                 // On fera donc confiance à 50% à ce nouveau point, et à 50% à l'ancien.
-                trustFactor = (MaxAcceptableAccuracy - newLocation.Accuracy.Value) / (MaxAcceptableAccuracy - ExcellentAccuracy);
+                trustFactor = (maxAcceptableAccuracy - newLocation.Accuracy.Value) / (maxAcceptableAccuracy - ExcellentAccuracy);
             }
 
             // 5. Lissage par interpolation linéaire (Lerp)
@@ -77,6 +85,21 @@ namespace KronoGeo_Maui.Applications.Outils.Geolocalisation
         private static double Lerp(double start, double end, double amount)
         {
             return start + (end - start) * amount;
+        }
+
+        /// <summary>
+        /// methode qui retourne si l'application est en arrière plan 
+        /// </summary>
+        /// <returns></returns>
+        private static bool IsAppInBackGround()
+        {
+            var windows = Application.Current?.Windows;
+            var window = (windows != null && windows.Count > 0) ? windows[0] : null;
+
+            if (window == null)
+                return true; // pas de fenêtre => considérer comme arrière-plan (adapter si besoin)
+
+            return !window.IsActivated;
         }
         #endregion
     }

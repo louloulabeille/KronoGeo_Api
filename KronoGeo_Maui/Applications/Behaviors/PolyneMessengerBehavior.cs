@@ -5,6 +5,9 @@ using System.Text;
 using Map = Microsoft.Maui.Controls.Maps.Map;
 using Microsoft.Maui.Controls.Maps;
 using KronoGeo_Maui.Applications.Message;
+#if ANDROID
+using Android.Util;
+#endif
 
 namespace KronoGeo_Maui.Applications.Behaviors
 {
@@ -23,6 +26,9 @@ namespace KronoGeo_Maui.Applications.Behaviors
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
+#if ANDROID
+                    Log.Debug("GeoAndroidService", $"Polyne Map Latitude : {message?.Value?.Latitude}");
+#endif
                     if (bindable.MapElements.Count == 0)
                     {
                         var polyne = new Polyline()
@@ -30,7 +36,7 @@ namespace KronoGeo_Maui.Applications.Behaviors
                             StrokeColor = Colors.Blue,
                             StrokeWidth = 10,
                         };
-                        if (message.Value is not null)
+                        if (message?.Value is not null)
                         {
                             polyne.Geopath.Add(message.Value);
                         }
@@ -39,7 +45,7 @@ namespace KronoGeo_Maui.Applications.Behaviors
                     else
                     {
                         var element = bindable.MapElements.Count > 0 ? bindable.MapElements[0] as Polyline : null;
-                        if (message.Value is not null)
+                        if (message?.Value is not null)
                         {
                             element?.Geopath.Add(message.Value);
                         }else

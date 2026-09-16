@@ -261,7 +261,6 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                 StartForeground(NOTIFICATION_ID, notification.Build());
             }
 
-
         }
 
         #endregion
