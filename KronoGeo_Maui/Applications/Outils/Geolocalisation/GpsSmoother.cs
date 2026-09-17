@@ -36,8 +36,8 @@ namespace KronoGeo_Maui.Applications.Outils.Geolocalisation
                 return newLocation;
             }
 
-            // -- selon si l'apllcation est en arrière plan on augemente la tolérance
-            // -- cela peut se passer quand l'apllication marche en arrière plan, les points locations se dégradent
+            // -- selon si l'application est en arrière plan on augemente la tolérance
+            // -- cela peut se passer quand l'application marche en arrière plan, les points locations se dégradent
             // -- à cause de la gestion de l'énergie
             var maxAcceptableAccuracy = IsAppInBackGround() ? MaxAcceptableAccuracyInBackGround : MaxAcceptableAccuracy;
             

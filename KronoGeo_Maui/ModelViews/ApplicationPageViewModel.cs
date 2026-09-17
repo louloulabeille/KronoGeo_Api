@@ -147,7 +147,7 @@ namespace KronoGeo_Maui.ModelViews
 
             // -- enregistrer dans le registre des messages pour recevoir les messages de type LocationChangedMessage
             //WeakReferenceMessenger.Default.RegisterAll(this);
-            WeakReferenceMessenger.Default.Register<LocationChangedMessage>(this);
+            //WeakReferenceMessenger.Default.Register<LocationChangedMessage>(this);
 
             // -- supprime les photos en local
             // _camera.DeletePhotos();
@@ -450,6 +450,9 @@ namespace KronoGeo_Maui.ModelViews
                     IsStart = true;
                     PlayPause = "\ue1a2";
 
+                    // -- abonnement vers la messagerie;
+                    StartMessenger();
+
                     // -- démarrage du service android pour marcher en arrière plan
                     intent.SetAction(GeoAndroidService.ActionStart);
                     if (OperatingSystem.IsAndroidVersionAtLeast(26))
@@ -562,6 +565,7 @@ namespace KronoGeo_Maui.ModelViews
                             Stroke = Colors.LightGray
                         }
                     }, new CancellationToken());
+
                     if ( result is not null && result == "true" )
                     {
                         IsEnableSave = true;
@@ -571,7 +575,7 @@ namespace KronoGeo_Maui.ModelViews
                         IsEnableSave = false;
                         InitWindow();
                     }
-
+                    
                 }
                 // -- initialisation de la map sur la position de l'utilisateur
                 await Task.Run(async () => await GetUserLocationAsync());
@@ -760,6 +764,21 @@ namespace KronoGeo_Maui.ModelViews
         #endregion
 
         #region private method
+
+        /// <summary>
+        /// Pour gérer le lancement et relancement du système de géolocalisation 
+        /// </summary>
+        private void StartMessenger()
+        {
+            // -- arrêt du register pour ne pas l'avoir en double
+            WeakReferenceMessenger.Default.Unregister<LocationChangedMessage>(this);
+            // -- register du messenger 
+            WeakReferenceMessenger.Default.Register<LocationChangedMessage>(this, (recipient, message) => {
+                Receive(message);
+            });
+
+        }
+
 
         private void InitWindow()
         {
