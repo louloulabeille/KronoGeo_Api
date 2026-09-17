@@ -10,7 +10,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Photo
     public class CompressPhotoSkiaSharp : IServiceCompressPhoto
     {
         #region private const properties
-        private const int _maxWidth  = 4080;    // -- taille maximal pour l'image ce qui vaut un capeur de 12.5 megapixixels
+        private const int _maxWidth  = 2040;    // -- taille maximal pour l'image ce qui vaut un capeur de 12.5 megapixixels
         private const int _tauxQualite = 100;   // -- Qualité de compression(0 à 100)
         #endregion
 
@@ -36,6 +36,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Photo
                 // Récupérer l'orientation EXIF
                 SKEncodedOrigin origin = codec.EncodedOrigin;
 
+                inputStream.Position = 0; // -- mettre le flux au début pour le décodage
                 using SKBitmap originalBitmap = SKBitmap.Decode(inputStream);
                 if (originalBitmap is null) return null;
 

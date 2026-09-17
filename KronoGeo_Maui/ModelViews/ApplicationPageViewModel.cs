@@ -793,7 +793,9 @@ namespace KronoGeo_Maui.ModelViews
             //WeakReferenceMessenger.Default.Register<LocationChangedMessage>(this, OnReceiveMessageLocation);
         }
 
-
+        /// <summary>
+        /// Method d'intialisation d'une fenêtre
+        /// </summary>
         private void InitWindow()
         {
             _lastLocation = null;

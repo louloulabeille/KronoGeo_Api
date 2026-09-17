@@ -39,7 +39,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Camera
                 contentValues.Put(global::Android.Provider.MediaStore.IMediaColumns.MimeType, "image/jpeg");
                 contentValues.Put(global::Android.Provider.MediaStore.IMediaColumns.RelativePath, "DCIM/" + "image");
 
-                // -- répertoire par défaut imges d'android
+                // -- répertoire par défaut images d'android
                 var mediaUri = global::Android.Provider.MediaStore.Images.Media.ExternalContentUri;
                 if (mediaUri is null) return;
 
@@ -92,6 +92,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Camera
         {
             if (OperatingSystem.IsAndroidVersionAtLeast(24))
             {
+                stream.Position = 0;
                 var mei = new ExifInterface(stream);
                 int orientation = mei.GetAttributeInt(ExifInterface.TagOrientation, (int)Orientation.Normal);
 
@@ -105,6 +106,16 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Camera
 
                 stream.Position = 0;
                 var bitmap = global::Android.Graphics.BitmapFactory.DecodeStream(stream);
+
+                // -- au cas ou que le fichier Exif n'existe pas entête du fichier image
+                // -- retourne 0 le GetAttributeInt
+                if ( orientation == 0 )
+                {
+                    if( bitmap?.Width > bitmap?.Height)
+                    {
+                        matrix.PostRotate(90);
+                    }
+                }
 
                 if (bitmap is null) return null;
 

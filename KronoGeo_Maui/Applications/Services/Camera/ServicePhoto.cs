@@ -34,9 +34,9 @@ namespace KronoGeo_Maui.Applications.Services.Camera
             {
                 // -- options de compression pour la prise des photos qui se fait avant la prise
                 // -- dans prendre en compte la taille de l'image
-                /*MediaPickerOptions options = new () {
-                    CompressionQuality = 50
-                };*/
+                MediaPickerOptions options = new () {
+                    CompressionQuality = 0
+                };
                 FileResult? photo = await MediaPicker.Default.CapturePhotoAsync();
 
                 if (photo != null)
