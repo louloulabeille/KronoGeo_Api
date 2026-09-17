@@ -47,7 +47,11 @@ namespace KronoGeo_Maui.ModelViews
         Satellite,
         Hybrid
     }
-    public partial class ApplicationPageViewModel : ObservableObject, IRecipient<LocationChangedMessage>, IDisposable
+    /// <summary>
+    /// Supression de IRecipient pour le système de messenger pour faire une approche explicite au niveau de l'appel
+    /// Création du methode Event qui est appelé lors de la déclartion du register du système Messenger
+    /// </summary>
+    public partial class ApplicationPageViewModel : ObservableObject, IDisposable ,IRecipient<LocationChangedMessage>
     {
         #region private readonly properties
         private readonly IServiceGeolocalisation _serviceGeo;
@@ -152,6 +156,11 @@ namespace KronoGeo_Maui.ModelViews
             // -- supprime les photos en local
             // _camera.DeletePhotos();
 
+
+#if ANDROID
+            Log.Debug("GeoAndroidService", $"[VM créé] HashCode: {GetHashCode()}");
+#endif
+
         }
         #endregion
 
@@ -167,14 +176,13 @@ namespace KronoGeo_Maui.ModelViews
             var window = (windowList is not null && windowList.Count > 0) ? windowList[0] : null;
             if (window is not null)
             {
-                window.Stopped += SaveLocalisation;
+                //window.Stopped += SaveLocalisation;
                 window.Destroying += DestroyingSaveLocalisation;
             }
-
         }
 
         /// <summary>
-        /// lancement après le chargement de la fenêtre
+        /// lancement après le chargement de la fenêtre - appelé qu'une seul fois
         /// </summary>
         /// <returns></returns>
         [RelayCommand]
@@ -270,7 +278,7 @@ namespace KronoGeo_Maui.ModelViews
             var window = (windowList is not null && windowList.Count > 0) ? windowList[0] : null;
             if (window is not null)
             {
-                window.Stopped -= SaveLocalisation; // -- quand l'application perd le focus ou passe en arrière plan
+                //window.Stopped -= SaveLocalisation; // -- quand l'application perd le focus ou passe en arrière plan
                 window.Destroying -= DestroyingSaveLocalisation;
                 SheetViewModel.DeletePhoto -= DeletePhoto;
             }
@@ -478,7 +486,7 @@ namespace KronoGeo_Maui.ModelViews
                     IsEnablePhoto = true; // -- donne la possibilité de prendre des photos
                 }
 
-                _serviceGeo.StartLocationUpdatesAsync();
+               await _serviceGeo.StartLocationUpdatesAsync();
 #endif
             }
             catch (FeatureNotSupportedException fnsEx)
@@ -553,7 +561,12 @@ namespace KronoGeo_Maui.ModelViews
                     
                     // -- création d'un service pour marcher en arrière plan
                     // -- pour arrêter le service
-                    StopService();
+                    await StopService();
+
+                    // -- arrêt sur l'écoute sur le systeme de message
+                    WeakReferenceMessenger.Default.Unregister<LocationChangedMessage>(this);
+                    
+                    // -- ouverture d'une popup pour savoir si la personne veur sauvegarder ou pas
                     var popup = new PopupSauvegardePage();
                     var result = await _dialogService.ShowPopupAsync<string>(popup, new PopupOptions
                     {
@@ -568,10 +581,12 @@ namespace KronoGeo_Maui.ModelViews
 
                     if ( result is not null && result == "true" )
                     {
+                        // -- sauvegarde
                         IsEnableSave = true;
                     }
                     else
                     {
+                        // -- supression de toutes les données
                         IsEnableSave = false;
                         InitWindow();
                     }
@@ -580,8 +595,8 @@ namespace KronoGeo_Maui.ModelViews
                 // -- initialisation de la map sur la position de l'utilisateur
                 await Task.Run(async () => await GetUserLocationAsync());
 
-                IsEnablePhoto = false; // -- désactive la prise de photo
-                PlayPause = "\ue1c4";
+                IsEnablePhoto = false;  // -- désactive la prise de photo
+                PlayPause = "\ue1c4";   // -- changement de l'icone
                 IsStart = false;
             }
             catch(Exception ex)
@@ -742,14 +757,11 @@ namespace KronoGeo_Maui.ModelViews
         /// </summary>
         /// <param name="message"></param>
         /// <exception cref="NotImplementedException"></exception>
-        public void Receive(LocationChangedMessage message)
+        public void Receive( LocationChangedMessage message )
         {
-            // -- faire le traitement dans le thread principal pour éviter les erreurs de cross thread
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                TraitementLocalisation(message.Value);
-            });
+            TraitementLocalisation(message.Value);
         }
+
         #endregion
 
         #region public method IDisposable
@@ -770,13 +782,15 @@ namespace KronoGeo_Maui.ModelViews
         /// </summary>
         private void StartMessenger()
         {
+#if ANDROID
+            Log.Debug("GeoAndroidService", "********************************************************************");
+            Log.Debug("GeoAndroidService", $"[{GetHashCode()}] StartMessenger appelé");
+#endif
             // -- arrêt du register pour ne pas l'avoir en double
             WeakReferenceMessenger.Default.Unregister<LocationChangedMessage>(this);
             // -- register du messenger 
-            WeakReferenceMessenger.Default.Register<LocationChangedMessage>(this, (recipient, message) => {
-                Receive(message);
-            });
-
+            WeakReferenceMessenger.Default.Register<LocationChangedMessage>(this);
+            //WeakReferenceMessenger.Default.Register<LocationChangedMessage>(this, OnReceiveMessageLocation);
         }
 
 
@@ -819,20 +833,23 @@ namespace KronoGeo_Maui.ModelViews
 #if ANDROID
             Log.Debug("GeoAndroidService", $"Accuracy :{localisation.Accuracy} - Longitude : {localisation.Longitude} - Latitude : {localisation.Latitude}" );
 #endif
-            // -- y a des doublons au niveau de eventchange Google lors de la mise a jour de la position, donc on ne garde que les nouvelles positions
+            // -- si des doublons au niveau de eventchange Google lors de la mise a jour de la position, donc on ne garde que les nouvelles positions
             if ( !_localisations.Exists(l=> l.Longitude == localisation.Longitude && l.Latitude == localisation.Latitude) )
             {
                 if (_lastLocation is not null)
                 {
                     // -- calcul de la distance entre la dernière position et la nouvelle
-                    //_distance += _lastLocation.CalculateDistance(location, DistanceUnits.Kilometers);
                     var route = _routeTelemetry;
                     _serviceTelemetry.CalculateTelemetry(_lastLocation, localisation, ref route);
                     _routeTelemetry = route;
-
-                    SheetViewModel.GetRouteTeletry(_routeTelemetry);
+                    // -- faire le traitement dans le thread principal pour éviter les erreurs de cross thread
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        SheetViewModel.GetRouteTeletry(_routeTelemetry);
+                    });
                 }
                 _lastLocation = localisation; // -- pour la mise a jour du dernier point pour le calcul de la distance
+                
                 // -- envoie un message pour recentrer la map sur la position de l'utilisateur
                 //WeakReferenceMessenger.Default.Send(new RecenterMapMessage(location));
 
@@ -843,16 +860,19 @@ namespace KronoGeo_Maui.ModelViews
 #if ANDROID
                 Log.Debug("GeoAndroidService", $"Ajout localisation - Longitude : {localisation.Longitude}");
 #endif
-                // -- envoie un message pour mettre à jour le tracé sur la map
-                WeakReferenceMessenger.Default.Send(new PolyneMapMessage(location));
-                
+                // -- faire le traitement dans le thread principal pour éviter les erreurs de cross thread
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    // -- envoie un message pour mettre à jour le tracé sur la map
+                    WeakReferenceMessenger.Default.Send(new PolyneMapMessage(location));
+                });
             }
         }
 
         /// <summary>
         /// méthod qui arrête la prise des points Gps
         /// </summary>
-        private void StopService()
+        private async Task StopService()
         {
             if (IsStart)    // -- si le service est démarré on peut l'arrêter 
             {
@@ -864,7 +884,7 @@ namespace KronoGeo_Maui.ModelViews
 #endif
 
 #if !ANDROID
-            _serviceGeo.StopLocationUpdates();    
+            await _serviceGeo.StopLocationUpdatesAsync();    
 #endif
             }
         }
@@ -872,7 +892,7 @@ namespace KronoGeo_Maui.ModelViews
 
         #region public method eventHandler
         /// <summary>
-        /// évènement pour 
+        /// évènement pour le traitement des locations pour windows et IOS
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -907,11 +927,16 @@ namespace KronoGeo_Maui.ModelViews
         /// </summary>
         /// <param name="send"></param>
         /// <param name="args"></param>
-        public void DestroyingSaveLocalisation (object? send, EventArgs args)
+        public async void DestroyingSaveLocalisation (object? send, EventArgs args)
         {
             if (_takePhoto) return;
             SaveLocalisation(send, args);
-            StopService(); // -- on arrête le service propremement
+            if ( IsStart == true )
+            {
+                await StopService(); // -- on arrête le service propremement
+                IsStart = false;
+            }
+            
         }
 
         /// <summary>

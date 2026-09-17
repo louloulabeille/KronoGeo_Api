@@ -63,7 +63,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
             GC.SuppressFinalize(this);
         }
 
-        public void StartLocationUpdatesAsync()
+        public async Task StartLocationUpdatesAsync()
         {
             if (_locationManager is null) return;
 
@@ -111,12 +111,13 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
             }
         }
 
-        public void StopLocationUpdates()
+        public async Task StopLocationUpdatesAsync()
         {
             if ( _locationManager is not null && _locationListener != null)
             {
                 // Très important pour économiser la batterie quand on n'en a plus besoin
-                _locationManager.RemoveUpdates(_locationListener);
+                await  Task.Run( () => 
+                    _locationManager.RemoveUpdates(_locationListener));
             }
         }
         #endregion

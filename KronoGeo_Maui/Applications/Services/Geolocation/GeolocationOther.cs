@@ -47,16 +47,18 @@ namespace KronoGeo_Maui.Applications.Services.Geolocation
             }
         }
 
-        public void StopLocationUpdates()
+        public async Task StopLocationUpdatesAsync()
         {
             GeolocationMaui.LocationChanged -= LocationChanged;
-            GeolocationMaui.StopListeningForeground();
+            
+            await Task.Run(()=> GeolocationMaui.StopListeningForeground());
+            
         }
 
-        public void StartLocationUpdatesAsync()
+        public async Task StartLocationUpdatesAsync()
         {
             CancellationToken token = new ();
-            Task.Run(async () => StartLocationUpdatesAsync(token));
+            await Task.Run( () => StartLocationUpdatesAsync(token));
         }
 
         public async Task<Location?> GetCurrentLocationAsync(CancellationToken token)

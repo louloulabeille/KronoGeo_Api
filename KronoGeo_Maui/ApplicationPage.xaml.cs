@@ -74,6 +74,7 @@ public partial class ApplicationPage : ContentPage
             Command = modelView.LoadedExeCommand
         });
 
+
     }
 
 }

@@ -60,7 +60,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                 // Sécurité au cas où le service de géolocalisation n'est pas disponible
                 Log.Error("GeoAndroidService", "Le service de géolocalisation n'a pas pu être récupéré.");
             }
-            _serviceGeo?.LocationChanged += OnLocalicationChanged;
+            //_serviceGeo?.LocationChanged += OnLocalicationChanged;
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
 
                     // 4. C'est ICI que tu lances ta logique de géolocalisation
                     // (ex: un timer ou un abonnement au GPS qui enregistre tes points)
-                    StartGeolocalisation();
+                    Task.Run(async () => await StartGeolocalisation());
                     break;
                 case ActionPause:
                     Pause();
@@ -105,7 +105,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         /// <summary>
         /// Arrêter le service et libérer les ressources
         /// </summary>
-        public override void OnDestroy()
+        public async override void OnDestroy()
         {
             Log.Debug("GeoAndroidService", "Fin du service OnDestroy");
             // Demander l'annulation des tâches asynchrones et libérer les ressources
@@ -125,8 +125,11 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
             }
 
             // Arrêter proprement le GPS ici pour économiser la batterie
-            _serviceGeo?.StopLocationUpdates();
-            _serviceGeo?.Dispose();
+            if (_serviceGeo is not null)
+            {
+                await _serviceGeo.StopLocationUpdatesAsync();
+                _serviceGeo?.Dispose();
+            } 
 
             // -- arrêt du service
             if (OperatingSystem.IsAndroidVersionAtLeast(24))
@@ -141,6 +144,8 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
             StopSelf(); // -- arrêt du service
             _notificationManager?.Cancel(NOTIFICATION_ID);
             try { _cancellationTokenSource.Dispose(); } catch { }
+            _serviceGeo?.LocationChanged -= OnLocalicationChanged;
+
             base.OnDestroy();
         }
         #endregion
@@ -203,12 +208,12 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         /// et envoie les messages de changement de localisation à l'application MAUI
         /// avec un message utilisation de community toolkit MVVM messenger
         /// </summary>
-        private void StartGeolocalisation()
+        private async Task StartGeolocalisation()
         {
             if (_serviceGeo is not null )
             {
-                //_serviceGeo?.LocationChanged += OnLocalicationChanged;
-                _serviceGeo?.StartLocationUpdatesAsync(_cancellationTokenSource.Token);
+                _serviceGeo.LocationChanged += OnLocalicationChanged;
+                await _serviceGeo.StartLocationUpdatesAsync(_cancellationTokenSource.Token);
                 //_serviceGeo?.Pause = false;
             }
         }

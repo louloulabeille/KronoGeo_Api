@@ -73,6 +73,11 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         private LocationCallback? _locationCallback = default;
         private PendingIntent? _locationPendingIntent = default;
         private readonly IFusedLocationProviderClient? _locationClient;
+        /// <summary>
+        ///  Limiteur de nombre de thread - ici un seul jeton avec une seul consommateur
+        /// </summary>
+        private readonly SemaphoreSlim _transitionLock = new(1, 1);
+        private bool _isRunning = false;
         #endregion
 
         #region public properties interface IServiceGeolocalisation
@@ -171,10 +176,17 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         /// <summary>
         /// method qui lance la prise des localisations en continue
         /// </summary>
-        public async void StartLocationUpdatesAsync()
+        public async Task StartLocationUpdatesAsync()
         {
+            await _transitionLock.WaitAsync();
             try
             {
+                if( _isRunning)
+                {
+                    Log.Debug("GeoAndroidService", "StartLocationUpdatesAsync est déjà lancé");
+                    return;
+                }
+
                 if (LocationChanged is not null)
                 {
                     // -- mise en place du messenger 
@@ -243,6 +255,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                     {
                         Log.Debug("GeoAndroidService", "Lancement de la geolocalisation -- StartLocationUpdatesAsync");
                         await _locationClient.RequestLocationUpdatesAsync(locationRequest, _locationPendingIntent);
+                        _isRunning = true;
                     }
                         
                 }
@@ -259,21 +272,49 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                 Log.Error("GeoAndroidService", $"{ex.Message}");
                 throw new System.Exception(ex.Message); 
             }
+            finally
+            {
+                _transitionLock.Release();
+            }
         }
 
         /// <summary>
         /// Arrête le processus de prise de localisation
         /// il peut être prise en compte pour mettre en pause aussi
         /// </summary>
-        public void StopLocationUpdates()
+        public async Task StopLocationUpdatesAsync()
         {
+            await _transitionLock.WaitAsync();
+
             if (_locationClient is not null && _locationPendingIntent is not null )
             {
-                _locationClient.RemoveLocationUpdates(_locationPendingIntent);
-                _locationCallback = null;
-                // -- arrêt du register pour ne pas l'avoir en double
-                WeakReferenceMessenger.Default.Unregister<LocationBroadcastMessage>(this);
-                Log.Debug("GeoAndroidService", "Arrêt du Fuse");
+                try
+                {
+                    if( !_isRunning )
+                    {
+                        Log.Debug("GeoAndroidService", $"StopLocationUpdatesAsync ignoré : la géolocalisation déjà arrêtée!!");
+                        return;
+                    }
+
+                    await _locationClient.RemoveLocationUpdatesAsync(_locationPendingIntent);
+                    Log.Debug("GeoAndroidService", "Arrêt du Fuse");
+
+                    _locationCallback = null;
+                    // -- arrêt du register pour ne pas l'avoir en double
+                    WeakReferenceMessenger.Default.Unregister<LocationBroadcastMessage>(this);
+
+                    _isRunning = false;
+                }
+                catch( Java.Lang.Exception ex)
+                {
+                    Log.Error("GeoAndroidService", $"Erreur dans StopLocationUpdates : \n {ex.Message}");
+                }
+                finally
+                {
+                    _transitionLock.Release();
+                }
+                
+                
             }
         }
 
@@ -422,8 +463,8 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                         ReducedAccuracy = false,    // -- ne marche que pour IOS
                         Course = lastLocation.Bearing
                     };
-
-                    Log.Debug("GeoAndroidService", $"location latitude {loc.Latitude} au niveau LocationBroadcastReceiver");
+                    Log.Debug("GeoAndroidService", "\n -------------------------------------------------------");
+                    Log.Debug("GeoAndroidService", $"location longitude {loc.Longitude} au niveau LocationBroadcastReceiver");
                     // -- Traitement de la position envoi vers l'interface IServiceGeolocalisation
                     // -- en utilisant un système de messenger
                     WeakReferenceMessenger.Default.Send(new LocationBroadcastMessage(loc));
