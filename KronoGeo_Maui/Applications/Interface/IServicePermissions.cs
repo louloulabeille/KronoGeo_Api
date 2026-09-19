@@ -9,5 +9,6 @@ namespace KronoGeo_Maui.Applications.Interface
         public Task<bool> GetLocalisationPermissionAsync();
         public Task<bool> GetPhotoPermissionAsync();
         public Task<bool> GetNotificationPermissionAsync();
+        public void GestionBatterieAsync();
     }
 }

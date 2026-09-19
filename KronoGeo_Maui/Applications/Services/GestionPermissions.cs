@@ -1,12 +1,23 @@
-﻿using KronoGeo_Maui.Applications.Interface;
+﻿#if ANDROID
+using Android.Content;
+using Android.OS;
+#endif
+
+using KronoGeo_Maui.Applications.Interface;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using KronoGeo_Api.Models.Infrastructure.Options;
 
 namespace KronoGeo_Maui.Applications.Services
 {
-    public class GestionPermissions : IServicePermissions
+    public class GestionPermissions (IOptions<PackageNameAndroid> options ) : IServicePermissions
     {
+        #region private properties
+        private readonly IOptions<PackageNameAndroid> _options = options;
+        #endregion
+
         /// <summary>
         /// methode de gestion des permissions de localisation
         /// </summary>
@@ -64,6 +75,27 @@ namespace KronoGeo_Maui.Applications.Services
             AppInfo.Current.ShowSettingsUI();
         }
 
-#endregion
+        /// <summary>
+        /// méthode qui ouvre une fenêtre de la gestion de la batterie pour l'application
+        /// il faut ajouter au niveau du manifest cette ligne 
+        /// </summary>
+        public void GestionBatterieAsync()
+        {
+            //< uses - permission android: name = "android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+#if ANDROID
+            Intent intent = new ();
+            string? packageName = Android.App.Application.Context.PackageName;
+            PowerManager? pm = Android.App.Application.Context.GetSystemService(Context.PowerService) as PowerManager;
+
+            if ( pm is not null && !pm.IsIgnoringBatteryOptimizations(packageName))
+            {
+                intent.SetAction(Android.Provider.Settings.ActionRequestIgnoreBatteryOptimizations);
+                intent.SetData(Android.Net.Uri.Parse("package:" + packageName));
+                Android.App.Application.Context.StartActivity(intent);
+            }
+#endif
+        }
+
+        #endregion
     }
 }

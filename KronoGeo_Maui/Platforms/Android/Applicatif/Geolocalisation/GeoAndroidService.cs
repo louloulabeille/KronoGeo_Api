@@ -143,7 +143,9 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
 
             StopSelf(); // -- arrêt du service
             _notificationManager?.Cancel(NOTIFICATION_ID);
+            
             try { _cancellationTokenSource.Dispose(); } catch { }
+
             _serviceGeo?.LocationChanged -= OnLocalicationChanged;
 
             base.OnDestroy();
@@ -168,7 +170,10 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                 {
                     // Acquérir avec timeout (10s) pour démarrer proprement la géolocalisation
                     // cela évite de garder le CPU allumé indéfiniment et économise la batterie
+                    Log.Debug("GeoAndroidService", "-- wakelock demarré --");
                     _wakeLock?.Acquire(10_000);
+                    
+                    //_wakeLock?.Acquire(); // -- sans timeout marche toute le temps attention à la batterie
                 }
                 catch
                 {
@@ -184,10 +189,22 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         /// </summary>
         private void Pause()
         {
+
+            if ( _serviceGeo?.Pause == true ) return;
+
             // -- arrêt des écoutes sur onchanged pour ne pas envoyer de message
             // à l'application MAUI
             _serviceGeo?.LocationChanged -= OnLocalicationChanged;
             _serviceGeo?.Pause = true;
+
+            // 2. Relâcher le wakelock pendant la pause (pas besoin de garder le CPU actif)
+            if (_wakeLock is not null && _wakeLock.IsHeld)
+            {
+                _wakeLock.Release();
+                Log.Debug("GeoAndroidService", "Wakelock relâché pour la pause");
+            }
+
+            Log.Debug("GeoAndroidService", "Service mis en pause");
         }
 
         /// <summary>
@@ -196,11 +213,16 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         /// </summary>
         private void StopPause()
         {
+            if (_serviceGeo?.Pause == false) return;
+
+            AcquireWakeLock();
+
             // -- arrêt des écoutes sur onchanged pour ne pas envoyer de message
             // à l'application MAUI
             _serviceGeo?.LocationChanged += OnLocalicationChanged;
             _serviceGeo?.Pause = false;
-            
+
+            Log.Debug("GeoAndroidService", "Service repris");
         }
 
         /// <summary>

@@ -5,7 +5,9 @@ using Android.Gms.Tasks;
 using Android.Locations;
 using Android.OS;
 using Android.Util;
+using Java.Lang;
 using Java.Util.Concurrent;
+using KronoGeo_Api.Interface.AbstractClass;
 using KronoGeo_Maui.Applications.Interface;
 using KronoGeo_Maui.Applications.Outils.Geolocalisation;
 using System.Runtime.Versioning;
@@ -30,9 +32,10 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         // - systeme découte android pour la géolocation
         private readonly LocationListener _locationListener = new();
         private readonly LocationListener _locationOnePoint = new();
+        private readonly BaseGpsSmoother _gpsSmoother; 
 
         // -- mise en place d'un handler thread pour lancer la géolocalisation sur un thread parallèle au thread principal
-        private readonly HandlerThread _handlerThread = new ("LocationHandlerthread");
+        private HandlerThread _handlerThread = new("LocationHandlerthread");
         private Handler? _handler;
         #endregion
 
@@ -49,8 +52,9 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         #endregion
 
         #region constructeur
-        public GeolocationAndroid()
+        public GeolocationAndroid(BaseGpsSmoother gpsSmoother)
         {
+            _gpsSmoother = gpsSmoother;
             _locationManager = (LocationManager?)AndroidApplication.Context.GetSystemService(Context.LocationService);
             Init();
         }
@@ -59,7 +63,8 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         #region public method interface
         public void Dispose()
         {
-            _handlerThread.Dispose();
+            _handlerThread?.Dispose();
+                
             GC.SuppressFinalize(this);
         }
 
@@ -69,9 +74,13 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
 
             try
             {
-                // -- initial handler thread
+                // -- initial handler thread - pour tourner le système sur son propre thread
+                _handlerThread.Dispose();
+                _handlerThread = new("LocationHandlerthread");
+                
                 _handlerThread.Start();
-                if (_handlerThread.Looper is null)
+
+                if (_handlerThread.Looper is null )
                 {
                     Log.Error("GeoAndroidService", "handlerThread.looper est null");
                     return;
@@ -86,8 +95,8 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                     // Paramètres de mise à jour :
                     _locationManager.RequestLocationUpdates(
                     provider,
-                    10000, // -- 15000 millisecondes d'intervalle minimum pour déclencher l'événement
-                    5, // -- 5 mètres de distance minimale pour déclencher l'événement
+                    5000, // -- 15000 millisecondes d'intervalle minimum pour déclencher l'événement
+                    0, // -- 5 mètres de distance minimale pour déclencher l'événement
                     _locationListener,
                     // -- on injecte l'aiguilleur ici en cas de désynchronisation
                     // entre eventhandler et la mainthread
@@ -109,12 +118,19 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                 //System.Diagnostics.Debug.WriteLine($"Erreur de permission : {ex.Message}");
                 throw new PermissionException($"Permission de localisation refusée. Veuillez accorder les permissions nécessaires. {ex.Message}");
             }
+            catch(Java.Lang.Exception ex)
+            {
+                Log.Error("GeoAndroidService", $"Erreur dans StartLocationUpdatesAsync \n {ex.Message}");
+                throw new System.Exception(ex.Message);
+            }
         }
 
         public async Task StopLocationUpdatesAsync()
         {
             if ( _locationManager is not null && _locationListener != null)
             {
+                // -- réset le Smoother 
+                _gpsSmoother.Reset();
                 // Très important pour économiser la batterie quand on n'en a plus besoin
                 await  Task.Run( () => 
                     _locationManager.RemoveUpdates(_locationListener));
@@ -135,6 +151,11 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                 double altitude = location.Altitude;
                 float accuracy = location.Accuracy; // Précision en mètres*/
 
+                Log.Debug("GeoAndroidService", $"Provider : {location.Provider}");
+                Log.Debug("GeoAndroidService", $"Accuracy : {location.Accuracy} " +
+                    $"- Longitude : {location.Longitude} - Latitude : {location.Latitude}");
+
+                
                 Microsoft.Maui.Devices.Sensors.Location newLocation = new(
                     location.Latitude, location.Longitude, location.Altitude
                     )
@@ -145,8 +166,8 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                     Course = (double)location.Bearing,
                     VerticalAccuracy = (double)location.VerticalAccuracyMeters
                 };
-                GpsSmoother smoother = new();
-                var locationSmoother = smoother.AcceptableLocationCalcul(newLocation);
+                
+                var locationSmoother = _gpsSmoother.AcceptableLocationCalcul(newLocation);
 
                 Log.Debug("GeoAndroidService", $"Geolocalisation : {newLocation.Latitude} - {newLocation.Longitude}");
 
@@ -224,6 +245,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                     else
                     {
                         // Si Android n'arrive pas à fixer un point du tout
+                        Log.Error("GeoAndroidService", "Le Gps n'arrive pas à fixer un point gps.");
                         throw (new InvalidNavigationException("Le Gps n'arrive pas à fixer un point gps."));
                     }
                 });

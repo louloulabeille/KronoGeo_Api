@@ -401,7 +401,7 @@ namespace KronoGeo_Maui.ModelViews
         {
             Message = string.Empty;
             IsMessageError = false;
-
+            IsEnableSave = false;
             try
             {
 #if ANDROID

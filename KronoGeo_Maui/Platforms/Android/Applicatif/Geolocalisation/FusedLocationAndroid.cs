@@ -11,6 +11,7 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Messaging;
 using Java.Lang;
 using Kotlin.Jvm.Internal;
+using KronoGeo_Api.Interface.AbstractClass;
 using KronoGeo_Api.Models;
 using KronoGeo_Maui.Applications.Interface;
 using KronoGeo_Maui.Applications.Message;
@@ -78,6 +79,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         /// </summary>
         private readonly SemaphoreSlim _transitionLock = new(1, 1);
         private bool _isRunning = false;
+        private readonly BaseGpsSmoother _gpsSmoother;
         #endregion
 
         #region public properties interface IServiceGeolocalisation
@@ -91,8 +93,9 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         #endregion
 
         #region public constructeur
-        public FusedLocationAndroid ()
+        public FusedLocationAndroid (BaseGpsSmoother gpsSmoother)
         {
+            _gpsSmoother = gpsSmoother;
             _locationClient = LocationServices.GetFusedLocationProviderClient(Application.Context);
             InitPendingIntent();
         }
@@ -181,7 +184,8 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
             await _transitionLock.WaitAsync();
             try
             {
-                if( _isRunning)
+
+                if ( _isRunning)
                 {
                     Log.Debug("GeoAndroidService", "StartLocationUpdatesAsync est déjà lancé");
                     return;
@@ -204,11 +208,13 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
 
                     // -- object du custom request 
                     var locationRequest = new LocationRequest.Builder(Priority.PriorityHighAccuracy, 5000) // 5 sec
-                    .SetMinUpdateIntervalMillis(2000)
+                    .SetMinUpdateIntervalMillis(5000)
+                    .SetWaitForAccurateLocation(true) // -- renvoie un point location stabilisé
+                    .SetMaxUpdateDelayMillis(5000) // -- mode batching de Fused permet de lisser certains dégrader en un seul point
+                    .SetGranularity(Granularity.GranularityFine) // -- obligé pour chaque fix location la plus fine possible
                     //.SetMinUpdateDistanceMeters(5)
-                    //.SetMinUpdateIntervalMillis(2000)
                     .Build();
-
+                    #region mise en place d'un customlocationcallback code au cas ou
                     // -- traitement à faire pour le retour du Callback de base ici 
                     // -- un callback spécifique
                     /*_locationCallback = new CustomLocationCallback(location =>
@@ -248,7 +254,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                         // -- appel de eventhandler pour appeler le code qui doit être traité
                         LocationChanged?.Invoke(this, new GeolocationLocationChangedEventArgs(locationSmoother));
                     });*/
-
+                    #endregion
                     // -- appel de la fonction du lancement de l'écoute
                     //_locationClient?.RequestLocationUpdates(locationRequest, _locationCallback, _handler.Looper);
                     if (_locationPendingIntent is not null && _locationClient is not null)
@@ -295,6 +301,9 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                         Log.Debug("GeoAndroidService", $"StopLocationUpdatesAsync ignoré : la géolocalisation déjà arrêtée!!");
                         return;
                     }
+
+                    // -- réset le Smoother 
+                    _gpsSmoother.Reset();
 
                     await _locationClient.RemoveLocationUpdatesAsync(_locationPendingIntent);
                     Log.Debug("GeoAndroidService", "Arrêt du Fuse");
@@ -343,8 +352,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
             }
 
             // -- va lisser les points GPS selon le degrès d'exactitude
-            GpsSmoother smoother = new();
-            var locationSmoother = smoother.AcceptableLocationCalcul(location);
+            var locationSmoother = _gpsSmoother.AcceptableLocationCalcul(location);
 
             if (locationSmoother is null)
             {
@@ -449,9 +457,13 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
 
                 if (lastLocation is not null)
                 {
+                    Log.Debug("GeoAndroidService", $"Provider : {lastLocation.Provider} " +
+                        $"- Time : {DateTimeOffset.FromUnixTimeMilliseconds(lastLocation.Time).ToLocalTime():dd/MM/yyyy}");
+                    
                     // Traite le point GPS ici (ex. enregistrement BDD local ou envoi à un ViewModel)
                     var loc = new Location(lastLocation.Latitude, lastLocation.Longitude)
                     {
+                        
                         Accuracy = lastLocation.Accuracy,
                         Altitude = lastLocation.Altitude,
                         AltitudeReferenceSystem = AltitudeReferenceSystem.Ellipsoid,

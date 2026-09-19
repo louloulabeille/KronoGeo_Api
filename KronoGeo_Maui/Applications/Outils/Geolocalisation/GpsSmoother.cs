@@ -1,4 +1,7 @@
-﻿using System;
+﻿using KronoGeo_Api.Interface.AbstractClass;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Maui.Devices.Sensors;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -8,23 +11,20 @@ namespace KronoGeo_Maui.Applications.Outils.Geolocalisation
     /// classe de calcul d'acceptation d'un point Gps selon sa valeur de précision
     /// et lissage du point s'il est compris entre 8 et 30 - supprimer si > 30
     /// </summary>
-    public class GpsSmoother
+    public class GpsSmoother : BaseGpsSmoother
     {
         #region private properties
         private Location? _lastAcceptedLocation;
         #endregion
 
         #region public const properties
-        // -- const accuracy acceptable 0 - 30 & 8 - 30 calcul de l'indice pour le lissage
-        public const double MaxAcceptableAccuracy = 30.0;
         // -- const accuracy acceptable 0 - 45 & 8 - 45 calcul de l'indice
         // -- pour le lissage quand l'application est en arrière plan
-        public const double MaxAcceptableAccuracyInBackGround = 45.0;
-        public const double ExcellentAccuracy = 8.0;
+        public const double MaxAcceptableAccuracyInBackGround = 55.0;
         #endregion
 
         #region public method
-        public Location? AcceptableLocationCalcul(Location newLocation )
+        public override Location? AcceptableLocationCalcul(Location newLocation )
         {
             double trustFactor = 1.0; // -- facteur de confiance en %
 
@@ -78,6 +78,11 @@ namespace KronoGeo_Maui.Applications.Outils.Geolocalisation
 
             return smoothedLocation;
         }
+
+        public override void Reset()
+        {
+            _lastAcceptedLocation = null;
+        }
         #endregion
 
         #region private method
@@ -101,6 +106,7 @@ namespace KronoGeo_Maui.Applications.Outils.Geolocalisation
 
             return !window.IsActivated;
         }
+
         #endregion
     }
 }

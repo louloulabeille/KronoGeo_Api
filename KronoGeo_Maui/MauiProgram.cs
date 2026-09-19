@@ -10,6 +10,10 @@ using KronoGeo_Api.Infrastructure.Service.Secours;
 using The49.Maui.BottomSheet;
 using Microsoft.Extensions.Logging.Debug;
 using KronoGeo_Api.Infrastructure.Service.Photo;
+using KronoGeo_Api.Interface.AbstractClass;
+using KronoGeo_Maui.Applications.Outils.Geolocalisation;
+
+
 
 
 
@@ -85,8 +89,18 @@ namespace KronoGeo_Maui
             builder.Services.AddSingleton<IServiceBackupGps, GpsBackUpMauiService>();
             builder.Services.AddTransient<IServicePermissions, GestionPermissions>();
             builder.Services.AddTransient<IServiceCompressPhoto, CompressPhotoSkiaSharp>();
+            
 
             builder.Services.AddServiceSavePhotoLocal();
+            #endregion
+
+            #region injection des Smoother système de calcul de lissage 
+            //builder.Services.AddTransient<BaseGpsSmoother, GpsSmoother>();
+            builder.Services.AddTransient<BaseGpsSmoother, GpsSmoother2>();
+            #endregion
+
+            #region injection Ioptions Package name
+            builder.Services.AddPackgeNameAndroid(builder.Configuration);
             #endregion
 
             #region injection en développent du token tunnel de développement sécurisé

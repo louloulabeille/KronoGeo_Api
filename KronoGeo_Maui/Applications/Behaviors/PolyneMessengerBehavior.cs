@@ -28,6 +28,7 @@ namespace KronoGeo_Maui.Applications.Behaviors
                 {
 #if ANDROID
                     Log.Debug("GeoAndroidService", $"Polyne Map Latitude : {message?.Value?.Latitude}");
+                    Log.Debug("GeoAndroidService", $"--------------------------------------------------");
 #endif
                     if (bindable.MapElements.Count == 0)
                     {
