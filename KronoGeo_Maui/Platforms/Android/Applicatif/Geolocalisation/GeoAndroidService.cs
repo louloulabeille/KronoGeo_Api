@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Versioning;
 using System.Text;
+using KronoGeo_Maui.Applications.Factory.Geolocalisation;
 
 
 namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
@@ -53,9 +54,10 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         public override void OnCreate()
         {
             base.OnCreate();
-            _serviceGeo = IPlatformApplication.Current?.Services.GetService<IServiceGeolocalisation>();
+            var factory = IPlatformApplication.Current?.Services.GetService<FactoryGeolocation>();
+            _serviceGeo = factory?.GetServiceGeolocalisation();
 
-            if( _serviceGeo is null )
+            if ( _serviceGeo is null )
             {
                 // Sécurité au cas où le service de géolocalisation n'est pas disponible
                 Log.Error("GeoAndroidService", "Le service de géolocalisation n'a pas pu être récupéré.");

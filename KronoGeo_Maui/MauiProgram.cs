@@ -14,14 +14,6 @@ using KronoGeo_Api.Interface.AbstractClass;
 using KronoGeo_Maui.Applications.Outils.Geolocalisation;
 
 
-
-
-
-
-#if ANDROID
-using KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation;
-#endif
-
 namespace KronoGeo_Maui
 {
     public static class MauiProgram
@@ -63,25 +55,6 @@ namespace KronoGeo_Maui
             builder.Services.AddScoped<IServiceSaveUser,InMemoriMauiUser>();
             #endregion
 
-            #region Injection Geolocation
-#if ANDROID26_0_OR_GREATER
-            // -- Android 26
-            if (OperatingSystem.IsAndroidVersionAtLeast(26))
-            {
-                // -- marche très bien sauf en arrière plan très bonne précision - utilise beaucoup de batterie
-                builder.Services.AddSingleton<IServiceGeolocalisation, GeolocationAndroid>();
-                // -- fused marche très bien en arrière plan - moins précis que LocationManager - utilise tous les réseaux non filaires possible wifi etc 
-                // -- marche moins en campagne
-                //builder.Services.AddSingleton<IServiceGeolocalisation, FusedLocationAndroid>();
-            }
-                
-#elif ANDROID21_0_OR_GREATER
-                builder.Services.AddSingleton<IServiceGeolocalisation, GeolocationOther>();
-#elif !ANDROID
-                builder.Services.AddSingleton<IServiceGeolocalisation, GeolocationOther>();
-#endif
-            #endregion
-
             #region Camera Injection
             builder.Services.AddServiceCamera();
             #endregion
@@ -99,6 +72,12 @@ namespace KronoGeo_Maui
 
             builder.Services.AddServiceSavePhotoLocal();
             #endregion
+
+
+            #region Injection Geolocation
+            builder.Services.AddCharginGeolocation(new InMemoryMauiParametrage());
+            #endregion
+
 
             #region injection des Smoother système de calcul de lissage 
             //builder.Services.AddTransient<BaseGpsSmoother, GpsSmoother>();
