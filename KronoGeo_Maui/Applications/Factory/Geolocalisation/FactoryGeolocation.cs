@@ -32,22 +32,22 @@ namespace KronoGeo_Maui.Applications.Factory.Geolocalisation
                 if (isLocationManager)
                 {
                     // -- marche très bien sauf en arrière plan très bonne précision - utilise beaucoup de batterie
-                    return _serviceProvider.GetRequiredService<GeolocationAndroid>();
+                    return _serviceProvider.GetRequiredKeyedService<IServiceGeolocalisation>("LocationManager");
                 }
                 else
                 {
                     // -- fused marche très bien en arrière plan - moins précis que LocationManager - utilise tous les réseaux non filaires possible wifi etc 
                     // -- marche moins en campagne
-                    return _serviceProvider.GetRequiredService<FusedLocationAndroid>();
+                    return _serviceProvider.GetRequiredKeyedService<IServiceGeolocalisation>("Fused");
                 }
 
             }
-            return _serviceProvider.GetRequiredService<GeolocationOther>();
+            return _serviceProvider.GetRequiredKeyedService<IServiceGeolocalisation>("Other");
 
 #elif ANDROID21_0_OR_GREATER
-                return _serviceProvider.GetRequiredService<GeolocationOther>();
+                return _serviceProvider.GetRequiredKeyedService<IServiceGeolocalisation>("Other");
 #elif !ANDROID
-                return _serviceProvider.GetRequiredService<GeolocationOther>();
+                return _serviceProvider.GetRequiredKeyedService<IServiceGeolocalisation>("Other");
 #endif
 
         }

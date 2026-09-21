@@ -107,9 +107,20 @@ namespace KronoGeo_Maui.ModelViews
                     if(result.IsSuccess && result.Register is not null )
                     {
                         await _saveUser.SaveUser(result.Register);
-                        await _dialogService.ClosePopup(popup);
+                        try
+                        {
+                            await _dialogService.ClosePopup(popup);
 
-                        await Shell.Current.GoToAsync("ApplicationPage");
+                            await Shell.Current.GoToAsync("ApplicationPage");
+                        }
+                        catch(Exception ex)
+                        {
+                            string Message = ex.Message;
+                            var cancellationToken = new System.Threading.CancellationToken();
+                            // -- systeme de messagerie 
+                            await Toast.Make($"{Message}", ToastDuration.Long).Show(cancellationToken);
+                        }
+                        
                     }
                     else
                     { //  - affiche le message
@@ -198,10 +209,20 @@ namespace KronoGeo_Maui.ModelViews
                                 {
                                     // -- enregistre les nouvels données de l'utilisateur
                                     await _saveUser.SaveUser(result.Register);
-                                    // -- ferme le popup
-                                    await _dialogService.ClosePopup(popup);
-                                    // -- ouvre la fenêtre Application
-                                    await Shell.Current.GoToAsync("ApplicationPage");
+                                    try
+                                    {
+                                        // -- ferme le popup
+                                        await _dialogService.ClosePopup(popup);
+                                        // -- ouvre la fenêtre Application
+                                        await Shell.Current.GoToAsync("ApplicationPage");
+                                    }catch(Exception ex)
+                                    {
+                                        string Message = ex.Message;
+                                        var cancellationToken = new System.Threading.CancellationToken();
+                                        // -- systeme de messagerie 
+                                        await Toast.Make($"{Message}").Show(cancellationToken);
+                                    }
+                                    
                                 }
                                 else
                                     await _dialogService.ClosePopup(popup);

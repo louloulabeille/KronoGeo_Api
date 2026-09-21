@@ -36,6 +36,7 @@ using CommunityToolkit.Maui.Core;
 using KronoGeo_Maui.BottomSheets;
 using KronoGeo_Maui.ModelViews.BottomSheets;
 using KronoGeo_Api.Models.ModelEventArgs;
+using KronoGeo_Maui.Applications.Factory.Geolocalisation;
 #if ANDROID
 using Android.Util;
 #endif
@@ -114,7 +115,7 @@ namespace KronoGeo_Maui.ModelViews
         #endregion
 
         #region constructeur
-        public ApplicationPageViewModel(IServiceGeolocalisation service
+        public ApplicationPageViewModel(FactoryGeolocation factoryGeolocation
             , IServiceSaveLocalisation saveLocalisation, IServiceCamera camera
             , IDialogService dialogService, IServiceSaveUser serviceSaveUser
             , IServiceTelemetry serviceTelemetry, IServiceBackupGps serviceBackupGps
@@ -128,7 +129,7 @@ namespace KronoGeo_Maui.ModelViews
             MesPages.Add(new ResumeViewModel());*/
 
             // -- chargement des services
-            _serviceGeo = service;
+            _serviceGeo = factoryGeolocation.GetServiceGeolocalisation();
             _camera = camera;
             _dialogService = dialogService;
             _serviceSaveUser = serviceSaveUser;

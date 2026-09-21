@@ -22,29 +22,25 @@ namespace KronoGeo_Maui.Applications.ExtendMethods
             /// method pour ajouter les services de géolocation et la factory qui va avec 
             /// à charger après le service de Paramétrage
             /// </summary>
-            /// <param name="parametrage"></param>
             /// <returns></returns>
-            public IServiceCollection AddCharginGeolocation(IServiceSaveParametrage parametrage )
+            public IServiceCollection AddCharginGeolocation()
             {
                 // -- ajout des différents services de géolocation
 #if ANDROID26_0_OR_GREATER
-                var isLocationManager =  (bool)parametrage.GetParam("IsLocationManager", true);
 
                 // -- Android 26
                 if (OperatingSystem.IsAndroidVersionAtLeast(26))
                 {   
                     // -- marche très bien sauf en arrière plan très bonne précision - utilise beaucoup de batterie
-                    services.AddScoped<IServiceGeolocalisation, GeolocationAndroid>();
+                    services.AddKeyedScoped<IServiceGeolocalisation, GeolocationAndroid>("LocationManager");
                 
-                    // -- fused marche très bien en arrière plan - moins précis que LocationManager - utilise tous les réseaux non filaires possible wifi etc 
-                    // -- marche moins en campagne
-                    services.AddScoped<IServiceGeolocalisation, FusedLocationAndroid>();
+                    // -- fused marche très bien en arrière plan - moins précis que LocationManager
+                    // -- utilise tous les réseaux non filaires possible wifi etc 
+                    // -- marche moins bien en campagne
+                    services.AddKeyedScoped<IServiceGeolocalisation, FusedLocationAndroid>("Fused");
                 }
-#elif ANDROID21_0_OR_GREATER
-                services.AddScoped<IServiceGeolocalisation, GeolocationOther>();
-#elif !ANDROID
-                services.AddScoped<IServiceGeolocalisation, GeolocationOther>();
 #endif
+                services.AddKeyedScoped<IServiceGeolocalisation, GeolocationOther>("Other");
                 // -- ajout du factory
                 services.AddScoped<FactoryGeolocation>();
 

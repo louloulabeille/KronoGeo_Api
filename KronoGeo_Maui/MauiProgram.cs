@@ -75,7 +75,7 @@ namespace KronoGeo_Maui
 
 
             #region Injection Geolocation
-            builder.Services.AddCharginGeolocation(new InMemoryMauiParametrage());
+            builder.Services.AddCharginGeolocation();
             #endregion
 
 
