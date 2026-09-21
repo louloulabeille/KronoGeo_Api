@@ -65,10 +65,16 @@ namespace KronoGeo_Maui
 
             #region Injection Geolocation
 #if ANDROID26_0_OR_GREATER
-                // -- Android 26
-                if (OperatingSystem.IsAndroidVersionAtLeast(26))
-                    //builder.Services.AddSingleton<IServiceGeolocalisation, GeolocationAndroid>();
-                    builder.Services.AddSingleton<IServiceGeolocalisation, FusedLocationAndroid>();
+            // -- Android 26
+            if (OperatingSystem.IsAndroidVersionAtLeast(26))
+            {
+                // -- marche très bien sauf en arrière plan très bonne précision - utilise beaucoup de batterie
+                builder.Services.AddSingleton<IServiceGeolocalisation, GeolocationAndroid>();
+                // -- fused marche très bien en arrière plan - moins précis que LocationManager - utilise tous les réseaux non filaires possible wifi etc 
+                // -- marche moins en campagne
+                //builder.Services.AddSingleton<IServiceGeolocalisation, FusedLocationAndroid>();
+            }
+                
 #elif ANDROID21_0_OR_GREATER
                 builder.Services.AddSingleton<IServiceGeolocalisation, GeolocationOther>();
 #elif !ANDROID
