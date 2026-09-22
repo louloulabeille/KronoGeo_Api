@@ -541,7 +541,7 @@ namespace KronoGeo_Maui.ModelViews
                     IsEnablePhoto = false; // -- désactive la prise de photo
                     PlayPause = "\ue1c4";
                     var cancellationToken = new System.Threading.CancellationToken();
-                    await Toast.Make($"{Message}").Show(cancellationToken);
+                    await Toast.Make($"{Message}",ToastDuration.Long).Show(cancellationToken);
                 }
             }
         }

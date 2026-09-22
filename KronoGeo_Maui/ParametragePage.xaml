@@ -10,7 +10,7 @@
              Shell.TitleColor="#51638B"
              Shell.TabBarIsVisible="True">
 
-    <VerticalStackLayout BackgroundColor="#96BD8E" Padding="10" >
+    <VerticalStackLayout BackgroundColor="#96BD8E" Padding="10" >    
         <HorizontalStackLayout Padding="5">
             <Label Text="Connexion par biometrie" FontSize="16"
                    HorizontalOptions="Start" VerticalOptions="Center"></Label>
@@ -36,5 +36,19 @@
                 </HorizontalStackLayout>
             </VerticalStackLayout>
         </Border>
+        <!-- ajout d'élements qui sera affiché selon la version de IOS ici Android >= API-26 -->
+        <HorizontalStackLayout Padding="5" IsEnabled="{Binding IsEnableLocationManager}" 
+                               IsVisible="{Binding IsEnableLocationManager}">
+            <Label Text="Fused" FontSize="16" HorizontalOptions="Start" VerticalOptions="Center"
+                   AutomationProperties.HelpText="Fused fusionne toutes les sources (gps, wifi, gsm etc) possibles pour faire la géolocalisation - Attention en plein nature et Google play services obligatoire."
+                   ToolTipProperties.Text="Fused fusionne toutes les sources (gps, wifi, gsm etc) possibles pour faire la géolocalisation - Attention en plein nature et Google play services obligatoire."/>
+            <Switch IsToggled="{Binding IsLocationManager}" HorizontalOptions="End" VerticalOptions="Center"
+                    AutomationProperties.HelpText="Choix entre 2 systèmes de géolocalisation pour Android."
+                    ToolTipProperties.Text="Choix entre 2 systèmes de géolocalisation pour Android."/>
+            <Label Text="Location Manager" FontSize="16" VerticalOptions="Center" HorizontalOptions="End"
+                   AutomationProperties.HelpText="Utilise le Gps en haute précision mais la consommation est plus important."
+                   ToolTipProperties.Text="Utilise le Gps en haute précision mais la consommation est plus important."/>
+        </HorizontalStackLayout>
+        
     </VerticalStackLayout>
 </ContentPage>
