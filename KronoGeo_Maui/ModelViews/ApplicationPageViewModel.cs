@@ -559,7 +559,9 @@ namespace KronoGeo_Maui.ModelViews
             {
                 if (_localisations.Count > 0)
                 {
-                    
+                    // -- mise a jour de la date de fin du parcours
+                    _routeTelemetry.DateTimeEnd = DateTimeOffset.Now;
+
                     // -- création d'un service pour marcher en arrière plan
                     // -- pour arrêter le service
                     await StopService();
@@ -658,7 +660,6 @@ namespace KronoGeo_Maui.ModelViews
                     return;
                 }
 
-                _routeTelemetry.DateTimeEnd = DateTimeOffset.Now;
                 var localisationGroup = new LocalisationGroup()
                 {
                     //Name = $"Localisation_{DateTime.Now:yyyyMMdd_HHmmss}",
