@@ -82,8 +82,8 @@ namespace KronoGeo_Maui
 
 
             #region injection des Smoother système de calcul de lissage 
-            //builder.Services.AddTransient<BaseGpsSmoother, GpsSmoother>();
-            builder.Services.AddTransient<BaseGpsSmoother, GpsSmoother2>();
+            builder.Services.AddTransient<BaseGpsSmoother, GpsSmoother>();
+            //builder.Services.AddTransient<BaseGpsSmoother, GpsSmoother2>();
             #endregion
 
             #region injection Ioptions Package name
