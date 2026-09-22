@@ -10,15 +10,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="HarfBuzzSharp.NativeAssets.WebAssembly" Version="14.2.1.200" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.WebAssembly" Version="14.2.1.201" />
     <PackageReference Include="Mapsui.Blazor" Version="5.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.12" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.12" />
   </ItemGroup>
 
  <ItemGroup>
-    <PackageReference Include="SkiaSharp.NativeAssets.WebAssembly" Version="4.152.0" />
-    <PackageReference Include="SkiaSharp.Views.Blazor" Version="4.152.0" />
+    <PackageReference Include="SkiaSharp.NativeAssets.WebAssembly" Version="4.152.1" />
+    <PackageReference Include="SkiaSharp.Views.Blazor" Version="4.152.1" />
     <!--<NativeFileReference Include="$(PKGHarfBuzzSharp_NativeAssets_WebAssembly)\build\netstandard1.0\libHarfBuzzSharp.a\14.2.1.2\libHarfBuzzSharp.a" />-->
 </ItemGroup>
 
