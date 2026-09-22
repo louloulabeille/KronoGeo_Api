@@ -167,15 +167,18 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
             var powerManager = GetSystemService(Context.PowerService) as PowerManager;
             if ( powerManager is not null )
             {
-                _wakeLock = powerManager.NewWakeLock(WakeLockFlags.Partial, "GeoAndroidService:BackgroundTrackingLock");
+                // -- ne marche pas à cause de samsung qui est trop agressif dans la gestion de la batterie 
+                //_wakeLock = powerManager.NewWakeLock(WakeLockFlags.Partial, "GeoAndroidService:BackgroundTrackingLock");
+                // -- utilisation d'un wakelock qui va empêcher d'éteindre l'écran mais va diminuer la luminosité
+                _wakeLock = powerManager.NewWakeLock(WakeLockFlags.ScreenDim | WakeLockFlags.OnAfterRelease,
+                    "GeoAndroidService:ScreenDimTrackingLock");
                 try
                 {
                     // Acquérir avec timeout (10s) pour démarrer proprement la géolocalisation
                     // cela évite de garder le CPU allumé indéfiniment et économise la batterie
                     Log.Debug("GeoAndroidService", "-- wakelock demarré --");
-                    _wakeLock?.Acquire(10_000);
-                    
-                    //_wakeLock?.Acquire(); // -- sans timeout marche toute le temps attention à la batterie
+                    //_wakeLock?.Acquire(10_000);
+                    _wakeLock?.Acquire(); // -- sans timeout marche toute le temps attention à la batterie
                 }
                 catch
                 {

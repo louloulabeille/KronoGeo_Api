@@ -139,5 +139,8 @@
 	      <Version>121.4.0.1</Version>
 	    </PackageReference>
 	  </ItemGroup>
+	  <ItemGroup>
+	    <Folder Include="Platforms\Android\Applicatif\OsManager\" />
+	  </ItemGroup>
 
 </Project>
