@@ -212,7 +212,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                     .SetWaitForAccurateLocation(true) // -- renvoie un point location stabilisé
                     .SetMaxUpdateDelayMillis(5000) // -- mode batching de Fused permet de lisser certains dégrader en un seul point
                     .SetGranularity(Granularity.GranularityFine) // -- obligé pour chaque fix location la plus fine possible
-                    //.SetMinUpdateDistanceMeters(5)
+                    .SetMinUpdateDistanceMeters(2)
                     .Build();
                     #region mise en place d'un customlocationcallback code au cas ou
                     // -- traitement à faire pour le retour du Callback de base ici 

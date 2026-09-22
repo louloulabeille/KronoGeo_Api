@@ -1,18 +1,20 @@
 ﻿using Android.App;
 using Android.Content;
-using Android.OS;
-using AndroidX.Core.App;
-using Android.Util;
 using Android.Content.PM;
+using Android.OS;
+using Android.Provider;
+using Android.Util;
+using AndroidX.Core.App;
 using CommunityToolkit.Mvvm.Messaging;
+using KronoGeo_Maui.Applications.Factory.Geolocalisation;
 using KronoGeo_Maui.Applications.Interface;
 using KronoGeo_Maui.Applications.Message;
-using Android.Provider;
+using KronoGeo_Maui.Platforms.Android.Applicatif.Factory.WakeLock;
+using KronoGeo_Maui.Platforms.Android.Applicatif.OsManager;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Versioning;
 using System.Text;
-using KronoGeo_Maui.Applications.Factory.Geolocalisation;
 
 
 namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
@@ -31,6 +33,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         private readonly CancellationTokenSource _cancellationTokenSource = new ();
         private PowerManager.WakeLock? _wakeLock = null; // -- WakeLock pour empêcher le téléphone de se mettre en veille pendant que le service est actif
         private NotificationManager? _notificationManager;
+        private FactoryWakelock? _factoryWakelock = default;
         #endregion
 
         #region public const properties action pour démarrer le service de géolocalisation
@@ -56,6 +59,10 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
             base.OnCreate();
             var factory = IPlatformApplication.Current?.Services.GetService<FactoryGeolocation>();
             _serviceGeo = factory?.GetServiceGeolocalisation();
+
+            // -- factory pour créer le wakelock selon le fabricant du téléphone
+            var factoryWakeLock  = IPlatformApplication.Current?.Services.GetService<FactoryWakelock>();
+            _factoryWakelock = factoryWakeLock;
 
             if ( _serviceGeo is null )
             {
@@ -170,8 +177,10 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                 // -- ne marche pas à cause de samsung qui est trop agressif dans la gestion de la batterie 
                 //_wakeLock = powerManager.NewWakeLock(WakeLockFlags.Partial, "GeoAndroidService:BackgroundTrackingLock");
                 // -- utilisation d'un wakelock qui va empêcher d'éteindre l'écran mais va diminuer la luminosité
-                _wakeLock = powerManager.NewWakeLock(WakeLockFlags.ScreenDim | WakeLockFlags.OnAfterRelease,
-                    "GeoAndroidService:ScreenDimTrackingLock");
+                //_wakeLock = powerManager.NewWakeLock(WakeLockFlags.ScreenDim | WakeLockFlags.OnAfterRelease,
+                //    "GeoAndroidService:ScreenDimTrackingLock");
+
+                _wakeLock = _factoryWakelock?.GetWakeLock(powerManager, DeviceInfos.Manufacturer);
                 try
                 {
                     // Acquérir avec timeout (10s) pour démarrer proprement la géolocalisation

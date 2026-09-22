@@ -1,18 +1,21 @@
 ﻿using CommunityToolkit.Maui;
+using KronoGeo_Api.Infrastructure.Service.Photo;
+using KronoGeo_Api.Infrastructure.Service.Secours;
+using KronoGeo_Api.Infrastructure.Service.Telemetry;
+using KronoGeo_Api.Interface.AbstractClass;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Maui.Applications.ExtendMethods;
 using KronoGeo_Maui.Applications.Interface;
+using KronoGeo_Maui.Applications.Outils.Geolocalisation;
 using KronoGeo_Maui.Applications.Services;
 using KronoGeo_Maui.Applications.Services.Geolocation;
 using Microsoft.Extensions.Logging;
-using KronoGeo_Api.Infrastructure.Service.Telemetry;
-using KronoGeo_Api.Infrastructure.Service.Secours;
-using The49.Maui.BottomSheet;
 using Microsoft.Extensions.Logging.Debug;
-using KronoGeo_Api.Infrastructure.Service.Photo;
-using KronoGeo_Api.Interface.AbstractClass;
-using KronoGeo_Maui.Applications.Outils.Geolocalisation;
+using The49.Maui.BottomSheet;
 
+#if ANDROID
+using KronoGeo_Maui.Platforms.Android.Applicatif.Factory.WakeLock;
+#endif
 
 namespace KronoGeo_Maui
 {
@@ -68,7 +71,6 @@ namespace KronoGeo_Maui
             builder.Services.AddSingleton<IServiceBackupGps, GpsBackUpMauiService>();
             builder.Services.AddTransient<IServicePermissions, GestionPermissions>();
             builder.Services.AddTransient<IServiceCompressPhoto, CompressPhotoSkiaSharp>();
-            
 
             builder.Services.AddServiceSavePhotoLocal();
             #endregion
@@ -87,6 +89,13 @@ namespace KronoGeo_Maui
             #region injection Ioptions Package name
             builder.Services.AddPackgeNameAndroid(builder.Configuration);
             #endregion
+#if ANDROID
+            #region injection IOptions liste Os device qui ont un probleme avec leur gestion de batterie
+            builder.Services.AddListOsDeviceBatteryGestion(builder.Configuration);
+            builder.Services.AddScoped<FactoryWakelock>();
+            #endregion
+#endif
+
 
             #region injection en développent du token tunnel de développement sécurisé
 #if DEBUG
