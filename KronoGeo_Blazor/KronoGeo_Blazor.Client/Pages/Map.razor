@@ -21,30 +21,39 @@ else
                 }
                 else
                 {
-                    <div class="accordion overflow-y-auto" id="accordionGroupLocation">
-                        @foreach (var item in DataOnView.OrderByDescending(l => l.Id))
-                        {
-                            var headingId = $"heading{item.Id}";
-                            var collapseId = $"collapse{item.Id}";
-                            var titre = $"{item.Name[0].ToString().ToUpper() + item.Name.Substring(1)} - {item.Date.LocalDateTime.ToString("dd/MM/yyyy")}";
+                    <div class="container">
+                        <div class="input-group flex-nowrap">
+                            <span class="input-group-text" id="addon-wrapping"><i class="bi bi-search"></i></span>
+                            <input type="text" class="form-control" placeholder="Recherche" 
+                                   aria-label="Recherche" aria-describedby="addon-wrapping"
+                                   @bind="Search" @bind:event="oninput" @bind:after="FilterSearch" />
+                        </div>
+                        <div class="accordion overflow-y-auto" id="accordionGroupLocation">
+                            @foreach (var item in DataOnView.OrderByDescending(l => l.Id))
+                            {
+                                var headingId = $"heading{item.Id}";
+                                var collapseId = $"collapse{item.Id}";
+                                var titre = $"{item.Name[0].ToString().ToUpper() + item.Name.Substring(1)} - {item.Date.LocalDateTime.ToString("dd/MM/yyyy")}";
                             
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="@headingId">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#@collapseId" aria-expanded="false" aria-controls="@collapseId"
-                                            @onclick="() => ChargeLocationsOnMap(item)">
-                                        @titre
-                                    </button>
-                                </h2>
-                                <div id="@collapseId" class="accordion-collapse collapse" aria-labelledby="@headingId" data-bs-parent="#accordionGroupLocation">
-                              <div class="accordion-body">
-                                <RouteTelemetryView Telemetry="@item.RouteTelemetry"></RouteTelemetryView>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="@headingId">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#@collapseId" aria-expanded="false" aria-controls="@collapseId"
+                                                @onclick="() => ChargeLocationsOnMap(item)">
+                                            @titre
+                                        </button>
+                                    </h2>
+                                    <div id="@collapseId" class="accordion-collapse collapse" aria-labelledby="@headingId" data-bs-parent="#accordionGroupLocation">
+                                  <div class="accordion-body">
+                                    <RouteTelemetryView Telemetry="@item.RouteTelemetry"></RouteTelemetryView>
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          </div>
 
-                        }
+                            }
+                        </div>
                     </div>
+                    
                     
                     <nav aria-label="Page navigation" class="justify-content-center">
                         <ul class="pagination">
