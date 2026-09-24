@@ -29,6 +29,8 @@ namespace KronoGeo_Maui.ModelViews
         public partial bool IsLocationManager { get; set; } = true;
         [ObservableProperty]
         public partial bool IsEnableLocationManager { get; set; } = false;
+        [ObservableProperty]
+        public partial bool IsBatterySaver { get; set; } = false;
         #endregion
 
         #region public properties
@@ -67,6 +69,11 @@ namespace KronoGeo_Maui.ModelViews
             var cancellationToken = new System.Threading.CancellationToken();
             await toast.Show(cancellationToken);
         }
+
+        partial void OnIsBatterySaverChanged(bool value)
+        {
+            _saveParametrage.SaveParam(nameof(IsBatterySaver), value);
+        }
         #endregion
 
         #region public method RelayCommand
@@ -81,6 +88,7 @@ namespace KronoGeo_Maui.ModelViews
             IsMetric = (bool)_saveParametrage.GetParam(nameof(IsMetric), true);
             IsMiles = (bool)_saveParametrage.GetParam(nameof(IsMiles), false);
             IsLocationManager = (bool)_saveParametrage.GetParam(nameof(IsLocationManager), true);
+            IsBatterySaver = (bool)_saveParametrage.GetParam(nameof(IsBatterySaver), false);
             InitElementsParam();
         }
 

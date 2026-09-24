@@ -49,6 +49,13 @@
                    SemanticProperties.Description="Utilise le Gps en haute précision mais la consommation est plus important."
                    />
         </HorizontalStackLayout>
+        <HorizontalStackLayout Padding="5" IsEnabled="{Binding IsEnableLocationManager}" 
+                               IsVisible="{Binding IsEnableLocationManager}">
+            <Label Text="Message prévention sur l'économie d'énergie"
+                   FontFamily="16" HorizontalOptions="Start" VerticalOptions="Center"
+                   />
+            <Switch IsToggled="{Binding IsBatterySaver}" HorizontalOptions="End" VerticalOptions="Center"/>
+        </HorizontalStackLayout>
         
     </VerticalStackLayout>
 </ContentPage>
