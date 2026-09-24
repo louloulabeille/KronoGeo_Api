@@ -25,11 +25,8 @@
                    TextColor="#51638B" Text="" x:Name="NameGroupLocalisation"
                    Placeholder="mettre un nom pour le groupe de localisation" 
                    FontAttributes="Bold" FontSize="16"/>
-            
+
             <Grid Grid.Row="2" BackgroundColor="#F9EDE1" Padding="10">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />

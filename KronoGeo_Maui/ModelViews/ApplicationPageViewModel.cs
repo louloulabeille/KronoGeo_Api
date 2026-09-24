@@ -92,6 +92,7 @@ namespace KronoGeo_Maui.ModelViews
         /// </summary>
         public bool IsPause { get; set; } = false;
         public bool IsStart { get; set; } = false;
+        public bool IsDesactiveBatteySaver { get; set; } = false;
         #endregion
 
         #region public propeties ObservableProperties
@@ -191,23 +192,6 @@ namespace KronoGeo_Maui.ModelViews
                 //window.Stopped += SaveLocalisation;
                 window.Destroying += DestroyingSaveLocalisation;
             }
-
-#if ANDROID
-            // -- affichage du popup pou expliquer la problématique au niveau de la battery saver "économie d'énergie"
-            var afficheMessage = _parametrage is null? false: (bool)_parametrage.GetParam("IsBatterySaver", true);
-            if ( _serviceBattery is not null && _serviceBattery.IsBatterySaver() &&  afficheMessage )
-            {
-                var popup = new PopupBatterySaverPage();
-                var result = await _dialogService.ShowPopupAsync<string>(popup, new PopupOptions
-                {
-                    CanBeDismissedByTappingOutsideOfPopup = false,
-                }, new CancellationToken());
-
-                // -- si true alors on ouvre le parameter 
-                if ( result == "true" )
-                    _serviceBattery?.OpenWindowBatterySaver();
-            }
-#endif
         }
 
         /// <summary>
@@ -469,18 +453,36 @@ namespace KronoGeo_Maui.ModelViews
 
                 if (!IsStart)
                 {
-                    var pm = (PowerManager?)Android.App.Application.Context.GetSystemService(Context.PowerService);
-                    string? packageName = Android.App.Application.Context.PackageName;
+                    //var pm = (PowerManager?)Android.App.Application.Context.GetSystemService(Context.PowerService);
+                    //string? packageName = Android.App.Application.Context.PackageName;
 
-                    if (OperatingSystem.IsAndroidVersionAtLeast(23) && pm is not null 
-                        && !pm.IsIgnoringBatteryOptimizations(packageName))
+                    //if (OperatingSystem.IsAndroidVersionAtLeast(23) && pm is not null 
+                    //    && !pm.IsIgnoringBatteryOptimizations(packageName))
+                    //{
+                    //    var intentBat = new Intent(Settings.ActionRequestIgnoreBatteryOptimizations);
+                    //    intentBat.SetData(Android.Net.Uri.Parse($"package:{packageName}"));
+                    //    intentBat.AddFlags(ActivityFlags.NewTask);
+                    //    Android.App.Application.Context.StartActivity(intentBat);
+                    //}
+
+                    // -- affichage du popup pour expliquer la problématique au niveau de la battery saver "économie d'énergie"
+                    var afficheMessage = _parametrage is null ? false : (bool)_parametrage.GetParam("IsBatterySaver", true);
+                    if (_serviceBattery is not null && _serviceBattery.IsBatterySaver() && afficheMessage)
                     {
-                        var intentBat = new Intent(Settings.ActionRequestIgnoreBatteryOptimizations);
-                        intentBat.SetData(Android.Net.Uri.Parse($"package:{packageName}"));
-                        intentBat.AddFlags(ActivityFlags.NewTask);
-                        Android.App.Application.Context.StartActivity(intentBat);
-                    }
+                        var popup = new PopupBatterySaverPage();
+                        var result = await _dialogService.ShowPopupAsync<string>(popup, new PopupOptions
+                        {
+                            CanBeDismissedByTappingOutsideOfPopup = false,
+                        }, new CancellationToken());
 
+                        // -- si true alors on ouvre le parameter 
+                        if (result == "true")
+                        {
+                            IsDesactiveBatteySaver = true;
+                            _serviceBattery?.OpenWindowBatterySaver();
+                        }
+                        
+                    }
 
                     _routeTelemetry.DateTimeBegin = DateTimeOffset.Now; // -- type date heure local non utc
                     IsEnablePhoto = true; // -- donne la possibilité de prendre des photos
@@ -597,7 +599,7 @@ namespace KronoGeo_Maui.ModelViews
                     // -- arrêt sur l'écoute sur le systeme de message
                     WeakReferenceMessenger.Default.Unregister<LocationChangedMessage>(this);
                     
-                    // -- ouverture d'une popup pour savoir si la personne veur sauvegarder ou pas
+                    // -- ouverture d'une popup pour savoir si la personne veut sauvegarder ou pas
                     var popup = new PopupSauvegardePage();
                     var result = await _dialogService.ShowPopupAsync<string>(popup, new PopupOptions
                     {
@@ -621,7 +623,17 @@ namespace KronoGeo_Maui.ModelViews
                         IsEnableSave = false;
                         InitWindow();
                     }
-                    
+
+#if ANDROID
+                    // -- affichage du popup pou expliquer la problématique au niveau de la battery saver "économie d'énergie"
+                    var afficheMessage = _parametrage is null ? false : (bool)_parametrage.GetParam("IsBatterySaver", true);
+                    if ( IsDesactiveBatteySaver && afficheMessage)
+                    {
+                        IsDesactiveBatteySaver = false;
+                        _serviceBattery?.OpenWindowBatterySaver();
+                    }
+#endif
+
                 }
                 // -- initialisation de la map sur la position de l'utilisateur
                 await Task.Run(async () => await GetUserLocationAsync());

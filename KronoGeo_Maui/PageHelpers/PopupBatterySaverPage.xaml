@@ -27,17 +27,14 @@
                     />
             </VerticalStackLayout>
         </Border>
-        <Grid HeightRequest="50">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-        </Grid>
-        <Button Grid.Column="0" FontFamily="MaterialIcons-Regular" 
-            Text="&#xf625;" TextColor="#51638B" FontSize="30"
-            BackgroundColor="#F9EDE1"  Clicked="OpenParameter_Clicked"/>
-        <Button Grid.Column="1" FontFamily="MaterialIcons-Regular" 
-            Text="&#xe879;" TextColor="#51638B" FontSize="30"
-            BackgroundColor="#F9EDE1"  Clicked="Close_Clicked"/>
+        <HorizontalStackLayout>
+            <Button FontFamily="MaterialIcons-Regular" VerticalOptions="Center"
+                Text="&#xe879;" TextColor="#51638B" FontSize="30" HorizontalOptions="Start"
+                BackgroundColor="#F9EDE1"  Clicked="OpenParameter_Clicked"/>
+            <Button FontFamily="MaterialIcons-Regular" VerticalOptions="Center"
+                Text="&#xe879;" TextColor="#51638B" FontSize="30" HorizontalOptions="End"
+                BackgroundColor="#F9EDE1"  Clicked="Close_Clicked"/>
+        </HorizontalStackLayout>
+        
     </VerticalStackLayout>
 </mct:Popup>
