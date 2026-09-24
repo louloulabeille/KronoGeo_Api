@@ -100,7 +100,7 @@ namespace KronoGeo_Blazor.Client.Pages
         protected async Task FilterSearch()
         {
             PageActuel = 1;
-            _filterLocalisationGroup = _localisationGroup?.Where(w => w.Name.ToLower().Contains(Search.ToLower())).ToList();
+            _filterLocalisationGroup = _localisationGroup?.Where(w => w.Name.Contains(Search, StringComparison.OrdinalIgnoreCase)).ToList();
         }
         #endregion
 

@@ -13,8 +13,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Debug;
 using The49.Maui.BottomSheet;
 
+
+
+
 #if ANDROID
 using KronoGeo_Maui.Platforms.Android.Applicatif.Factory.WakeLock;
+using KronoGeo_Maui.Platforms.Android.Applicatif.OsManager;
 #endif
 
 namespace KronoGeo_Maui
@@ -93,6 +97,10 @@ namespace KronoGeo_Maui
             #region injection IOptions liste Os device qui ont un probleme avec leur gestion de batterie
             builder.Services.AddListOsDeviceBatteryGestion(builder.Configuration);
             builder.Services.AddScoped<FactoryWakelock>();
+            #endregion
+
+            #region injection de gestion de la battery
+            builder.Services.AddTransient<IServiceBattery, BatteryManager>();
             #endregion
 #endif
 

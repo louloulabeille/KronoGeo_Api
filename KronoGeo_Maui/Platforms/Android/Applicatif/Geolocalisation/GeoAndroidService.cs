@@ -186,7 +186,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                     // Acquérir avec timeout (10s) pour démarrer proprement la géolocalisation
                     // cela évite de garder le CPU allumé indéfiniment et économise la batterie
                     Log.Debug("GeoAndroidService", "-- wakelock demarré --");
-                    //_wakeLock?.Acquire(10_000);
+                    //_wakeLock?.Acquire(10000);
                     _wakeLock?.Acquire(); // -- sans timeout marche toute le temps attention à la batterie
                 }
                 catch

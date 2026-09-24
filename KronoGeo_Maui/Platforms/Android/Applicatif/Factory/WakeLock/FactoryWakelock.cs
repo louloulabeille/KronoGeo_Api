@@ -38,7 +38,8 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Factory.WakeLock
             if (_options.Value.ListOs.Any(s => s == Os))
             {
                 Log.Debug("GeoAndroidService", "WakeLockFlags : WakeLockFlags.ScreenDim | WakeLockFlags.OnAfterRelease");
-                return WakeLockFlags.ScreenDim | WakeLockFlags.OnAfterRelease;
+                if (OperatingSystem.IsAndroidVersionAtLeast(28))
+                    return WakeLockFlags.ScreenDim | WakeLockFlags.OnAfterRelease;
             }
             Log.Debug("GeoAndroidService", "WakeLockFlags : WakeLockFlags.Partial");
             return WakeLockFlags.Partial;

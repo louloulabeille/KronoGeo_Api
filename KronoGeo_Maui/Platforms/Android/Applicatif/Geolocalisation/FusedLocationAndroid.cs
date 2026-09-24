@@ -71,7 +71,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         // -- mise en place d'un handler thread pour lancer la géolocalisation sur un thread parallèle au thread principal
         //private readonly HandlerThread _handlerThread = new("LocationHandlerthread");
         //private Handler? _handler;
-        private LocationCallback? _locationCallback = default;
+        //private LocationCallback? _locationCallback = default;
         private PendingIntent? _locationPendingIntent = default;
         private readonly IFusedLocationProviderClient? _locationClient;
         /// <summary>
@@ -308,7 +308,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                     await _locationClient.RemoveLocationUpdatesAsync(_locationPendingIntent);
                     Log.Debug("GeoAndroidService", "Arrêt du Fuse");
 
-                    _locationCallback = null;
+                    //_locationCallback = null;
                     // -- arrêt du register pour ne pas l'avoir en double
                     WeakReferenceMessenger.Default.Unregister<LocationBroadcastMessage>(this);
 

@@ -65,6 +65,7 @@ namespace KronoGeo_Maui.ModelViews
         private readonly IServiceBackupGps _serviceBackupGps;
         private readonly IServiceProvider _serviceProvider;
         private readonly IServicePermissions _servicePermissions;
+        private readonly IServiceBattery? _serviceBattery;
         #endregion
 
         #region private properties
@@ -120,7 +121,8 @@ namespace KronoGeo_Maui.ModelViews
             , IDialogService dialogService, IServiceSaveUser serviceSaveUser
             , IServiceTelemetry serviceTelemetry, IServiceBackupGps serviceBackupGps
             , ApplicationBottomSheetViewModel sheetViewModel
-            ,IServiceProvider serviceProvider , IServicePermissions servicePermissions)
+            , IServiceProvider serviceProvider , IServicePermissions servicePermissions
+            , IServiceBattery? serviceBattery)
         {
             // -- pour affichage des différentes pages du carousel
             /*MesPages = [];
@@ -137,8 +139,12 @@ namespace KronoGeo_Maui.ModelViews
             _serviceBackupGps = serviceBackupGps;
             _serviceProvider = serviceProvider;
             _servicePermissions = servicePermissions;
+
 #if !ANDROID
             _serviceGeo.LocationChanged += OnLocalication_Changed;
+#endif
+#if ANDROID
+            _serviceBattery = serviceBattery;
 #endif
 
             _localisations = [];
@@ -180,6 +186,14 @@ namespace KronoGeo_Maui.ModelViews
                 //window.Stopped += SaveLocalisation;
                 window.Destroying += DestroyingSaveLocalisation;
             }
+
+#if ANDROID
+            // -- affichage du popup pou expliquer la problématique au niveau de la battery saver "économie d'énergie"
+            if ( _serviceBattery is not null && _serviceBattery.IsBatterySaver())
+            {
+                _serviceBattery.OpenWindowBatterySaver();
+            }
+#endif
         }
 
         /// <summary>
