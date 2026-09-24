@@ -65,8 +65,12 @@ namespace KronoGeo_Maui.ModelViews
         private readonly IServiceBackupGps _serviceBackupGps;
         private readonly IServiceProvider _serviceProvider;
         private readonly IServicePermissions _servicePermissions;
-        private readonly IServiceBattery? _serviceBattery;
+
         #endregion
+#if ANDROID
+        private readonly IServiceSaveParametrage? _parametrage;
+        private readonly IServiceBattery? _serviceBattery;
+#endif
 
         #region private properties
         private Localisation? _lastLocation { get; set; } = default;
@@ -122,7 +126,7 @@ namespace KronoGeo_Maui.ModelViews
             , IServiceTelemetry serviceTelemetry, IServiceBackupGps serviceBackupGps
             , ApplicationBottomSheetViewModel sheetViewModel
             , IServiceProvider serviceProvider , IServicePermissions servicePermissions
-            , IServiceBattery? serviceBattery)
+            , IServiceBattery? serviceBattery, IServiceSaveParametrage? parametrage)
         {
             // -- pour affichage des différentes pages du carousel
             /*MesPages = [];
@@ -145,9 +149,10 @@ namespace KronoGeo_Maui.ModelViews
 #endif
 #if ANDROID
             _serviceBattery = serviceBattery;
+            _parametrage = parametrage;
 #endif
 
-            _localisations = [];
+        _localisations = [];
             _saveLocalisation = saveLocalisation;
             // -- initialise l'object télémétrie
             _routeTelemetry = _serviceTelemetry.CalculateTelemetry(_localisations);
@@ -189,9 +194,18 @@ namespace KronoGeo_Maui.ModelViews
 
 #if ANDROID
             // -- affichage du popup pou expliquer la problématique au niveau de la battery saver "économie d'énergie"
-            if ( _serviceBattery is not null && _serviceBattery.IsBatterySaver())
+            var afficheMessage = _parametrage is null? false: (bool)_parametrage.GetParam("IsBatterySaver", true);
+            if ( _serviceBattery is not null && _serviceBattery.IsBatterySaver() &&  afficheMessage )
             {
-                _serviceBattery.OpenWindowBatterySaver();
+                var popup = new PopupBatterySaverPage();
+                var result = await _dialogService.ShowPopupAsync<string>(popup, new PopupOptions
+                {
+                    CanBeDismissedByTappingOutsideOfPopup = false,
+                }, new CancellationToken());
+
+                // -- si true alors on ouvre le parameter 
+                if ( result == "true" )
+                    _serviceBattery?.OpenWindowBatterySaver();
             }
 #endif
         }
@@ -421,7 +435,7 @@ namespace KronoGeo_Maui.ModelViews
             {
 #if ANDROID
                 // -- demande de permission pour les notifications 
-                if ( await _servicePermissions.GetNotificationPermissionAsync() == false )
+                if (!await _servicePermissions.GetNotificationPermissionAsync())
                 {
                     IsMessageError = true;
                     Message = "Impossible de lancer le suivie sans la permission de notification au niveau de l'application.";
@@ -906,6 +920,7 @@ namespace KronoGeo_Maui.ModelViews
 #endif
             }
         }
+
         #endregion
 
         #region public method eventHandler
@@ -949,12 +964,12 @@ namespace KronoGeo_Maui.ModelViews
         {
             if (_takePhoto) return;
             SaveLocalisation(send, args);
-            if ( IsStart == true )
+            if (IsStart)
             {
                 await StopService(); // -- on arrête le service propremement
                 IsStart = false;
             }
-            
+
         }
 
         /// <summary>

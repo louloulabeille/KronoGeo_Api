@@ -41,5 +41,9 @@ namespace KronoGeo_Maui.Applications.Services
             return null;*/
         }
 
+        public async Task ShowPopupAsync(Popup popup, IPopupOptions? options, CancellationToken token)
+        {
+            await Shell.Current.CurrentPage.ShowPopupAsync(popup, options, token);
+        }
     }
 }

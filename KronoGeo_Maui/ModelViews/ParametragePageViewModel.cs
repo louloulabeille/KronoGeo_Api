@@ -30,7 +30,7 @@ namespace KronoGeo_Maui.ModelViews
         [ObservableProperty]
         public partial bool IsEnableLocationManager { get; set; } = false;
         [ObservableProperty]
-        public partial bool IsBatterySaver { get; set; } = false;
+        public partial bool IsBatterySaver { get; set; } = true;
         #endregion
 
         #region public properties
@@ -88,8 +88,10 @@ namespace KronoGeo_Maui.ModelViews
             IsMetric = (bool)_saveParametrage.GetParam(nameof(IsMetric), true);
             IsMiles = (bool)_saveParametrage.GetParam(nameof(IsMiles), false);
             IsLocationManager = (bool)_saveParametrage.GetParam(nameof(IsLocationManager), true);
-            IsBatterySaver = (bool)_saveParametrage.GetParam(nameof(IsBatterySaver), false);
+            IsBatterySaver = (bool)_saveParametrage.GetParam(nameof(IsBatterySaver), true);
+#if ANDROID26_0_OR_GREATER
             InitElementsParam();
+#endif
         }
 
         #endregion
@@ -107,17 +109,17 @@ namespace KronoGeo_Maui.ModelViews
 
 
         #region private method 
+#if ANDROID26_0_OR_GREATER
         /// <summary>
         ///  Affiche le switch pour choisir le système de navigation possible
         ///  entre Fused et Location manager
         /// </summary>
         private void InitElementsParam()
         {
-#if ANDROID26_0_OR_GREATER
-            IsEnableLocationManager = true;
 
-#endif
+            IsEnableLocationManager = true;
         }
+#endif
         #endregion
 
     }

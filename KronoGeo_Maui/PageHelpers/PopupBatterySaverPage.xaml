@@ -1,25 +1,43 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <mct:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
            xmlns:mct="http://schemas.microsoft.com/dotnet/2022/maui/toolkit" 
-           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"  
-           x:Class="KronoGeo_Maui.PageHelpers.PopupBatterySaverPage">
+           xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+           xmlns:system="clr-namespace:System;assembly=mscorlib"
+           x:TypeArguments="system:String"
+           x:Class="KronoGeo_Maui.PageHelpers.PopupBatterySaverPage"
+           BackgroundColor="#F9EDE1">
     
     <VerticalStackLayout>
-        <Border StrokeShape="RoundRectangle 90,90,90,90" StrokeThickness="1" BackgroundColor="#F9EDE1">
-            <VerticalStackLayout>
+        <Border StrokeShape="RoundRectangle 5,5,5,5" StrokeThickness="1" BackgroundColor="#F9EDE1">
+            <VerticalStackLayout Padding="10">
                 <Label 
-                    Text="En raison de la mise en place du système d'économie d'énergie sur votre téléphone. 
-                    Le système de géolocalisation va perdre énormement en précision."
+                    Text="Économie d'énergie active." FontAttributes="Bold" HorizontalTextAlignment="Center"
                     VerticalOptions="Center" HorizontalOptions="Center" FontSize="18"
                     TextColor="#51638B"
                     />
-                <Label 
-                    Text="La fenêtre de configuration d'énergie va s'ouvrir, pour le désactiver au lancement de la géolocalisation et lors de l'arrêt pour le remettre.
-                    Il est possible de le faire que m'annuellement, veuillez nous en excuser."
-                    VerticalOptions="Center" HorizontalOptions="Center" FontSize="18"
+                <Label Margin="0,10,0,0"
+                    Text="Le mode économie d'énergie réduit fortement la précision GPS en arrière-plan (écran éteint).."
+                    FontSize="16"
+                    TextColor="#51638B" HorizontalTextAlignment="Start"
+                    />
+                <Label Margin="0,10,0,0"
+                    Text="Nous vous recommandons de le désactiver pendant le suivi de trajet."
+                    FontSize="16" HorizontalTextAlignment="Start"
                     TextColor="#51638B"
                     />
             </VerticalStackLayout>
         </Border>
+        <Grid HeightRequest="50">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+        </Grid>
+        <Button Grid.Column="0" FontFamily="MaterialIcons-Regular" 
+            Text="&#xf625;" TextColor="#51638B" FontSize="30"
+            BackgroundColor="#F9EDE1"  Clicked="OpenParameter_Clicked"/>
+        <Button Grid.Column="1" FontFamily="MaterialIcons-Regular" 
+            Text="&#xe879;" TextColor="#51638B" FontSize="30"
+            BackgroundColor="#F9EDE1"  Clicked="Close_Clicked"/>
     </VerticalStackLayout>
 </mct:Popup>
