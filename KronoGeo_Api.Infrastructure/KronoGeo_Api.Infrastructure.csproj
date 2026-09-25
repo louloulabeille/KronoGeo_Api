@@ -26,9 +26,9 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.12" />
     <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="10.0.12" />
-    <PackageReference Include="MimeKit" Version="4.18.0" />
+    <PackageReference Include="MimeKit" Version="4.18.1" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
-    <PackageReference Include="SkiaSharp.Views.Maui.Core" Version="4.152.0" />
+    <PackageReference Include="SkiaSharp.Views.Maui.Core" Version="4.152.1" />
   </ItemGroup>
 
   <ItemGroup>
