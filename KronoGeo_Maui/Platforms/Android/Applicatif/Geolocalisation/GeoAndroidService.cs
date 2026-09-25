@@ -5,7 +5,10 @@ using Android.OS;
 using Android.Provider;
 using Android.Util;
 using AndroidX.Core.App;
+using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Mvvm.Messaging;
+using KronoGeo_Api.Interface.Service;
 using KronoGeo_Maui.Applications.Factory.Geolocalisation;
 using KronoGeo_Maui.Applications.Interface;
 using KronoGeo_Maui.Applications.Message;
@@ -34,6 +37,8 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         private PowerManager.WakeLock? _wakeLock = null; // -- WakeLock pour empêcher le téléphone de se mettre en veille pendant que le service est actif
         private NotificationManager? _notificationManager;
         private FactoryWakelock? _factoryWakelock = default;
+        private PowerSaveModeReceiver? _powerSaveReceiver = default;
+        private IServiceBattery? _serviceBattery = default;
         #endregion
 
         #region public const properties action pour démarrer le service de géolocalisation
@@ -57,12 +62,17 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         public override void OnCreate()
         {
             base.OnCreate();
+            // -- injection de la factory FactoryGeolocation
             var factory = IPlatformApplication.Current?.Services.GetService<FactoryGeolocation>();
             _serviceGeo = factory?.GetServiceGeolocalisation();
 
             // -- factory pour créer le wakelock selon le fabricant du téléphone
             var factoryWakeLock  = IPlatformApplication.Current?.Services.GetService<FactoryWakelock>();
             _factoryWakelock = factoryWakeLock;
+
+            // -- injection du service de gestion de battery saver
+            var serviceBattery = IPlatformApplication.Current?.Services.GetService<IServiceBattery>();
+            _serviceBattery = serviceBattery;
 
             if ( _serviceGeo is null )
             {
@@ -93,6 +103,9 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                     // -- mise en place du WakeLock pour empêcher de mettre en service en pause
                     AcquireWakeLock();
 
+                    // -- lancement de l'écoute sur la modification du système d'économie d'énergie
+                    RegisterPowerSaveModeReceiver();
+
                     // 4. C'est ICI que tu lances ta logique de géolocalisation
                     // (ex: un timer ou un abonnement au GPS qui enregistre tes points)
                     Task.Run(async () => await StartGeolocalisation());
@@ -117,6 +130,14 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
         public async override void OnDestroy()
         {
             Log.Debug("GeoAndroidService", "Fin du service OnDestroy");
+
+            // -- désabonnement du BroadcastReceiver
+            if (_powerSaveReceiver is not null)
+            {
+                UnregisterReceiver(_powerSaveReceiver);
+                _powerSaveReceiver = null;
+            }
+
             // Demander l'annulation des tâches asynchrones et libérer les ressources
             try
             {
@@ -302,6 +323,75 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.Geolocalisation
                 StartForeground(NOTIFICATION_ID, notification.Build());
             }
 
+        }
+
+        /// <summary>
+        /// Method qui change le message de la notication
+        /// sans la re-créer
+        /// </summary>
+        /// <param name="contentText"></param>
+        private void UpdateNotification(string contentText)
+        {
+            if (_notificationManager is null) return;
+
+            var notification = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)?
+                .SetOngoing(true)?
+                .SetSmallIcon(Microsoft.Maui.Resource.Drawable.notification_bg_normal)?
+                .SetContentTitle("Suivi GPS actif")?
+                .SetContentText(contentText)?
+                .Build();
+
+            _notificationManager.Notify(NOTIFICATION_ID, notification);
+        }
+
+        /// <summary>
+        /// Lancement de l'écoute avec un BroadcastReceiver
+        /// </summary>
+        private void RegisterPowerSaveModeReceiver()
+        {
+            _powerSaveReceiver = new PowerSaveModeReceiver(OnPowerSaveModeChanged);
+            var filter = new IntentFilter(PowerManager.ActionPowerSaveModeChanged);
+            RegisterReceiver(_powerSaveReceiver, filter);
+        }
+
+        /// <summary>
+        /// méthod appelé dans le BroadCastReceiver
+        /// </summary>
+        /// <param name="isActive"></param>
+        private async void OnPowerSaveModeChanged(bool isActive)
+        {
+            if (isActive)
+            {
+                string message = $"⚠️ Précision GPS réduite (économie d'énergie active)";
+                // Mettre à jour la notification foreground pour informer en direct
+                UpdateNotification(message);
+
+                // -- affichage message
+                var cancellationToken = new System.Threading.CancellationToken();
+                await Toast.Make(message, ToastDuration.Long)
+                    .Show(cancellationToken);
+
+                // ouverture de la fenêtre de gestion de la batterie
+                // sans bloquer le reste 
+                var dispatcher = Dispatcher.GetForCurrentThread();
+                var timer = dispatcher?.CreateTimer();
+                if (timer is null)
+                {   // -- ouverture de la fenêtre d'économie d'énergie
+                    _serviceBattery?.OpenWindowBatterySaver();
+                    return;
+                }
+                timer.Interval = TimeSpan.FromSeconds(5);
+                timer.IsRepeating = false;
+                timer.Tick += (s, e) => {
+                    _serviceBattery?.OpenWindowBatterySaver();
+                };
+                timer.Start();
+
+            }
+            else
+            {
+                UpdateNotification("Votre position est enregistrée en arrière-plan avec KronoGeo.");
+            }
         }
 
         #endregion

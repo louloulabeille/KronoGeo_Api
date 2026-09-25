@@ -29,7 +29,7 @@
         </Border>
         <HorizontalStackLayout>
             <Button FontFamily="MaterialIcons-Regular" VerticalOptions="Center"
-                Text="&#xe879;" TextColor="#51638B" FontSize="30" HorizontalOptions="Start"
+                Text="&#xe8b8;" TextColor="#51638B" FontSize="30" HorizontalOptions="Start"
                 BackgroundColor="#F9EDE1"  Clicked="OpenParameter_Clicked"/>
             <Button FontFamily="MaterialIcons-Regular" VerticalOptions="Center"
                 Text="&#xe879;" TextColor="#51638B" FontSize="30" HorizontalOptions="End"

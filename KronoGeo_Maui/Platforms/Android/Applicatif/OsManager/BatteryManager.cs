@@ -23,7 +23,7 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.OsManager
 
             return isBatterySaverOn;
         }
-        
+
         /// <summary>
         /// Permet d'ouvrir la fenêtre de gestion de l'économie d'énergie
         /// </summary>
@@ -35,5 +35,30 @@ namespace KronoGeo_Maui.Platforms.Android.Applicatif.OsManager
             activity?.StartActivity(intent);
         }
 
-}
+    }
+
+    /// <summary>
+    /// class de broadcastReceiver pour les écoutes pendant la géolocalisation si l'utilisateur
+    /// remet l'économie d'énergie
+    /// </summary>
+    //[BroadcastReceiver(Enabled = true, Exported = false)]
+    public class PowerSaveModeReceiver : BroadcastReceiver
+    {
+        private readonly Action<bool> _onChanged;
+
+        //public PowerSaveModeReceiver() { }
+
+        public PowerSaveModeReceiver(Action<bool> onChanged)
+        {
+            _onChanged = onChanged;
+        }
+
+        public override void OnReceive(Context? context, Intent? intent)
+        {
+            if (context is null) return;
+            var powerManager = context.GetSystemService(Context.PowerService) as PowerManager;
+            bool isPowerSaveMode = powerManager?.IsPowerSaveMode ?? false;
+            _onChanged?.Invoke(isPowerSaveMode);
+        }
+    }
 }

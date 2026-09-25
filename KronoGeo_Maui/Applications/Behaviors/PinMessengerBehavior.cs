@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using KronoGeo_Maui.Applications.Message;
+using Microsoft.Maui.Controls.Maps;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,6 +10,11 @@ namespace KronoGeo_Maui.Applications.Behaviors
 {
     public partial class PinMessengerBehavior : Behavior<Map>
     {
+
+        #region private properties
+        private readonly Dictionary<string, Pin> _pinIndex = [];
+        #endregion
+
         /// <summary>
         /// ajoute un pin sur la carte
         /// </summary>
@@ -22,22 +28,19 @@ namespace KronoGeo_Maui.Applications.Behaviors
                 {
                     if (message.Value is not null)
                     {
-                        if ( message.Value.IsAdded)
+                        var key = $"{message.Value.Pin.Label} | {message.Value.Pin.Address}";
+
+                        if (message.Value.IsAdded) { 
                             bindable.Pins.Add(message.Value.Pin);
+                            _pinIndex[key] = message.Value.Pin;
+                        }
                         else
                         {
-                            var pin = (Microsoft.Maui.Controls.Maps.Pin?)null;
-                            for (int i = 0; i < bindable.Pins.Count; i++)
+                            if( _pinIndex.TryGetValue(key, out var pin ))
                             {
-                                var p = bindable.Pins[i];
-                                if (p.Label == message.Value.Pin.Label && p.Address == message.Value.Pin.Address)
-                                {
-                                    pin = p;
-                                    break;
-                                }
-                            }
-                            if (pin is not null)
                                 bindable.Pins.Remove(pin);
+                                _pinIndex.Remove(key);
+                            }
                         }
                             
                     }
@@ -58,6 +61,7 @@ namespace KronoGeo_Maui.Applications.Behaviors
             base.OnDetachingFrom(bindable);
             // -- eviter les fuites mémoire en se désabonnant du message
             WeakReferenceMessenger.Default.Unregister<PinMapMessage>(this);
+            _pinIndex.Clear();
         }
     }
 }

@@ -39,6 +39,7 @@ using KronoGeo_Api.Models.ModelEventArgs;
 using KronoGeo_Maui.Applications.Factory.Geolocalisation;
 #if ANDROID
 using Android.Util;
+using System.Runtime.CompilerServices;
 #endif
 namespace KronoGeo_Maui.ModelViews
 {
@@ -320,7 +321,15 @@ namespace KronoGeo_Maui.ModelViews
         [RelayCommand]
         public static async Task BarItemClose()
         {
+            
+#if ANDROID
+            Platform.CurrentActivity?.FinishAffinity();
+            Java.Lang.JavaSystem.Exit(0);
+#elif WINDOWS
+            Microsoft.Maui.Controls.Application.Current?.Quit();
+#elif IOS
             System.Environment.Exit(0);
+#endif
         }
 
         /// <summary>
@@ -422,7 +431,7 @@ namespace KronoGeo_Maui.ModelViews
                 if (!await _servicePermissions.GetNotificationPermissionAsync())
                 {
                     IsMessageError = true;
-                    Message = "Impossible de lancer le suivie sans la permission de notification au niveau de l'application.";
+                    Message = "Impossible de lancer le suivi sans la permission de notification au niveau de l'application.";
                 }
 
                 var intent = new Intent(Android.App.Application.Context, typeof(GeoAndroidService));
@@ -453,20 +462,9 @@ namespace KronoGeo_Maui.ModelViews
 
                 if (!IsStart)
                 {
-                    //var pm = (PowerManager?)Android.App.Application.Context.GetSystemService(Context.PowerService);
-                    //string? packageName = Android.App.Application.Context.PackageName;
-
-                    //if (OperatingSystem.IsAndroidVersionAtLeast(23) && pm is not null 
-                    //    && !pm.IsIgnoringBatteryOptimizations(packageName))
-                    //{
-                    //    var intentBat = new Intent(Settings.ActionRequestIgnoreBatteryOptimizations);
-                    //    intentBat.SetData(Android.Net.Uri.Parse($"package:{packageName}"));
-                    //    intentBat.AddFlags(ActivityFlags.NewTask);
-                    //    Android.App.Application.Context.StartActivity(intentBat);
-                    //}
 
                     // -- affichage du popup pour expliquer la problématique au niveau de la battery saver "économie d'énergie"
-                    var afficheMessage = _parametrage is null ? false : (bool)_parametrage.GetParam("IsBatterySaver", true);
+                    var afficheMessage = _parametrage is not null && (bool)_parametrage.GetParam("IsBatterySaver", true);
                     if (_serviceBattery is not null && _serviceBattery.IsBatterySaver() && afficheMessage)
                     {
                         var popup = new PopupBatterySaverPage();
@@ -626,7 +624,7 @@ namespace KronoGeo_Maui.ModelViews
 
 #if ANDROID
                     // -- affichage du popup pou expliquer la problématique au niveau de la battery saver "économie d'énergie"
-                    var afficheMessage = _parametrage is null ? false : (bool)_parametrage.GetParam("IsBatterySaver", true);
+                    var afficheMessage = _parametrage is not null && (bool)_parametrage.GetParam("IsBatterySaver", true);
                     if ( IsDesactiveBatteySaver && afficheMessage)
                     {
                         IsDesactiveBatteySaver = false;
