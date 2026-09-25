@@ -17,7 +17,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Map
         /// et lance les intructions de event
         /// </summary>
         /// <param name="localisations"></param>
-        public void OpenMapwithLocalisations(IEnumerable<Localisation> localisations)
+        public void OpenMapwithLocalisations(IEnumerable<Localisation>? localisations)
         {
             CurrentLocalisations = localisations;
             OnOpenRequested?.Invoke();

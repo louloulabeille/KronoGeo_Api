@@ -13,7 +13,7 @@ namespace KronoGeo_Api.Interface.Service
         #endregion
 
         #region public methods
-        public void OpenMapwithLocalisations(IEnumerable<Localisation> localisations);
+        public void OpenMapwithLocalisations(IEnumerable<Localisation>? localisations);
         #endregion 
 
     }

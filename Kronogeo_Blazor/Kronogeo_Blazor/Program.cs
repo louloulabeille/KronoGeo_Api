@@ -3,6 +3,7 @@ using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Blazor.Client.Pages;
 using KronoGeo_Blazor.Components;
 using KronoGeo_Blazor.Infrastructure.Extends;
+using KronoGeo_Blazor.Infrastructure.Extends.App;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Mvc.Authorization;
@@ -111,6 +112,11 @@ app.UseAuthorization();
 // -- 
 app.MapControllers();
 #endregion
+
+#region paramétrage du proxy vers OpenStreetMap
+app.ProxyOpenStreetMap();
+#endregion
+
 
 #region Ilogger - lancement de l'application - Message
 // -- démarrage de l'application 

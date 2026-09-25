@@ -127,7 +127,7 @@ namespace KronoGeo_Blazor.Client.Pages
         protected void ChangePage(int page)
         {
             if (DataOnView is null || _localisationGroup is null ) return;
-
+            _mapState?.OpenMapwithLocalisations(null); // -- initialise la Map
             PageActuel = page;
             StateHasChanged();
         }

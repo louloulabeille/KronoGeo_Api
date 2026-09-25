@@ -13,8 +13,10 @@
         @if (IsHovered && !string.IsNullOrEmpty(UrlImg))
         {
             <!--18rem-->
-            <div class="card" style="width: 250px; top: @($"{MouseY + 40.0}px"); left: @($"{MouseX - 10.0}px"); z-index: 9999; pointer-events: none;position : absolute;">
-                <button type="button" class="btn-close" aria-label="Close" @onclick="HandlerCloseCard" style="pointer-events: auto;"></button>
+            <div class="card" style="width: 250px; top: @($"{MouseY + 40.0}px"); 
+                left: @($"{MouseX - 10.0}px"); z-index: 9999; pointer-events: auto;position : absolute;">
+                <button type="button" class="btn-close" aria-label="Close" @onclick="HandlerCloseCard" 
+                    style="pointer-events: auto;"></button>
                 <img src="@UrlImg" class="card-img-top" alt="...">
                 <div class="card-body">
                     <p class="card-text">

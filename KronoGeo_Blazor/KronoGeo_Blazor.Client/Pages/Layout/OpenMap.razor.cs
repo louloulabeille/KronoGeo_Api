@@ -1,4 +1,6 @@
-﻿using KronoGeo_Api.Interface.Service;
+﻿using BruTile.Predefined;
+using BruTile.Web;
+using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models;
 using Mapsui;
 using Mapsui.Extensions;
@@ -8,6 +10,7 @@ using Mapsui.Nts;
 using Mapsui.Projections;
 using Mapsui.Providers;
 using Mapsui.Styles;
+using Mapsui.Tiling.Layers;
 using Mapsui.UI;
 using Mapsui.UI.Blazor;
 using Mapsui.Utilities;
@@ -59,7 +62,28 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
             base.OnAfterRender(firstRender);
             if (firstRender)
             {
-                MapControl?.Map?.Layers.Add(Mapsui.Tiling.OpenStreetMap.CreateTileLayer());
+                //string userAgent = "Kronogeo/1.0 (louloulabeille@alwaysdata.net)";
+                //MapControl?.Map?.Layers.Add(Mapsui.Tiling.OpenStreetMap.CreateTileLayer(userAgent));
+                //MapControl?.Map?.Layers.Add(Mapsui.Tiling.OpenStreetMap.CreateTileLayer(null));
+
+
+                // -- Création de la source de tuiles OpenStreeMap
+                 
+                var cartoDbTileSource = new HttpTileSource(
+                    new GlobalSphericalMercator(),
+                    "https://localhost:7186/tiles/{z}/{x}/{y}.png",
+                    name: "Open Street Map"
+                );
+
+                // 2. Création de la couche Mapsui
+                var tileLayer = new TileLayer(cartoDbTileSource)
+                {
+                    Name = "OpenStreetMap"
+                };
+
+                //// 3. Ajout à la carte
+                MapControl?.Map?.Layers.Add(tileLayer);
+
             }
         }
 
@@ -139,17 +163,23 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         private  void HandleOpenRequested()
         {
             if( MapStateService?.CurrentLocalisations is not null && MapStateService?.CurrentLocalisations?.Count() > 1)
-            {
+            { // -- affichage des localisations
                 InitMap();
                 HandlerCloseCard();
                 ChargingTraceAndPoint(MapStateService.CurrentLocalisations);
                 StateHasChanged();
             }
-            if( MapStateService?.CurrentLocalisations is not null && MapStateService?.CurrentLocalisations?.Count() == 1)
-            {
+            else if( MapStateService?.CurrentLocalisations is not null && MapStateService?.CurrentLocalisations?.Count() == 1)
+            { // -- affichage poun un point
                 InitMap();
                 HandlerCloseCard();
                 ZoomTo(MapStateService?.CurrentLocalisations?.First(), 18);
+                StateHasChanged();
+            }
+            else
+            {   // -- initialise tout
+                InitMap();
+                HandlerCloseCard();
                 StateHasChanged();
             }
         }
@@ -293,12 +323,12 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         /// </summary>
         /// <param name="localistion"></param>
         /// <param name="zoom"></param>
-        private void ZoomTo (Localisation? localistion, double zoom = 15 )
+        private void ZoomTo (Localisation? localisation, double zoom = 15 )
         {
-            if (localistion is null) return;
+            if (localisation is null) return;
 
             // Get the lon lat coordinates from somewhere (Mapsui can not help you there)
-            var center = new MPoint(localistion.Longitude, localistion.Latitude);
+            var center = new MPoint(localisation.Longitude, localisation.Latitude);
             // OSM uses spherical mercator coordinates. So transform the lon lat coordinates to spherical mercator
             var sphericalMercatorCoordinate = SphericalMercator.FromLonLat(center.X, center.Y).ToMPoint();
             // Set the center of the viewport to the coordinate. The UI will refresh automatically
@@ -353,8 +383,11 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
             return imageStyle;
         }
 
+        public void InitMapAndZoom ()
+        {
+            InitMap();
 
-       
+        }
 
         #endregion
 
