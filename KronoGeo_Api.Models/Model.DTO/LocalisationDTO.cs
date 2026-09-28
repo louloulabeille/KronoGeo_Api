@@ -23,6 +23,7 @@ namespace KronoGeo_Api.Models.Model.DTO
         public double? VerticalAccuracy { get; set; }
         public double? Speed { get; set; }
         public double? Course { get; set; }
+        public int? LocalisationGroupId { get; set; }
         #endregion
 
         #region public method
@@ -49,7 +50,8 @@ namespace KronoGeo_Api.Models.Model.DTO
                     Timestamp   = photo.Timestamp.ToUniversalTime(),
                     Name        = photo.Name,
                     PathPhoto   = photo.PathPhoto,
-                    Description = photo.Description
+                    Description = photo.Description,
+                    LocalisationGroupId = photo.LocalisationGroupId
                 };
             }
             else
@@ -64,7 +66,8 @@ namespace KronoGeo_Api.Models.Model.DTO
                 Course      = localisation.Course,
                 Speed       = localisation.Speed,
                 VerticalAccuracy = localisation.VerticalAccuracy,
-                Timestamp   = localisation.Timestamp.ToUniversalTime()
+                Timestamp   = localisation.Timestamp.ToUniversalTime(),
+                LocalisationGroupId = localisation.LocalisationGroupId
             };
         }
 
@@ -86,7 +89,8 @@ namespace KronoGeo_Api.Models.Model.DTO
                     Timestamp = photo.Timestamp.ToUniversalTime(),
                     Name = photo.Name,
                     PathPhoto = photo.PathPhoto,
-                    Description = photo.Description
+                    Description = photo.Description,
+                    LocalisationGroupId = photo.LocalisationGroupId??0
                 };
             }
             else
@@ -101,7 +105,8 @@ namespace KronoGeo_Api.Models.Model.DTO
                     Course = this.Course,
                     Speed = this.Speed,
                     VerticalAccuracy = this.VerticalAccuracy,
-                    Timestamp = this.Timestamp.ToUniversalTime()
+                    Timestamp = this.Timestamp.ToUniversalTime(),
+                    LocalisationGroupId = this.LocalisationGroupId ?? 0
                 };
         }
         #endregion
