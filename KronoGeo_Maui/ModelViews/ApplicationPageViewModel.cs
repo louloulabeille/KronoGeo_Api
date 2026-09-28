@@ -381,7 +381,7 @@ namespace KronoGeo_Maui.ModelViews
                             Speed = location.Speed,
                             VerticalAccuracy = location.VerticalAccuracy,
                             Name = photo.Name,
-                            PathPhoto = photo.PathPhoto,
+                            PathPhoto = photo.PathPhoto
                         });
 
                         // -- envoie un message pour mettre à jour le tracé sur la map

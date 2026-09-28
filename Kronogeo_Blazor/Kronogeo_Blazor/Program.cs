@@ -65,6 +65,7 @@ builder.Services.AddAuthentifcateBffServeur();
 
 var app = builder.Build();
 
+#region configuration du CORS
 // -- CORS 
 app.UseCors(cors => cors
                 .AllowAnyMethod()
@@ -72,6 +73,7 @@ app.UseCors(cors => cors
                 .SetIsOriginAllowed(origin => true)
                 .AllowCredentials()
             );
+#endregion
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

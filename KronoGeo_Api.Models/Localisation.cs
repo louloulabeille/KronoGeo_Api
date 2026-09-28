@@ -75,6 +75,7 @@ namespace KronoGeo_Api.Models
                     Speed = this.Speed,
                     Course = this.Course,
                     Name = photo.Name,
+                    Description = photo.Description,
                     PathPhoto = photo.PathPhoto
                 };
             }

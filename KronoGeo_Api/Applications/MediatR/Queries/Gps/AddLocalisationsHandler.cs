@@ -76,7 +76,8 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
                             VerticalAccuracy = localisationPhoto.VerticalAccuracy,
                             Timestamp = localisationPhoto.Timestamp.ToUniversalTime(),
                             Name = localisationPhoto.Name,
-                            PathPhoto = localisationPhoto.PathPhoto
+                            PathPhoto = localisationPhoto.PathPhoto,
+                            Description = localisationPhoto.Description
                         });
                     }
                     else

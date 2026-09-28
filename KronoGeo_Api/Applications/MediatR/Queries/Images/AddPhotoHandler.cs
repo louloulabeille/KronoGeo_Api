@@ -1,4 +1,4 @@
-﻿using KronoGeo_Api.Applications.MediatR.Commands.Gps;
+﻿using KronoGeo_Api.Applications.MediatR.Commands.Images;
 using KronoGeo_Api.Infrastructure.Repository;
 using KronoGeo_Api.Interface;
 using KronoGeo_Api.Models.Infrastructure.Options;
@@ -7,7 +7,7 @@ using MediatR;
 using Microsoft.AspNetCore;
 using Microsoft.Extensions.Options;
 
-namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
+namespace KronoGeo_Api.Applications.MediatR.Queries.Images
 {
     public class AddPhotoHandler(ILogger<object> logger
         , IWebHostEnvironment webHost

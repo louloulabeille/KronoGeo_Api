@@ -42,6 +42,7 @@ namespace KronoGeo_Api.Infrastructure.Database
             builder.ApplyConfiguration(new LocalisationEntityTypeConfiguration());
             builder.ApplyConfiguration(new LocalisationGroupEntityTypeConfiguration());
             builder.ApplyConfiguration(new RouteTelemetryEntityTypeConfiguration());
+            builder.ApplyConfiguration(new LocalisationPhotoEntityTypeConfiguration());
         }
         #endregion
     }

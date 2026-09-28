@@ -14,6 +14,7 @@ namespace KronoGeo_Api.Models.Model.DTO
         public required string Name { get; set; }
         //public string? PathPhoto { get; set; }
         public string? PathPhoto { get; set; } = null;
+        public string? Description { get; set; }
 
         /*public LocalisationPhotoDTO()
         {

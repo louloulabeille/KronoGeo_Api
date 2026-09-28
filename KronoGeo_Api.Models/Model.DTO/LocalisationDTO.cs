@@ -48,7 +48,8 @@ namespace KronoGeo_Api.Models.Model.DTO
                     VerticalAccuracy = photo.VerticalAccuracy,
                     Timestamp   = photo.Timestamp.ToUniversalTime(),
                     Name        = photo.Name,
-                    PathPhoto   = photo.PathPhoto
+                    PathPhoto   = photo.PathPhoto,
+                    Description = photo.Description
                 };
             }
             else
@@ -84,7 +85,8 @@ namespace KronoGeo_Api.Models.Model.DTO
                     VerticalAccuracy = photo.VerticalAccuracy,
                     Timestamp = photo.Timestamp.ToUniversalTime(),
                     Name = photo.Name,
-                    PathPhoto = photo.PathPhoto
+                    PathPhoto = photo.PathPhoto,
+                    Description = photo.Description
                 };
             }
             else

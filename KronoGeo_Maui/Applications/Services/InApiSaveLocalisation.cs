@@ -106,7 +106,8 @@ namespace KronoGeo_Maui.Applications.Services
                                 Speed = s.Speed,
                                 Timestamp = s.Timestamp,
                                 Name = photo.Name,
-                                PathPhoto = photo.PathPhoto
+                                PathPhoto = photo.PathPhoto,
+                                Description = photo.Description
                             };
                         }
                         else

@@ -105,36 +105,7 @@ namespace KronoGeo_Api.Controllers
             }
         }
 
-        /// <summary>
-        /// enregistrement des images avant enregistrements des points Gps
-        /// dans un répertoire temporaire
-        /// faire un traitement de ce repertoire pour supprimer les fichiers de + de 24h
-        /// </summary>
-        /// <param name="file"></param>
-        /// <returns></returns>
-        // POST api/v1/<GpsController>/SaveImage
-        [HttpPost("SaveImage")]
-        public async Task<IActionResult> SaveImage(IFormFile file)
-        {
-            try
-            {
-                if( !ModelState.IsValid)
-                {
-                    return this.BadRequest("Invalid model state.");
-                }
-
-                var command = new AddPhotoCommand() { FormFile = file };
-                var result = await _mediaR.Send(command);
-
-                return this.Ok(result);
-            }
-            catch(Exception ex)
-            {
-                _logger.LogError(ex, "Erreur lors de l'enregistrement des photos.");
-                return this.Problem("Error while saving photos.");
-            }
-        }
-
+        
         // DELETE api/v1/<GpsController>/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id, [FromBody] UserIdDTO user)

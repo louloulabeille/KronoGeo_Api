@@ -1,0 +1,52 @@
+﻿using KronoGeo_Api.Applications.MediatR.Commands.Images;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using static Microsoft.Maui.ApplicationModel.Permissions;
+
+namespace KronoGeo_Api.Controllers
+{
+    [Route("api/v1/[controller]")]
+    [ApiController]
+    public class ImagesController(ILogger<ImagesController> logger , IMediator mediaR) : Controller
+    {
+        #region private readonly properties
+        private readonly ILogger<ImagesController> _logger = logger;
+        private readonly IMediator _mediaR = mediaR;
+        #endregion
+
+
+        #region public action 
+        /// <summary>
+        /// enregistrement des images avant enregistrements des points Gps
+        /// dans un répertoire temporaire
+        /// faire un traitement de ce repertoire pour supprimer les fichiers de + de 24h
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        // POST api/v1/<GpsController>/SaveImage
+        [HttpPost("SaveImage")]
+        public async Task<IActionResult> SaveImage(IFormFile file)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return this.BadRequest("Invalid model state.");
+                }
+
+                var command = new AddPhotoCommand() { FormFile = file };
+                var result = await _mediaR.Send(command);
+
+                return this.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de l'enregistrement des photos.");
+                return this.Problem("Error while saving photos.");
+            }
+        }
+
+        #endregion
+
+    }
+}
