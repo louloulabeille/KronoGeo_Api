@@ -8,5 +8,6 @@ namespace KronoGeo_Api.Models.Infrastructure.Options
     {
         public string Default_Photo { get; set; } = string.Empty;
         public string Tmp_Photo { get; set; } = string.Empty;
+        public string Www { get; set; } = string.Empty;
     }
 }

@@ -52,8 +52,8 @@ namespace KronoGeo_Api.Controllers
         /// </summary>
         /// <param name="photo"></param>
         /// <returns></returns>
-        [HttpPost("UpdateImage")]
-        public async Task<IActionResult> UpdateImage( LocalisationPhotoDTO photo )
+        [HttpPost("UpdateImage/{user}")]
+        public async Task<IActionResult> UpdateImage(string user, [FromBody] LocalisationPhotoDTO photo )
         {
             try
             {
@@ -62,7 +62,7 @@ namespace KronoGeo_Api.Controllers
                     return this.BadRequest("Invalid Model state.");
                 }
 
-                var command = new UpdatePhotoCommand() { Photo = photo };
+                var command = new UpdatePhotoCommand() { Photo = photo , IdUser = user};
                 var result = await _mediaR.Send(command);
 
                 return this.Ok(result);
@@ -73,6 +73,32 @@ namespace KronoGeo_Api.Controllers
             }
         }
 
+        /// <summary>
+        /// Supprime la photo au niveau du serveur on garde le point de localisationPhoto
+        /// en localisation au niveau de la base de données
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpDelete("DeleteImage/{id}")]
+        public async Task<IActionResult> DeleteImage(int id, [FromBody] UserIdDTO user)
+        {
+            try
+            {
+                if( !ModelState.IsValid)
+                {
+                    return this.BadRequest("Invalid Model state.");
+                }
+
+                var command = new DeletePhotoCommand() { IdPhoto = id, IdUser = user.Id };
+                var result = await _mediaR.Send(command);
+                return this.Ok(result);
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de la modification de localisationPhotoDTO ");
+                return this.Problem("Error while Delete photo");
+            }
+        }
         #endregion
 
     }

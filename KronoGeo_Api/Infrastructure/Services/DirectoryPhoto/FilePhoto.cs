@@ -116,6 +116,36 @@ namespace KronoGeo_Api.Infrastructure.Services.DirectoryPhoto
             Directory.Delete(directoryPath);
 
         }
+
+
+        /// <summary>
+        /// Supression d'une photo sur le serve
+        /// </summary>
+        /// <param name="pathfile"></param>
+        /// <param name="directory">répertoire court ou est stocké l'image</param>
+        /// <returns></returns>
+        public bool DeletePhoto(string pathfile, string directory)
+        {
+            if (string.IsNullOrEmpty(pathfile)) return false;
+
+            string filePathServer = Path.Combine(_webhost.ContentRootPath, _option.Value.Www);
+            filePathServer = Path.Combine(filePathServer, pathfile);
+
+            string fulldirectory = Path.Combine(_webhost.ContentRootPath, _option.Value.Www);
+            fulldirectory = Path.Combine(fulldirectory, directory);
+
+            if (!File.Exists(filePathServer)) return false;
+
+            File.Delete(filePathServer);
+            // -- supression du répertoire si vide
+            if( Directory.Exists(fulldirectory) && Directory.GetFiles(fulldirectory).Length == 0 )
+            {
+                Directory.Delete(fulldirectory);
+            }
+
+            return true;
+        }
+
         #endregion
 
     }
