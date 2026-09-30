@@ -47,6 +47,9 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         protected string ImgDate { get; set; } = string.Empty;
         protected string ImgLongitude { get;set; } = string.Empty;
         protected string ImgLatitude { get; set; } = string.Empty;
+        protected LocalisationPhoto? LocalisationPhoto { get; set; }
+        protected string Description { get; set; } = string.Empty;
+        protected bool IsDescription { get; set; } = false;
         // -------
         #endregion
 
@@ -97,7 +100,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
 
         #region protected method 
         /// <summary>
-        /// method pour event onpointermove
+        /// method pour event onpointermove pour afficher la card de la photo
         /// </summary>
         /// <param name="e"></param>
         protected void HandlerPointerMove(PointerEventArgs e)
@@ -126,6 +129,8 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                 ImgDate = imgUrl.Timestamp.LocalDateTime.ToString("dd/MM/yyyy HH:mm:ss");
                 ImgLongitude = imgUrl.Longitude.ToString();
                 ImgLatitude = imgUrl.Latitude.ToString();
+                LocalisationPhoto = imgUrl;
+                Description = imgUrl.Description ?? string.Empty;
             }
             //else
             //{
@@ -150,6 +155,25 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
             ImgDate = string.Empty;
             ImgLongitude = string.Empty;
             ImgLatitude = string.Empty;
+            LocalisationPhoto = null;
+
+            StateHasChanged();
+        }
+
+        /// <summary>
+        /// Affiche le textAera et l'enregistre si modifié
+        /// Modification et ajout d'une description sur la photo
+        /// </summary>
+        /// <param name="photo"></param>
+        protected void EditDescription ()
+        {
+            IsDescription = !IsDescription;
+
+            if ( Description != LocalisationPhoto?.Description)
+            {
+
+            }
+
 
             StateHasChanged();
         }

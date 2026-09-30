@@ -20,8 +20,32 @@
                 <img src="@UrlImg" class="card-img-top" alt="...">
                 <div class="card-body">
                     <p class="card-text">
-                        <table class="table-info table-striped">
+                        <table class="table table-info table-striped table-primary">
                             <tbody>
+                                <tr>
+                                    <th scope="row" >
+                                        <p style="font-size: small">
+                                            Description
+                                        </p>
+                                    </th>
+                                    <td class="text-end">
+                                        <button @onclick="EditDescription" class="btn btn-primary-outline btn-sm">
+                                            <i style="width:16px; height:16px" class="bi bi-pencil"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                    @if (IsDescription ) {
+                                        <textarea @bind="Description" class="form-control" rows="3">
+                                        </textarea>
+                                    }
+                                    else
+                                    {
+                                        <p style="font-size: small">@LocalisationPhoto?.Description</p>
+                                    }
+                                    </td>
+                                </tr>
                                 <tr>
                                     <th scope="row"><p style="font-size: small">Date/heure</p></th>
                                     <td><p style="font-size: small">@ImgDate</p></td>
