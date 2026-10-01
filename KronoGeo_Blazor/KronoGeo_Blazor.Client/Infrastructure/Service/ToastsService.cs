@@ -11,6 +11,16 @@ namespace KronoGeo_Blazor.Client.Infrastructure.Service
         Info
     }
 
+    public static class ToastAffichage
+    {
+        public const string TopCenter = "top-center";
+        public const string TopLeft = "top-left";
+        public const string TopRight = "top-right";
+        public const string BottomCenter = "bottom-center";
+        public const string BottomLeft = "bottom-left";
+        public const string BottomRight = "bottom-right";
+    }
+
     public class ToastsService (IJSRuntime js)
     {
         #region private readonly properties
@@ -24,12 +34,13 @@ namespace KronoGeo_Blazor.Client.Infrastructure.Service
         /// <param name="message"></param>
         /// <param name="type"></param>
         /// <param name="delaiMs"></param>
+        /// <param name="position"></param>
         /// <returns></returns>
-        public async Task AfficherAsync(string message, ToastType type = ToastType.Primary, int delaiMs = 4000)
+        public async Task AfficherAsync(string message, ToastType type = ToastType.Primary, int delaiMs = 4000, string position = ToastAffichage.TopCenter)
         {
             try
             {
-                await _js.InvokeVoidAsync("afficherToastDynamique", message, type.ToString().ToLower(), delaiMs);
+                await _js.InvokeVoidAsync("afficherToastDynamique", message, type.ToString().ToLower(), delaiMs, position);
             }
             catch (JSDisconnectedException)
             {

@@ -1,11 +1,29 @@
-﻿window.afficherToastDynamique = (message, type = "primary", delay = 4000) => {
-    let container = document.getElementById("toast-container");
+﻿const positions = {
+    "top-center": "top-0 start-50 translate-middle-x",
+    "top-right": "top-0 end-0",
+    "top-left": "top-0 start-0",
+    "bottom-center": "bottom-0 start-50 translate-middle-x",
+    "bottom-right": "bottom-0 end-0",
+    "bottom-left": "bottom-0 start-0"
+};
+
+window.afficherToastDynamique = (message, type = "primary", delay = 4000, position = "top-center") => {
+    const containerId = `toast-container-${position}`;
+    let container = document.getElementById(containerId);
+    if (!container) {
+        container = document.createElement("div");
+        container.id = containerId;
+        container.className = `toast-container position-fixed p-3 ${positions[position] ?? positions["top-center"]}`;
+        document.body.appendChild(container);
+    }    
+    
+   /* let container = document.getElementById("toast-container");
     if (!container) {
         container = document.createElement("div");
         container.id = "toast-container";
         container.className = "toast-container position-fixed bottom-0 end-0 p-3";
         document.body.appendChild(container);
-    }
+    }*/
 
     const toastEl = document.createElement("div");
     toastEl.className = `toast align-items-center text-bg-${type} border-0`;

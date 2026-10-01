@@ -209,7 +209,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <param name="photo"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task<bool> UpdateImage(string userId, LocalisationPhotoDTO photo)
+        public async Task<bool> UpdateImageAsync(string userId, LocalisationPhotoDTO photo)
         {
             if ( string.IsNullOrEmpty( userId ) ) throw new ArgumentNullException(nameof(userId), "L'identifiant de l'utilisateur est null ou vide.");
 

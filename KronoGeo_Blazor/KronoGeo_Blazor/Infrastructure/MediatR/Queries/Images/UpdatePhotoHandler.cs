@@ -9,9 +9,14 @@ namespace KronoGeo_Blazor.Infrastructure.MediatR.Queries.Images
         , IRequestHandler<UpdatePhotoCommand, bool>
 
     {
-        public Task<bool> Handle(UpdatePhotoCommand request, CancellationToken cancellationToken)
+        public async Task<bool> Handle(UpdatePhotoCommand request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            if (ServiceHttp is not null)
+            {
+                return await ServiceHttp.UpdateImageAsync(request.IdUser , request.Photo );
+            }
+
+            return false;
         }
     }
 }

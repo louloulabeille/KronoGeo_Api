@@ -210,6 +210,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                         {
                             // -- affichage d'un message de succès
                             await _toastService.SuccesAsync($"Description modifiée avec succès.");
+                            StateHasChanged();
                         }
                     }
 

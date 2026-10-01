@@ -192,7 +192,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                 {
                     var retour = await result.Content.ReadAsStringAsync();
                     var data = JsonSerializer.Deserialize<bool>(retour, JsonOptions.GetJsonOptions());
-                    if (data) return true;
+                    return data;
                 }
 
                 return false;

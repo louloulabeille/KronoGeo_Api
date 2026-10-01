@@ -74,6 +74,7 @@ namespace KronoGeo_Api.Models
                     VerticalAccuracy = this.VerticalAccuracy,
                     Speed = this.Speed,
                     Course = this.Course,
+                    LocalisationGroupId = this.LocalisationGroupId,
                     Name = photo.Name,
                     Description = photo.Description,
                     PathPhoto = photo.PathPhoto
@@ -90,6 +91,7 @@ namespace KronoGeo_Api.Models
                 Altitude = this.Altitude,
                 Accuracy = this.Accuracy,
                 VerticalAccuracy = this.VerticalAccuracy,
+                LocalisationGroupId = this.LocalisationGroupId,
                 Speed = this.Speed,
                 Course = this.Course
             };

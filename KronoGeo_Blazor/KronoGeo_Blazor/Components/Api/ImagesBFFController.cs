@@ -32,7 +32,7 @@ namespace KronoGeo_Blazor.Components.Api
                 }
 
                 var command = new UpdatePhotoCommand { IdUser = user, Photo = photo };
-                var result = _mediaR.Send(command);
+                var result = await _mediaR.Send(command);
 
                 return this.Ok(result);
             }
