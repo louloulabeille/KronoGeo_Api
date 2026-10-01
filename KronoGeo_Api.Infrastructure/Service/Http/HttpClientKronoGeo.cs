@@ -202,6 +202,37 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             };
         }
 
+        /// <summary>
+        /// method de mise à jour de localisationPhotoDTO pour un utilisateur
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="photo"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public async Task<bool> UpdateImage(string userId, LocalisationPhotoDTO photo)
+        {
+            if ( string.IsNullOrEmpty( userId ) ) throw new ArgumentNullException(nameof(userId), "L'identifiant de l'utilisateur est null ou vide.");
+
+            // -- url
+            var url = $"{_options.Value.UpdateImage}/{WebUtility.UrlEncode(userId)}";
+            // -- sérialisation de localisationPhotoDTO en JSON
+            var content = new StringContent(JsonSerializer.Serialize(photo), Encoding.UTF8, "application/json");
+
+            // -- envoi en Http 
+            using var retour = await HttpClient.PostAsync(url, content);
+            retour.EnsureSuccessStatusCode();
+
+            if( retour.IsSuccessStatusCode )
+            {
+                var result = await retour.Content.ReadAsStringAsync();
+                var deserializedResult = JsonSerializer.Deserialize<bool>(result, JsonOptions.GetJsonOptions());
+                return deserializedResult;
+            }
+
+            return false;
+        }
+
+
         #endregion
 
         #region public method interface IDisposable

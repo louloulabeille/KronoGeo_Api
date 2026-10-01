@@ -1,9 +1,9 @@
 ﻿using BruTile.Predefined;
 using BruTile.Web;
-using KronoGeo_Api.Infrastructure.Service.Blazor;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Model.DTO;
+using KronoGeo_Blazor.Client.Infrastructure.Service;
 using Mapsui;
 using Mapsui.Extensions;
 using Mapsui.Layers;

@@ -1,11 +1,12 @@
 using BruTile.Wms;
-using KronoGeo_Api.Infrastructure.Service.Blazor;
 using KronoGeo_Api.Infrastructure.Service.Http;
 using KronoGeo_Api.Infrastructure.Service.Map;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Blazor.Client.Infrastructure.Extends;
+using KronoGeo_Blazor.Client.Infrastructure.Service;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -23,10 +24,10 @@ builder.Services.AddAutorizationClient();
 builder.Services.AddScoped<IMapStateService,MapStateService>();
 #endregion
 
-#injection de dépendance
-// -- ajout du service ToastService pour l'affichage des notifications toast
+#region  injection de dépendance
+// -- ajout du service ToastsService pour l'affichage des notifications toast
 // -- javascript interop pour l'affichage des notifications toast
-builder.Services.AddScoped<ToastService>();
+builder.Services.AddScoped<ToastsService>();
 #endregion
 
 await builder.Build().RunAsync();
