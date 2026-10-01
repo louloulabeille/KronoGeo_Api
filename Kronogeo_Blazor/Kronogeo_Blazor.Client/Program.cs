@@ -1,4 +1,5 @@
 using BruTile.Wms;
+using KronoGeo_Api.Infrastructure.Service.Blazor;
 using KronoGeo_Api.Infrastructure.Service.Http;
 using KronoGeo_Api.Infrastructure.Service.Map;
 using KronoGeo_Api.Interface.Service;
@@ -20,6 +21,12 @@ builder.Services.AddAutorizationClient();
 
 #region injection pour passer les localisations vers la map
 builder.Services.AddScoped<IMapStateService,MapStateService>();
+#endregion
+
+#injection de dépendance
+// -- ajout du service ToastService pour l'affichage des notifications toast
+// -- javascript interop pour l'affichage des notifications toast
+builder.Services.AddScoped<ToastService>();
 #endregion
 
 await builder.Build().RunAsync();

@@ -11,5 +11,6 @@ namespace KronoGeo_Api.Models.Infrastructure.Options
         public string SavePhoto { get; set; } = string.Empty;
         public string SaveGroupLocalisations { get; set; } = string.Empty;
         public string GetUserGroupLocalisation { get; set; } = string.Empty;
+        public string UpdateImage { get; set; } = string.Empty;
     }
 }

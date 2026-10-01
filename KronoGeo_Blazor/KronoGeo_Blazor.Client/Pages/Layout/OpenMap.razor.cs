@@ -1,7 +1,9 @@
 ﻿using BruTile.Predefined;
 using BruTile.Web;
+using KronoGeo_Api.Infrastructure.Service.Blazor;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models;
+using KronoGeo_Api.Models.Model.DTO;
 using Mapsui;
 using Mapsui.Extensions;
 using Mapsui.Layers;
@@ -15,10 +17,12 @@ using Mapsui.UI;
 using Mapsui.UI.Blazor;
 using Mapsui.Utilities;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using NetTopologySuite.Geometries;
 using SkiaSharp;
 using Svg.Skia;
+using System.Security.Claims;
 using static System.Net.WebRequestMethods;
 
 namespace KronoGeo_Blazor.Client.Pages.Layout
@@ -28,6 +32,15 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         #region public inject
         [Inject]
         public IMapStateService? MapStateService { get; set; }
+        [Inject]
+        private IServiceHttpClientAssembly? _serviceHttp { get; set; } = default;
+        [Inject]
+        private AuthenticationStateProvider? _authenticationStateProvider { get; set; } = default;
+        /// <summary>
+        /// Service pour l'affichage des notifications toast
+        /// </summary>
+        [Inject]
+        private ToastsService? _toastService { get; set; } = default;
         #endregion
 
         #region public properties
@@ -106,6 +119,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         protected void HandlerPointerMove(PointerEventArgs e)
         {
             if (MapControl?.Map == null) return;
+            
 
             // Conversion des coordonnées écran vers la carte Mapsui
             //var viewport = MapControl.Map.Navigator.Viewport;
@@ -121,6 +135,9 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
             // recherche si un feature existe sur la map && qu'il existe dans le dictionnaire
             if (mapInfo?.Feature != null && _featureImageMap.TryGetValue(mapInfo.Feature, out var imgUrl))
             {
+                // -- fermeture de la saisie de description
+                IsDescription = false;
+
                 UrlImg = Path.Combine("https://localhost:7291/" + imgUrl.PathPhoto?.Replace("wwwroot/", "") , imgUrl.Name) ;
                 MouseX = e.OffsetX;
                 MouseY = e.OffsetY;
@@ -165,17 +182,49 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         /// Modification et ajout d'une description sur la photo
         /// </summary>
         /// <param name="photo"></param>
-        protected void EditDescription ()
+        protected async Task EditDescription ()
         {
-            IsDescription = !IsDescription;
-
-            if ( Description != LocalisationPhoto?.Description)
+            try
             {
+                IsDescription = !IsDescription;
 
+                if (!IsDescription && !string.IsNullOrEmpty(Description.Trim()) 
+                    && Description.Trim() != LocalisationPhoto?.Description)
+                { // -- code d'enregistrement de la description 
+
+                    if (_authenticationStateProvider is not null && LocalisationPhoto is not null && _serviceHttp is not null)
+                    {
+                        LocalisationPhoto.Description = Description.Trim();
+                        // -- récupération de l'utilisateur connecté pour l'envoyer à l'api
+                        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+                        // -- récupération du claim NameIdentifier qui est l'id de l'utilisateur dans le cookie
+                        var user = authState.User.Identities.FirstOrDefault()?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+                        // -- extraction de l'id de l'utilisateur pour l'envoyer à l'api
+                        var userId = user?.Value ?? string.Empty;
+
+                        var localisationPhotoDTO = LocalisationPhoto.GetDTO() as LocalisationPhotoDTO ?? null;
+
+                        if (localisationPhotoDTO is null) return;
+                        var result = await _serviceHttp.UpdateImageAsync(userId, localisationPhotoDTO);
+                        if ( result  && _toastService is not null)
+                        {
+                            // -- affichage d'un message de succès
+                            await _toastService.SuccesAsync($"Description modifiée avec succès.");
+                        }
+                    }
+
+                }
+
+
+                StateHasChanged();
             }
-
-
-            StateHasChanged();
+            catch(Exception ex)
+            {
+                Console.WriteLine($"Message error OpenMap method EditDescription : {ex.Message}");
+                // -- affichage d"un message Toasts d'erreur de boostrap fait en javascript
+                if (_toastService is not null)
+                    await _toastService.ErreurAsync($"Erreur lors de la modification de la description.");
+            }
         }
         #endregion
 
@@ -370,10 +419,10 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         {
             if (env is null) return;
 
-            var minPoint = SphericalMercator.FromLonLat(env.MinX, env.MinY);
+            var (x, y) = SphericalMercator.FromLonLat(env.MinX, env.MinY);
             var maxPoint = SphericalMercator.FromLonLat(env.MaxX, env.MaxY);
 
-            var box = new MRect(minPoint.x, minPoint.y, maxPoint.x, maxPoint.y);
+            var box = new MRect(x, y, maxPoint.x, maxPoint.y);
 
             MapControl?.Map.Navigator.ZoomToBox(box, duration: 500);
             MapControl?.Refresh();

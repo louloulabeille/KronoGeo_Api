@@ -1,3 +1,4 @@
+using KronoGeo_Api.Infrastructure.Service.Blazor;
 using KronoGeo_Api.Infrastructure.Service.Http;
 using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Blazor.Client.Pages;
@@ -61,6 +62,12 @@ builder.Services.AddAuthentifcateBffServeur();
 
 #region ajout d'une valeur RoleBlazor en cascading parameter au niveau de la racine de l'application
 //builder.Services.AddCcParemRole();
+#endregion
+
+#injection de dépendance
+// -- ajout du service ToastService pour l'affichage des notifications toast
+// -- javascript interop pour l'affichage des notifications toast
+builder.Services.AddScoped<ToastService>();
 #endregion
 
 var app = builder.Build();

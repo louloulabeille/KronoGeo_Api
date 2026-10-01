@@ -152,7 +152,9 @@ namespace KronoGeo_Blazor.Client.Pages
         {
             if (_serviceHttp is not null && _authenticationStateProvider is not null)
             {
+                // -- récupération de l'utilisateur connecté pour récupérer les groupes de localisation
                 var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+                // -- récupération du claim NameIdentifier pour récupérer l'id de l'utilisateur
                 var user = authState.User.Identities.FirstOrDefault()?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
                 var result = await _serviceHttp.GetUserGroupLocalisationAsync(user?.Value ?? string.Empty);
 

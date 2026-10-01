@@ -20,7 +20,7 @@
                 <img src="@UrlImg" class="card-img-top" alt="...">
                 <div class="card-body">
                     <p class="card-text">
-                        <table class="table table-info table-striped table-primary">
+                        <table class="table table-primary table-striped ">
                             <tbody>
                                 <tr>
                                     <th scope="row" >
@@ -36,8 +36,9 @@
                                 </tr>
                                 <tr>
                                     <td colspan="2">
-                                    @if (IsDescription ) {
-                                        <textarea @bind="Description" class="form-control" rows="3">
+                                    @if ( IsDescription ) {
+                                        <textarea @bind="Description" class="form-control" 
+                                            style="font-size: small" rows="3">
                                         </textarea>
                                     }
                                     else

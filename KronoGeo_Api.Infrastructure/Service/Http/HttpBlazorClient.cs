@@ -1,5 +1,6 @@
 ﻿using KronoGeo_Api.Infrastructure.Applications.Helpers;
 using KronoGeo_Api.Interface.Service;
+using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Infrastructure.Options;
 using KronoGeo_Api.Models.Model.DTO;
@@ -168,6 +169,38 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                     ApiStatus = EnumApiStatus.Problem,
                     Message = $"Erreur lors de la récupération des groupes de localisation pour l'utilisateur {userId}"
                 };
+            }
+        }
+
+        /// <summary>
+        /// method qui modifie la LocalisationPhotoDTO
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="photo"></param>
+        /// <returns></returns>
+        public async Task<bool> UpdateImageAsync(string userId, LocalisationPhotoDTO photo)
+        {
+            try
+            {
+                var adress = _options.Value.UpdateImage;
+                var url = adress + "/" + WebUtility.UrlEncode(userId);
+                HttpContent content = new StringContent(JsonSerializer.Serialize(photo), Encoding.UTF8, "application/json");
+                using var result = await _httpClient.PostAsync(url, content);
+                result.EnsureSuccessStatusCode();
+
+                if(result.IsSuccessStatusCode)
+                {
+                    var retour = await result.Content.ReadAsStringAsync();
+                    var data = JsonSerializer.Deserialize<bool>(retour, JsonOptions.GetJsonOptions());
+                    if (data) return true;
+                }
+
+                return false;
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de la modification d'une LocalisationPhoto pour {userId} : {ex.Message}", userId, ex.Message);
+                return false;
             }
         }
 
