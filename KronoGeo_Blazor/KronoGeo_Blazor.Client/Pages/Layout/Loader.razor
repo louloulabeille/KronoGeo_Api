@@ -1,6 +1,6 @@
 ﻿@inherits LoaderBase;
 
-@rendermode InteractiveWebAssembly
+@rendermode @(new InteractiveAutoRenderMode(prerender: true))
 
 <div class="row text-center" >
     <div class="col"><div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>

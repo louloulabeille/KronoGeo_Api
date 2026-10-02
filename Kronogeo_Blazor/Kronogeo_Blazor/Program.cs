@@ -64,6 +64,11 @@ builder.Services.AddAuthentifcateBffServeur();
 //builder.Services.AddCcParemRole();
 #endregion
 
+builder.Services.AddServerSideBlazor(options =>
+{
+    options.DetailedErrors = true;
+});
+
 
 var app = builder.Build();
 

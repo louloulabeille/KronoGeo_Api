@@ -205,7 +205,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                         var localisationPhotoDTO = LocalisationPhoto.GetDTO() as LocalisationPhotoDTO ?? null;
 
                         if (localisationPhotoDTO is null) return;
-                        var result = await _serviceHttp.UpdateImageAsync(userId, localisationPhotoDTO);
+                        var result = await _serviceHttp.UpdateImageAsync(localisationPhotoDTO);
                         if ( result  && _toastService is not null)
                         {
                             // -- affichage d'un message de succès

@@ -142,13 +142,13 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <param name="userId"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<ResponseApiLocalisations> GetUserGroupLocalisationAsync(string userId)
+        public async Task<ResponseApiLocalisations> GetUserGroupLocalisationAsync()
         {
             try
             {
                 var adress = _options.Value.GetUserGroupLocalisation;
-                var url = adress + "/" + WebUtility.UrlEncode(userId);
-                using var result = await _httpClient.GetAsync(url);
+
+                using var result = await _httpClient.GetAsync(adress);
                 result.EnsureSuccessStatusCode();
 
                 var retour = await result.Content.ReadAsStringAsync();
@@ -156,18 +156,18 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
 
                 return data ?? new() { 
                     ApiStatus = EnumApiStatus.NotFound,
-                    Message = $"Aucun groupe de localisation trouvé pour l'utilisateur {userId}",
+                    Message = $"Aucun groupe de localisation trouvé",
                     LocalisationGroupDTO = null,
                     GroupsDTO = []
                 };
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erreur lors de la récupération des groupes de localisation pour l'utilisateur {userId}, {message}", userId, ex.Message);
+                _logger.LogError(ex, "Erreur lors de la récupération des groupes de localisation pour l'utilisateur : {message}", ex.Message);
                 return new ResponseApiLocalisations
                 {
                     ApiStatus = EnumApiStatus.Problem,
-                    Message = $"Erreur lors de la récupération des groupes de localisation pour l'utilisateur {userId}"
+                    Message = $"Erreur lors de la récupération des groupes de localisation"
                 };
             }
         }
@@ -178,14 +178,13 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <param name="userId"></param>
         /// <param name="photo"></param>
         /// <returns></returns>
-        public async Task<bool> UpdateImageAsync(string userId, LocalisationPhotoDTO photo)
+        public async Task<bool> UpdateImageAsync( LocalisationPhotoDTO photo)
         {
             try
             {
                 var adress = _options.Value.UpdateImage;
-                var url = adress + "/" + WebUtility.UrlEncode(userId);
                 HttpContent content = new StringContent(JsonSerializer.Serialize(photo), Encoding.UTF8, "application/json");
-                using var result = await _httpClient.PostAsync(url, content);
+                using var result = await _httpClient.PostAsync(adress, content);
                 result.EnsureSuccessStatusCode();
 
                 if(result.IsSuccessStatusCode)
@@ -199,7 +198,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             }
             catch(Exception ex)
             {
-                _logger.LogError(ex, "Erreur lors de la modification d'une LocalisationPhoto pour {userId} : {ex.Message}", userId, ex.Message);
+                _logger.LogError(ex, "Erreur lors de la modification d'une LocalisationPhoto : {ex.Message}", ex.Message);
                 return false;
             }
         }

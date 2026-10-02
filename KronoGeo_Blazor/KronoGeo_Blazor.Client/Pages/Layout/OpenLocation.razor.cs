@@ -1,5 +1,6 @@
 ﻿using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models;
+using KronoGeo_Blazor.Client.Infrastructure.Service;
 using Microsoft.AspNetCore.Components;
 
 namespace KronoGeo_Blazor.Client.Pages.Layout
@@ -14,6 +15,8 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         #region inject properties
         [Inject]
         private IServiceHttpClientAssembly? _serviceHttp { get; set; } = default;
+        [Inject]
+        private ToastsService? _toastsService { get; set; } = default;
         #endregion
 
         #region protected properties view
@@ -32,7 +35,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         /// <returns></returns>
         protected override async Task OnInitializedAsync()
         {
-
+            await LoadLocalisationsAsync();
             await base.OnInitializedAsync();
         }
         #endregion
@@ -50,16 +53,27 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         /// Charge les localisations basées sur l'ID du groupe de localisation.
         /// </summary>
         /// <returns></returns>
-        private async Task LoadLocalisations()
+        private async Task LoadLocalisationsAsync()
         {
-            // Load the localisations based on the LocalisationGroupId
-            // This is a placeholder for your actual data loading logic
-            if ( _serviceHttp == null ) return;
-            var result = await _serviceHttp.GetLocalisationsByIdAsync(LocalisationGroupId)??null;
+            try
+            {
+                // Load the localisations based on the LocalisationGroupId
+                // This is a placeholder for your actual data loading logic
+                if (_serviceHttp == null) return;
+                var result = await _serviceHttp.GetLocalisationsByIdAsync(LocalisationGroupId) ?? null;
 
-            if( result is null || result?.LocalisationGroupDTO is null || result.LocalisationGroupDTO.Localisations is null)
-                return;
-            Localisations.AddRange(result.LocalisationGroupDTO.Localisations.Select( l => l.Get()).ToList());
+                if (result is null || result?.LocalisationGroupDTO is null || result.LocalisationGroupDTO.Localisations is null)
+                    return;
+                Localisations.AddRange(result.LocalisationGroupDTO.Localisations.Select(l => l.Get()).ToList());
+            }
+            catch(Exception ex)
+            {
+                // Handle exceptions (e.g., log the error)
+                Console.WriteLine($"Error loading localisations: {ex.Message}");
+                // -- affichage de l'erreur dans le toast
+                _toastsService?.ErreurAsync("Erreur lors du chargement des localisations.");
+            }
+            
         }
 
         /// <summary>

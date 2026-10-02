@@ -30,4 +30,6 @@ builder.Services.AddScoped<IMapStateService,MapStateService>();
 builder.Services.AddScoped<ToastsService>();
 #endregion
 
+
+
 await builder.Build().RunAsync();

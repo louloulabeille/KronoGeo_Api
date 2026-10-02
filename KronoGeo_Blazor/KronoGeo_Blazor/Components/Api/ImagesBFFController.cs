@@ -2,6 +2,7 @@
 using KronoGeo_Blazor.Infrastructure.MediatR.Commands.Images;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace KronoGeo_Blazor.Components.Api
 {
@@ -18,20 +19,26 @@ namespace KronoGeo_Blazor.Components.Api
         /// <summary>
         /// Action pôur modifier spécifiquement les points photos
         /// </summary>
-        /// <param name="user">id de l'utilisateur</param>
         /// <param name="photo"></param>
         /// <returns></returns>
-        [HttpPost("UpdateImage/{user}")]
-        public async Task<IActionResult> UpdateImage (string user, [FromBody] LocalisationPhotoDTO photo)
+        [HttpPost("UpdateImage")]
+        public async Task<IActionResult> UpdateImage ([FromBody] LocalisationPhotoDTO photo)
         {
+
             try {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
                 if ( !ModelState.IsValid)
                 {
                     return BadRequest("Invalid model state.");
                 }
 
-                var command = new UpdatePhotoCommand { IdUser = user, Photo = photo };
+                if(string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized("User is not authenticated.");
+                }
+
+                var command = new UpdatePhotoCommand { IdUser = userId, Photo = photo };
                 var result = await _mediaR.Send(command);
 
                 return this.Ok(result);
