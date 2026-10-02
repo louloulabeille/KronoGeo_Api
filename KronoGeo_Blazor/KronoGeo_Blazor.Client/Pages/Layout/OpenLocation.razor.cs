@@ -13,12 +13,14 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
 
         #region inject properties
         [Inject]
-#pragma warning disable IDE1006 // Styles d'affectation de noms
         private IServiceHttpClientAssembly? _serviceHttp { get; set; } = default;
-#pragma warning restore IDE1006 // Styles d'affectation de noms
         #endregion
 
         #region protected properties view
+        /// <summary>
+        /// Liste des localisations associées au groupe de localisation spécifié par LocalisationGroupId.
+        /// A afficher
+        /// </summary>
         protected List<Localisation> Localisations { get; set; } = [];
         #endregion
 
@@ -44,11 +46,28 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
 
         #region Private method
 
+        /// <summary>
+        /// Charge les localisations basées sur l'ID du groupe de localisation.
+        /// </summary>
+        /// <returns></returns>
         private async Task LoadLocalisations()
         {
             // Load the localisations based on the LocalisationGroupId
             // This is a placeholder for your actual data loading logic
-            //Localisations = await _serviceHttp.
+            if ( _serviceHttp == null ) return;
+            var result = await _serviceHttp.GetLocalisationsByIdAsync(LocalisationGroupId)??null;
+
+            if( result is null || result?.LocalisationGroupDTO is null || result.LocalisationGroupDTO.Localisations is null)
+                return;
+            Localisations.AddRange(result.LocalisationGroupDTO.Localisations.Select( l => l.Get()).ToList());
+        }
+
+        /// <summary>
+        /// Initializes the localisations list by clearing any existing data.
+        /// </summary>
+        private void InitializeLocalisations()
+        {
+            Localisations.Clear();
         }
 
         #endregion
