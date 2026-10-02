@@ -5,11 +5,13 @@
 <div class="container">
 
     <div class="row" style="position: relative; width: 100%; height:100%">
-
+        
+        <!-- carte openstreetmap -->
         <div class="col border rounded p-2 canvas-container" @onpointermove="HandlerPointerMove">
             <MapControlComponent @ref="MapControl"  />
         </div>
 
+        <!-- card image et affichage des informations de l'image-->
         @if (IsHovered && !string.IsNullOrEmpty(UrlImg))
         {
             <!--18rem-->
@@ -64,8 +66,8 @@
                     </p>
                 </div>
             </div>
-
         }
+        <!-- fin card -->
 
     </div>
 </div>

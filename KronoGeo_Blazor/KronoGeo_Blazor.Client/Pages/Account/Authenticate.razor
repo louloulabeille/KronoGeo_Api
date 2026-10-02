@@ -2,9 +2,9 @@
 
 @inherits AuthenticateBase
 
-@rendermode InteractiveWebAssembly
+@*@rendermode InteractiveWebAssembly*@
     
-@*@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))*@
+@rendermode @(new InteractiveAutoRenderMode(prerender: false))
 
 @if(IsLoading) {
     <Loader>Chargement ... </Loader>

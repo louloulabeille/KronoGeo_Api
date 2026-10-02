@@ -204,6 +204,16 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             }
         }
 
+        /// <summary>
+        /// method qui remonte les Localisations pour un groupe de localisation donné, en fonction de son id
+        /// </summary>
+        /// <param name="localisationGroupId"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public Task<ResponseApiLocalisations> GetLocalisationsByIdAsync(int localisationGroupId)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
 
         #region public method interface IDisposable

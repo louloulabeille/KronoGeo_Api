@@ -1,0 +1,23 @@
+﻿@inherits OpenLocationBase
+
+@rendermode @(new InteractiveAutoRenderMode(prerender: false))
+
+<div class="container">
+    <table>
+        <thead>
+            <tr>
+                <th>Location</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var location in Localisations)
+            {
+                <tr>
+                    <td>@location.Latitude</td>
+                    <td>@location.Longitude</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
