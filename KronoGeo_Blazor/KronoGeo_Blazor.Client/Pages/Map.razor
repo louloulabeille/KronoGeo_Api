@@ -6,6 +6,9 @@
 
 @rendermode @(new InteractiveAutoRenderMode(prerender: false))
 
+@*@rendermode @(new InteractiveWebAssemblyRenderMode())*@
+
+
 @if (IsLoading)
 {
     <Loader>Le chargement peut être un peu long.</Loader>

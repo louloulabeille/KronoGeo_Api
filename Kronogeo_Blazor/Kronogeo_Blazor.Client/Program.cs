@@ -21,7 +21,8 @@ builder.Services.AddAutorizationClient();
 #endregion
 
 #region injection pour passer les localisations vers la map
-builder.Services.AddScoped<IMapStateService,MapStateService>();
+//builder.Services.AddScoped<IMapStateService,MapStateService>();
+builder.Services.AddSharedServices();
 #endregion
 
 #region  injection de dépendance

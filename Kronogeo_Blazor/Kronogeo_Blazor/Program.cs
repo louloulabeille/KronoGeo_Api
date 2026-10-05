@@ -1,6 +1,10 @@
 
+using BruTile.Wms;
 using KronoGeo_Api.Infrastructure.Service.Http;
+using KronoGeo_Api.Infrastructure.Service.Map;
+using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models.Infrastructure.Http;
+using KronoGeo_Api.Models.Infrastructure.Options;
 using KronoGeo_Blazor.Client.Pages;
 using KronoGeo_Blazor.Components;
 using KronoGeo_Blazor.Infrastructure.Extends;
@@ -11,6 +15,7 @@ using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using KronoGeo_Blazor.Client.Infrastructure.Extends;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,6 +79,10 @@ builder.Services.AddServerSideBlazor(options =>
 {
     options.DetailedErrors = true;
 });
+
+#region injection qui doit être déclaré en serveur et client blazor
+builder.Services.AddSharedServices();
+#endregion
 
 
 var app = builder.Build();
