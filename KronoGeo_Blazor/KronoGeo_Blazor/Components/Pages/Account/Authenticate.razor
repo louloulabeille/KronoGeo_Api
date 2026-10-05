@@ -2,35 +2,30 @@
 
 @inherits AuthenticateBase
 
-<Routes @rendermode="RenderModeForPage" />
-
 @*@rendermode InteractiveWebAssembly*@
     
 @*@rendermode @(new InteractiveAutoRenderMode(prerender: true))-->*@
 
-@*@if(IsLoading) {
-    <Loader>Chargement ... </Loader>
-}*@
 <div class="container" @key='"auth-form-key"'>
-<EditForm Model="Login" OnSubmit="FormAuthenticate" FormName="loginForm" method="post">
+<EditForm Model="Authenticate" OnValidSubmit="FormAuthenticate" FormName="loginForm" method="post">
     <DataAnnotationsValidator />
     <div class="form-floating mb-3">
-        <InputText @bind-Value="Login.Login" type="text" class="form-control" id="inputLogin" aria-describedby="loginHelp" />
+        <InputText @bind-Value="Authenticate.Login" type="text" class="form-control" id="inputLogin" aria-describedby="loginHelp" />
         <label for="inputLogin" class="form-label">Login ou adresse mail</label>
         <div id="loginHelp" class="form-text">Utiliser votre login ou email pour vous connecter.</div>
         <small>
-            <ValidationMessage For="() => Login.Login" />
+                <ValidationMessage For="() => Authenticate.Login" />
         </small>
     </div>
     <div class="form-floating mb-3">
         <!-- pour avoir le text plus petit -sm -->
-        <InputText @bind-Value="Login.Password" type="password" class="form-control form-control-sm" id="inputPassword" />
+            <InputText @bind-Value="Authenticate.Password" type="password" class="form-control form-control-sm" id="inputPassword" />
         <label for="inputPassword" class="form-label">Mot de passe</label>
         <div id="passwordHelpBlock" class="form-text">
             Votre mot de passe doit contenir + de 8 caractères, lettres, nombres et des caractères spéciaux, et ne contient pas d'espaces ni d'emoji.
         </div>
         <small>
-            <ValidationMessage For="() => Login.Password" />
+                <ValidationMessage For="() => Authenticate.Password" />
         </small>
     </div>
 

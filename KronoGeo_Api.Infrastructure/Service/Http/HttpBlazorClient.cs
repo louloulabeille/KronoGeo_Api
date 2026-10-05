@@ -42,13 +42,13 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// </summary>
         /// <param name="register"></param>
         /// <returns></returns>
-        public async Task<ResponseApiAuthenticate> AuthenticateAsync(RegisterDTO register)
+        public async Task<ResponseApiAuthenticateBlazor> AuthenticateAsync(RegisterDTO register)
         {
             try
             {
                 HttpContent content = new StringContent(JsonSerializer.Serialize(register), Encoding.UTF8, "application/json");
                 using HttpResponseMessage response = await _httpClient.PostAsync(_options.Value.Login, content);
-                //response.EnsureSuccessStatusCode();
+                response.EnsureSuccessStatusCode();
 
                 // -- quand 5 tentatives au niveau de HttpClient retour erreur
                 if (response.StatusCode == HttpStatusCode.BadGateway
@@ -59,19 +59,28 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                     throw new HttpRequestException("Connexion impossible au serveur.");
                 }
 
-                var retour = await response.Content.ReadAsStringAsync();
-                var result = JsonSerializer.Deserialize<ResponseApiAuthenticate>(retour, JsonOptions.GetJsonOptions())
-                    ?? new ResponseApiAuthenticate
-                    {
-                        ApiStatus = EnumApiStatus.Problem,
-                        Message = retour
-                    };
+                if ( response.IsSuccessStatusCode)
+                {
+                    var retour = await response.Content.ReadAsStringAsync();
+                    var result = JsonSerializer.Deserialize<ResponseApiAuthenticateBlazor>(retour, JsonOptions.GetJsonOptions())
+                        ?? new ResponseApiAuthenticateBlazor
+                        {
+                            ApiStatus = EnumApiStatus.Problem,
+                            Message = retour
+                        };
 
-                return result;
+                    return result;
+                }
+
+                return new ResponseApiAuthenticateBlazor
+                {
+                    ApiStatus = response.StatusCode == HttpStatusCode.BadRequest ? EnumApiStatus.BadRequest  : EnumApiStatus.Problem ,
+                    Message = response.Content.ReadAsStringAsync().Result
+                }; ;
             }
             catch (Exception ex) {
                 _logger.LogError(ex, "Erreur lors de l'authentification du client blazor, {message}", ex.Message);
-                return new ResponseApiAuthenticate
+                return new ResponseApiAuthenticateBlazor
                 {
                     ApiStatus = EnumApiStatus.Problem,
                     Message = "Erreur lors de l'authentification du client blazor"

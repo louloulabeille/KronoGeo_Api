@@ -17,7 +17,8 @@ builder.Services.AddControllers(options =>
     // - on peut ajouter le AuthorizeFilter au niveau global pour que toutes les routes soient protégées par défaut
     // et il faudra ajouter l'attribut [AllowAnonymous] pour les routes qui ne nécessitent pas d'authentification
     options.Filters.Add(new AuthorizeFilter());
-});
+}) // -- pour désactiver la validation automatique du modelstate et gérer les erreurs côté client
+    .ConfigureApiBehaviorOptions(o => o.SuppressModelStateInvalidFilter = true);
 
 builder.Services.AddRazorPages();
 #endregion

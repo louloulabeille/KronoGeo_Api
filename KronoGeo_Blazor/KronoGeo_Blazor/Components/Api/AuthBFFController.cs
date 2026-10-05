@@ -29,65 +29,6 @@ namespace KronoGeo_Blazor.Components.Api
         #endregion
 
         /// <summary>
-        /// Bff Backends for Frontends pour mettre en place au niveau
-        /// de blazor client pour l'authentification
-        /// </summary>
-        /// <param name="register"></param>
-        /// <returns></returns>
-        [AllowAnonymous]
-        [HttpPost("Login")]
-        public async Task<IActionResult> Login([FromBody] RegisterDTO login)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.BadRequest, Message = ModelState.ToString() });
-                }
-
-                // -- requete vers l'APi
-                var result = await _mediaR.Send(new LoginUserCommand() { Register = login });
-                // -- retour vers le client blazor
-                var retour = new ResponseApiAuthenticate()
-                {
-                    ApiStatus = result.ApiStatus,
-                    Message = result.Message,
-                    Register = result.Register
-                };
-                if (result.IsSuccess)
-                {
-                    if (!string.IsNullOrEmpty(result.Register?.Token))
-                    {                        
-                        if (result.ClaimsPrincipal is not null && result.AuthenticationProperties is not null)
-                        {
-                            // Cette ligne émet le Cookie HttpOnly de façon transparente !
-                            await this.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme
-                                , result.ClaimsPrincipal, result.AuthenticationProperties);
-
-                            result.Register.Token = string.Empty;
-                        }
-
-                        return Ok(retour);
-                    }
-                }
-
-                return Ok(retour);
-
-            }
-            catch( Exception ex)
-            {
-                _logger.LogError(ex, "Erreur interne {message}", ex.Message);
-                return Ok(
-                    new ResponseApiAuthenticate()
-                    {
-                        ApiStatus = EnumApiStatus.Problem,
-                        Message = "Erreur interne, une exception a été levé."
-                    });
-            }
-            
-        }
-
-        /// <summary>
         /// Retourne les infos de session cookie du httpOnly
         /// vers le webAssembly
         /// </summary>
@@ -120,17 +61,17 @@ namespace KronoGeo_Blazor.Components.Api
         }
 
         /// <summary>
-        /// action de déconnexion, supprime le cookie httpOnly côté serveur et envoie la commande
+        /// action de déconnexion, supprime le cookie httpOnly en envoyant la commande
         /// pour le supprimer côté client
         /// </summary>
         /// <returns></returns>
-        [Authorize]
+        [AllowAnonymous]
         [HttpPost("Logout")]
         public async Task<IActionResult> Logout()
         {
             try
             {
-                // -- déconnexion au niveau du httpContext, le cookie httpOnly est supprimé sur le serveur
+                // -- déconnexion au niveau du httpContext, le cookie httpOnly est supprimé
                 await this.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
                 // -- commande pour la suppression du cookie httpOnly côté client
@@ -139,8 +80,9 @@ namespace KronoGeo_Blazor.Components.Api
 
                 return Ok(true);
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Erreur lors de la déconnexion du client blazor");
                 return Ok(false);
             }
             

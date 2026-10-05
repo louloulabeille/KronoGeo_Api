@@ -13,7 +13,7 @@ namespace KronoGeo_Api.Interface.Service
     /// </summary>
     public interface IServiceHttpClientAssembly
     {
-        public Task<ResponseApiAuthenticate> AuthenticateAsync(RegisterDTO register);
+        public Task<ResponseApiAuthenticateBlazor> AuthenticateAsync(RegisterDTO register);
         public Task<UserInfos> GetUserInfosAsync();
         public Task<bool> LogoutAsync();
         public Task<ResponseApiLocalisations> GetUserGroupLocalisationAsync();

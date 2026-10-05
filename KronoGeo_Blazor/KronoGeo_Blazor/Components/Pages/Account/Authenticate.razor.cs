@@ -1,13 +1,18 @@
 ﻿using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models.Model.DTO;
-using KronoGeo_Api.Models.Parameter;
-using Mapsui.Logging;
+using KronoGeo_Blazor.Infrastructure.MediatR.Commands.Auth;
+using MediatR;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components;
 
-namespace KronoGeo_Blazor.Client.Pages.Account
+namespace KronoGeo_Blazor.Components.Pages.Account
 {
     public class AuthenticateBase : ComponentBase
     {
+        #region private properties
+        private RegisterDTO _authenticate = new() { Login = string.Empty, Password = string.Empty };
+        #endregion
 
         #region private inject properties
         [Inject]
@@ -16,35 +21,34 @@ namespace KronoGeo_Blazor.Client.Pages.Account
         private NavigationManager? _navigationManager { get; set; }
         /*[Inject]
         private ILogger<AuthenticateBase>? _logger { get; set; }*/
+        [Inject]
+        private IMediator? _mediator { get; set; } = default;
+
         #endregion
 
-        #region protected properties 
-        protected RegisterDTO Login { get; set; } = new() { Login = string.Empty, Password = string.Empty };
+        #region cascading parameter
+        [CascadingParameter] 
+        private HttpContext _httpContext { get; set; } = default!;
+        #endregion
+
+        #region properties formulaire 
+        [SupplyParameterFromForm]
+        protected RegisterDTO Authenticate { get => _authenticate; set => _authenticate = value; }
+        #endregion
+
+        #region protected properties
         protected bool ErreurLogin { get; set; } = false;
         protected bool ErreurMessage { get; set; } = false;
         protected bool ErreurLock { get; set; } = false;
-        protected bool IsLoading { get; set; } = false;
         #endregion
 
         #region method override
         protected override void OnInitialized()
         {
-            Login ??= new() { Login = string.Empty, Password = string.Empty };
-            IsLoading = true; // -- mise en place du loader
+            _authenticate ??= new() { Login = string.Empty, Password = string.Empty };
             base.OnInitialized();
         }
 
-        protected override Task OnAfterRenderAsync(bool firstRender)
-        { 
-            if ( firstRender )
-            {
-                // -- après le pré rendu coté serveur
-                IsLoading = false;
-                StateHasChanged();
-            }
-            
-            return base.OnAfterRenderAsync(firstRender);
-        }
         #endregion
 
         #region protected method
@@ -53,19 +57,29 @@ namespace KronoGeo_Blazor.Client.Pages.Account
             ErreurMessage = false;
             ErreurLogin = false;
             ErreurLock = false;
-           
+
             try
             {
-                if (_serviceHttp is not null && Login is not null)
+                if (_serviceHttp is not null && _authenticate is not null)
                 {
                     // -- requete vers l'APi
-                    var result = await _serviceHttp.AuthenticateAsync(Login);
+                    //var result = await _serviceHttp.AuthenticateAsync(_authenticate);
+                    var result = await _mediator.Send(new LoginUserCommand() { Register = _authenticate });
                     if (result.IsSuccess)
                     {
-                        if (string.IsNullOrEmpty(result.Register?.Token))
-                        {
+                        if (!string.IsNullOrEmpty(result.Register?.Token))
+                        {                        
+                            if (result.ClaimsPrincipal is not null && result.AuthenticationProperties is not null)
+                            {
+                                // Cette ligne émet le Cookie HttpOnly de façon transparente !
+                                await _httpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme
+                                    , result.ClaimsPrincipal, result.AuthenticationProperties);
+
+                                result.Register.Token = string.Empty;
+                            }
                             _navigationManager?.NavigateTo("Map");
                         }
+
                     }
                     else
                     {
