@@ -10,90 +10,91 @@
 {
     <Loader>Le chargement peut être un peu long.</Loader>
 }
-else
-{
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-4 ">
-                @if (DataOnView is null || DataOnView.Count() == 0)
-                {
-                    <Loader>Aucun groupe de localisation disponible.</Loader>
-                }
-                else
-                {
-                    <div class="container">
-                        <div class="input-group flex-nowrap">
-                            <span class="input-group-text" id="addon-wrapping"><i class="bi bi-search"></i></span>
-                            <input type="text" class="form-control" placeholder="Recherche" 
-                                   aria-label="Recherche" aria-describedby="addon-wrapping"
-                                   @bind="Search" @bind:event="oninput" @bind:after="FilterSearch" />
-                        </div>
-                        <div class="accordion overflow-y-auto" id="accordionGroupLocation">
-                            @foreach (var item in DataOnView.OrderByDescending(l => l.Id))
-                            {
-                                var headingId = $"heading{item.Id}";
-                                var collapseId = $"collapse{item.Id}";
-                                var titre = $"{item.Name[0].ToString().ToUpper() + item.Name.Substring(1)} - {item.Date.LocalDateTime.ToString("dd/MM/yyyy")}";
-                            
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="@headingId">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                            data-bs-target="#@collapseId" aria-expanded="false" aria-controls="@collapseId"
-                                                @onclick="() => ChargeLocationsOnMap(item)">
-                                            @titre
-                                        </button>
-                                    </h2>
-                                    <div id="@collapseId" class="accordion-collapse collapse" aria-labelledby="@headingId" data-bs-parent="#accordionGroupLocation">
-                                  <div class="accordion-body">
-                                    <RouteTelemetryView Telemetry="@item.RouteTelemetry"></RouteTelemetryView>
-                                  </div>
-                                </div>
-                              </div>
 
-                            }
-                        </div>
-                    </div>
-                    <nav aria-label="Page navigation" class="justify-content-center">
-                        <ul class="pagination">
-                            <li class="page-item">
-                                <a class="page-link" @onclick="() => ChangePage(1)" aria-label="Next">
-                                    <i class="bi bi-arrow-bar-left"></i>
-                                </a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" @onclick="PreviousPage" disabled="@DisabledPreviousPage" aria-label="Previous">
-                                    <span aria-hidden="true">&laquo;</span>
-                                </a>
-                            </li>
-                            @for(int i = 1 ; i <= TotalPages; i++)
-                            {
-                                var pageindex = i;
-                                if (PageActuel == pageindex || (PageActuel == 1 && pageindex <= 2) 
-                                    || (PageActuel == TotalPages && pageindex >= TotalPages - 1) 
-                                    || (PageActuel > 1 && (pageindex == PageActuel - 1) || (pageindex == PageActuel + 1)))
-                                {
-                                    <li class="page-item"><a class="page-link @(pageindex == PageActuel ? "active" : "")" @onclick="() => ChangePage(pageindex)">@pageindex</a></li>
-                                }
-                            }
-                            <li class="page-item">
-                                <a class="page-link" @onclick="NextPage" disabled="@DisabledNextPage" aria-label="Next">
-                                    <span aria-hidden="true">&raquo;</span>
-                                </a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" @onclick="() => ChangePage(TotalPages)"  aria-label="Next">
-                                    <i class="bi bi-arrow-bar-right"></i>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-                }
+<div class="container" style="@IsLoading? 'display: none;' : 'display: block;'">
+    <div class="row justify-content-center">
+        <div class="col-lg-4 ">
+            @if (DataOnView is null || DataOnView.Count() == 0)
+            {
+                <Loader>Aucun groupe de localisation disponible.</Loader>
+            }
+            <div class="container">
+                <div class="input-group flex-nowrap">
+                    <span class="input-group-text" id="addon-wrapping"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" placeholder="Recherche" 
+                            aria-label="Recherche" aria-describedby="addon-wrapping"
+                            @bind="Search" @bind:event="oninput" @bind:after="FilterSearch" />
+                </div>
+                <div class="accordion overflow-y-auto" id="accordionGroupLocation">
+                    @if (DataOnView is not null || DataOnView?.Count() > 0)
+                    {
+                        @foreach (var item in DataOnView.OrderByDescending(l => l.Id))
+                        {
+                            var headingId = $"heading{item.Id}";
+                            var collapseId = $"collapse{item.Id}";
+                            var titre = $"{item.Name[0].ToString().ToUpper() + item.Name.Substring(1)} - {item.Date.LocalDateTime.ToString("dd/MM/yyyy")}";
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="@headingId">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#@collapseId" aria-expanded="false" aria-controls="@collapseId"
+                                            @onclick="() => ChargeLocationsOnMap(item)">
+                                        @titre
+                                    </button>
+                                </h2>
+                                <div id="@collapseId" class="accordion-collapse collapse" aria-labelledby="@headingId" data-bs-parent="#accordionGroupLocation">
+                                <div class="accordion-body">
+                                <RouteTelemetryView Telemetry="@item.RouteTelemetry"></RouteTelemetryView>
+                                </div>
+                            </div>
+                            </div>
+
+                        }
+                    }
+                    
+                </div>
             </div>
-            <div class="col-lg-8">
-                <OpenMap />
-            </div>
+            <nav aria-label="Page navigation" class="justify-content-center">
+                <ul class="pagination">
+                    <li class="page-item">
+                        <a class="page-link" @onclick="() => ChangePage(1)" aria-label="Next">
+                            <i class="bi bi-arrow-bar-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" @onclick="PreviousPage" disabled="@DisabledPreviousPage" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    @for(int i = 1 ; i <= TotalPages; i++)
+                    {
+                        var pageindex = i;
+                        if (PageActuel == pageindex || (PageActuel == 1 && pageindex <= 2) 
+                            || (PageActuel == TotalPages && pageindex >= TotalPages - 1) 
+                            || (PageActuel > 1 && (pageindex == PageActuel - 1) || (pageindex == PageActuel + 1)))
+                        {
+                            <li class="page-item"><a class="page-link @(pageindex == PageActuel ? "active" : "")" @onclick="() => ChangePage(pageindex)">@pageindex</a></li>
+                        }
+                    }
+                    <li class="page-item">
+                        <a class="page-link" @onclick="NextPage" disabled="@DisabledNextPage" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" @onclick="() => ChangePage(TotalPages)"  aria-label="Next">
+                            <i class="bi bi-arrow-bar-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+                
+        </div>
+        <div class="col-lg-8">
+            <OpenMap />
         </div>
     </div>
-}
+</div>
+
 
 

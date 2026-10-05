@@ -195,13 +195,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                     if (_authenticationStateProvider is not null && LocalisationPhoto is not null && _serviceHttp is not null)
                     {
                         LocalisationPhoto.Description = Description.Trim();
-                        // -- récupération de l'utilisateur connecté pour l'envoyer à l'api
-                        var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
-                        // -- récupération du claim NameIdentifier qui est l'id de l'utilisateur dans le cookie
-                        var user = authState.User.Identities.FirstOrDefault()?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-                        // -- extraction de l'id de l'utilisateur pour l'envoyer à l'api
-                        var userId = user?.Value ?? string.Empty;
-
+                        
                         var localisationPhotoDTO = LocalisationPhoto.GetDTO() as LocalisationPhotoDTO ?? null;
 
                         if (localisationPhotoDTO is null) return;
