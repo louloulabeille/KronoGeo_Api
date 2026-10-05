@@ -5,8 +5,11 @@ using KronoGeo_Blazor.Client.Pages;
 using KronoGeo_Blazor.Components;
 using KronoGeo_Blazor.Infrastructure.Extends;
 using KronoGeo_Blazor.Infrastructure.Extends.App;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +30,8 @@ builder.Services.AddRazorPages();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
+
+//builder.Services.AddCircuitOptions(o => o.DetailedErrors = builder.Environment.IsDevelopment());
 
 #region IOptions urlApi
 builder.Services.AddUrlApiExtend(builder.Configuration);
@@ -121,6 +126,13 @@ app.UseAuthorization();
 #region lancement des controleurs indispensable pour les requêtes vers l'api
 // -- 
 app.MapControllers();
+// -- logout
+app.MapPost("/Account/Logout", async (HttpContext ctx, [FromForm] string? returnUrl) =>
+{
+    await ctx.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    return Results.LocalRedirect("/");
+}).AllowAnonymous()
+.DisableAntiforgery();
 #endregion
 
 #region paramétrage du proxy vers OpenStreetMap

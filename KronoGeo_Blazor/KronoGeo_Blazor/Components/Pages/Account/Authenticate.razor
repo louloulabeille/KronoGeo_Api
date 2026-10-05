@@ -6,6 +6,7 @@
     
 @*@rendermode @(new InteractiveAutoRenderMode(prerender: true))-->*@
 
+
 <div class="container" @key='"auth-form-key"'>
 <EditForm Model="Authenticate" OnValidSubmit="FormAuthenticate" FormName="loginForm" method="post">
     <DataAnnotationsValidator />
