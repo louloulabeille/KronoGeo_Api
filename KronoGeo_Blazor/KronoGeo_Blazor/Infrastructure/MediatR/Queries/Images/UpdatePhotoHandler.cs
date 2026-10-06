@@ -13,7 +13,7 @@ namespace KronoGeo_Blazor.Infrastructure.MediatR.Queries.Images
         {
             if (ServiceHttp is not null)
             {
-                return await ServiceHttp.UpdateImageAsync(request.IdUser , request.Photo );
+                return await ServiceHttp.UpdateImageAsync( request.Photo );
             }
 
             return false;

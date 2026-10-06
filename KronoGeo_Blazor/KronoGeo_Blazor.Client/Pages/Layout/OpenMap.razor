@@ -25,16 +25,11 @@
                         <table class="table table-primary table-striped ">
                             <tbody>
                                 <tr>
-                                    <th scope="row" >
+                                    <th scope="row" colspan="2">
                                         <p style="font-size: small">
                                             Description
                                         </p>
                                     </th>
-                                    <td class="text-end">
-                                        <button @onclick="EditDescription" class="btn btn-primary-outline btn-sm">
-                                            <i style="width:16px; height:16px" class="bi bi-pencil"></i>
-                                        </button>
-                                    </td>
                                 </tr>
                                 <tr>
                                     <td colspan="2">
@@ -60,6 +55,25 @@
                                 <tr>
                                     <th scope="row"><p style="font-size: small">Latitude</p></th>
                                     <td><p style="font-size: small">@ImgLatitude</p></td>
+                                </tr>
+                                <tr>
+                                    <td scope="row">
+                                        <button class="btn btn-primary-outline btn-sm">
+                                            <i style="width:16px; height:16px" class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                    <td class="text-end">
+                                        <button @onclick="EditDescription" class="btn btn-primary-outline btn-sm">
+                                        @if (IsDescription)
+                                        {
+                                            <i style="width:16px; height:16px" class="bi bi-floppy"></i>
+                                        }
+                                        else
+                                        {
+                                            <i style="width:16px; height:16px" class="bi bi-pencil"></i>
+                                        }
+                                        </button>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>

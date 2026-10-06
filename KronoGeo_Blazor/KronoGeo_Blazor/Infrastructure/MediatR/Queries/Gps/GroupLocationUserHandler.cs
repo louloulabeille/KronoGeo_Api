@@ -15,7 +15,7 @@ namespace KronoGeo_Blazor.Infrastructure.MediatR.Queries.Gps
             if (ServiceHttp is not null)
             {
                 // -- requete vers l'APi
-                var result = await ServiceHttp.GetUserGroupLocalisationAsync(request.UserId);
+                var result = await ServiceHttp.GetUserGroupLocalisationAsync();
 
                 if (result is not null)
                 {
@@ -23,7 +23,7 @@ namespace KronoGeo_Blazor.Infrastructure.MediatR.Queries.Gps
                 }
             }
 
-            Logger.LogError("Erreur lors de la récupération des groupes de localisation pour l'utilisateur {UserId}", request.UserId);
+            Logger.LogError("Erreur lors de la récupération des groupes de localisation pour l'utilisateur");
             return new ResponseApiLocalisations
             {
                 ApiStatus = EnumApiStatus.BadRequest,

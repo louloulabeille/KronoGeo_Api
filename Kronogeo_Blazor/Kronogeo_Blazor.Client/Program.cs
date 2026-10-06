@@ -10,19 +10,15 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
-#region injection Ioption des url api
-builder.Services.AddUrlApiExtend();
+#region injection pour passer les localisations vers la map
+//builder.Services.AddScoped<IMapStateService,MapStateService>();
+builder.Services.AddSharedServices();
 #endregion
 
 #region injection de dépendance pour le HttpClient
 builder.Services.AddHttpClientBFF(builder);
 
 builder.Services.AddAutorizationClient();
-#endregion
-
-#region injection pour passer les localisations vers la map
-//builder.Services.AddScoped<IMapStateService,MapStateService>();
-builder.Services.AddSharedServices();
 #endregion
 
 #region  injection de dépendance

@@ -24,7 +24,7 @@ namespace KronoGeo_Blazor.Infrastructure.Extends
             /// niveau client
             /// </summary>
             /// <returns></returns>
-            public IServiceCollection AddUrlApiExtend()
+            /*public IServiceCollection AddUrlApiExtend()
             {
                 services.AddOptions();
                 services.Configure<UrlApiBlazorClient>(options => {
@@ -34,7 +34,7 @@ namespace KronoGeo_Blazor.Infrastructure.Extends
                     options.Logout = "api/v1/AuthBFF/Logout";
                 });
                 return services;
-            }
+            }*/
         }
     }
 }

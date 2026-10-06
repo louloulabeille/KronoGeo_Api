@@ -221,6 +221,36 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                     await _toastService.ErreurAsync($"Erreur lors de la modification de la description.");
             }
         }
+
+        /// <summary>
+        /// Supprime la photo de la localisation et du serveur
+        /// </summary>
+        /// <returns></returns>
+        protected async Task DeletePhoto()
+        {
+            try
+            {
+                var photo = LocalisationPhoto.GetDTO() as LocalisationPhotoDTO;
+                if (photo is not null && _serviceHttp is not null)
+                {
+                    var result = await _serviceHttp.DeleteImageAsync(photo);
+                    if (result && _toastService is not null)
+                    {
+                        // -- affichage d'un message de succès
+                        await _toastService.SuccesAsync($"Photo supprimée avec succès.");
+                        HandlerCloseCard();
+                        StateHasChanged();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Message error OpenMap method DeletePhoto : {ex.Message}");
+                // -- affichage d"un message Toasts d'erreur de boostrap fait en javascript
+                if (_toastService is not null)
+                    await _toastService.ErreurAsync($"Erreur lors de la suppression de la photo.");
+            }
+        }
         #endregion
 
 

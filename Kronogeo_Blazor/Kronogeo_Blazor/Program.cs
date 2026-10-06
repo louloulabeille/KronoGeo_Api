@@ -36,11 +36,12 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
 
-//builder.Services.AddCircuitOptions(o => o.DetailedErrors = builder.Environment.IsDevelopment());
+#region injection qui doit être déclaré en serveur et client blazor
+builder.Services.AddSharedServices();
+#endregion
 
 #region IOptions urlApi
 builder.Services.AddUrlApiExtend(builder.Configuration);
-builder.Services.AddUrlApiExtend();
 #endregion
 
 #region HttpClient injection
@@ -54,11 +55,6 @@ builder.Host.AddSeriLog();
 
 #region injection MediatR
 builder.Services.AddServiceMediatR();
-#endregion
-
-#region injection 
-// -- ProtectedSessionStorage
-//builder.Services.AddScoped<ProtectedSessionStorage>();
 #endregion
 
 #region swagger
@@ -79,11 +75,6 @@ builder.Services.AddServerSideBlazor(options =>
 {
     options.DetailedErrors = true;
 });
-
-#region injection qui doit être déclaré en serveur et client blazor
-builder.Services.AddSharedServices();
-#endregion
-
 
 var app = builder.Build();
 

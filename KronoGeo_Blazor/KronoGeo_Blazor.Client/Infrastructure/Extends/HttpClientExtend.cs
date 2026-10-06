@@ -13,25 +13,6 @@ namespace KronoGeo_Blazor.Client.Infrastructure.Extends
         extension ( IServiceCollection services) {
 
             /// <summary>
-            /// ajout des Url Api pour le client
-            /// ne pas mettre de fichier de config, tout est en clair au 
-            /// niveau client
-            /// </summary>
-            /// <returns></returns>
-            public IServiceCollection AddUrlApiExtend()
-            {
-                services.AddOptions();
-                services.Configure<UrlApiBlazorClient>(options => {
-                    options.Login = "api/v1/AuthBFF/Login";
-                    options.Me = "api/v1/AuthBFF/Me";
-                    options.Logout = "api/v1/AuthBFF/Logout";
-                    options.GetUserGroupLocalisation = "api/v1/GpsBFF/GetAllGroup";
-                    options.UpdateImage = "api/v1/ImagesBFF/UpdateImage";
-                });
-                return services;
-            }
-
-            /// <summary>
             /// Déclaration du HttpClient pour le client pour l'injection de dépendance 
             /// du service avec comme base adresse l'adresse du serveur blazor par défaut
             /// </summary>

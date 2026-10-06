@@ -2,6 +2,7 @@
 using KronoGeo_Api.Models.Model.DTO;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using static Microsoft.Maui.ApplicationModel.Permissions;
 
 namespace KronoGeo_Api.Controllers
@@ -52,8 +53,8 @@ namespace KronoGeo_Api.Controllers
         /// </summary>
         /// <param name="photo"></param>
         /// <returns></returns>
-        [HttpPost("UpdateImage/{user}")]
-        public async Task<IActionResult> UpdateImage(string user, [FromBody] LocalisationPhotoDTO photo )
+        [HttpPost("UpdateImage")]
+        public async Task<IActionResult> UpdateImage([FromBody] LocalisationPhotoDTO photo )
         {
             try
             {
@@ -62,7 +63,7 @@ namespace KronoGeo_Api.Controllers
                     return this.BadRequest("Invalid Model state.");
                 }
 
-                var command = new UpdatePhotoCommand() { Photo = photo , IdUser = user};
+                var command = new UpdatePhotoCommand() { Photo = photo };
                 var result = await _mediaR.Send(command);
 
                 return this.Ok(result);
@@ -80,16 +81,17 @@ namespace KronoGeo_Api.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpDelete("DeleteImage/{id}")]
-        public async Task<IActionResult> DeleteImage(int id, [FromBody] UserIdDTO user)
+        public async Task<IActionResult> DeleteImage(int id)
         {
             try
             {
-                if( !ModelState.IsValid)
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if ( !ModelState.IsValid)
                 {
                     return this.BadRequest("Invalid Model state.");
                 }
 
-                var command = new DeletePhotoCommand() { IdPhoto = id, IdUser = user.Id };
+                var command = new DeletePhotoCommand() { IdPhoto = id };
                 var result = await _mediaR.Send(command);
                 return this.Ok(result);
             }

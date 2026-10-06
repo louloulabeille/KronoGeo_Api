@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Serilog.Core;
+using System.Security.Claims;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -27,10 +28,11 @@ namespace KronoGeo_Api.Controllers
         /// <param name="idUser"></param>
         /// <returns></returns>
         // GET: api/v1/<GpsController>/GetAllGroup/{idUser}
-        [HttpGet("GetAllGroup/{idUser}")]
+        [HttpGet("GetAllGroup")]
         //public async Task<IActionResult> Get([FromQuery] string idUser)
-        public async Task<IActionResult> Get(string idUser)
+        public async Task<IActionResult> Get()
         {
+            string idUser = User.FindFirstValue("Id");
             try
             {
                 if (!ModelState.IsValid)

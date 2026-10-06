@@ -4,9 +4,9 @@
 
 @inherits MapBase
 
-@rendermode @(new InteractiveAutoRenderMode(prerender: false))
+@*@rendermode @(new InteractiveAutoRenderMode(prerender: false))*@
 
-@*@rendermode @(new InteractiveWebAssemblyRenderMode())*@
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
 
 
 @if (IsLoading)

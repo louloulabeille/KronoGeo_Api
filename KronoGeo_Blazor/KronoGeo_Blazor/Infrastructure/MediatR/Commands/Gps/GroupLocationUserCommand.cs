@@ -5,6 +5,6 @@ namespace KronoGeo_Blazor.Infrastructure.MediatR.Commands.Gps
 {
     public class GroupLocationUserCommand : IRequest<ResponseApiLocalisations>
     {
-        public required string UserId { get; set; }
+        //public required string UserId { get; set; }
     }
 }

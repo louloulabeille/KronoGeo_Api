@@ -3,8 +3,8 @@ using MediatR;
 
 namespace KronoGeo_Blazor.Infrastructure.MediatR.Commands.Images
 {
-    public class UpdatePhotoCommand : IRequest<bool>
+    public class DeletePhotoCommand : IRequest<bool>
     {
-        public required LocalisationPhotoDTO Photo { get; set; }
+        public required int Id { get; set; }
     }
 }

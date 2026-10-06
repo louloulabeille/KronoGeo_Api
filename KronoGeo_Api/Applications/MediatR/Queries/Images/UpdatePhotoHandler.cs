@@ -13,11 +13,9 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Images
         public async Task<bool> Handle(UpdatePhotoCommand request, CancellationToken cancellationToken)
         {
             var localisation = request.Photo.Get() as LocalisationPhoto;
-            localisation?.LocalisationGroup = _unitOfWork.Repository<LocalisationGroup>().GetById(localisation.LocalisationGroupId);
 
-            if (localisation is not null && localisation.LocalisationGroup?.ApplicationUserId == request.IdUser)
+            if (localisation is not null)
             {
-
                 _unitOfWork.Repository<LocalisationPhoto>().Update(localisation);
                 int nb = _unitOfWork.SaveChanges();
                 return nb == 1;

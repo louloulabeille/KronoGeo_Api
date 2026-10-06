@@ -21,11 +21,8 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Images
             var repository = _unitOfWork.Repository<LocalisationPhoto>();
             // -- recherche de la localisationPhoto
             var localisationPhoto = repository.GetById(request.IdPhoto);
-            localisationPhoto?.LocalisationGroup 
-                = _unitOfWork.Repository<LocalisationGroup>().GetById(localisationPhoto.LocalisationGroupId);
 
-            if ( localisationPhoto is not null && localisationPhoto.PathPhoto is not null 
-                && localisationPhoto?.LocalisationGroup?.ApplicationUserId == request.IdUser)
+            if ( localisationPhoto is not null && localisationPhoto.PathPhoto is not null )
             {
                 // -- chemin physique de la photo
                 string path = Path.Combine(localisationPhoto.PathPhoto, localisationPhoto.Name);

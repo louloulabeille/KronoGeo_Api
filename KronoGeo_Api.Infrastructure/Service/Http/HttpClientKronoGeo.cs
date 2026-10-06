@@ -182,13 +182,15 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public async Task<ResponseApiLocalisations> GetUserGroupLocalisationAsync(string userId)
+        public async Task<ResponseApiLocalisations> GetUserGroupLocalisationAsync()
         {
-            if( string.IsNullOrEmpty(userId) ) throw new ArgumentNullException(nameof(userId), "L'identifiant de l'utilisateur est null ou vide.");
+            /*if( string.IsNullOrEmpty(userId) ) throw new ArgumentNullException(nameof(userId), "L'identifiant de l'utilisateur est null ou vide.");
             
             var url = $"{_options.Value.GetUserGroupLocalisation}/{WebUtility.UrlEncode(userId)}";
+            */
+            var url = $"{_options.Value.GetUserGroupLocalisation}";
 
-            using var retour = await HttpClient.GetAsync( url);
+            using var retour = await HttpClient.GetAsync(url);
             retour.EnsureSuccessStatusCode();
 
             var result = await retour.Content.ReadAsStringAsync();
@@ -196,7 +198,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             return deserializedResult ?? new ResponseApiLocalisations
             {
                 ApiStatus = EnumApiStatus.NotFound,
-                Message = $"Aucun groupe de localisation trouvé pour l'utilisateur {userId}",
+                Message = $"Aucun groupe de localisation trouvé pour l'utilisateur ",
                 LocalisationGroupDTO = null,
                 GroupsDTO = []
             };
@@ -209,15 +211,13 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <param name="photo"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task<bool> UpdateImageAsync(string userId, LocalisationPhotoDTO photo)
+        public async Task<bool> UpdateImageAsync(LocalisationPhotoDTO photo)
         {
-            if ( string.IsNullOrEmpty( userId ) ) throw new ArgumentNullException(nameof(userId), "L'identifiant de l'utilisateur est null ou vide.");
 
-            // -- url
-            var url = $"{_options.Value.UpdateImage}/{WebUtility.UrlEncode(userId)}";
             // -- sérialisation de localisationPhotoDTO en JSON
             var content = new StringContent(JsonSerializer.Serialize(photo), Encoding.UTF8, "application/json");
 
+            var url = $"{_options.Value.UpdateImage}";
             // -- envoi en Http 
             using var retour = await HttpClient.PostAsync(url, content);
             retour.EnsureSuccessStatusCode();
@@ -232,6 +232,27 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             return false;
         }
 
+        /// <summary>
+        /// method de suppression de localisationPhotoDTO pour un utilisateur
+        /// </summary>
+        /// <param name="photo"></param>
+        /// <returns></returns>
+        public async Task<bool> DeleteImageAsync(int id)
+        {
+            var url = $"{_options.Value.DeleteImage}/{id}";
+
+            using var result = await HttpClient.DeleteAsync(url);
+            result.EnsureSuccessStatusCode();
+
+            if (result.IsSuccessStatusCode)
+            {
+                var responseContent = await result.Content.ReadAsStringAsync();
+                var deserializedResult = JsonSerializer.Deserialize<bool>(responseContent, JsonOptions.GetJsonOptions());
+                return deserializedResult;
+            }
+
+            return false;
+        }
 
         #endregion
 
@@ -257,6 +278,8 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             HttpClient.DefaultRequestHeaders.Add("X-Tunnel-Authorization", $"{token}");
             //_httpClient.DefaultRequestHeaders.Add("X-Tunnel-Authorization", "tunnel eyJhbGciOiJFUzI1NiIsImtpZCI6IjcyRjZDNUU3OEE2M0UzOEUxM0UyOTE1MjM0NjMyMDFGMDFDMzQ2MTUiLCJ0eXAiOiJKV1QifQ.eyJjbHVzdGVySWQiOiJldXciLCJ0dW5uZWxJZCI6InBlYWNlZnVsLWNoYWlyLWI2Y3ZnYzIiLCJzY3AiOiJjb25uZWN0IiwiZXhwIjoxNzg3MDUxMzQ3LCJpc3MiOiJodHRwczovL3R1bm5lbHMuYXBpLnZpc3VhbHN0dWRpby5jb20vIiwibmJmIjoxNzg2OTY0MDQ3fQ.UBF-WTYmgM1qIUJ9lGL7ElALXBZOqXK4ZXKJ3y4qZ-niUxOoAcvApYd3tFyhpZgAodbtNHEz-CqVmliesx__bw");
         }
+
+        
 
         #endregion
 

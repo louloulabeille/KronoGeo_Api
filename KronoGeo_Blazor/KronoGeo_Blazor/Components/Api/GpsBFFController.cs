@@ -1,4 +1,5 @@
 ﻿using KronoGeo_Api.Models.Infrastructure.Http;
+using KronoGeo_Api.Models.Model.DTO;
 using KronoGeo_Blazor.Infrastructure.MediatR.Commands.Gps;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -39,7 +40,7 @@ namespace KronoGeo_Blazor.Components.Api
                     return Unauthorized("User is not authenticated.");
                 }
 
-                var result = await _mediaR.Send(new GroupLocationUserCommand() { UserId = userId });
+                var result = await _mediaR.Send(new GroupLocationUserCommand());
 
                 return Ok(result);
             }
@@ -55,7 +56,5 @@ namespace KronoGeo_Blazor.Components.Api
                 });
             }
         }
-
-        
     }
 }

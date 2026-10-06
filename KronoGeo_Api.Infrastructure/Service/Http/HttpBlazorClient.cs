@@ -222,6 +222,38 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         {
             throw new NotImplementedException();
         }
+
+        /// <summary>
+        /// method qui supprime une LocalisationPhotoDTO
+        /// </summary>
+        /// <param name="photo"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<bool> DeleteImageAsync(LocalisationPhotoDTO photo)
+        {
+            try
+            {
+                var url = $"{_options.Value.DeleteImage}/{photo.Id}";
+                HttpContent content = new StringContent(JsonSerializer.Serialize(photo), Encoding.UTF8, "application/json");
+
+                using var result = await _httpClient.DeleteAsync(url);
+                result.EnsureSuccessStatusCode();
+
+                if (result.IsSuccessStatusCode)
+                {
+                    var retour = await result.Content.ReadAsStringAsync();
+                    var data = JsonSerializer.Deserialize<bool>(retour, JsonOptions.GetJsonOptions());
+                    return data;
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de la modification d'une LocalisationPhoto : {ex.Message}", ex.Message);
+                return false;
+            }
+        }
         #endregion
 
         #region public method interface IDisposable

@@ -26,19 +26,13 @@ namespace KronoGeo_Blazor.Components.Api
         {
 
             try {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
                 if ( !ModelState.IsValid)
                 {
                     return BadRequest("Invalid model state.");
                 }
 
-                if(string.IsNullOrEmpty(userId))
-                {
-                    return Unauthorized("User is not authenticated.");
-                }
-
-                var command = new UpdatePhotoCommand { IdUser = userId, Photo = photo };
+                var command = new UpdatePhotoCommand { Photo = photo };
                 var result = await _mediaR.Send(command);
 
                 return this.Ok(result);
@@ -49,6 +43,32 @@ namespace KronoGeo_Blazor.Components.Api
                 return this.Problem("Error while updating localisation photo");
             }
 
+        }
+
+        /// <summary>
+        /// Action pour supprimer spécifiquement les points photos
+        /// </summary>
+        /// <param name="photo"></param>
+        /// <returns></returns>
+        [HttpDelete("DeleteImage/{id}")]
+        public async Task<IActionResult> DeleteImage([FromRoute] int id)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest("Invalid model state.");
+                }
+
+                var command = new DeletePhotoCommand { Id = id };
+                var result = await _mediaR.Send(command);
+                return this.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de la suppression de localisationPhotoDTO au niveau de l'Api BFF");
+                return this.Problem("Error while deleting localisation photo");
+            }
         }
 
         #endregion
