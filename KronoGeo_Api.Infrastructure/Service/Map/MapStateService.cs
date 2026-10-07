@@ -6,6 +6,9 @@ using System.Text;
 
 namespace KronoGeo_Api.Infrastructure.Service.Map
 {
+    /// <summary>
+    /// classe permet de gérer l'état de la map et de passer les localisations vers la map
+    /// </summary>
     public class MapStateService : IMapStateService
     {
         public IEnumerable<Localisation>? CurrentLocalisations { get; set; }

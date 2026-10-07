@@ -1,5 +1,7 @@
 ﻿using BruTile.Predefined;
 using BruTile.Web;
+using DotNext.Collections.Generic;
+using KronoGeo_Api.Infrastructure.Service.Map;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Model.DTO;
@@ -70,6 +72,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         private Layer? _trace = default;
         private MemoryLayer? _photoLayer = default; 
         private readonly Dictionary<Mapsui.IFeature, LocalisationPhoto> _featureImageMap = [];
+        private Mapsui.IFeature? _viewPhoto = default;
         #endregion
 
         #region protected override method
@@ -135,6 +138,9 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
             // recherche si un feature existe sur la map && qu'il existe dans le dictionnaire
             if (mapInfo?.Feature != null && _featureImageMap.TryGetValue(mapInfo.Feature, out var imgUrl))
             {
+                // -- feature qui est survolé par la souris
+                _viewPhoto = mapInfo?.Feature;
+
                 // -- fermeture de la saisie de description
                 IsDescription = false;
 
@@ -173,6 +179,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
             ImgLongitude = string.Empty;
             ImgLatitude = string.Empty;
             LocalisationPhoto = null;
+            _viewPhoto = null;
 
             StateHasChanged();
         }
@@ -234,11 +241,41 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                 if (photo is not null && _serviceHttp is not null)
                 {
                     var result = await _serviceHttp.DeleteImageAsync(photo);
-                    if (result && _toastService is not null)
+                    if (result && _toastService is not null && _viewPhoto is not null 
+                        && LocalisationPhoto is not null)
                     {
                         // -- affichage d'un message de succès
                         await _toastService.SuccesAsync($"Photo supprimée avec succès.");
+                        // -- supprime dans le dictionnaire le feature supprimer
+                        //var retour = _featureImageMap.Remove(_viewPhoto);
+
+                        // -- suppression dans liste des points qui sont chargés dans la map
+                        int index = MapStateService?.CurrentLocalisations?.ToList().FindIndex(l => l.Id == LocalisationPhoto.Id) ?? -1;
+                        if ( index != -1 && MapStateService is not null && MapStateService.CurrentLocalisations is not null)
+                        {
+                            
+                            var localisation = new Localisation
+                            {
+                                Accuracy = LocalisationPhoto.Accuracy,
+                                Altitude = LocalisationPhoto.Altitude,
+                                Course = LocalisationPhoto.Course,
+                                Id = LocalisationPhoto.Id,
+                                Latitude = LocalisationPhoto.Latitude,
+                                Longitude = LocalisationPhoto.Longitude,
+                                LocalisationGroupId = LocalisationPhoto.LocalisationGroupId,
+                                Speed = LocalisationPhoto.Speed,
+                                Timestamp = LocalisationPhoto.Timestamp,
+                                OrderIndex = LocalisationPhoto.OrderIndex,
+                                VerticalAccuracy = LocalisationPhoto.VerticalAccuracy
+                            };
+                            var list = MapStateService.CurrentLocalisations.ToList();
+                            list[index] = localisation;
+                            MapStateService.CurrentLocalisations = list;
+                        }
+
                         HandlerCloseCard();
+                        HandleOpenRequested();
+
                         StateHasChanged();
                     }
                 }

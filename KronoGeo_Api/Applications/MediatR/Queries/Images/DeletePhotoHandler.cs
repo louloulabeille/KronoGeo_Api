@@ -44,11 +44,11 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Images
                         VerticalAccuracy = localisationPhoto.VerticalAccuracy,
                     };
 
-                    repository.Delete(localisationPhoto); // -- supression de la localisation photo
+                    //repository.Delete(localisationPhoto); // -- supression de la localisation photo
                     // -- comme le SaveChanges qui  ne se fait pas au niveau de la base il y a juste un changement
                     // -- de statut de localisationPhoto en localisation
                     //_unitOfWork.SaveChanges();
-                    _unitOfWork.Repository<Localisation>().Add(localisation); // -- modification de la localisation
+                    _unitOfWork.Repository<Localisation>().Update(localisation); // -- modification de la localisation
 
                     if (_unitOfWork.SaveChanges() > 0) // -- enregistrement en base
                         return true;
