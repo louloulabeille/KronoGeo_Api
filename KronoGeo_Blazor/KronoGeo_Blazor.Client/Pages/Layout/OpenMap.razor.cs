@@ -301,8 +301,12 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
             if(pointLayer is not null)
                 MapControl.Map.Layers.Add(pointLayer);
 
-            ZoomToBox(outLine.Geometry?.EnvelopeInternal);
-            //ZoomTo(initMap, 22);
+            // -- probleme avec GeometryFreature quand les points sont trop proche
+            // -- zoom to box a du mal à aller sur les points indiqués 
+            if ( localisations.Count() > 5 )
+                ZoomToBox(outLine.Geometry?.EnvelopeInternal);
+            else 
+                ZoomTo(localisations.First(), 0.1);
 
             MapControl.Refresh();
 
@@ -454,7 +458,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         }
 
         /// <summary>
-        /// inisialise la map en suprimant le tracé & les points photos si déjà affiché
+        /// initialise la map en supprimant le tracé & les points photos si déjà affiché
         /// </summary>
         private void InitMap ()
         {
