@@ -20,6 +20,25 @@ namespace KronoGeo_Api.Models.Model.DTO
         {
             base.TypeObjet = TypeLocalisation.Photo;
         }*/
-
+        public override LocalisationPhoto Get()
+        {
+            return new LocalisationPhoto()
+            {
+                Id = this.Id,
+                OrderIndex = this.OrderIndex,
+                Latitude = this.Latitude,
+                Longitude = this.Longitude,
+                Accuracy = this.Accuracy,
+                Altitude = this.Altitude,
+                Course = this.Course,
+                Speed = this.Speed,
+                VerticalAccuracy = this.VerticalAccuracy,
+                Timestamp = this.Timestamp.ToUniversalTime(),
+                Name = this.Name,
+                PathPhoto = this.PathPhoto,
+                Description = this.Description,
+                LocalisationGroupId = this.LocalisationGroupId ?? 0
+            };
+        }
     }
 }

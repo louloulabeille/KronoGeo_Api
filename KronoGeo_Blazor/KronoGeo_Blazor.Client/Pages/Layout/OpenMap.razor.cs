@@ -230,7 +230,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         {
             try
             {
-                var photo = LocalisationPhoto.GetDTO() as LocalisationPhotoDTO;
+                var photo = LocalisationPhoto?.GetDTO();
                 if (photo is not null && _serviceHttp is not null)
                 {
                     var result = await _serviceHttp.DeleteImageAsync(photo);

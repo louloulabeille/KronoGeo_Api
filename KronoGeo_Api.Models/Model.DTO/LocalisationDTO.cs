@@ -71,43 +71,22 @@ namespace KronoGeo_Api.Models.Model.DTO
             };
         }
 
-        public Localisation Get()
+        public virtual Localisation Get()
         {
-            if (this is LocalisationPhotoDTO photo)
+            return new Localisation()
             {
-                return new LocalisationPhoto()
-                {
-                    Id = photo.Id,
-                    OrderIndex = photo.OrderIndex,
-                    Latitude = photo.Latitude,
-                    Longitude = photo.Longitude,
-                    Accuracy = photo.Accuracy,
-                    Altitude = photo.Altitude,
-                    Course = photo.Course,
-                    Speed = photo.Speed,
-                    VerticalAccuracy = photo.VerticalAccuracy,
-                    Timestamp = photo.Timestamp.ToUniversalTime(),
-                    Name = photo.Name,
-                    PathPhoto = photo.PathPhoto,
-                    Description = photo.Description,
-                    LocalisationGroupId = photo.LocalisationGroupId??0
-                };
-            }
-            else
-                return new Localisation()
-                {
-                    Id = this.Id,
-                    OrderIndex = this.OrderIndex,
-                    Latitude = this.Latitude,
-                    Longitude = this.Longitude,
-                    Accuracy = this.Accuracy,
-                    Altitude = this.Altitude,
-                    Course = this.Course,
-                    Speed = this.Speed,
-                    VerticalAccuracy = this.VerticalAccuracy,
-                    Timestamp = this.Timestamp.ToUniversalTime(),
-                    LocalisationGroupId = this.LocalisationGroupId ?? 0
-                };
+                Id = this.Id,
+                OrderIndex = this.OrderIndex,
+                Latitude = this.Latitude,
+                Longitude = this.Longitude,
+                Accuracy = this.Accuracy,
+                Altitude = this.Altitude,
+                Course = this.Course,
+                Speed = this.Speed,
+                VerticalAccuracy = this.VerticalAccuracy,
+                Timestamp = this.Timestamp.ToUniversalTime(),
+                LocalisationGroupId = this.LocalisationGroupId ?? 0
+            };
         }
         #endregion
     }

@@ -58,29 +58,8 @@ namespace KronoGeo_Api.Models
             };
         }
 
-        public LocalisationDTO GetDTO()
+        public virtual LocalisationDTO GetDTO()
         {
-            if( this is LocalisationPhoto photo )
-            {
-                return new LocalisationPhotoDTO()
-                {
-                    Id = this.Id,
-                    OrderIndex = this.OrderIndex,
-                    Timestamp = this.Timestamp,
-                    Latitude = this.Latitude,
-                    Longitude = this.Longitude,
-                    Altitude = this.Altitude,
-                    Accuracy = this.Accuracy,
-                    VerticalAccuracy = this.VerticalAccuracy,
-                    Speed = this.Speed,
-                    Course = this.Course,
-                    LocalisationGroupId = this.LocalisationGroupId,
-                    Name = photo.Name,
-                    Description = photo.Description,
-                    PathPhoto = photo.PathPhoto
-                };
-            }
-            else
             return new ()
             {
                 Id = this.Id,
