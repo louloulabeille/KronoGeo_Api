@@ -66,7 +66,7 @@ namespace KronoGeo_Api.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         // GET api/v1/<GpsController>/5
-        [HttpGet("GetLocalisations/{id}")]
+        [HttpGet("GetLocalisationsById/{id}")]
         public async Task<IActionResult> Get(int id)
         {
             try

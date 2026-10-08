@@ -218,9 +218,34 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <param name="localisationGroupId"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public Task<ResponseApiLocalisations> GetLocalisationsByIdAsync(int localisationGroupId)
+        public async Task<ResponseApiLocalisations> GetLocalisationsByIdAsync(int IdLocalisationGroup)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var url = _options.Value.GetLocalisationsById + "/" + WebUtility.UrlEncode(IdLocalisationGroup.ToString());
+                using var result = await _httpClient.GetAsync(url);
+                result.EnsureSuccessStatusCode();
+
+                
+                var retour = await result.Content.ReadAsStringAsync();
+                var data = JsonSerializer.Deserialize<ResponseApiLocalisations>(retour, JsonOptions.GetJsonOptions());
+
+                return data ?? new ResponseApiLocalisations
+                {
+                    ApiStatus = EnumApiStatus.NotFound,
+                    Message = $"Aucune localisation trouvée pour le groupe de localisation {IdLocalisationGroup}"
+                };
+                
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de la récupération des Localisations pour le groupe de localisation {IdLocalisationGroup} : {ex.Message}", IdLocalisationGroup, ex.Message);
+                return new ResponseApiLocalisations
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = $"Erreur lors de la récupération des Localisations pour le groupe de localisation {IdLocalisationGroup}"
+                };
+            }
         }
 
         /// <summary>
