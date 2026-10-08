@@ -24,16 +24,18 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
         {
             var result = _unitOfWork.Repository<LocalisationGroup>()
                 .Where(p => p.ApplicationUserId == request.IdUser)
-                .OrderByDescending(o=>o.Id).ToList().
-                Select( s => new LocalisationGroupDTO()
+                .OrderByDescending(o => o.Id).ToList().
+                Select(s => new LocalisationGroupDTO()
                 {
                     Id = s.Id,
                     ApplicationUserId = s.ApplicationUserId,
                     Date = s.Date,
                     Name = s.Name,
-                    Localisations = _unitOfWork.Repository<Localisation>().Where(l => l.LocalisationGroupId == s.Id).Select(l => l.GetDTO()).ToList(),
+                    // -- on ne retourne pas les localisations pour ne pas surcharger la réponse, on ne retourne que le group
+                    Localisations = [],//_unitOfWork.Repository<Localisation>().Where(l => l.LocalisationGroupId == s.Id).Select(l => l.GetDTO()).ToList(),
+                    
                     RouteTelemetry = _unitOfWork.Repository<RouteTelemetry>().Where(r => r.LocalisationGroupId == s.Id).Select(r => r.GetDTO()).FirstOrDefault()
-                } ).ToList();
+                }).ToList();
 
             if ( result is not null && result?.Count > 0)
             {

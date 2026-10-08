@@ -134,6 +134,7 @@ namespace KronoGeo_Blazor.Client.Pages
 
         protected void ChargeLocationsOnMap(LocalisationGroup group)
         {
+
             if (group is null || group.Localisations is null || group.Localisations.Count == 0) return;
             // -- programmer la récupération des localisations recharger du serveur
             // pour éviter les problèmes de mémoire si l'utilisateur a beaucoup de localisations
