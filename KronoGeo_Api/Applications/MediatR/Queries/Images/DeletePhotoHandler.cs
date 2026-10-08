@@ -26,37 +26,17 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Images
             {
                 // -- chemin physique de la photo
                 string path = Path.Combine(localisationPhoto.PathPhoto, localisationPhoto.Name);
-                if (_gestionPhoto.DeletePhoto(path, localisationPhoto.PathPhoto)) // -- supression de la photo sur le disque
+
+                if (_unitOfWork.LocalisationSpecifiqueRepository
+                    .ConvertLocalisationPhotoToLocalisation(request.IdPhoto)) // -- enregistrement en base
                 {
-                    // -- création de la localisation correspondant 
-                    var localisation = new Localisation()
-                    {
-                        Id = localisationPhoto.Id,
-                        Accuracy = localisationPhoto.Accuracy,
-                        Altitude = localisationPhoto.Altitude,
-                        Course = localisationPhoto.Course,
-                        Latitude = localisationPhoto.Latitude,
-                        LocalisationGroupId = localisationPhoto.LocalisationGroupId,
-                        Longitude = localisationPhoto.Longitude,
-                        OrderIndex = localisationPhoto.OrderIndex,
-                        Speed = localisationPhoto.Speed??0,
-                        Timestamp = localisationPhoto.Timestamp,
-                        VerticalAccuracy = localisationPhoto.VerticalAccuracy,
-                    };
-
-                    //repository.Delete(localisationPhoto); // -- supression de la localisation photo
-                    // -- comme le SaveChanges qui  ne se fait pas au niveau de la base il y a juste un changement
-                    // -- de statut de localisationPhoto en localisation
-                    //_unitOfWork.SaveChanges();
-                    _unitOfWork.Repository<Localisation>().Update(localisation); // -- modification de la localisation
-
-                    if (_unitOfWork.SaveChanges() > 0) // -- enregistrement en base
-                        return true;
-                    else
-                        return false;
+                    // -- supression de la photo en local
+                    if (!_gestionPhoto.DeletePhoto(path, localisationPhoto.PathPhoto)) return false;
+                    return true;
                 }
-
-                return false;
+                else
+                    return false;
+                
             }
 
             return false;

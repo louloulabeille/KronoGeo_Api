@@ -14,6 +14,13 @@ namespace KronoGeo_Api.Infrastructure.UnitOfWork
         private readonly KronoGeoDbContext _context = context;
         private readonly Dictionary<Type, object> _repositories = [];
         private bool _disposed = false;
+        private ILocalisationSpecifiqueRepository? _localisationSpecifiqueRepository;
+        #endregion
+
+        #region public properties
+        // -- ILocalisationSpecifiqueRepository implementation repository spécifique
+        public ILocalisationSpecifiqueRepository LocalisationSpecifiqueRepository 
+            => _localisationSpecifiqueRepository ??= new LocalisationSpecifiqueRepository(_context);
         #endregion
 
         #region public method IRepository implementation

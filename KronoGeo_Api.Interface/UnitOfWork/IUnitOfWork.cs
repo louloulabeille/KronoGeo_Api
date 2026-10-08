@@ -8,6 +8,7 @@ namespace KronoGeo_Api.Interface.UnitOfWork
     public interface IUnitOfWork : IDisposable
     {
         public IRepository<T> Repository<T>() where T : class;
+        ILocalisationSpecifiqueRepository LocalisationSpecifiqueRepository { get; }
         public int SaveChanges();
     }
 }

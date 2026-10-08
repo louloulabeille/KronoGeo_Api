@@ -24,9 +24,9 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
         /// <exception cref="NotImplementedException"></exception>
         public async Task<ResponseApiLocalisations> Handle(GetLocalisationsCommand request, CancellationToken cancellationToken)
         {
-            var result = _unitOfWork.Repository<LocalisationGroup>().GetById(request.Id);
+            var result = _unitOfWork.Repository<LocalisationGroup>().GetById(request.IdLocalisationGroup);
             _unitOfWork.Repository<Localisation>()
-                .Where(w => w.LocalisationGroupId == request.Id)
+                .Where(w => w.LocalisationGroupId == request.IdLocalisationGroup)
                 .ToList();
             //result?.Localisations?.AddRange(localisations);
             if (result is not null)

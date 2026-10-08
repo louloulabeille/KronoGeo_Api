@@ -32,12 +32,19 @@ namespace KronoGeo_Api.Controllers
         //public async Task<IActionResult> Get([FromQuery] string idUser)
         public async Task<IActionResult> Get()
         {
-            string idUser = User.FindFirstValue("Id");
+            var idUser = User.FindFirstValue("Id");
             try
             {
                 if (!ModelState.IsValid)
                 {
+                    _logger.LogWarning("Invalid model state for GetAllGroupLocalisations. idUser {idUser}", idUser);
                     return BadRequest("Invalid model state.");
+                }
+
+                if (string.IsNullOrEmpty(idUser))
+                {
+                    _logger.LogWarning("User Id is required for GetAllGroupLocalisations. idUser {idUser}", idUser);
+                    return Unauthorized("User Id is required");
                 }
 
                 var command = new GetGroupLocalisationsCommand() { IdUser = idUser };
@@ -59,18 +66,18 @@ namespace KronoGeo_Api.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         // GET api/v1/<GpsController>/5
-        [HttpGet("{id}")]
-        //public async Task<IActionResult> Get([FromQuery] int id)
+        [HttpGet("GetLocalisations/{id}")]
         public async Task<IActionResult> Get(int id)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
+                    _logger.LogWarning("Invalid model state for GetLocalisations. id {id}", id);
                     return BadRequest("Invalid model state.");
                 }
 
-                var command = new GetLocalisationsCommand() { Id = id };
+                var command = new GetLocalisationsCommand() { IdLocalisationGroup = id };
                 var result = await _mediaR.Send(command);
 
                 return this.Ok(result);

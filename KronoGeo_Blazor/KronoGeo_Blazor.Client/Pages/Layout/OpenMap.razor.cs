@@ -278,6 +278,12 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
 
                         StateHasChanged();
                     }
+                    else
+                    {
+                        if (_toastService is not null)
+                            await _toastService.AvertissementAsync($"Erreur lors de la suppression de la photo.");
+                    }
+                    
                 }
             }
             catch (Exception ex)
