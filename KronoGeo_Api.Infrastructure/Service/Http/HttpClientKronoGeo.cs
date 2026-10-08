@@ -239,7 +239,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <returns></returns>
         public async Task<bool> DeleteImageAsync(int id)
         {
-            var url = $"{_options.Value.DeleteImage}/{id}";
+            var url = $"{_options.Value.DeleteImage}/{WebUtility.UrlEncode(id.ToString())}";
 
             using var result = await HttpClient.DeleteAsync(url);
             result.EnsureSuccessStatusCode();
@@ -260,9 +260,33 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <param name="IdLocalisationGroup"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public Task<ResponseApiLocalisations> GetLocalisationsByIdAsync(int IdLocalisationGroup)
+        public async Task<ResponseApiLocalisations> GetLocalisationsByIdAsync(int IdLocalisationGroup)
         {
-            throw new NotImplementedException();
+            var url = $"{_options.Value.GetLocalisationsById}/{WebUtility.UrlEncode(IdLocalisationGroup.ToString())}";
+
+            using var result = await HttpClient.GetAsync(url);
+            result.EnsureSuccessStatusCode();
+
+            if( result.IsSuccessStatusCode )
+            {
+                var responseContent = await result.Content.ReadAsStringAsync();
+                var deserializedResult = JsonSerializer.Deserialize<ResponseApiLocalisations>(responseContent, JsonOptions.GetJsonOptions());
+                return deserializedResult ??
+                    new ResponseApiLocalisations() {
+                        ApiStatus = EnumApiStatus.NotFound,
+                        Message = $"Aucun groupe de localisation trouvé pour l'identifiant {IdLocalisationGroup}.",
+                        LocalisationGroupDTO = null,
+                        GroupsDTO = []
+                    };
+            }
+
+            return new ResponseApiLocalisations()
+            {
+                ApiStatus = EnumApiStatus.Problem,
+                Message = $"Probleme lors de la récupération des localisations pour l'identifiant {IdLocalisationGroup}.",
+                LocalisationGroupDTO = null,
+                GroupsDTO = []
+            };
         }
 
         #endregion

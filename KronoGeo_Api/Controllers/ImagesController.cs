@@ -85,7 +85,7 @@ namespace KronoGeo_Api.Controllers
         {
             try
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var userId = User.FindFirstValue("Id");
                 if ( !ModelState.IsValid)
                 {
                     return this.BadRequest("Invalid Model state.");

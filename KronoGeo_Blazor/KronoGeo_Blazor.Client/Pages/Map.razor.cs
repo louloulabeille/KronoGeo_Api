@@ -1,12 +1,13 @@
-﻿using System.Linq;
-using System.Security.Claims;
-using KronoGeo_Api.Interface.Service;
+﻿using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models;
+using KronoGeo_Blazor.Client.Infrastructure.Service;
 using Mapsui.UI.Blazor;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
+using System.Linq;
+using System.Security.Claims;
 
 namespace KronoGeo_Blazor.Client.Pages
 {
@@ -20,6 +21,11 @@ namespace KronoGeo_Blazor.Client.Pages
         private AuthenticationStateProvider? _authenticationStateProvider { get; set; } = default;
         [Inject]
         private IMapStateService? _mapState { get; set; } = default;
+        /// <summary>
+        /// Service pour l'affichage des notifications toast
+        /// </summary>
+        [Inject]
+        private ToastsService? _toastService { get; set; } = default;
         #endregion
 
         #region protected properties view
@@ -132,8 +138,29 @@ namespace KronoGeo_Blazor.Client.Pages
             StateHasChanged();
         }
 
-        protected void ChargeLocationsOnMap(LocalisationGroup group)
+        /// <summary>
+        /// charge la liste de localisations pour idgrouplocalisation données
+        /// </summary>
+        /// <param name="group"></param>
+        /// <returns></returns>
+        protected async Task ChargeLocationsOnMap(LocalisationGroup group)
         {
+            if (_serviceHttp is null) {
+                if (_toastService is not null)
+                    // -- affichage d'un message de succès
+                    await _toastService.ErreurAsync("Le service de récupération des localisations est indisponible.");
+                return;
+            }
+
+            var result = await _serviceHttp.GetLocalisationsByIdAsync(group.Id);
+            if ( result.IsSuccess ) 
+                group.Localisations = result.LocalisationGroupDTO?.Localisations?.Select(l => l.Get()).ToList();
+            else
+            {
+                if (_toastService is not null)
+                    // -- affichage d'un message d'erreur
+                    await _toastService.ErreurAsync(result.Message??"Erreur lors de la récupération de la liste de localisations.");
+            }
 
             if (group is null || group.Localisations is null || group.Localisations.Count == 0) return;
             // -- programmer la récupération des localisations recharger du serveur
