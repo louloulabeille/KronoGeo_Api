@@ -56,5 +56,40 @@ namespace KronoGeo_Blazor.Components.Api
                 });
             }
         }
+
+        /// <summary>
+        /// action Api qui retourne un groupe de localisations par IdGroup
+        /// </summary>
+        /// <param name="idGroup"></param>
+        /// <returns></returns>
+        [HttpGet("GetLocalisationsById/{idGroup}")]
+        public async Task<IActionResult> GetGroupById(int idGroup)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest("Invalid model state.");
+                }
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized("User is not authenticated.");
+                }
+                var result = await _mediaR.Send(new GroupLocalisationsByIdCommand() { Id = idGroup });
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de l'envoi du groupe des localisations. idUser {idUser}, idGroup {idGroup}", userId, idGroup);
+                return this.Ok(new ResponseApiLocalisations()
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = "Erreur interne.",
+                    LocalisationGroupDTO = null,
+                    GroupsDTO = []
+                });
+            }
+        }
     }
 }

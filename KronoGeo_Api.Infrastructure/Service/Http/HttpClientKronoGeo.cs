@@ -254,6 +254,17 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             return false;
         }
 
+        /// <summary>
+        /// method qui retourne un groupe de localisation par son identifiant
+        /// </summary>
+        /// <param name="IdLocalisationGroup"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public Task<ResponseApiLocalisations> GetLocalisationsByIdAsync(int IdLocalisationGroup)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
 
         #region public method interface IDisposable
@@ -278,8 +289,6 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             HttpClient.DefaultRequestHeaders.Add("X-Tunnel-Authorization", $"{token}");
             //_httpClient.DefaultRequestHeaders.Add("X-Tunnel-Authorization", "tunnel eyJhbGciOiJFUzI1NiIsImtpZCI6IjcyRjZDNUU3OEE2M0UzOEUxM0UyOTE1MjM0NjMyMDFGMDFDMzQ2MTUiLCJ0eXAiOiJKV1QifQ.eyJjbHVzdGVySWQiOiJldXciLCJ0dW5uZWxJZCI6InBlYWNlZnVsLWNoYWlyLWI2Y3ZnYzIiLCJzY3AiOiJjb25uZWN0IiwiZXhwIjoxNzg3MDUxMzQ3LCJpc3MiOiJodHRwczovL3R1bm5lbHMuYXBpLnZpc3VhbHN0dWRpby5jb20vIiwibmJmIjoxNzg2OTY0MDQ3fQ.UBF-WTYmgM1qIUJ9lGL7ElALXBZOqXK4ZXKJ3y4qZ-niUxOoAcvApYd3tFyhpZgAodbtNHEz-CqVmliesx__bw");
         }
-
-        
 
         #endregion
 
