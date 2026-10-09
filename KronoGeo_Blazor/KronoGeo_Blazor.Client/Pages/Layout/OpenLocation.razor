@@ -47,6 +47,7 @@ else
                 {
                     @foreach (var location in Localisations.OrderBy(l => l.OrderIndex))
                     {
+                        var vertical = location.VerticalAccuracy ?? 0;
                         <tr>
                             <th scope="row">@location.OrderIndex</th>
                             <td>@location.Timestamp.ToLocalTime().ToString("HH:mm:ss")</td>
@@ -54,7 +55,7 @@ else
                             <td>@location.Longitude</td>
                             <td>@location.Altitude</td>
                             <td>@location.Accuracy</td>
-                            <td>@location.VerticalAccuracy??0</td>
+                            <td>@vertical</td>
                             <td>@location.Speed</td>
                             <td>@location.Course</td>
                         </tr>

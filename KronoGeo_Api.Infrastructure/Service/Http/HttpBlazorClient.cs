@@ -13,6 +13,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using static Microsoft.Maui.ApplicationModel.Permissions;
 using static Microsoft.Maui.Authentication.AppleSignInAuthenticator;
 
 namespace KronoGeo_Api.Infrastructure.Service.Http
@@ -291,7 +292,9 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             try
             {
                 var url = $"{_options.Value.UpdateLocalisationGroup}";
-                using var result = await _httpClient.GetAsync(url);
+                var content = new StringContent(JsonSerializer.Serialize(localisationGroup), Encoding.UTF8, "application/json");
+
+                using var result = await _httpClient.PostAsync(url, content);
                 result.EnsureSuccessStatusCode();
 
                 var retour = await result.Content.ReadAsStringAsync();

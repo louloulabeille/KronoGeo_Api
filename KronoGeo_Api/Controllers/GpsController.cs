@@ -141,7 +141,7 @@ namespace KronoGeo_Api.Controllers
             }
         }
 
-
+        [HttpPost("UpdateLocalisationGroup")]
         public async Task<IActionResult> UpdateLocalisationGroup([FromBody] LocalisationGroupDTO localisationGroup)
         {
             try

@@ -107,7 +107,7 @@ namespace KronoGeo_Blazor.Components.Api
                 {
                     return BadRequest("Invalid model state.");
                 }
-                if (string.IsNullOrEmpty(userId))
+                if (string.IsNullOrEmpty(userId) || userId != localisationGroup.ApplicationUserId )
                 {
                     return Unauthorized("User is not authenticated.");
                 }
