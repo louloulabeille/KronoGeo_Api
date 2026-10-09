@@ -32,8 +32,10 @@ namespace KronoGeo_Blazor.Client.Pages
         protected bool IsLoading { get; set; } = false;
         // -- recherche dans les groupes de localisations
         protected string Search { get; set; } = string.Empty;
-        
-
+        /// <summary>
+        /// indique si la carte est ouverte ou non
+        /// </summary>
+        protected bool IsMapOpen { get; set; } = true;
         /// <summary>
         /// liste des groupes de localisation de l'utilisateur connecté
         /// par page de 10 éléments par défaut
@@ -42,7 +44,11 @@ namespace KronoGeo_Blazor.Client.Pages
         protected IEnumerable<LocalisationGroup>? DataOnView => _filterLocalisationGroup?
             .OrderByDescending(lg => lg.Date).Skip((PageActuel - 1) * _pageSize).Take(_pageSize).ToList();
 
-
+        /// <summary>
+        /// Id de Localsiation Group sélectionné pour l'affichage des localisations 
+        /// & pour la supression
+        /// </summary>
+        protected LocalisationGroup? SelectedGroup { get; set; }
         // -- pagination calcul
         protected int PageActuel = 1;
 
@@ -145,6 +151,10 @@ namespace KronoGeo_Blazor.Client.Pages
         /// <returns></returns>
         protected async Task ChargeLocationsOnMap(LocalisationGroup group)
         {
+            // -- initialisation du select localisationgroup 
+            SelectedGroup = null;
+            IsMapOpen = true;
+
             if (_serviceHttp is null) {
                 if (_toastService is not null)
                     // -- affichage d'un message de succès
@@ -169,6 +179,40 @@ namespace KronoGeo_Blazor.Client.Pages
 
         }
 
+        /// <summary>
+        /// ouvre le formulaire d'édition du groupe de localisation
+        /// </summary>
+        /// <param name="localisationGroup"></param>
+        protected void EditLocalisation (LocalisationGroup localisationGroup)
+        {
+            SelectedGroup = localisationGroup;
+            IsMapOpen = false;
+
+            StateHasChanged();
+        }
+
+        protected void DeleteLocalisation(LocalisationGroup localisationGroup)
+        {
+            SelectedGroup = localisationGroup;
+            
+            StateHasChanged();
+        }
+
+        /// <summary>
+        /// ferme le formulaire d'édition du groupe de localisation et réaffiche la carte
+        /// </summary>
+        protected void CloseEditLocalisation()
+        {
+            //SelectedGroup = null;
+            IsMapOpen = true;
+            StateHasChanged();
+        }
+
+        protected void SaveLocalisationGroup()
+        {
+            var select = SelectedGroup;
+            StateHasChanged();
+        }
 
         #endregion
 

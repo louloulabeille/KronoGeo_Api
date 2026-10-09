@@ -8,8 +8,8 @@ using System.Text.Json.Serialization;
 namespace KronoGeo_Api.Models
 {
 
-    [JsonPolymorphic(TypeDiscriminatorPropertyName = "TypeObject")]
-    [JsonDerivedType(typeof(LocalisationPhoto), typeDiscriminator: 1)]
+    //[JsonPolymorphic(TypeDiscriminatorPropertyName = "TypeObject")]
+    //[JsonDerivedType(typeof(LocalisationPhoto), typeDiscriminator: 1)]
     public class Localisation
     {
         

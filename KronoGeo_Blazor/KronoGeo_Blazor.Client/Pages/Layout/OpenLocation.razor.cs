@@ -9,7 +9,11 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
     {
         #region public properties parameter
         [Parameter]
-        public int LocalisationGroupId { get; set; } = 0;
+        public LocalisationGroup? LocalisationGroup { get; set; }
+        [Parameter]
+        public EventCallback OnCancelEdit { get; set; }
+        [Parameter]
+        public EventCallback OnSave { get; set; }
         #endregion
 
         #region inject properties
@@ -25,6 +29,8 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         /// A afficher
         /// </summary>
         protected List<Localisation> Localisations { get; set; } = [];
+
+        protected bool IsLoading { get; set; } = false;
         #endregion
 
         #region protected override method
@@ -35,9 +41,35 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         /// <returns></returns>
         protected override async Task OnInitializedAsync()
         {
+            IsLoading = true;
             await LoadLocalisationsAsync();
             await base.OnInitializedAsync();
         }
+
+        protected override void OnAfterRender(bool firstRender)
+        {
+            if(firstRender)
+            {
+                IsLoading = false;
+            }   
+            base.OnAfterRender(firstRender);
+        }
+        #endregion
+
+        #region protected method
+        /// <summary>
+        /// method qui annule l'édition du groupe de localisation et ferme le composant OpenLocation
+        /// par un eventcallback OnCancelEdit
+        /// </summary>
+        /// <returns></returns>
+        protected async Task CancelEditAsync() => await OnCancelEdit.InvokeAsync();
+        
+        /// <summary>
+        /// method qui enregistre les modifications
+        /// </summary>
+        /// <returns></returns>
+        protected async Task SaveLocalisationGroupAsync() => await OnSave.InvokeAsync();
+
         #endregion
 
         #region pulbic method interface IDisposable
@@ -59,12 +91,25 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
             {
                 // Load the localisations based on the LocalisationGroupId
                 // This is a placeholder for your actual data loading logic
-                if (_serviceHttp == null) return;
-                var result = await _serviceHttp.GetLocalisationsByIdAsync(LocalisationGroupId) ?? null;
+                if (_serviceHttp is null || LocalisationGroup is null) return;
 
-                if (result is null || result?.LocalisationGroupDTO is null || result.LocalisationGroupDTO.Localisations is null)
-                    return;
-                Localisations.AddRange(result.LocalisationGroupDTO.Localisations.Select(l => l.Get()).ToList());
+                var result = await _serviceHttp.GetLocalisationsByIdAsync(LocalisationGroup.Id);
+
+                if (result is not null && result.IsSuccess && result?.LocalisationGroupDTO is not null 
+                    && result.LocalisationGroupDTO.Localisations is not null)
+                {
+                    Localisations.AddRange(result.LocalisationGroupDTO.Localisations.Select(l => l.Get()).ToList());
+                }
+                else
+                {
+                    if( result?.Message is not null )
+                    {
+                        // -- affichage de l'erreur dans le toast
+                        _toastsService?.AvertissementAsync(result.Message);
+                    }else
+                        throw new Exception("Erreur lors du chargement des localisations : résultat nul ou invalide.");
+                }
+                
             }
             catch(Exception ex)
             {

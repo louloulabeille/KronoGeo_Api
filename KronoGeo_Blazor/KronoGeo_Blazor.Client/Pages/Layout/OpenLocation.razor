@@ -1,23 +1,66 @@
 ﻿@inherits OpenLocationBase
 
 @rendermode @(new InteractiveAutoRenderMode(prerender: false))
-
-<div class="container">
-    <table>
-        <thead>
-            <tr>
-                <th>Location</th>
-                <th>Description</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var location in Localisations)
-            {
+@if (IsLoading || LocalisationGroup == null)
+{
+    <Loader>Chargement des localisations...</Loader>
+}
+else
+{
+    <div class="container">
+        <EditForm OnValidSubmit="SaveLocalisationGroupAsync" Model="LocalisationGroup">
+            <DataAnnotationsValidator />
+            <div Class="form-group">
+                <!--<label Class="col-form-label">Libellé :</label>-->
+                <InputText Class="form-control" @bind-Value="LocalisationGroup.Name" />
+                <small>
+                    <ValidationMessage For="@(() => LocalisationGroup.Name)" />
+                </small>
+            </div>
+            <div class="btn-group mt-1" role="group" aria-label="Fonctions Localisation group">
+                <button type="submit" class="btn btn-outline-secondary">
+                    <i style="width:16px; height:16px" class="bi bi-floppy"></i>
+                </button>
+                <button @onclick="CancelEditAsync" type="button" class="btn btn-outline-secondary">
+                    <i style="width:16px; height:16px" class="bi bi-x-square"></i>
+                </button>
+            </div>
+        </EditForm>
+    </div>
+    <div class="container mt-3">
+        <table class="table table-primary table-striped table-hover">
+            <thead>
                 <tr>
-                    <td>@location.Latitude</td>
-                    <td>@location.Longitude</td>
+                    <th scope="col">#</th>
+                    <th scope="col">Heure</th>
+                    <th scope="col">Latitude</th>
+                    <th scope="col">Longitude</th>
+                    <th scope="col">Altitude</th>
+                    <th scope="col">Précision</th>
+                    <th scope="col">Précision vertical</th>
+                    <th scope="col">Vitesse</th>
+                    <th scope="col">Cap</th>
                 </tr>
-            }
-        </tbody>
-    </table>
-</div>
+            </thead>
+            <tbody>
+                @if (Localisations != null)
+                {
+                    @foreach (var location in Localisations.OrderBy(l => l.OrderIndex))
+                    {
+                        <tr>
+                            <th scope="row">@location.OrderIndex</th>
+                            <td>@location.Timestamp.ToLocalTime().ToString("HH:mm:ss")</td>
+                            <td>@location.Latitude</td>
+                            <td>@location.Longitude</td>
+                            <td>@location.Altitude</td>
+                            <td>@location.Accuracy</td>
+                            <td>@location.VerticalAccuracy??0</td>
+                            <td>@location.Speed</td>
+                            <td>@location.Course</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+}

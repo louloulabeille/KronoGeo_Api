@@ -48,11 +48,11 @@
                                 <div id="@collapseId" class="accordion-collapse collapse" aria-labelledby="@headingId" data-bs-parent="#accordionGroupLocation">
                                     <div class="accordion-body"> 
                                         <RouteTelemetryView Telemetry="@item.RouteTelemetry"></RouteTelemetryView>
-                                        <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                                            <button type="button" class="btn btn-outline-secondary">
+                                        <div class="btn-group" role="group" aria-label="Fonctions Localisation group">
+                                            <button @onclick="() => EditLocalisation(item)" type="button" class="btn btn-outline-secondary">
                                                 <i style="width:16px; height:16px" class="bi bi-pencil"></i>
-                                                </button>
-                                            <button type="button" class="btn btn-outline-secondary">
+                                            </button>
+                                            <button @onclick="() => DeleteLocalisation(item)" type="button" class="btn btn-outline-secondary">
                                                 <i style="width:16px; height:16px" class="bi bi-trash"></i>
                                             </button>
                                         </div>
@@ -101,7 +101,15 @@
                 
         </div>
         <div class="col-lg-8">
-            <OpenMap />
+            <div hidden="@(!IsMapOpen)">
+                <OpenMap/>
+            </div>
+            @* affichage de la liste des localisations *@
+            @if(!IsMapOpen)
+            {
+                <OpenLocation LocalisationGroup="@SelectedGroup" OnCancelEdit="CloseEditLocalisation"
+                   OnSave="SaveLocalisationGroup"  />
+            }
         </div>
     </div>
 </div>

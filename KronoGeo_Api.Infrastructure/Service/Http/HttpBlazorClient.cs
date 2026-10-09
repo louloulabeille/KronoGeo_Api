@@ -279,6 +279,24 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                 return false;
             }
         }
+
+        /// <summary>
+        /// Modification de Localisation Group
+        /// </summary>
+        /// <param name="localisationGroup"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public Task<ResponseApiLocalisations> UpdateLocalisationGroupAsync(LocalisationGroupDTO localisationGroup)
+        {
+            try
+            {
+
+            }catch(Exception ex)
+            {
+
+            }
+        }
+
         #endregion
 
         #region public method interface IDisposable
@@ -286,6 +304,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         {
             GC.SuppressFinalize(this);
         }
+
         #endregion
     }
 }
