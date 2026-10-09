@@ -1,5 +1,6 @@
 ﻿using KronoGeo_Api.Infrastructure.Applications.Helpers;
 using KronoGeo_Api.Interface.Service;
+using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Infrastructure.Options;
 using KronoGeo_Api.Models.Model.DTO;
@@ -284,6 +285,42 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             {
                 ApiStatus = EnumApiStatus.Problem,
                 Message = $"Probleme lors de la récupération des localisations pour l'identifiant {IdLocalisationGroup}.",
+                LocalisationGroupDTO = null,
+                GroupsDTO = []
+            };
+        }
+
+        /// <summary>
+        /// Modifie LocalisationGroup 
+        /// </summary>
+        /// <param name="localisationGroup"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public Task<ResponseApiLocalisations> UpdateLocalisationGroupAsync(LocalisationGroupDTO localisationGroup)
+        {
+            var url = $"{_options.Value.UpdateLocalisationGroup}";
+
+            using var result = await HttpClient.GetAsync(url);
+            result.EnsureSuccessStatusCode();
+
+            if (result.IsSuccessStatusCode)
+            {
+                var responseContent = await result.Content.ReadAsStringAsync();
+                var deserializedResult = JsonSerializer.Deserialize<ResponseApiLocalisations>(responseContent, JsonOptions.GetJsonOptions());
+                return deserializedResult ??
+                    new ResponseApiLocalisations()
+                    {
+                        ApiStatus = EnumApiStatus.BadRequest,
+                        Message = $"Erreur lors de l'enregistrement de {localisationGroup.Id}.",
+                        LocalisationGroupDTO = null,
+                        GroupsDTO = []
+                    };
+            }
+
+            return new ResponseApiLocalisations()
+            {
+                ApiStatus = EnumApiStatus.Problem,
+                Message = $"Probleme lorsd l'enregistrement pour {localisationGroup.Id}.",
                 LocalisationGroupDTO = null,
                 GroupsDTO = []
             };

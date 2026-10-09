@@ -258,7 +258,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         {
             try
             {
-                var url = $"{_options.Value.DeleteImage}/{photo.Id}";
+                var url = $"{_options.Value.DeleteImage}/{WebUtility.UrlEncode(photo.Id)}";
                 HttpContent content = new StringContent(JsonSerializer.Serialize(photo), Encoding.UTF8, "application/json");
 
                 using var result = await _httpClient.DeleteAsync(url);
@@ -290,12 +290,33 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         {
             try
             {
+                var url = $"{_options.Value.UpdateLocalisationGroup}"
+                using var result = await _httpClient.GetAsync(url);
+                result.EnsureSuccessStatusCode();
 
-            }catch(Exception ex)
+                var retour = await result.Content.ReadAsStringAsync();
+                var data = JsonSerializer.Deserialize<ResponseApiLocalisations>(retour, JsonOptions.GetJsonOptions());
+
+                return data ?? new()
+                {
+                    ApiStatus = EnumApiStatus.NotFound,
+                    Message = $"Erreur lors de la sauvegarde",
+                    LocalisationGroupDTO = null,
+                    GroupsDTO = []
+                };
+            }
+            catch (Exception ex)
             {
-
+                _logger.LogError(ex, "Erreur lors de la sauvegarde de la localisation group {id} : {message}", localisationGroup.Id ,ex.Message);
+                return new ResponseApiLocalisations
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = $"Erreur lors de la sauvegarde"
+                };
             }
         }
+    }
+}
 
         #endregion
 

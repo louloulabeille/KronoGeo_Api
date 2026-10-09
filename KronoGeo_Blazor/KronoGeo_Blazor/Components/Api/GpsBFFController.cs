@@ -91,5 +91,28 @@ namespace KronoGeo_Blazor.Components.Api
                 });
             }
         }
+
+        /// <summary>
+        /// Action Bff pour la sauvegarde de Localisation group
+        /// </summary>
+        /// <param name="localisationGroup"></param>
+        /// <returns></returns>
+        [HttpPost("UpdateLocalisationGroup")]
+        public async Task<IActionResult> UpdateLocalisationGroup([FromBody] LocalisationGroupDTO localisationGroup)
+        {
+            try
+            {
+
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de la sauvegarde de la localisation group {id} : {message}", localisationGroup.Id, ex.Message);
+                return new ResponseApiLocalisations
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = $"Erreur lors de la sauvegarde"
+                };
+            }
+        }
     }
 }

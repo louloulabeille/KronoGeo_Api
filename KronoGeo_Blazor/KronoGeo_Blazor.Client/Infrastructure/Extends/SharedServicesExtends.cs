@@ -26,6 +26,7 @@ namespace KronoGeo_Blazor.Client.Infrastructure.Extends
                     options.UpdateImage = "api/v1/ImagesBFF/UpdateImage";
                     options.DeleteImage = "api/v1/ImagesBFF/DeleteImage";
                     options.GetLocalisationsById = "api/v1/GpsBFF/GetLocalisationsById";
+                    options.UpdateLocalisationGroup = "api/v1/GpsBFF/UpdateLocalisationGroup"
                 });
                 return services;
             }
