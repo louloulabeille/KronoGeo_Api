@@ -12,6 +12,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using static Microsoft.Maui.ApplicationModel.Permissions;
 using static System.Net.WebRequestMethods;
 
 namespace KronoGeo_Api.Infrastructure.Service.Http
@@ -296,11 +297,14 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <param name="localisationGroup"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public Task<ResponseApiLocalisations> UpdateLocalisationGroupAsync(LocalisationGroupDTO localisationGroup)
+        public async Task<ResponseApiLocalisations> UpdateLocalisationGroupAsync(LocalisationGroupDTO localisationGroup)
         {
             var url = $"{_options.Value.UpdateLocalisationGroup}";
+            // -- sérialisation de la localisation Group
+            var content = new StringContent(JsonSerializer.Serialize(localisationGroup), Encoding.UTF8, "application/json");
 
-            using var result = await HttpClient.GetAsync(url);
+            // -- envoi en Httpclient
+            using var result = await HttpClient.PostAsync(url, content);
             result.EnsureSuccessStatusCode();
 
             if (result.IsSuccessStatusCode)

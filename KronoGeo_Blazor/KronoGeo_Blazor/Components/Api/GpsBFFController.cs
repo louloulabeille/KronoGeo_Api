@@ -100,18 +100,30 @@ namespace KronoGeo_Blazor.Components.Api
         [HttpPost("UpdateLocalisationGroup")]
         public async Task<IActionResult> UpdateLocalisationGroup([FromBody] LocalisationGroupDTO localisationGroup)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest("Invalid model state.");
+                }
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized("User is not authenticated.");
+                }
+                var result = await _mediaR.Send(new UpdateLocalisationGroupCommand() 
+                    { LocalisationGroup = localisationGroup });
+                return Ok(result);
 
             }
             catch(Exception ex)
             {
                 _logger.LogError(ex, "Erreur lors de la sauvegarde de la localisation group {id} : {message}", localisationGroup.Id, ex.Message);
-                return new ResponseApiLocalisations
+                return this.Ok(new ResponseApiLocalisations
                 {
                     ApiStatus = EnumApiStatus.Problem,
                     Message = $"Erreur lors de la sauvegarde"
-                };
+                });
             }
         }
     }

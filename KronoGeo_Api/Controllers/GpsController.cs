@@ -140,6 +140,39 @@ namespace KronoGeo_Api.Controllers
                 return this.Problem("Error while deleting Gps route.");
             }
         }
+
+
+        public async Task<IActionResult> UpdateLocalisationGroup([FromBody] LocalisationGroupDTO localisationGroup)
+        {
+            try
+            {
+                var idUser = User.FindFirstValue("Id");
+                if (!ModelState.IsValid)
+                {
+                    return this.BadRequest("Invalid model state.");
+                }
+
+                if (string.IsNullOrEmpty(idUser))
+                {
+                    _logger.LogWarning("User Id is required for GetAllGroupLocalisations. idUser {idUser}", idUser);
+                    return Unauthorized("User Id is required");
+                }
+
+                var command = new UpdateLocalisationGroupCommand()
+                {
+                    localisationGroup = localisationGroup
+                };
+
+                var result = await _mediaR.Send(command);
+
+                return this.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur de l'enregistrement localisationgroup : {id} ", localisationGroup.Id);
+                return this.Problem("Erreur lors de l'enregistrement.");
+            }
+        }
         #endregion
     }
 }

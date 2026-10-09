@@ -258,7 +258,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         {
             try
             {
-                var url = $"{_options.Value.DeleteImage}/{WebUtility.UrlEncode(photo.Id)}";
+                var url = $"{_options.Value.DeleteImage}/{WebUtility.UrlEncode(photo.Id.ToString())}";
                 HttpContent content = new StringContent(JsonSerializer.Serialize(photo), Encoding.UTF8, "application/json");
 
                 using var result = await _httpClient.DeleteAsync(url);
@@ -286,11 +286,11 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <param name="localisationGroup"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public Task<ResponseApiLocalisations> UpdateLocalisationGroupAsync(LocalisationGroupDTO localisationGroup)
+        public async Task<ResponseApiLocalisations> UpdateLocalisationGroupAsync(LocalisationGroupDTO localisationGroup)
         {
             try
             {
-                var url = $"{_options.Value.UpdateLocalisationGroup}"
+                var url = $"{_options.Value.UpdateLocalisationGroup}";
                 using var result = await _httpClient.GetAsync(url);
                 result.EnsureSuccessStatusCode();
 
@@ -315,9 +315,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                 };
             }
         }
-    }
-}
-
+    
         #endregion
 
         #region public method interface IDisposable

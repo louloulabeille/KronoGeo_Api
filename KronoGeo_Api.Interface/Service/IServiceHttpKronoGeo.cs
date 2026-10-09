@@ -16,7 +16,7 @@ namespace KronoGeo_Api.Interface.Service
         public Task<ResponseApiImage> SavePhotoAsync(PhotoDTO photo, string tokkenBearer);
         public Task<ResponseApiLocalisations> GetUserGroupLocalisationAsync();
         public Task<ResponseApiLocalisations> GetLocalisationsByIdAsync(int IdLocalisationGroup);
-        public Task<ResponseApiLocalisations> UpdateLocalisationGroupAsync(LocalisationGroupDTO localisationGroup)
+        public Task<ResponseApiLocalisations> UpdateLocalisationGroupAsync(LocalisationGroupDTO localisationGroup);
         public Task<bool> UpdateImageAsync(LocalisationPhotoDTO photo);
         public Task<bool> DeleteImageAsync(int id);
     }

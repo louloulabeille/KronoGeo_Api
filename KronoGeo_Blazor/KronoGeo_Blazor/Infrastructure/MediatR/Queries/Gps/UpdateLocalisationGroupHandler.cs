@@ -1,19 +1,21 @@
-﻿using KronoGeo_Api.Models.Infrastructure.Http;
+﻿using KronoGeo_Api.Interface.Service;
+using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Blazor.Infrastructure.MediatR.Commands.Gps;
 using MediatR;
 
 namespace KronoGeo_Blazor.Infrastructure.MediatR.Queries.Gps
 {
-    public class UpdateLocalisationGroupHandler
-        : GpsHandler<UpdateLocalisationGroupHandler>
+    public class UpdateLocalisationGroupHandler 
+        (IServiceHttpKronoGeo serviceHttp , ILogger<UpdateLocalisationGroupHandler> logger)
+        : GpsHandler<UpdateLocalisationGroupHandler>(serviceHttp, logger)
         , IRequestHandler<UpdateLocalisationGroupCommand, ResponseApiLocalisations>
     {
-        public Task<ResponseApiLocalisations> Handle(UpdateLocalisationGroupCommand request, CancellationToken cancellationToken)
+        public async Task<ResponseApiLocalisations> Handle(UpdateLocalisationGroupCommand request, CancellationToken cancellationToken)
         {
             if (ServiceHttp is not null)
             {
                 // -- requete vers l'APi
-                var result = await ServiceHttp();
+                var result = await ServiceHttp.UpdateLocalisationGroupAsync(request.LocalisationGroup);
 
                 if (result is not null)
                 {

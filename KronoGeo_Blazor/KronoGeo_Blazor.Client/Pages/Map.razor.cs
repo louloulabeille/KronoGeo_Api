@@ -1,5 +1,6 @@
 ﻿using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models;
+using KronoGeo_Api.Models.Model.DTO;
 using KronoGeo_Blazor.Client.Infrastructure.Service;
 using Mapsui.UI.Blazor;
 using Microsoft.AspNetCore.Authorization;
@@ -151,34 +152,43 @@ namespace KronoGeo_Blazor.Client.Pages
         /// <returns></returns>
         protected async Task ChargeLocationsOnMap(LocalisationGroup group)
         {
-            // -- initialisation du select localisationgroup 
-            SelectedGroup = null;
-            IsMapOpen = true;
+            try
+            {
+                // -- initialisation du select localisationgroup 
+                SelectedGroup = null;
+                IsMapOpen = true;
 
-            if (_serviceHttp is null) {
-                if (_toastService is not null)
-                    // -- affichage d'un message de succès
-                    await _toastService.ErreurAsync("Le service de récupération des localisations est indisponible.");
-                return;
+                if (_serviceHttp is null)
+                {
+                    if (_toastService is not null)
+                        // -- affichage d'un message de succès
+                        await _toastService.ErreurAsync("Le service de récupération des localisations est indisponible.");
+                    return;
+                }
+
+                var result = await _serviceHttp.GetLocalisationsByIdAsync(group.Id);
+                if (result.IsSuccess)
+                    group.Localisations = result.LocalisationGroupDTO?.Localisations?.Select(l => l.Get()).ToList();
+                else
+                {
+                    if (_toastService is not null)
+                        // -- affichage d'un message d'erreur
+                        await _toastService.ErreurAsync(result.Message ?? "Erreur lors de la récupération de la liste de localisations.");
+                }
+
+                if (group is null || group.Localisations is null || group.Localisations.Count == 0) return;
+                // -- programmer la récupération des localisations recharger du serveur
+                // pour éviter les problèmes de mémoire si l'utilisateur a beaucoup de localisations
+                _mapState?.OpenMapwithLocalisations(group.Localisations);
+
             }
-
-            var result = await _serviceHttp.GetLocalisationsByIdAsync(group.Id);
-            if ( result.IsSuccess ) 
-                group.Localisations = result.LocalisationGroupDTO?.Localisations?.Select(l => l.Get()).ToList();
-            else
+            catch
             {
                 if (_toastService is not null)
-                    // -- affichage d'un message d'erreur
-                    await _toastService.ErreurAsync(result.Message??"Erreur lors de la récupération de la liste de localisations.");
+                    // -- affichage d'un message de succès
+                    await _toastService.ErreurAsync("Le service de récupération des localisations est indisponible ou erreur interne.");
             }
-
-            if (group is null || group.Localisations is null || group.Localisations.Count == 0) return;
-            // -- programmer la récupération des localisations recharger du serveur
-            // pour éviter les problèmes de mémoire si l'utilisateur a beaucoup de localisations
-            _mapState?.OpenMapwithLocalisations(group.Localisations);
-
         }
-
         /// <summary>
         /// ouvre le formulaire d'édition du groupe de localisation
         /// </summary>
@@ -208,10 +218,72 @@ namespace KronoGeo_Blazor.Client.Pages
             StateHasChanged();
         }
 
-        protected void SaveLocalisationGroup()
+        /// <summary>
+        /// method utiliser pour enregistrer édition de la localisation group
+        /// </summary>
+        /// <returns></returns>
+        protected async Task SaveLocalisationGroup()
         {
-            var select = SelectedGroup;
-            StateHasChanged();
+            try
+            {
+                if (_serviceHttp is null)
+                {
+                    if (_toastService is not null)
+                        // -- affichage d'un message de succès
+                        await _toastService.ErreurAsync("Le service d'enregistrement est indisponible.");
+                    return;
+                }
+
+                if ( SelectedGroup is null ) {
+                    return;
+                }
+
+                var localisationGroup = new LocalisationGroupDTO {
+                    Id = SelectedGroup.Id,
+                    Date = SelectedGroup.Date,
+                    ApplicationUserId = SelectedGroup.ApplicationUserId,
+                    Localisations = SelectedGroup.Localisations?.Select(l => l.GetDTO()).ToList(),
+                    Name = SelectedGroup.Name,
+                    RouteTelemetry = SelectedGroup.RouteTelemetry is null ? null :
+                        new RouteTelemetryDTO
+                        {
+                            Id = SelectedGroup.RouteTelemetry.Id,
+                            AverageSpeed = SelectedGroup.RouteTelemetry.AverageSpeed,
+                            DateTimeBegin = SelectedGroup.RouteTelemetry.DateTimeBegin,
+                            DateTimeEnd = SelectedGroup.RouteTelemetry.DateTimeEnd,
+                            Distance = SelectedGroup.RouteTelemetry.Distance,
+                            DistanceUnit = SelectedGroup.RouteTelemetry.DistanceUnit,
+                            NegativeElevationGain = SelectedGroup.RouteTelemetry.NegativeElevationGain,
+                            PositiveElevationGain = SelectedGroup.RouteTelemetry.PositiveElevationGain,
+                            TotalLocalisations = SelectedGroup.RouteTelemetry.TotalLocalisations,
+                            TotalTime = SelectedGroup.RouteTelemetry.TotalTime,
+                            TotalTimePaused = SelectedGroup.RouteTelemetry.TotalTimePaused
+                        }
+                };
+
+                var result = await _serviceHttp.UpdateLocalisationGroupAsync(localisationGroup);
+                if (result.IsSuccess)
+                {
+                    if (_toastService is not null)
+                        // -- affichage d'un message d'erreur
+                        await _toastService.SuccesAsync("L'enregistrement effectué.");
+                }
+                else
+                {
+                    if (_toastService is not null)
+                        // -- affichage d'un message d'erreur
+                        await _toastService.ErreurAsync(result.Message ?? "Erreur lors de la récupération de la liste de localisations.");
+                }
+
+                StateHasChanged();
+            }
+            catch
+            {
+                if (_toastService is not null)
+                    // -- affichage d'un message de succès
+                    await _toastService.ErreurAsync("Le service d'enregistrement est indisponible ou erreur interne.");
+                return;
+            }
         }
 
         #endregion
@@ -223,25 +295,35 @@ namespace KronoGeo_Blazor.Client.Pages
         /// <returns></returns>
         private async Task GetLoadGroupLocationAsync()
         {
-            if (_serviceHttp is not null && _authenticationStateProvider is not null)
+            try
             {
-                // -- récupération de l'utilisateur connecté pour récupérer les groupes de localisation
-                //var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
-                // -- récupération du claim NameIdentifier pour récupérer l'id de l'utilisateur
-                //var user = authState.User.Identities.FirstOrDefault()?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-                var result = await _serviceHttp.GetUserGroupLocalisationAsync();
+                if (_serviceHttp is not null && _authenticationStateProvider is not null)
+                {
+                    // -- récupération de l'utilisateur connecté pour récupérer les groupes de localisation
+                    //var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+                    // -- récupération du claim NameIdentifier pour récupérer l'id de l'utilisateur
+                    //var user = authState.User.Identities.FirstOrDefault()?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+                    var result = await _serviceHttp.GetUserGroupLocalisationAsync();
 
-                _localisationGroup = result?.GroupsDTO?
-                    .Select(lg => new LocalisationGroup()
-                    {
-                        Id = lg.Id,
-                        ApplicationUserId = lg.ApplicationUserId,
-                        Date = lg.Date,
-                        Name = lg.Name,
-                        RouteTelemetry = lg.RouteTelemetry?.Get() ?? null,
-                        Localisations = lg.Localisations?.Select(l => l.Get()).ToList()
-                    }).ToList();
+                    _localisationGroup = result?.GroupsDTO?
+                        .Select(lg => new LocalisationGroup()
+                        {
+                            Id = lg.Id,
+                            ApplicationUserId = lg.ApplicationUserId,
+                            Date = lg.Date,
+                            Name = lg.Name,
+                            RouteTelemetry = lg.RouteTelemetry?.Get() ?? null,
+                            Localisations = lg.Localisations?.Select(l => l.Get()).ToList()
+                        }).ToList();
+                }
             }
+            catch
+            {
+                if (_toastService is not null)
+                    // -- affichage d'un message de succès
+                    await _toastService.ErreurAsync("Le service de récupération des localisations est indisponible.");
+            }
+            
         }
 
         #endregion
