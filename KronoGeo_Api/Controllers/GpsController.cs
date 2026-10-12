@@ -173,6 +173,12 @@ namespace KronoGeo_Api.Controllers
                 return this.Problem("Erreur lors de l'enregistrement.");
             }
         }
+
+        [HttpDelete("")]
+        public async Task<IActionResult> DeleteLocalisationGroup(int id)
+        {
+            
+        }
         #endregion
     }
 }

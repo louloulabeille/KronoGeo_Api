@@ -336,9 +336,9 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <param name="id"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public Task<bool> DeleteLocalisationGroupAsync(int id)
+        public async Task<bool> DeleteLocalisationGroupAsync(int id)
         {
-            var url = $"{_options.Value.DeleteLocalisationGroup}/{WebUtility.UrlEncode(id)}";
+            var url = $"{_options.Value.DeleteLocalisationGroup}/{WebUtility.UrlEncode(id.ToString())}";
             
             using var result = await HttpClient.DeleteAsync(url);
             result.EnsureSuccessStatusCode();
@@ -347,7 +347,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             {
                 var responseContent = await result.Content.ReadAsStringAsync();
                 var content = JsonSerializer.Deserialize<bool>(responseContent, JsonOptions.GetJsonOptions());
-                return content ?? false;
+                return content;
             }
             
             return false;

@@ -9,20 +9,21 @@ namespace KronoGeo_Blazor.Infrastructure.MediatR.Queries.Gps
         : GpsHandler<DeleteLocalisationGroupHandler>(serviceHttp, logger)
         , IRequestHandler<DeleteLocalisationGroupCommand, bool>
     {
-        public Task<bool> Handle(DeleteLocalisationGroupCommand request, CancellationToken cancellationToken)
+        public async Task<bool> Handle(DeleteLocalisationGroupCommand request, CancellationToken cancellationToken)
         {
             if (ServiceHttp is null)
             {
-                Logger.LogError("Le service Http n'existe pas.")
+                Logger.LogError("Le service Http n'existe pas.");
                 return false;
             }
 
-            using var result = ServiceHttp.DeleteLocalisationGroupAsync(request.Id);
-            if (result is not null)
-                return result;
+            var result = await ServiceHttp.DeleteLocalisationGroupAsync(request.Id);
+            if( !result )
+            { 
+                Logger.LogError("Erreur au niveau de la supression de la localisatin group {id}", request.Id);
+            }
 
-            Logger.LogError("Erreur au niveau de la supression de la localisatin group {id}", request.Id);
-            return false;
+            return result;
         }
     }
 }
