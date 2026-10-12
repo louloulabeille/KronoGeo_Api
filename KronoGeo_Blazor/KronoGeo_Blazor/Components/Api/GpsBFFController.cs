@@ -9,7 +9,7 @@ namespace KronoGeo_Blazor.Components.Api
 {
     [Microsoft.AspNetCore.Mvc.Route("api/v1/[controller]")]
     [ApiController]
-    public class GpsBFFController( IMediator mediaR, ILogger<GpsBFFController> logger ) : Controller
+    public class GpsBFFController(IMediator mediaR, ILogger<GpsBFFController> logger) : Controller
     {
         #region private readonly properties
         private readonly IMediator _mediaR = mediaR;
@@ -34,7 +34,7 @@ namespace KronoGeo_Blazor.Components.Api
                 {
                     return BadRequest("Invalid model state.");
                 }
-                
+
                 if (string.IsNullOrEmpty(userId))
                 {
                     return Unauthorized("User is not authenticated.");
@@ -44,12 +44,12 @@ namespace KronoGeo_Blazor.Components.Api
 
                 return Ok(result);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Erreur lors de l'envoi des groupes des localisations. idUser {idUser}", userId);
-                return this.Ok( new ResponseApiLocalisations() 
-                { 
-                    ApiStatus = EnumApiStatus.Problem, 
+                return this.Ok(new ResponseApiLocalisations()
+                {
+                    ApiStatus = EnumApiStatus.Problem,
                     Message = "Erreur interne.",
                     LocalisationGroupDTO = null,
                     GroupsDTO = []
@@ -107,16 +107,16 @@ namespace KronoGeo_Blazor.Components.Api
                 {
                     return BadRequest("Invalid model state.");
                 }
-                if (string.IsNullOrEmpty(userId) || userId != localisationGroup.ApplicationUserId )
+                if (string.IsNullOrEmpty(userId) || userId != localisationGroup.ApplicationUserId)
                 {
                     return Unauthorized("User is not authenticated.");
                 }
-                var result = await _mediaR.Send(new UpdateLocalisationGroupCommand() 
-                    { LocalisationGroup = localisationGroup });
+                var result = await _mediaR.Send(new UpdateLocalisationGroupCommand()
+                { LocalisationGroup = localisationGroup });
                 return Ok(result);
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Erreur lors de la sauvegarde de la localisation group {id} : {message}", localisationGroup.Id, ex.Message);
                 return this.Ok(new ResponseApiLocalisations
@@ -124,6 +124,32 @@ namespace KronoGeo_Blazor.Components.Api
                     ApiStatus = EnumApiStatus.Problem,
                     Message = $"Erreur lors de la sauvegarde"
                 });
+            }
+        }
+
+        /// <summary>
+        /// action de suppression d'un localisation group
+        /// </summary>
+        /// <param name="localisationGroup"></param>
+        /// <returns></returns>
+        [HttpDelete("DeleteLocalisationGroup/{id}")]
+        public async Task<IActionResult> DeleteLocalisationGroup(int id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest("Invalid model state.");
+                }
+
+                var result = await _mediaR.Send(new DeleteLocalisationGroupCommand { Id = id });
+                return this.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de la supression de la localisation group {id} : {message}", id, ex.Message);
+                return this.Ok(false);
             }
         }
     }

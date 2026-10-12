@@ -318,7 +318,38 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                 };
             }
         }
-    
+
+        /// <summary>
+        /// Suppression d'un localisation group
+        /// </summary>
+        /// <param name="localisationGroup"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<bool> DeleteLocalisationGroupAsync(LocalisationGroupDTO localisationGroup)
+        {
+            try
+            {
+                var url = $"{_options.Value.DeleteLocalisationGroup}/{WebUtility.UrlEncode(localisationGroup.Id.ToString())}";
+                
+                using var result = await _httpClient.DeleteAsync(url);
+                result.EnsureSuccessStatusCode();
+
+                if ( result.IsSuccessStatusCode)
+                {
+                    var retour = await result.Content.ReadAsStringAsync();
+                    var data = JsonSerializer.Deserialize<bool>(retour, JsonOptions.GetJsonOptions());
+
+                    return data;
+                }
+                return false;
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de la suppression de la localisation Group id : {id}", localisationGroup.Id);
+                return false;
+            }
+        }
+
         #endregion
 
         #region public method interface IDisposable

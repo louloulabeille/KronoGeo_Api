@@ -193,7 +193,7 @@ namespace KronoGeo_Blazor.Client.Pages
         /// ouvre le formulaire d'édition du groupe de localisation
         /// </summary>
         /// <param name="localisationGroup"></param>
-        protected void EditLocalisation (LocalisationGroup localisationGroup)
+        protected void EditLocalisation(LocalisationGroup localisationGroup)
         {
             SelectedGroup = localisationGroup;
             IsMapOpen = false;
@@ -201,11 +201,70 @@ namespace KronoGeo_Blazor.Client.Pages
             StateHasChanged();
         }
 
-        protected void DeleteLocalisation(LocalisationGroup localisationGroup)
+        /// <summary>
+        /// Supprime le group de localisation
+        /// </summary>
+        /// <param name="localisationGroup"></param>
+        protected async Task DeleteLocalisation(LocalisationGroup localisationGroup)
         {
-            SelectedGroup = localisationGroup;
-            
-            StateHasChanged();
+            try
+            {
+                if (_serviceHttp is null)
+                {
+                    if (_toastService is not null)
+                        // -- affichage d'un message de succès
+                        await _toastService.ErreurAsync("Le service de récupération des localisations est indisponible.");
+                    return;
+                }
+                SelectedGroup = localisationGroup;
+
+                var localisationGroupdto = new LocalisationGroupDTO
+                {
+                    Id = SelectedGroup.Id,
+                    Date = SelectedGroup.Date,
+                    ApplicationUserId = SelectedGroup.ApplicationUserId,
+                    Localisations = SelectedGroup.Localisations?.Select(l => l.GetDTO()).ToList(),
+                    Name = SelectedGroup.Name,
+                    RouteTelemetry = SelectedGroup.RouteTelemetry is null ? null :
+                        new RouteTelemetryDTO
+                        {
+                            Id = SelectedGroup.RouteTelemetry.Id,
+                            AverageSpeed = SelectedGroup.RouteTelemetry.AverageSpeed,
+                            DateTimeBegin = SelectedGroup.RouteTelemetry.DateTimeBegin,
+                            DateTimeEnd = SelectedGroup.RouteTelemetry.DateTimeEnd,
+                            Distance = SelectedGroup.RouteTelemetry.Distance,
+                            DistanceUnit = SelectedGroup.RouteTelemetry.DistanceUnit,
+                            NegativeElevationGain = SelectedGroup.RouteTelemetry.NegativeElevationGain,
+                            PositiveElevationGain = SelectedGroup.RouteTelemetry.PositiveElevationGain,
+                            TotalLocalisations = SelectedGroup.RouteTelemetry.TotalLocalisations,
+                            TotalTime = SelectedGroup.RouteTelemetry.TotalTime,
+                            TotalTimePaused = SelectedGroup.RouteTelemetry.TotalTimePaused
+                        }
+                };
+
+                
+                var result = await _serviceHttp.DeleteLocalisationGroupAsync(localisationGroupdto);
+                if (result)
+                {
+                    if (_toastService is not null)
+                        // -- affichage d'un message de succès
+                        await _toastService.SuccesAsync("Supression réussie.");
+                }
+                else
+                    if (_toastService is not null)
+                        // -- affichage d'un message de succès
+                        await _toastService.AvertissementAsync("Supression impossible.");
+
+
+                SelectedGroup = null;
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                if (_toastService is not null)
+                    // -- affichage d'un message de succès
+                    await _toastService.ErreurAsync("Une erreur est survenue lors de la supression de la locaisaiotn groupe.");
+            }   
         }
 
         /// <summary>

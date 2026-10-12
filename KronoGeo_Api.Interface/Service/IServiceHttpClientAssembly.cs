@@ -21,5 +21,6 @@ namespace KronoGeo_Api.Interface.Service
         public Task<ResponseApiLocalisations> GetLocalisationsByIdAsync(int IdLocalisationGroup);
         public Task<bool> DeleteImageAsync(LocalisationPhotoDTO photo);
         public Task<ResponseApiLocalisations> UpdateLocalisationGroupAsync(LocalisationGroupDTO localisationGroup);
+        public Task<bool> DeleteLocalisationGroupAsync(LocalisationGroupDTO localisationGroup);
     }
 }
