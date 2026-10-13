@@ -60,7 +60,7 @@ namespace KronoGeo_Blazor.Components.Pages.Account
 
             try
             {
-                if (_serviceHttp is not null && _authenticate is not null)
+                if (_serviceHttp is not null && _authenticate is not null && _mediator is not null)
                 {
                     // -- requete vers l'APi
                     //var result = await _serviceHttp.AuthenticateAsync(_authenticate);

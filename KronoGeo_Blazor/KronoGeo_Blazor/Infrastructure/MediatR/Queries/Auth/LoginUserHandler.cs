@@ -47,7 +47,7 @@ namespace KronoGeo_Blazor.Infrastructure.MediatR.Queries.Auth
                         // -- Émettre le Cookie d'authentification vers le navigateur
                         var claims = new List<Claim>
                         {
-                            new (ClaimTypes.NameIdentifier, result.Register.Id),
+                            new (ClaimTypes.NameIdentifier, result.Register.Id??string.Empty),
                             new (ClaimTypes.Name, result.Register.Login )
                         };
 
