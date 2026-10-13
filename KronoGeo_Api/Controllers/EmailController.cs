@@ -11,7 +11,7 @@ namespace KronoGeo_Api.Controllers
     [ApiController]
     // - controller de modification du mail du compte d'utilisateur
     public class EmailController (ILogger<AuthenticateController> logger
-        , IMediator mediaR) : Controller
+        , IMediator mediaR) : ControllerBase
     {
         #region private properties
         private readonly ILogger<AuthenticateController> _logger = logger;
