@@ -1,4 +1,5 @@
 ﻿using KronoGeo_Api.Applications.MediatR.Commands.Gps;
+using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Model.DTO;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -114,10 +115,14 @@ namespace KronoGeo_Api.Controllers
             }
         }
 
-        
+        /// <summary>
+        /// Action de supression d'un localisation group
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // DELETE api/v1/<GpsController>/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id, [FromBody] UserIdDTO user)
+        [HttpDelete("DeleteLocalisationGroup/{id}")]
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
@@ -125,10 +130,9 @@ namespace KronoGeo_Api.Controllers
                 {
                     return this.BadRequest("Invalid model state.");
                 }
-                var command = new DeleteLocalisationsCommand()
+                var command = new DeleteLocalisationGroupCommand()
                 {
-                    IdLocalisationGroup = id,
-                    IdUser = user.Id
+                    Id = id
                 };
 
                 var result = await _mediaR.Send(command);
@@ -136,11 +140,16 @@ namespace KronoGeo_Api.Controllers
                 return this.Ok(result);
             }catch(Exception ex)
             {
-                _logger.LogError(ex,"Erreur lors de la suppression d'un trajet {id} par user {idUser}", id, user.Id);
+                _logger.LogError(ex,"Erreur lors de la suppression d'un trajet {id}", id);
                 return this.Problem("Error while deleting Gps route.");
             }
         }
 
+        /// <summary>
+        /// action pour modificer la localsiation group
+        /// </summary>
+        /// <param name="localisationGroup"></param>
+        /// <returns></returns>
         [HttpPost("UpdateLocalisationGroup")]
         public async Task<IActionResult> UpdateLocalisationGroup([FromBody] LocalisationGroupDTO localisationGroup)
         {
@@ -174,11 +183,6 @@ namespace KronoGeo_Api.Controllers
             }
         }
 
-        [HttpDelete("")]
-        public async Task<IActionResult> DeleteLocalisationGroup(int id)
-        {
-            
-        }
         #endregion
     }
 }

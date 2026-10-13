@@ -3,9 +3,8 @@ using MediatR;
 
 namespace KronoGeo_Api.Applications.MediatR.Commands.Gps
 {
-    public class DeleteLocalisationsCommand : IRequest<ResponseApiLocalisations>
+    public class DeleteLocalisationGroupCommand : IRequest<ResponseApiLocalisations>
     {
-        public required int IdLocalisationGroup { get; set; }
-        public required string IdUser { get; set; }
+        public required int Id { get; set; }
     }
 }

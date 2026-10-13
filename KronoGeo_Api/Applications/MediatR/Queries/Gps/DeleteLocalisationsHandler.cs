@@ -9,21 +9,21 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
 {
     public class DeleteLocalisationsHandler(ILogger<AddLocalisationsHandler> logger
         , KronoGeoDbContext context, IServiceGestionPhoto servicePhoto) : RepositoryHandler(logger, context),
-        IRequestHandler<DeleteLocalisationsCommand, ResponseApiLocalisations>
+        IRequestHandler<DeleteLocalisationGroupCommand, ResponseApiLocalisations>
     {
 
         #region private properties
         private readonly IServiceGestionPhoto _servicePhoto = servicePhoto;
         #endregion
 
-        public async Task<ResponseApiLocalisations> Handle(DeleteLocalisationsCommand request, CancellationToken cancellationToken)
+        public async Task<ResponseApiLocalisations> Handle(DeleteLocalisationGroupCommand request, CancellationToken cancellationToken)
         {
-            var localisations = _unitOfWork.Repository<LocalisationGroup>().GetById(request.IdLocalisationGroup);
+            var localisations = _unitOfWork.Repository<LocalisationGroup>().GetById(request.Id);
             try
             {
-                if (localisations is not null && localisations.ApplicationUserId == request.IdUser)
+                if (localisations is not null )
                 {
-                    var photo = _unitOfWork.Repository<LocalisationPhoto>().Where(p => p.LocalisationGroupId == request.IdLocalisationGroup).FirstOrDefault();
+                    var photo = _unitOfWork.Repository<LocalisationPhoto>().Where(p => p.LocalisationGroupId == request.Id).FirstOrDefault();
                     if (photo is not null) _servicePhoto.DeletePhotos(photo.PathPhoto ?? string.Empty);
 
                     _unitOfWork.Repository<LocalisationGroup>().Delete(localisations);
