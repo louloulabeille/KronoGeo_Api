@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
+using Microsoft.JSInterop;
 using System.Linq;
 using System.Security.Claims;
 
@@ -27,6 +28,9 @@ namespace KronoGeo_Blazor.Client.Pages
         /// </summary>
         [Inject]
         private ToastsService? _toastService { get; set; } = default;
+        // -- service pour lancer des method javascript
+        [Inject]
+        private IJSRuntime? _iJSRuntime { get; set; } = default;
         #endregion
 
         #region protected properties view
@@ -110,10 +114,20 @@ namespace KronoGeo_Blazor.Client.Pages
         #endregion
 
         #region public method event
+        /// <summary>
+        /// Method qui filtre les datas dans la collection 
+        /// </summary>
+        /// <returns></returns>
         protected async Task FilterSearch()
         {
             PageActuel = 1;
             _filterLocalisationGroup = _localisationGroup?.Where(w => w.Name.Contains(Search, StringComparison.OrdinalIgnoreCase)).ToList();
+            _mapState?.OpenMapwithLocalisations(null);
+
+            if (_iJSRuntime is not null)
+                await _iJSRuntime.InvokeVoidAsync("fermerAccordeon", "accordionGroupLocation");
+            
+            
         }
         #endregion
 
@@ -246,23 +260,26 @@ namespace KronoGeo_Blazor.Client.Pages
                 var result = await _serviceHttp.DeleteLocalisationGroupAsync(localisationGroupdto);
                 if (result)
                 {
+                    _localisationGroup?.Remove(localisationGroup);
+                    await FilterSearch();
+                    SelectedGroup = null;
+                    _mapState?.OpenMapwithLocalisations(null); // -- initialise la Map
+                    StateHasChanged();
                     if (_toastService is not null)
                         // -- affichage d'un message de succès
                         await _toastService.SuccesAsync("Supression réussie.");
                 }
                 else
                     if (_toastService is not null)
-                        // -- affichage d'un message de succès
+                        // -- affichage d'un message de supression impossible
                         await _toastService.AvertissementAsync("Supression impossible.");
-
-
-                SelectedGroup = null;
-                StateHasChanged();
+                
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 if (_toastService is not null)
-                    // -- affichage d'un message de succès
+                    // -- affichage d'un message de erreur
                     await _toastService.ErreurAsync("Une erreur est survenue lors de la supression de la locaisaiotn groupe.");
             }   
         }

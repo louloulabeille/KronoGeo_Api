@@ -7,50 +7,40 @@ using MediatR;
 
 namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
 {
-    public class DeleteLocalisationsHandler(ILogger<AddLocalisationsHandler> logger
+    public class DeleteLocalisationGroupHandler(ILogger<AddLocalisationsHandler> logger
         , KronoGeoDbContext context, IServiceGestionPhoto servicePhoto) : RepositoryHandler(logger, context),
-        IRequestHandler<DeleteLocalisationGroupCommand, ResponseApiLocalisations>
+        IRequestHandler<DeleteLocalisationGroupCommand, bool>
     {
 
         #region private properties
         private readonly IServiceGestionPhoto _servicePhoto = servicePhoto;
         #endregion
 
-        public async Task<ResponseApiLocalisations> Handle(DeleteLocalisationGroupCommand request, CancellationToken cancellationToken)
+        public async Task<bool> Handle(DeleteLocalisationGroupCommand request, CancellationToken cancellationToken)
         {
             var localisations = _unitOfWork.Repository<LocalisationGroup>().GetById(request.Id);
             try
             {
                 if (localisations is not null )
                 {
+                    // -- supression des photo dans le répertoire
                     var photo = _unitOfWork.Repository<LocalisationPhoto>().Where(p => p.LocalisationGroupId == request.Id).FirstOrDefault();
                     if (photo is not null) _servicePhoto.DeletePhotos(photo.PathPhoto ?? string.Empty);
 
+                    // -- supression de l'enregistrement dans la base de données
                     _unitOfWork.Repository<LocalisationGroup>().Delete(localisations);
                     _unitOfWork.SaveChanges();
-                    return new ResponseApiLocalisations()
-                    {
-                        ApiStatus = EnumApiStatus.Success,
-                        Message = "Success delete"
-                    };
+                    return true;
                 }
                 else
                 {
-                    return new ResponseApiLocalisations()
-                    {
-                        ApiStatus = EnumApiStatus.NotFound,
-                        Message = "Impossible to delete.",
-                    };
+                    return false;
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erreur lors de la supression des localisations");
-                return new ResponseApiLocalisations()
-                {
-                    ApiStatus = EnumApiStatus.Problem,
-                    Message = "Internal error."
-                };
+                _logger.LogError(ex, "Erreur lors de la supression des localisations id : {id}",request.Id);
+                return false;
             }
             
         }

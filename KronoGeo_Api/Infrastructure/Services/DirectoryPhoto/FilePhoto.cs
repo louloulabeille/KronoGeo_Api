@@ -104,7 +104,8 @@ namespace KronoGeo_Api.Infrastructure.Services.DirectoryPhoto
         {
             if (string.IsNullOrEmpty(directory)) return;
 
-            string directoryPath = Path.Combine(_webhost.ContentRootPath, directory);
+            string directoryPathServer = Path.Combine(_webhost.ContentRootPath, _option.Value.Www);
+            string directoryPath = Path.Combine(directoryPathServer, directory);
             if (!Directory.Exists(directoryPath)) return;
 
             string[] fileList = Directory.GetFiles(directoryPath);
