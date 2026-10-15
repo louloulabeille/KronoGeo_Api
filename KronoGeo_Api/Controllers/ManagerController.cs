@@ -27,7 +27,6 @@ namespace KronoGeo_Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpDelete("DeleteUser")]
-        [Authorize(Roles = "Admin,User,Manager")]
         // - suppression de son compte utilisateur de l'API
         public async Task<IActionResult> DeleteUser()
         {
@@ -78,12 +77,14 @@ namespace KronoGeo_Api.Controllers
         /// <param name="register"></param>
         /// <returns></returns>
         [HttpPost("UpdatePassword")]
-        [Authorize(Roles = "Admin,User,Manager")]
         public async Task<IActionResult> UpdatePassword([FromBody] ProfilDTO profil)
         {
-
             try
             {
+                var idUser = User.FindFirstValue("Id");
+                if (idUser != profil.Id)
+                    return Unauthorized();
+
                 var result = await _mediaR.Send(new UpdateUserPasswordCommand { Profil = profil });
 
                 return this.Ok(result);  

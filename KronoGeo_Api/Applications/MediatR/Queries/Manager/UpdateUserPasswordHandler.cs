@@ -28,7 +28,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
         {
             try
             {
-                if (string.IsNullOrEmpty(request.Profil.Password) || string.IsNullOrEmpty(request.Profil.NewPassord))
+                if (string.IsNullOrEmpty(request.Profil.Password) || string.IsNullOrEmpty(request.Profil.NewPassword))
                 { 
                     return new ResponseApiManager { ApiStatus = EnumApiStatus.BadRequest, Message = "Password not found or empty" };
                 }
@@ -39,7 +39,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
                 if ( user is not null )
                 {
                     // -- method pour changer le mot passe - il faut l'ancien mot de passe
-                    var identityResult = await _signInManager.UserManager.ChangePasswordAsync(user, request.Profil.Password, request.Profil.NewPassord);
+                    var identityResult = await _signInManager.UserManager.ChangePasswordAsync(user, request.Profil.Password, request.Profil.NewPassword);
                     if ( identityResult.Succeeded )
                     {
                         return new ResponseApiManager { ApiStatus = EnumApiStatus.Success };
