@@ -5,6 +5,7 @@ using KronoGeo_Api.Models.Model.DTO;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace KronoGeo_Api.Controllers
 {
@@ -29,16 +30,7 @@ namespace KronoGeo_Api.Controllers
             try
             {
                 var result = await _mediaR.Send(new DeleteUserCommand() { Id = id });
-                if (result.IdentityResult is not null && result.IdentityResult.Succeeded)
-                {
-                    return this.Ok(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.Success, Message = "Deleted successfully." });
-                }
-
-                if (result.IdentityResult is not null)
-                    return this.BadRequest(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.BadRequest, Message = result.IdentityResult.Errors.ToString() });
-
-                _logger.LogError("An error occurred while deleting user {id}. pas de IdentityResult", id);
-                return this.Problem("An error occurred while processing your request.");
+                return this.Ok(result);
             }
             catch (Exception ex)
             {
@@ -64,16 +56,7 @@ namespace KronoGeo_Api.Controllers
             {
                 var result = await _mediaR.Send(new UpdateUserPasswordCommand { Profil = profil });
 
-                if (result.IdentityResult is not null && result.IdentityResult.Succeeded)
-                {
-                    return this.Ok(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.Success, Message = "Update password successfully." });
-                }
-
-                if (result.IdentityResult is not null)
-                    return this.BadRequest(result.IdentityResult.Errors);
-
-                _logger.LogError("An error occurred while updating password for user {user}. pas de IdentityResult", profil.Login);
-                return this.Problem("An error occurred while processing your request.");
+                return this.Ok(result);  
             }
             catch (Exception ex)
             {
@@ -81,8 +64,25 @@ namespace KronoGeo_Api.Controllers
                 return this.Problem("An error occurred while processing your request.");
             }
         }
-
         #endregion
 
+        #region public action method get UserManager
+        [HttpGet("GetProfil")]
+        public async Task<IActionResult> GetProfil()
+        {
+            // -- récuépration de id dans la tokken
+            var idUser = User.FindFirstValue("Id");
+            try
+            {
+                var result = await _mediaR.Send(new ProfilUserCommand { IdUser = idUser ?? string.Empty });
+                return this.Ok(result);
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while get profile for user {id}.", idUser);
+                return this.Problem("An error occurred while processing your request profil.");
+            }
+        }
+        #endregion
     }
 }

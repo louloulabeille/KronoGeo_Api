@@ -2,6 +2,7 @@
 using KronoGeo_Api.Applications.MediatR.Commands.Manager;
 using KronoGeo_Api.Applications.MediatR.Queries.Manager;
 using KronoGeo_Api.Models;
+using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Infrastructure.Options;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -12,7 +13,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
     public class DeleteUserHandler(ILogger<DeleteUserHandler> logger
         , SignInManager<ApplicationUser> signInManager)
         : ManagerHandler(logger, signInManager),
-        IRequestHandler<DeleteUserCommand, ProfilManager>
+        IRequestHandler<DeleteUserCommand, ResponseApiManager>
     {
 
         #region handle IRequestHandler
@@ -24,19 +25,12 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
         /// <param name="request"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<ProfilManager> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
+        public async Task<ResponseApiManager> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
         {
+            var profilManager = new ResponseApiManager();
             try
             {
                 var user =  await _signInManager.UserManager.FindByIdAsync(request.Id);
-                var profilManager = new ProfilManager() { 
-                    Profil = new() 
-                    { 
-                        Id = request.Id,
-                        Login = user?.UserName ?? string.Empty,
-                        Password = string.Empty,
-                    } 
-                };
 
                 if (user is not null)
                 {
@@ -44,8 +38,8 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                     // - il doit en rester au moins un dans le système
                     if(!await CanDeleteUser(user))
                     {
-                        var identityResult = IdentityResult.Failed(new IdentityError { Description = "Cannot delete user with critical roles." });
-                        profilManager.IdentityResult = identityResult;
+                        profilManager.ApiStatus = EnumApiStatus.BadRequest;
+                        profilManager.Message = "Cannot delete user with critical roles.";
                         return profilManager;
                     }
 
@@ -53,14 +47,19 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                     if (result.Succeeded)
                     {
                         _logger.LogInformation("User {Login} deleted successfully.", user.UserName);
+                        profilManager.ApiStatus = EnumApiStatus.Success;
                     }
-                    profilManager.IdentityResult = result;
+                    else
+                    {
+                        profilManager.ApiStatus = EnumApiStatus.BadRequest;
+                        profilManager.Message = "Impossible to delete user";
+                    }
 
                 }
                 else
                 {
-                    var identityResult = IdentityResult.Failed(new IdentityError { Description = "User not found." });
-                    profilManager.IdentityResult = identityResult;
+                    profilManager.ApiStatus = EnumApiStatus.NotFound;
+                    profilManager.Message = "User not found.";
                 }
 
                 return profilManager;
@@ -69,8 +68,10 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
             {
                 _logger.LogError(ex, "An error occurred while deleting user {Login}.", ex.Message);
 
+                profilManager.ApiStatus = EnumApiStatus.Problem;
+                profilManager.Message = "An error occurred while deleting user";
                 // - result null ou failed avec message d'erreur
-                return new ProfilManager() { Profil = new() { Id = request.Id ,Login = string.Empty, Password = string.Empty } };
+                return profilManager;
             }
             
         }
