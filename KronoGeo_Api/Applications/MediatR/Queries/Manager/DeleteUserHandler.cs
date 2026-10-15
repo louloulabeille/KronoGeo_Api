@@ -1,4 +1,6 @@
 ﻿using KronoGeo_Api.Applications.MediatR.Commands.Identity;
+using KronoGeo_Api.Applications.MediatR.Commands.Manager;
+using KronoGeo_Api.Applications.MediatR.Queries.Manager;
 using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Infrastructure.Options;
 using MediatR;
@@ -7,10 +9,10 @@ using Microsoft.Extensions.Options;
 
 namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
 {
-    public class DeleteUserHandler(ILogger<DeleteUserHandler> logger,
-            IOptions<KeyBearer> keyBearer, SignInManager<ApplicationUser> signInManager)
-        : UserIdentityHandler(logger, keyBearer, signInManager),
-        IRequestHandler<DeleteUserCommand, RegisterIdentity>
+    public class DeleteUserHandler(ILogger<DeleteUserHandler> logger
+        , SignInManager<ApplicationUser> signInManager)
+        : ManagerHandler(logger, signInManager),
+        IRequestHandler<DeleteUserCommand, ProfilManager>
     {
 
         #region handle IRequestHandler
@@ -22,13 +24,13 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
         /// <param name="request"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<RegisterIdentity> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
+        public async Task<ProfilManager> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
         {
             try
             {
                 var user =  await _signInManager.UserManager.FindByIdAsync(request.Id);
-                var registerIdentity = new RegisterIdentity() { 
-                    Register = new() 
+                var profilManager = new ProfilManager() { 
+                    Profil = new() 
                     { 
                         Id = request.Id,
                         Login = user?.UserName ?? string.Empty,
@@ -43,8 +45,8 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                     if(!await CanDeleteUser(user))
                     {
                         var identityResult = IdentityResult.Failed(new IdentityError { Description = "Cannot delete user with critical roles." });
-                        registerIdentity.IdentityResult = identityResult;
-                        return registerIdentity;
+                        profilManager.IdentityResult = identityResult;
+                        return profilManager;
                     }
 
                     var result = await _signInManager.UserManager.DeleteAsync(user);
@@ -52,23 +54,23 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                     {
                         _logger.LogInformation("User {Login} deleted successfully.", user.UserName);
                     }
-                    registerIdentity.IdentityResult = result;
+                    profilManager.IdentityResult = result;
 
                 }
                 else
                 {
                     var identityResult = IdentityResult.Failed(new IdentityError { Description = "User not found." });
-                    registerIdentity.IdentityResult = identityResult;
+                    profilManager.IdentityResult = identityResult;
                 }
 
-                return registerIdentity;
+                return profilManager;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while deleting user {Login}.", ex.Message);
 
                 // - result null ou failed avec message d'erreur
-                return new RegisterIdentity() { Register = new() { Id = request.Id ,Login = string.Empty, Password = string.Empty } };
+                return new ProfilManager() { Profil = new() { Id = request.Id ,Login = string.Empty, Password = string.Empty } };
             }
             
         }

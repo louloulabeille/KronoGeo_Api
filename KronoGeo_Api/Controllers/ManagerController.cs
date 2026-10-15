@@ -1,4 +1,5 @@
 ﻿using KronoGeo_Api.Applications.MediatR.Commands.Identity;
+using KronoGeo_Api.Applications.MediatR.Commands.Manager;
 using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Model.DTO;
 using MediatR;
@@ -56,12 +57,12 @@ namespace KronoGeo_Api.Controllers
         /// <returns></returns>
         [HttpPost("UpdatePassword")]
         [Authorize(Roles = "Admin,User,Manager")]
-        public async Task<IActionResult> UpdatePassword([FromBody] RegisterDTO register)
+        public async Task<IActionResult> UpdatePassword([FromBody] ProfilDTO profil)
         {
 
             try
             {
-                var result = await _mediaR.Send(new UpdateUserPasswordCommand { Register = register });
+                var result = await _mediaR.Send(new UpdateUserPasswordCommand { Profil = profil });
 
                 if (result.IdentityResult is not null && result.IdentityResult.Succeeded)
                 {
@@ -71,12 +72,12 @@ namespace KronoGeo_Api.Controllers
                 if (result.IdentityResult is not null)
                     return this.BadRequest(result.IdentityResult.Errors);
 
-                _logger.LogError("An error occurred while updating password for user {user}. pas de IdentityResult", register.Login);
+                _logger.LogError("An error occurred while updating password for user {user}. pas de IdentityResult", profil.Login);
                 return this.Problem("An error occurred while processing your request.");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while updating password for user {id}.", register.Login);
+                _logger.LogError(ex, "An error occurred while updating password for user {id}.", profil.Login);
                 return this.Problem("An error occurred while processing your request.");
             }
         }
