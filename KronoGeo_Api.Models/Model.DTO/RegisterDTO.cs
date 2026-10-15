@@ -5,9 +5,11 @@ namespace KronoGeo_Api.Models.Model.DTO
     public class RegisterDTO
     {
         public string? Id { get; set; } = string.Empty;
-        [Required(ErrorMessage = "Email est obligatoire pour se connecter.")]
+        [Required(ErrorMessage = "Login ou votre email est obligatoire pour se connecter.")]
         public required string Login { get; set; }
-        [Required(ErrorMessage = "Le mot de passe est obligatoire pour se connecter."), StringLength(20, MinimumLength = 8, ErrorMessage = "Le mot de passe doit avoir 8 caractères minimun et 20 caractères maximun.")]
+        //[RegularExpression(@"^(?=.*\[a-z\])(?=.*\[A-Z\])(?=.*\\d)(?=.*\[^\\da-zA-Z\]).+$", ErrorMessage = "Le mot de passe doit contenir au moins une lettre minuscule , une lettre majuscule, un chiffre et un caractère spécial")]
+        [Required(ErrorMessage = "Le mot de passe est obligatoire pour se connecter.")]
+        [RegularExpression(@"(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[²&~#{[|`\\^@\]}'()-_=?;.:/!]).{12,}", ErrorMessage = "Le mot de passe doit contenir au moins une lettre minuscule , une lettre majuscule, un chiffre et un caractère spécial et plus de 12 caractères.")]
         public string Password { get; set; } = string.Empty;
         public string? NewPassord  {get;set; }
         //[EmailAddress(ErrorMessage = "Invalid email address.")]
