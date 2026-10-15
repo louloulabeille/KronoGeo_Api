@@ -46,7 +46,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                     var result = await _signInManager.UserManager.DeleteAsync(user);
                     if (result.Succeeded)
                     {
-                        _logger.LogInformation("User {Login} deleted successfully.", user.UserName);
+                        //_logger.LogInformation("User {Login} deleted successfully.", user.UserName);
                         profilManager.ApiStatus = EnumApiStatus.Success;
                     }
                     else

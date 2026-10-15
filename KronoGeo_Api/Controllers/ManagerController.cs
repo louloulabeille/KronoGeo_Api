@@ -22,8 +22,37 @@ namespace KronoGeo_Api.Controllers
         #endregion
 
         #region public action method Delete
-        [HttpDelete("{id}")]
+        /// <summary>
+        /// supression de son propre compte
+        /// </summary>
+        /// <returns></returns>
+        [HttpDelete("DeleteUser")]
         [Authorize(Roles = "Admin,User,Manager")]
+        // - suppression de son compte utilisateur de l'API
+        public async Task<IActionResult> DeleteUser()
+        {
+            var id = User.FindFirstValue("Id");
+            try
+            {
+                
+
+                var result = await _mediaR.Send(new DeleteUserCommand() { Id = id ?? string.Empty });
+                return this.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while deleting user {id}.", id);
+                return this.Problem("An error occurred while processing your request.");
+            }
+        }
+
+        /// <summary>
+        /// action de suppression d'un compte par un admin ou manager
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpDelete("DeleteUser/{id}")]
+        [Authorize(Roles = "Admin,Manager")]
         // - suppression de son compte utilisateur de l'API
         public async Task<IActionResult> DeleteUser(string id)
         {
@@ -38,6 +67,7 @@ namespace KronoGeo_Api.Controllers
                 return this.Problem("An error occurred while processing your request.");
             }
         }
+
         #endregion
 
         #region public action method Password // - mettre aussi dans cette région initialisation password 
