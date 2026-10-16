@@ -1,5 +1,4 @@
-﻿using KronoGeo_Api.Applications.MediatR.Commands.Identity;
-using KronoGeo_Api.Applications.MediatR.Commands.Manager;
+﻿using KronoGeo_Api.Applications.MediatR.Commands.Manager;
 using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Model.DTO;
 using MediatR;
@@ -33,8 +32,6 @@ namespace KronoGeo_Api.Controllers
             var id = User.FindFirstValue("Id");
             try
             {
-                
-
                 var result = await _mediaR.Send(new DeleteUserCommand() { Id = id ?? string.Empty });
                 return this.Ok(result);
             }
@@ -57,6 +54,11 @@ namespace KronoGeo_Api.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new ResponseApiManager { ApiStatus = EnumApiStatus.BadRequest, Message = ModelState.ToString() });
+                }
+
                 var result = await _mediaR.Send(new DeleteUserCommand() { Id = id });
                 return this.Ok(result);
             }
@@ -82,6 +84,12 @@ namespace KronoGeo_Api.Controllers
             try
             {
                 var idUser = User.FindFirstValue("Id");
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new ResponseApiManager { ApiStatus = EnumApiStatus.BadRequest, Message = ModelState.ToString() });
+                }
+
                 if (idUser != profil.Id)
                     return Unauthorized();
 
@@ -150,6 +158,49 @@ namespace KronoGeo_Api.Controllers
         //{
 
         //}
+        #endregion
+
+        #region public action method update user
+        /// <summary>
+        /// Action pour modifier son profil
+        /// </summary>
+        /// <param name="profil"></param>
+        /// <returns></returns>
+        [HttpPost("UpdateUser")]
+        [Authorize(Roles ="User")]
+        public async Task<IActionResult> UpdateUser([FromBody] ProfilDTO profil )
+        {
+            // -- récupération de Id
+            var idUser = User.FindFirstValue("Id");
+            try
+            {
+                // -- validation du model state peut servir si on le désactive 
+                // -- c'est possible
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new ResponseApiManager { ApiStatus = EnumApiStatus.BadRequest, Message = ModelState.ToString() });
+                }
+
+                if( idUser != profil.Id)
+                {
+                    return Unauthorized("Profil unauthorized");
+                }
+
+                // -- appel de MediaR  
+                var result = await _mediaR.Send(new UpdateUserCommand { 
+                    IdUser = idUser ?? string.Empty,
+                    Profil = profil
+                });
+
+                return this.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while update  profile for users {id}.", idUser);
+                return this.Problem("An error occurred while processing your request update your profil.");
+            }
+        }
+
         #endregion
     }
 }

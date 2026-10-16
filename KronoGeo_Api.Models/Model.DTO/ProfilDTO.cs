@@ -15,7 +15,7 @@ namespace KronoGeo_Api.Models.Model.DTO
         public string? NewPassword { get; set; }
         [EmailAddress(ErrorMessage = "L'adresse mail est invalide.")]
         public string? Email { get; set; }
-        [Phone(ErrorMessage ="Numéro de téléphone est invalide.")]
+        //[Phone(ErrorMessage ="Numéro de téléphone est invalide.")]
         public string? PhoneNumber { get; set; }
 
         // -- liste des roles
