@@ -23,21 +23,25 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
                 }
 
                 var user = await _signInManager.UserManager.FindByIdAsync(request.IdUser ?? string.Empty);
+                
                 if( user is null)
                 {
                     return new ResponseApiManager { ApiStatus = EnumApiStatus.NotFound, Message = "User not found" };
                 }
                 else
                 {
+                    var roles = await _signInManager.UserManager.GetRolesAsync(user);
+
                     return new ResponseApiManager
                     {
                         ApiStatus = EnumApiStatus.Success,
+                        Roles = roles.ToList(),
                         Profil = new ProfilDTO
                         {
                             Login = user?.UserName ?? string.Empty,
                             Email = user?.Email ?? string.Empty,
                             PhoneNumber = user?.PhoneNumber ?? string.Empty
-                        }
+                        },
                     };
                     
                 }

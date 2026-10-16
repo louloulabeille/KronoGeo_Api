@@ -33,8 +33,8 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
                     return new ResponseApiManager { ApiStatus = EnumApiStatus.BadRequest, Message = "Password not found or empty" };
                 }
 
-                var user = await _signInManager.UserManager.FindByIdAsync(request.Profil.Id??string.Empty)?? 
-                    await _signInManager.UserManager.FindByNameAsync(request.Profil.Login);
+                var user = await _signInManager.UserManager.FindByIdAsync(request.Profil.Id ?? string.Empty) ??
+                    await _signInManager.UserManager.FindByNameAsync(request.Profil.Login??string.Empty);
 
                 if ( user is not null )
                 {

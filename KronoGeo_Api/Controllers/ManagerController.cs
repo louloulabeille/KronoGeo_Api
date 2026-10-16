@@ -98,6 +98,10 @@ namespace KronoGeo_Api.Controllers
         #endregion
 
         #region public action method get UserManager
+        /// <summary>
+        /// retourne le profil de l'utilisateur
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("GetProfil")]
         public async Task<IActionResult> GetProfil()
         {
@@ -114,6 +118,35 @@ namespace KronoGeo_Api.Controllers
                 return this.Problem("An error occurred while processing your request profil.");
             }
         }
+
+        /// <summary>
+        /// Retourne tous les Profils
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("GetAllProfil")]
+        [Authorize(Roles = "Admin,Manager")]
+        public async Task<IActionResult> GetAllProfil()
+        {
+            // -- récupération de id dans la tokken
+            // -- pour la vérification si l'utilisateur a les droits
+            var idUser = User.FindFirstValue("Id");
+            try
+            {
+                var result = await _mediaR.Send(new ProfilUserCommand { IdUser = idUser ?? string.Empty });
+                return this.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while get profile for user {id}.", idUser);
+                return this.Problem("An error occurred while processing your request profil.");
+            }
+        }
+
+        //[HttpGet("GetProfil/{search}")]
+        //public async Task<IActionResult> GetProfil([FromRoute]string search)
+        //{
+
+        //}
         #endregion
     }
 }
