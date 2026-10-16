@@ -35,7 +35,8 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
                     if (roles.ToList().Exists(r => r == "Admin" || r == "Manager"))
                     {
                         ResponseApiManager response = new () {
-                            ApiStatus = EnumApiStatus.Success
+                            ApiStatus = EnumApiStatus.Success,
+                            Profils = []
                         };
 
                         // -- role User
