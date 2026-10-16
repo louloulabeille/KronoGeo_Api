@@ -121,6 +121,8 @@ namespace KronoGeo_Api.Controllers
 
         /// <summary>
         /// Retourne tous les Profils
+        /// bon pour commencer mais pour la suite voir ci dessous pour une recherche
+        /// plus précise
         /// </summary>
         /// <returns></returns>
         [HttpGet("GetAllProfil")]
@@ -132,17 +134,18 @@ namespace KronoGeo_Api.Controllers
             var idUser = User.FindFirstValue("Id");
             try
             {
-                var result = await _mediaR.Send(new ProfilUserCommand { IdUser = idUser ?? string.Empty });
+                var result = await _mediaR.Send(new ProfilAllUsersCommand { IdUser = idUser ?? string.Empty });
                 return this.Ok(result);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while get profile for user {id}.", idUser);
-                return this.Problem("An error occurred while processing your request profil.");
+                _logger.LogError(ex, "An error occurred while get all profiles for users {id}.", idUser);
+                return this.Problem("An error occurred while processing your request all profils.");
             }
         }
 
         //[HttpGet("GetProfil/{search}")]
+        //[Authorize(Roles = "Admin,Manager")]
         //public async Task<IActionResult> GetProfil([FromRoute]string search)
         //{
 

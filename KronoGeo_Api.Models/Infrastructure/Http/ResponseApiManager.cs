@@ -9,7 +9,7 @@ namespace KronoGeo_Api.Models.Infrastructure.Http
     public class ResponseApiManager : ResponseApi
     {
         public ProfilDTO? Profil { get; set; } = default;
-        // -- liste des roles
-        public List<string>? Roles { get; set; }
+        
+        public List<ProfilDTO>? Profils { get; set; }
     }
 }

@@ -35,12 +35,12 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
                     return new ResponseApiManager
                     {
                         ApiStatus = EnumApiStatus.Success,
-                        Roles = roles.ToList(),
                         Profil = new ProfilDTO
                         {
                             Login = user?.UserName ?? string.Empty,
                             Email = user?.Email ?? string.Empty,
-                            PhoneNumber = user?.PhoneNumber ?? string.Empty
+                            PhoneNumber = user?.PhoneNumber ?? string.Empty,
+                            Roles = roles.ToList(),
                         },
                     };
                     
