@@ -38,7 +38,8 @@ namespace KronoGeo_Maui.Applications.ExtendMethods
             public IServiceCollection AddUrlApiOptions( IConfiguration config )
             {
                 services.AddOptions();
-                services.Configure<UrlApi>(config.GetSection("API"));
+                services.Configure<UrlApiMetier>(config.GetSection("ApiMetier"));
+                services.Configure<UrlApiManager>(config.GetSection("ApiManager"));
                 return services;
             }
 
@@ -50,15 +51,29 @@ namespace KronoGeo_Maui.Applications.ExtendMethods
             public IServiceCollection AddHttpClientService()
             {
                 // - HttpClient utilisé par injection de dépendance
+                
+                // -- service métier HttpClient
                 services.AddHttpClient<IServiceHttpKronoGeo, HttpClientKronoGeo>((serviceProvider, client) =>
                 {
-                    var options = serviceProvider.GetRequiredService<IOptions<UrlApi>>();
+                    var options = serviceProvider.GetRequiredService<IOptions<UrlApiMetier>>();
                     client.BaseAddress = new Uri(options.Value.BasicAdress);
                 })  // - nombre d'essai 5 et intervalle en milliseconde i = (50 + i*150)
                     .AddTransientHttpErrorPolicy(policyBuilder => policyBuilder.WaitAndRetryAsync(
                         retryCount: 5,
-                        retryNumber => TimeSpan.FromMilliseconds(50 + retryNumber * 150))); ;
-                
+                        retryNumber => TimeSpan.FromMilliseconds(50 + retryNumber * 150)));
+
+                // -- service http pour toutes les connexion vers les service de manager
+                // -- possiblité d'utiliser 2 serveurs différents
+                services.AddHttpClient<IServiceHttpManagerKronoGeo, HttpClientManagerKronogeo>((serviceProvider, client) =>
+                {
+                    var options = serviceProvider.GetRequiredService<IOptions<UrlApiManager>>();
+                    client.BaseAddress = new Uri(options.Value.BasicAdress);
+                })  // - nombre d'essai 5 et intervalle en milliseconde i = (50 + i*150)
+                    .AddTransientHttpErrorPolicy(policyBuilder => policyBuilder.WaitAndRetryAsync(
+                        retryCount: 5,
+                        retryNumber => TimeSpan.FromMilliseconds(50 + retryNumber * 150)));
+
+
                 return services;
             }
 

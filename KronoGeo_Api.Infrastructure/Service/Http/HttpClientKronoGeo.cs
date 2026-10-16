@@ -17,66 +17,15 @@ using static System.Net.WebRequestMethods;
 
 namespace KronoGeo_Api.Infrastructure.Service.Http
 {
-    public class HttpClientKronoGeo  : IServiceHttpKronoGeo, IDisposable
+    public class HttpClientKronoGeo(IOptions<UrlApiMetier> options, HttpClient httpClient
+            , IOptions<TokenTunnel>? tokenTunnel) 
+        : HttpClientDefault(httpClient, tokenTunnel), IServiceHttpKronoGeo
     {
         #region private properties
-        private readonly IOptions<UrlApi> _options;
-        private readonly IOptions<TokenTunnel>? _tokenTunnel;
-        #endregion
-
-        #region protected properties
-        protected readonly HttpClient HttpClient;
-        #endregion
-
-        #region constructeur
-        public HttpClientKronoGeo(IOptions<UrlApi> options, HttpClient httpClient
-            , IOptions<TokenTunnel>? tokenTunnel )
-        {
-            HttpClient = httpClient;
-            _options = options;
-
-            // - initialise les protections du tunnel pour le debug
-#if DEBUG
-            _tokenTunnel = tokenTunnel;
-            ChargingTokenTunnel();
-#endif
-
-
-        }
+        private readonly IOptions<UrlApiMetier> _options = options;
         #endregion
 
         #region public method interface IServiceHttpKronoGeo
-        /// <summary>
-        /// method d'envoi des données pour vérification du login et mot de passe
-        /// </summary>
-        /// <param name="register"></param>
-        /// <returns></returns>
-        public virtual async Task<ResponseApiAuthenticate> AuthenticateAsync( RegisterDTO register )
-        {
-            HttpContent content = new StringContent(JsonSerializer.Serialize(register), Encoding.UTF8, "application/json");
-            using HttpResponseMessage response = await HttpClient.PostAsync(_options.Value.Login, content);
-            //response.EnsureSuccessStatusCode();
-
-            // -- quand 5 tentatives au niveau de HttpClient retour erreur
-            if (response.StatusCode == HttpStatusCode.BadGateway
-                || response.StatusCode == HttpStatusCode.InternalServerError
-                || response.StatusCode == HttpStatusCode.RequestTimeout
-                || response.StatusCode == HttpStatusCode.ServiceUnavailable) 
-            {
-                throw new HttpRequestException("Connexion impossible au serveur.");
-            }
-
-            var retour = await response.Content.ReadAsStringAsync();
-            var result = JsonSerializer.Deserialize<ResponseApiAuthenticate>(retour, JsonOptions.GetJsonOptions())
-                ?? new ResponseApiAuthenticate
-                {
-                    ApiStatus = EnumApiStatus.Problem,
-                    Message = retour
-                };
-
-            return result;
-        }
-
         /// <summary>
         /// Sauvegarde un group de localisation au niveau du serveur Api
         /// </summary>
@@ -356,29 +305,13 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         #endregion
 
         #region public method interface IDisposable
-        public void Dispose()
+        public override void Dispose()
         {
             GC.SuppressFinalize(this);
         }
         #endregion
 
-        #region private method
-        /// <summary>
-        /// quand le tunnel de développement est en mode sécurisé
-        /// il faut enregistrer le token pour accéder au tunnel
-        /// ne le faire qu'en développement
-        /// </summary>
-        private void ChargingTokenTunnel()
-        {
-            // -- charge le token du tunnel en Debug pour la sécurité
-            // - ajout du token pour l'utilisation du tonnel sécurisé
-            var token = _tokenTunnel?.Value.Token ?? string.Empty;
-            if (string.IsNullOrEmpty(token)) return;
-            HttpClient.DefaultRequestHeaders.Add("X-Tunnel-Authorization", $"{token}");
-            //_httpClient.DefaultRequestHeaders.Add("X-Tunnel-Authorization", "tunnel eyJhbGciOiJFUzI1NiIsImtpZCI6IjcyRjZDNUU3OEE2M0UzOEUxM0UyOTE1MjM0NjMyMDFGMDFDMzQ2MTUiLCJ0eXAiOiJKV1QifQ.eyJjbHVzdGVySWQiOiJldXciLCJ0dW5uZWxJZCI6InBlYWNlZnVsLWNoYWlyLWI2Y3ZnYzIiLCJzY3AiOiJjb25uZWN0IiwiZXhwIjoxNzg3MDUxMzQ3LCJpc3MiOiJodHRwczovL3R1bm5lbHMuYXBpLnZpc3VhbHN0dWRpby5jb20vIiwibmJmIjoxNzg2OTY0MDQ3fQ.UBF-WTYmgM1qIUJ9lGL7ElALXBZOqXK4ZXKJ3y4qZ-niUxOoAcvApYd3tFyhpZgAodbtNHEz-CqVmliesx__bw");
-        }
-
-        #endregion
+        
 
     }
 }

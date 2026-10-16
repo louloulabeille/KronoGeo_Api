@@ -29,7 +29,7 @@ namespace KronoGeo_Blazor.Infrastructure.Extends
                 services.AddTransient<TokenHeaderHandler>();
                 // -- injection et options de l'injection du HttpClient
                 services.AddHttpClient<IServiceHttpKronoGeo, HttpClientKronoGeo>("api",(serviceProvider, client) => {
-                    var options = serviceProvider.GetRequiredService<IOptions<UrlApi>>();
+                    var options = serviceProvider.GetRequiredService<IOptions<UrlApiMetier>>();
                     client.BaseAddress = new Uri(options.Value.BasicAdress);
 
                 })
@@ -37,7 +37,17 @@ namespace KronoGeo_Blazor.Infrastructure.Extends
                     .AddTransientHttpErrorPolicy(policyBuilder => policyBuilder.WaitAndRetryAsync(
                         retryCount: 3,
                         retryNumber => TimeSpan.FromMilliseconds(50 + retryNumber * 150))); ;
+                
+                // -- injection du service httpclient Manager 
+                services.AddHttpClient<IServiceHttpManagerKronoGeo, HttpClientManagerKronogeo>("apiManager", (serviceProvider, client) => {
+                    var options = serviceProvider.GetRequiredService<IOptions<UrlApiManager>>();
+                    client.BaseAddress = new Uri(options.Value.BasicAdress);
 
+                })
+                    .AddHttpMessageHandler<TokenHeaderHandler>() //-- ajoue du handler qui va chercher le token en memoire selon la session id de l'utilisateur
+                    .AddTransientHttpErrorPolicy(policyBuilder => policyBuilder.WaitAndRetryAsync(
+                        retryCount: 3,
+                        retryNumber => TimeSpan.FromMilliseconds(50 + retryNumber * 150))); ;
 
                 return services;
             }

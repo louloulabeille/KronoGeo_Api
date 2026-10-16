@@ -4,11 +4,11 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace KronoGeo_Blazor.Infrastructure.MediatR.Queries.Auth
 {
-    public class AuthHandler<T>(IServiceHttpKronoGeo httpKronoGeo
+    public class AuthHandler<T>(IServiceHttpManagerKronoGeo httpKronoGeo
         , ILogger<T> logger ) where T : class
     {
         #region private readonly properties
-        internal readonly IServiceHttpKronoGeo HttpKronoGeo = httpKronoGeo;
+        internal readonly IServiceHttpManagerKronoGeo HttpKronoGeo = httpKronoGeo;
         internal readonly ILogger<T> Logger = logger;
         #endregion
     }

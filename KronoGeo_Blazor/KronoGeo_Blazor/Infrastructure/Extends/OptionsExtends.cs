@@ -14,7 +14,8 @@ namespace KronoGeo_Blazor.Infrastructure.Extends
             public IServiceCollection AddUrlApiExtend(IConfiguration configuration)
             {
                 services.AddOptions();
-                services.Configure<UrlApi>(configuration.GetSection("Api"));
+                services.Configure<UrlApiMetier>(configuration.GetSection("ApiMetier"));
+                services.Configure<UrlApiManager>(configuration.GetSection("ApiManager"));
                 return services;
             }
 

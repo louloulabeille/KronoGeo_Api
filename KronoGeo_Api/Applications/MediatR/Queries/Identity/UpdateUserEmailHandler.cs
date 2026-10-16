@@ -41,8 +41,8 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
             RegisterIdentity result = new() { Register = request.Register };
             try
             {
-                var user = await _signInManager.UserManager.FindByIdAsync(request.Register.Id) ??
-                await _signInManager.UserManager.FindByNameAsync(request.Register.Login);
+                var user = await _signInManager.UserManager.FindByIdAsync(request.Register.Id ?? string.Empty) 
+                    ?? await _signInManager.UserManager.FindByNameAsync(request.Register.Login);
 
                 if (user is null) return new RegisterIdentity()
                 {

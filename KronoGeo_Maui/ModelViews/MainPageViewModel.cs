@@ -19,11 +19,11 @@ using System.Text.Json;
 
 namespace KronoGeo_Maui.ModelViews
 {
-    public partial class MainPageViewModel(IServiceHttpKronoGeo http, IServiceSaveUser saveUser
+    public partial class MainPageViewModel(IServiceHttpManagerKronoGeo http, IServiceSaveUser saveUser
         , IDialogService dialogService , IServiceSaveParametrage saveParametrage) : ObservableObject
     {
         #region private readonly properties
-        private readonly IServiceHttpKronoGeo _http = http;
+        private readonly IServiceHttpManagerKronoGeo _http = http;
         private readonly IServiceSaveUser _saveUser = saveUser;
         private readonly IDialogService _dialogService = dialogService;
         private readonly IServiceSaveParametrage _serviceSave = saveParametrage;
