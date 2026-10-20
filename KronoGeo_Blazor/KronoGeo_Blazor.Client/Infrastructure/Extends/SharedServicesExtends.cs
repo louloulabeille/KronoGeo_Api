@@ -1,6 +1,7 @@
 ﻿using KronoGeo_Api.Infrastructure.Service.Map;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models.Infrastructure.Options;
+using KronoGeo_Blazor.Client.Infrastructure.Service;
 
 namespace KronoGeo_Blazor.Client.Infrastructure.Extends
 {
@@ -29,8 +30,13 @@ namespace KronoGeo_Blazor.Client.Infrastructure.Extends
                     options.UpdateLocalisationGroup = "api/v1/GpsBFF/UpdateLocalisationGroup";
                     options.DeleteLocalisationGroup = "api/v1/GpsBFF/DeleteLocalisationGroup";
                 });
+                // -- ajout du service ToastsService pour l'affichage des notifications toast
+                // -- javascript interop pour l'affichage des notifications toast
+                services.AddScoped<ToastsService>();
+
                 return services;
             }
+
         }
     }
 }

@@ -59,7 +59,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// </summary>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<ResponseApiManager> GetProfile()
+        public async Task<ResponseApiManager> GetProfileAsync()
         {
 
             using var response = await HttpClient.GetAsync(_options.Value.GetProfile);

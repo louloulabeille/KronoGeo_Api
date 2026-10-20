@@ -1,0 +1,50 @@
+﻿@page "/account/profile"
+
+@inherits ProfileBase
+
+<div class="container">
+    <div class="row">
+        <div class="col-8">
+            <EditForm Model="Profil" OnValidSubmit="ValidProfil" FormName="profilForm" method="post">
+                <DataAnnotationsValidator />
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Profil.Login" type="text" class="form-control" id="inputLogin" aria-describedby="loginHelp" />
+                    <label for="inputLogin" class="form-label">Login</label>
+                    <div id="loginHelp" class="form-text">Login. - Nom d'utilisateur</div>
+                    <small>
+                        <ValidationMessage For="() => Profil.Login" />
+                    </small>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Profil.Email" type="email" class="form-control" id="inputEmail" aria-describedby="emailHelp" />
+                    <label for="inputEmail" class="form-label">Email - couriel</label>
+                    <div id="emailHelp" class="form-text">Email ou courriel</div>
+                    <small>
+                        <ValidationMessage For="() => Profil.Email" />
+                    </small>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Profil.PhoneNumber" type="tel" class="form-control" id="inputPhone" aria-describedby="phoneHelp" />
+                    <label for="inputPhone" class="form-label">Numéro de téléphone</label>
+                    <div id="phoneHelp" class="form-text">Numéro de téléphone</div>
+                    <small>
+                        <ValidationMessage For="() => Profil.PhoneNumber" />
+                    </small>
+                </div>
+
+                <!-- button type submit -->
+                <div class="form-group mt-3">
+                    <button type="submit" class="btn btn-secondary">Modifier</button>
+                </div>
+
+            </EditForm>
+        </div>
+        <div class="col-4">
+            
+        </div>
+    </div>
+</div>
+
+

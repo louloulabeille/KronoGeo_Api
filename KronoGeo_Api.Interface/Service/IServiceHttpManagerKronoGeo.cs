@@ -9,6 +9,6 @@ namespace KronoGeo_Api.Interface.Service
     public interface IServiceHttpManagerKronoGeo
     {
         public Task<ResponseApiAuthenticate> AuthenticateAsync(RegisterDTO register);
-        public Task<ResponseApiManager> GetProfile();
+        public Task<ResponseApiManager> GetProfileAsync();
     }
 }

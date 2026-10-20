@@ -22,9 +22,7 @@ builder.Services.AddAutorizationClient();
 #endregion
 
 #region  injection de dépendance
-// -- ajout du service ToastsService pour l'affichage des notifications toast
-// -- javascript interop pour l'affichage des notifications toast
-builder.Services.AddScoped<ToastsService>();
+
 #endregion
 
 
