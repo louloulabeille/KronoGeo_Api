@@ -9,7 +9,7 @@ namespace KronoGeo_Blazor.Components.Pages.Account
     public class ProfileBase : ComponentBase
     {
         #region protected properties
-        protected ProfilDTO Profil { get; set; } = new();
+        protected ProfilUpdateDTO Profil { get; set; } = new();
         #endregion
 
         #region inject properties
@@ -20,6 +20,8 @@ namespace KronoGeo_Blazor.Components.Pages.Account
         /// </summary>
         [Inject]
         private ToastsService? _toastService { get; set; } = default;
+        [Inject]
+        private ILogger<ProfileBase>? _logger { get; set; } = default;
         #endregion
 
         #region override method
@@ -35,6 +37,8 @@ namespace KronoGeo_Blazor.Components.Pages.Account
         public async Task ValidProfil()
         {
 
+            if (_toastService is not null )
+                await _toastService.AvertissementAsync("Enregistrement.");
         }
         #endregion
 
@@ -52,12 +56,17 @@ namespace KronoGeo_Blazor.Components.Pages.Account
                     var result = await _mediator.Send(new GetProfileCommand());
                     if (result.IsSuccess && result.Profil is not null)
                     {
-                        Profil = result.Profil;
+                        Profil = new() {
+                            Login = result.Profil.Login,
+                            Email = result.Profil.Email,
+                            PhoneNumber = result.Profil.PhoneNumber
+                        };
                     }
                 }
             }
-            catch
+            catch(Exception ex)
             {
+                if (_logger is not null) _logger.LogError(ex, "Erreur au niveau de la remontée du profil {message}",ex.Message);
                 _toastService?.ErreurAsync("Un problème interne a été remonté.");
             }
         }
