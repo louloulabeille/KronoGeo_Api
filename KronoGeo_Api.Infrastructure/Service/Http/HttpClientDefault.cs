@@ -52,6 +52,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             // - ajout du token pour l'utilisation du tonnel sécurisé
             var token = _tokenTunnel?.Value.Token ?? string.Empty;
             if (string.IsNullOrEmpty(token)) return;
+            // -- ajout au niveau de l'entete http du tunnel authorization
             HttpClient.DefaultRequestHeaders.Add("X-Tunnel-Authorization", $"{token}");
             //_httpClient.DefaultRequestHeaders.Add("X-Tunnel-Authorization", "tunnel eyJhbGciOiJFUzI1NiIsImtpZCI6IjcyRjZDNUU3OEE2M0UzOEUxM0UyOTE1MjM0NjMyMDFGMDFDMzQ2MTUiLCJ0eXAiOiJKV1QifQ.eyJjbHVzdGVySWQiOiJldXciLCJ0dW5uZWxJZCI6InBlYWNlZnVsLWNoYWlyLWI2Y3ZnYzIiLCJzY3AiOiJjb25uZWN0IiwiZXhwIjoxNzg3MDUxMzQ3LCJpc3MiOiJodHRwczovL3R1bm5lbHMuYXBpLnZpc3VhbHN0dWRpby5jb20vIiwibmJmIjoxNzg2OTY0MDQ3fQ.UBF-WTYmgM1qIUJ9lGL7ElALXBZOqXK4ZXKJ3y4qZ-niUxOoAcvApYd3tFyhpZgAodbtNHEz-CqVmliesx__bw");
         }

@@ -53,6 +53,38 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
 
             return result;
         }
+
+        /// <summary>
+        /// Retourne le profil de la personne
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<ResponseApiManager> GetProfile()
+        {
+
+            using var response = await HttpClient.GetAsync(_options.Value.GetProfile);
+            response.EnsureSuccessStatusCode();
+
+            if (response.IsSuccessStatusCode)
+            {
+                var retour = await response.Content.ReadAsStringAsync();
+                var result = JsonSerializer.Deserialize<ResponseApiManager>(retour, JsonOptions.GetJsonOptions())
+                    ?? new ResponseApiManager
+                    {
+                        ApiStatus = EnumApiStatus.Problem,
+                        Message = "Erreur lors de la désérialisation de la réponse de l'API."
+                    };
+
+                return result;
+            }
+
+            return new ResponseApiManager
+            {
+                ApiStatus = EnumApiStatus.Problem,
+                Message = $" Status Code retour {response.IsSuccessStatusCode}"
+            };
+
+        }
         #endregion
     }
 }
