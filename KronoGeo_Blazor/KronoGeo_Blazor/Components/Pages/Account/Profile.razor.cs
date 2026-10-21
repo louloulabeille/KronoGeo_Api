@@ -72,8 +72,9 @@ namespace KronoGeo_Blazor.Components.Pages.Account
         {
             try
             {
-
-            }catch(Exception ex)
+                _toastService?.InfoAsync("Mot de passe modifié.");
+            }
+            catch(Exception ex)
             {
                 _logger?.LogError(ex, "Exception dans UpdateMotdePasse dans Profil.razor, {message}", ex.Message);
                 if (_toastService is not null)
