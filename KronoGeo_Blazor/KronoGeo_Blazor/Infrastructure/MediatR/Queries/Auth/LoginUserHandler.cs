@@ -1,4 +1,5 @@
 ﻿using BruTile.Cache;
+using KronoGeo_Api.Infrastructure.Applications.Cookies;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Model.DTO;
@@ -34,48 +35,14 @@ namespace KronoGeo_Blazor.Infrastructure.MediatR.Queries.Auth
                 if (result.IsSuccess)
                 {
                     if (!string.IsNullOrEmpty(result.Register?.Token))
-                    { 
-                        // -- mise en place de httponly cookie 
-
-
-                        var handler = new JwtSecurityTokenHandler();
-                        var jwtToken = handler.ReadJwtToken(result.Register.Token);
-
-                        // -- extraction du role pour l'utilisateur
-                        var roles = jwtToken.Claims.Where(r => r.Type == "role").ToList();
-
-                        // -- Émettre le Cookie d'authentification vers le navigateur
-                        var claims = new List<Claim>
-                        {
-                            new (ClaimTypes.NameIdentifier, result.Register.Id??string.Empty),
-                            new (ClaimTypes.Name, result.Register.Login )
-                        };
-
-                        // -- ajout du ou des roles dans le cookie
-                        foreach (var role in roles)
-                        {
-                            claims.Add(new Claim(ClaimTypes.Role, role.Value));
-                        }
-
-                        var claimsIdentity = new ClaimsIdentity(claims
-                            , CookieAuthenticationDefaults.AuthenticationScheme);
-
-                        // -- ajout dans le cookie le token jwt
-                        var authProperties = new AuthenticationProperties();
-                        authProperties.StoreTokens(
-                        [
-                            new AuthenticationToken { Name = "jwt_token", Value = result.Register.Token}
-                        ]);
-
-                        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-                        
-                        retour.ClaimsPrincipal = claimsPrincipal;
-                        retour.AuthenticationProperties = authProperties;
+                    {
+                        (retour.ClaimsPrincipal, retour.AuthenticationProperties) 
+                            = HttpOnlyCookie.BuildCookie(result.Register.Token
+                            , result.Register.Id??string.Empty, result.Register.Login);
                     }
                 }
                 return retour;
             }
-
 
             return new()
             {

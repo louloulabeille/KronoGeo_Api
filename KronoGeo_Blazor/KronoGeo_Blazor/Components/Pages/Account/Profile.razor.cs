@@ -10,6 +10,7 @@ namespace KronoGeo_Blazor.Components.Pages.Account
     {
         #region protected properties
         protected ProfilUpdateDTO Profil { get; set; } = new();
+        protected ProfilDTO? ProfilDTO { get; set; } = default;
         #endregion
 
         #region inject properties
@@ -22,6 +23,8 @@ namespace KronoGeo_Blazor.Components.Pages.Account
         private ToastsService? _toastService { get; set; } = default;
         [Inject]
         private ILogger<ProfileBase>? _logger { get; set; } = default;
+        [Inject]
+        private NavigationManager? _navigationManager { get; set; } = default;
         #endregion
 
         #region override method
@@ -36,9 +39,52 @@ namespace KronoGeo_Blazor.Components.Pages.Account
         #region public method
         public async Task ValidProfil()
         {
+            try
+            {
+                if (_mediator is not null && ProfilDTO is not null && ( Profil.Login?.Trim() != ProfilDTO?.Login
+                || Profil.PhoneNumber?.Trim() != ProfilDTO?.PhoneNumber) )
+                {
+                    var profilUpdate = new ProfilDTO()
+                    {
+                        Id = ProfilDTO?.Id,
+                        Login = Profil.Login?.Trim(),
+                        PhoneNumber = Profil.PhoneNumber?.Trim(),
+                        Email = ProfilDTO?.Email,
+                        NewPassword = ProfilDTO?.NewPassword,
+                        Password = ProfilDTO?.Password,
+                        Roles = ProfilDTO?.Roles
+                    };
+                    
+                    var result = await _mediator.Send(new UpdateUserProfileCommand() 
+                        { profil = profilUpdate });
 
-            if (_toastService is not null )
-                await _toastService.AvertissementAsync("Enregistrement.");
+                    if( result.IsSuccess )
+                    {
+                        if (_toastService is not null)
+                            await _toastService.InfoAsync("Enregistrement.");
+
+                        //ProfilDTO = result.Profil;
+                        
+                        _navigationManager?.NavigateTo("/Account/authenticate", forceLoad: true);
+                    }
+                    else
+                    {
+
+                        Profil.Login = ProfilDTO?.Login;
+                        Profil.PhoneNumber = ProfilDTO?.PhoneNumber;
+
+                        if (_toastService is not null)
+                            await _toastService.ErreurAsync($"Erreur lors de l'enregistrement. \n{result.Message ?? "Erreur lors de l'enregistrement du profil."}");
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                if (_toastService is not null)
+                    await _toastService.ErreurAsync("Erreur interne retournée.");
+                _logger?.LogError(ex, "Exception dans ValidProfil dans Profil.razor, {message}", ex.Message);
+            }
+            
         }
         #endregion
 
@@ -56,6 +102,8 @@ namespace KronoGeo_Blazor.Components.Pages.Account
                     var result = await _mediator.Send(new GetProfileCommand());
                     if (result.IsSuccess && result.Profil is not null)
                     {
+                        ProfilDTO = result.Profil;
+
                         Profil = new() {
                             Login = result.Profil.Login,
                             Email = result.Profil.Email,

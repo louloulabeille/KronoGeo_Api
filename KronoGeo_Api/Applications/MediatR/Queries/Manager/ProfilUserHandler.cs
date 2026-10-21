@@ -37,6 +37,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
                         ApiStatus = EnumApiStatus.Success,
                         Profil = new ProfilDTO
                         {
+                            Id = user?.Id,
                             Login = user?.UserName ?? string.Empty,
                             Email = user?.Email ?? string.Empty,
                             PhoneNumber = user?.PhoneNumber ?? string.Empty,

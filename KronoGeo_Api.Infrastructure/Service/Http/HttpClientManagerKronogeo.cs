@@ -4,6 +4,7 @@ using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Infrastructure.Options;
 using KronoGeo_Api.Models.Model.DTO;
 using Microsoft.Extensions.Options;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -66,6 +67,38 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             response.EnsureSuccessStatusCode();
 
             if (response.IsSuccessStatusCode)
+            {
+                var retour = await response.Content.ReadAsStringAsync();
+                var result = JsonSerializer.Deserialize<ResponseApiManager>(retour, JsonOptions.GetJsonOptions())
+                    ?? new ResponseApiManager
+                    {
+                        ApiStatus = EnumApiStatus.Problem,
+                        Message = "Erreur lors de la désérialisation de la réponse de l'API."
+                    };
+
+                return result;
+            }
+
+            return new ResponseApiManager
+            {
+                ApiStatus = EnumApiStatus.Problem,
+                Message = $" Status Code retour {response.IsSuccessStatusCode}"
+            };
+
+        }
+
+        /// <summary>
+        /// modifie le profil de l'utilisateur
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<ResponseApiManager> UpdateProfilAsync( ProfilDTO profil )
+        {
+            var content = new StringContent(JsonSerializer.Serialize(profil), Encoding.UTF8, "application/json");
+            using var response = await HttpClient.PostAsync(_options.Value.UpdateProfile, content);
+            response.EnsureSuccessStatusCode();
+
+            if ( response.IsSuccessStatusCode )
             {
                 var retour = await response.Content.ReadAsStringAsync();
                 var result = JsonSerializer.Deserialize<ResponseApiManager>(retour, JsonOptions.GetJsonOptions())

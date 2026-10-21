@@ -41,8 +41,25 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
                     return response; 
                 }
 
+                // -- mise a jour de l'username
+                if (user.UserName?.Trim() != request.Profil.Login?.Trim())
+                {
+                    // -- mise a jour de l'username
+                    var resultIdentity = await _signInManager.UserManager.SetUserNameAsync(user, request.Profil.Login);
+                    if (!resultIdentity.Succeeded)
+                    {
+                        response.ApiStatus = EnumApiStatus.BadRequest;
+                        response.Message = string.Join(",", resultIdentity.Errors.Select(e => e.Description));
+                        return response;
+                    }
+
+                    // -- mise a jour de la sécurité stamp qui prend en compte le login ou username
+                    await _signInManager.UserManager.UpdateSecurityStampAsync(user);
+
+                }
+
                 // -- mise a jour du numéro de téléphone
-                if( user.PhoneNumber?.Trim() != request.Profil.PhoneNumber?.Trim())
+                if ( user.PhoneNumber?.Trim() != request.Profil.PhoneNumber?.Trim())
                 {
                     var resultPhone = await _signInManager.UserManager.SetPhoneNumberAsync(user, request.Profil.PhoneNumber);
                     if( !resultPhone.Succeeded )
@@ -51,23 +68,6 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
                         response.Message = string.Join(",", resultPhone.Errors.Select(e => e.Description));
                         return response;
                     }
-                }
-
-                // -- mise a jour de l'username
-                if (user.UserName?.Trim() != request.Profil.Login?.Trim())
-                {
-                    // -- mise a jour de l'username
-                    var resultIdentity =  await _signInManager.UserManager.SetUserNameAsync(user, request.Profil.Login);
-                    if( !resultIdentity.Succeeded )
-                    {
-                        response.ApiStatus = EnumApiStatus.BadRequest;
-                        response.Message = string.Join(",", resultIdentity.Errors.Select(e=>e.Description));
-                        return response;
-                    }
-                    
-                    // -- mise a jour de la sécurité stamp qui prend en compte le login ou username
-                    await _signInManager.UserManager.UpdateSecurityStampAsync(user);
-
                 }
 
                 response.Message = "L'utilisateur a été mis à jour.";
