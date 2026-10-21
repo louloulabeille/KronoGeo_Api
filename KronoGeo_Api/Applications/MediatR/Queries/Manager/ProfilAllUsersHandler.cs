@@ -1,15 +1,17 @@
 ﻿using KronoGeo_Api.Applications.MediatR.Commands.Manager;
 using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Infrastructure.Http;
+using KronoGeo_Api.Models.Infrastructure.Options;
 using KronoGeo_Api.Models.Model.DTO;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 
 namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
 {
     public class ProfilAllUsersHandler(ILogger<ProfilAllUsersHandler> logger
-        , SignInManager<ApplicationUser> signInManager)
-        : ManagerHandler(logger, signInManager)
+        , SignInManager<ApplicationUser> signInManager, IOptions<KeyBearer> keyBearer)
+        : ManagerHandler(logger, signInManager, keyBearer)
         , IRequestHandler<ProfilAllUsersCommand, ResponseApiManager>
     {
         public async Task<ResponseApiManager> Handle(ProfilAllUsersCommand request, CancellationToken cancellationToken)
@@ -22,7 +24,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
                     return new ResponseApiManager { ApiStatus = EnumApiStatus.BadRequest, Message = "Bad request." };
                 }
 
-                var user = await _signInManager.UserManager.FindByIdAsync(request.IdUser ?? string.Empty);
+                var user = await SignInManager.UserManager.FindByIdAsync(request.IdUser ?? string.Empty);
 
                 if (user is null)
                 {
@@ -30,7 +32,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
                 }
                 else
                 {
-                    var roles = await _signInManager.UserManager.GetRolesAsync(user);
+                    var roles = await SignInManager.UserManager.GetRolesAsync(user);
                     // -- récupération des users de la base de données
                     if (roles.ToList().Exists(r => r == "Admin" || r == "Manager"))
                     {
@@ -40,10 +42,10 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
                         };
 
                         // -- role User
-                        var users = await _signInManager.UserManager.GetUsersInRoleAsync("User");
+                        var users = await SignInManager.UserManager.GetUsersInRoleAsync("User");
                         foreach(var item in users)
                         {
-                            var roleItem = await _signInManager.UserManager.GetRolesAsync(item);
+                            var roleItem = await SignInManager.UserManager.GetRolesAsync(item);
                             var profil = new ProfilDTO
                             {
                                 Id = item.Id,
@@ -65,7 +67,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
                     }
                     else
                     {
-                        _logger.LogCritical("Utilisateur qui ne devrait pas être ici pas les droits {id} ", request.IdUser);
+                        Logger.LogCritical("Utilisateur qui ne devrait pas être ici pas les droits {id} ", request.IdUser);
                         return new ResponseApiManager { ApiStatus = EnumApiStatus.BadRequest, Message = "Unauthorized user." };
                     }
 
@@ -73,7 +75,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while processing return user {id}.", request.IdUser);
+                Logger.LogError(ex, "An error occurred while processing return user {id}.", request.IdUser);
                 return new ResponseApiManager { ApiStatus = EnumApiStatus.Problem, Message = "An error occurred while processing return user" };
             }
 

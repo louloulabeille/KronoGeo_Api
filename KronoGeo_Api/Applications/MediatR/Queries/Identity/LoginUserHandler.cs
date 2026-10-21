@@ -38,7 +38,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
             {
                 // - recherche de l'utilisateur par login ou email
                 var user = await _signInManager.UserManager.FindByNameAsync(result.Register.Login)??
-                    await _signInManager.UserManager.FindByEmailAsync(result.Register.Email);
+                    await _signInManager.UserManager.FindByEmailAsync(result.Register.Email??string.Empty);
 
                 // - si l'utilisateur existe et que le mot de passe est fourni, tenter de se connecter
                 if (user is not null && !string.IsNullOrEmpty(result.Register.Password))

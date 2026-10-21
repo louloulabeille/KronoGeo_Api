@@ -1,15 +1,17 @@
 ﻿using KronoGeo_Api.Applications.MediatR.Commands.Manager;
 using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Infrastructure.Http;
+using KronoGeo_Api.Models.Infrastructure.Options;
 using KronoGeo_Api.Models.Model.DTO;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 
 namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
 {
     public class ProfilUserHandler(ILogger<ProfilUserHandler> logger
-        , SignInManager<ApplicationUser> signInManager)
-        : ManagerHandler(logger, signInManager)
+        , SignInManager<ApplicationUser> signInManager, IOptions<KeyBearer> keyBearer)
+        : ManagerHandler(logger, signInManager, keyBearer)
         , IRequestHandler<ProfilUserCommand, ResponseApiManager>
     {
         public async Task<ResponseApiManager> Handle(ProfilUserCommand request, CancellationToken cancellationToken)
@@ -22,7 +24,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
                     return new ResponseApiManager { ApiStatus = EnumApiStatus.BadRequest, Message = "Bad request." };
                 }
 
-                var user = await _signInManager.UserManager.FindByIdAsync(request.IdUser ?? string.Empty);
+                var user = await SignInManager.UserManager.FindByIdAsync(request.IdUser ?? string.Empty);
                 
                 if( user is null)
                 {
@@ -30,7 +32,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
                 }
                 else
                 {
-                    var roles = await _signInManager.UserManager.GetRolesAsync(user);
+                    var roles = await SignInManager.UserManager.GetRolesAsync(user);
 
                     return new ResponseApiManager
                     {
@@ -49,7 +51,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while processing return user {id}.", request.IdUser);
+                Logger.LogError(ex, "An error occurred while processing return user {id}.", request.IdUser);
                 return new ResponseApiManager { ApiStatus = EnumApiStatus.Problem, Message = "An error occurred while processing return user" };
             }
             

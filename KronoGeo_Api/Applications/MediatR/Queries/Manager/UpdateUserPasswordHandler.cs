@@ -13,8 +13,8 @@ using Microsoft.Extensions.Options;
 namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
 {
     public class UpdateUserPasswordHandler(ILogger<UpdateUserPasswordHandler> logger
-        , SignInManager<ApplicationUser> signInManager) 
-        : ManagerHandler(logger, signInManager)
+        , SignInManager<ApplicationUser> signInManager, IOptions<KeyBearer> keyBearer) 
+        : ManagerHandler(logger, signInManager, keyBearer)
         , IRequestHandler<UpdateUserPasswordCommand, ResponseApiManager>
     {
         /// <summary>
@@ -33,13 +33,13 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
                     return new ResponseApiManager { ApiStatus = EnumApiStatus.BadRequest, Message = "Password not found or empty" };
                 }
 
-                var user = await _signInManager.UserManager.FindByIdAsync(request.Profil.Id ?? string.Empty) ??
-                    await _signInManager.UserManager.FindByNameAsync(request.Profil.Login??string.Empty);
+                var user = await SignInManager.UserManager.FindByIdAsync(request.Profil.Id ?? string.Empty) ??
+                    await SignInManager.UserManager.FindByNameAsync(request.Profil.Login??string.Empty);
 
                 if ( user is not null )
                 {
                     // -- method pour changer le mot passe - il faut l'ancien mot de passe
-                    var identityResult = await _signInManager.UserManager.ChangePasswordAsync(user, request.Profil.Password, request.Profil.NewPassword);
+                    var identityResult = await SignInManager.UserManager.ChangePasswordAsync(user, request.Profil.Password, request.Profil.NewPassword);
                     if ( identityResult.Succeeded )
                     {
                         return new ResponseApiManager { ApiStatus = EnumApiStatus.Success };
@@ -56,7 +56,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
 
             }
             catch (Exception ex) {
-                _logger.LogError(ex, "An error occurred while processing change password for user {Login}.", request.Profil.Login);
+                Logger.LogError(ex, "An error occurred while processing change password for user {Login}.", request.Profil.Login);
                 //result.IdentityResult = IdentityResult.Failed(new IdentityError { Description = "Internal Error." });
                 return new ResponseApiManager { ApiStatus = EnumApiStatus.Problem, Message = "Internal Error." };
             }

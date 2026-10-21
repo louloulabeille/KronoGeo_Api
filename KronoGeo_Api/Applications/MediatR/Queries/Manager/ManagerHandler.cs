@@ -6,11 +6,14 @@ using Serilog.Core;
 
 namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
 {
-    public class ManagerHandler (ILogger<object> logger, SignInManager<ApplicationUser> signInManager)
+    public class ManagerHandler (ILogger<object> logger
+        , SignInManager<ApplicationUser> signInManager
+        , IOptions<KeyBearer> keyBearer)
     {
         #region private properties
-        internal readonly ILogger<object> _logger = logger;
-        internal readonly SignInManager<ApplicationUser> _signInManager = signInManager;
+        internal readonly ILogger<object> Logger = logger;
+        internal readonly SignInManager<ApplicationUser> SignInManager = signInManager;
+        internal IOptions<KeyBearer> KeyBearer = keyBearer;
         #endregion
     }
 }

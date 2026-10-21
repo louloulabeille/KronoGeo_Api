@@ -11,8 +11,8 @@ using Microsoft.Extensions.Options;
 namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
 {
     public class DeleteUserHandler(ILogger<DeleteUserHandler> logger
-        , SignInManager<ApplicationUser> signInManager)
-        : ManagerHandler(logger, signInManager),
+        , SignInManager<ApplicationUser> signInManager, IOptions<KeyBearer> keyBearer)
+        : ManagerHandler(logger, signInManager, keyBearer),
         IRequestHandler<DeleteUserCommand, ResponseApiManager>
     {
 
@@ -30,7 +30,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
             var profilManager = new ResponseApiManager();
             try
             {
-                var user =  await _signInManager.UserManager.FindByIdAsync(request.Id);
+                var user =  await SignInManager.UserManager.FindByIdAsync(request.Id);
 
                 if (user is not null)
                 {
@@ -43,7 +43,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                         return profilManager;
                     }
 
-                    var result = await _signInManager.UserManager.DeleteAsync(user);
+                    var result = await SignInManager.UserManager.DeleteAsync(user);
                     if (result.Succeeded)
                     {
                         //_logger.LogInformation("User {Login} deleted successfully.", user.UserName);
@@ -66,7 +66,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while deleting user {Login}.", ex.Message);
+                Logger.LogError(ex, "An error occurred while deleting user {Login}.", ex.Message);
 
                 profilManager.ApiStatus = EnumApiStatus.Problem;
                 profilManager.Message = "An error occurred while deleting user";
@@ -87,10 +87,10 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
         public async Task<bool> CanDeleteUser(ApplicationUser user)
         {
             // - vérification de ne pas supprimer un utilisateur avec des rôles critiques (ex: admin)
-            var roles = await _signInManager.UserManager.GetRolesAsync(user);
+            var roles = await SignInManager.UserManager.GetRolesAsync(user);
             if (roles.Contains("Admin"))
             {
-                var adminUsers = await _signInManager.UserManager.GetUsersInRoleAsync("Admin");
+                var adminUsers = await SignInManager.UserManager.GetUsersInRoleAsync("Admin");
                 if (adminUsers.Count <= 1)
                 {
                     return false; // - ne pas supprimer le dernier admin
