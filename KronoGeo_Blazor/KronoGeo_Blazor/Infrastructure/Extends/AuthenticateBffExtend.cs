@@ -1,6 +1,8 @@
 ﻿using KronoGeo_Api.Infrastructure.Service.Http;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components.Authorization;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace KronoGeo_Blazor.Infrastructure.Extends
 {
@@ -24,6 +26,21 @@ namespace KronoGeo_Blazor.Infrastructure.Extends
                         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                         options.Cookie.SameSite = SameSiteMode.Strict;
                         options.ExpireTimeSpan = TimeSpan.FromHours(6); 
+
+                        // -- vérification si le token est toujours valide
+                        options.Events.OnValidatePrincipal = async ctx =>
+                        {
+                            var token = ctx.Properties.GetTokenValue("jwt_token");
+                            var jwt = string.IsNullOrEmpty(token)
+                                ? null
+                                : new JwtSecurityTokenHandler().ReadJwtToken(token);
+
+                            if (jwt is null || jwt.ValidTo < DateTime.UtcNow)
+                            {
+                                ctx.RejectPrincipal();
+                                await ctx.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                            }
+                        };
                     });
 
                 services.AddHttpContextAccessor();

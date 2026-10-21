@@ -16,7 +16,7 @@ namespace KronoGeo_Blazor.Infrastructure.Extends.App
             {
 
                 // Program.cs
-                app.MapGet("/account/refresh", async (HttpContext ctx, IMemoryCache cache,
+                app.MapGet("/Account/refresh", async (HttpContext ctx, IMemoryCache cache,
                     string key, string? returnUrl) =>
                 {
                     if (!cache.TryGetValue(key, out RefreshCookieData? data) || data is null)

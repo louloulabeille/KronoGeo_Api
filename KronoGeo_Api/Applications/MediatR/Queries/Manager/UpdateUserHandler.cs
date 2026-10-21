@@ -73,7 +73,8 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
                     }
                 }
 
-                // -- regénération du token après la modification de l'user - certaines informations change le 
+                // -- regénération du token après la modification de l'user - certaines informations change le Security stamp
+                // -- username, mp, phone number
                 response.Token = await SecurityTokenGenerate.GenerateJwtToken(user, KeyBearer.Value, SignInManager.UserManager); ;
                 response.Message = "L'utilisateur a été mis à jour.";
                 response.Profil = request.Profil;

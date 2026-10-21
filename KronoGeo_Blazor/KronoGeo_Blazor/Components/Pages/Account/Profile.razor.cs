@@ -1,8 +1,11 @@
-﻿using KronoGeo_Api.Models.Model.DTO;
+﻿using KronoGeo_Api.Models.Infrastructure.Cookie;
+using KronoGeo_Api.Models.Model.DTO;
 using KronoGeo_Blazor.Client.Infrastructure.Service;
 using KronoGeo_Blazor.Infrastructure.MediatR.Commands.Manager;
 using MediatR;
 using Microsoft.AspNetCore.Components;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace KronoGeo_Blazor.Components.Pages.Account
 {
@@ -25,6 +28,8 @@ namespace KronoGeo_Blazor.Components.Pages.Account
         private ILogger<ProfileBase>? _logger { get; set; } = default;
         [Inject]
         private NavigationManager? _navigationManager { get; set; } = default;
+        [Inject]
+        private IMemoryCache? _cache { get; set; } = default;
         #endregion
 
         #region override method
@@ -63,9 +68,17 @@ namespace KronoGeo_Blazor.Components.Pages.Account
                         if (_toastService is not null)
                             await _toastService.InfoAsync("Enregistrement.");
 
-                        //ProfilDTO = result.Profil;
-                        
-                        _navigationManager?.NavigateTo("/Account/authenticate", forceLoad: true);
+                        // Dans le composant, après l'appel API réussi
+                        // -- appel vers le endpoint de refresh du cookie
+                        // -- enregistrement des datas dans le cache avec IMemory ou sinon plusieurs instance de serveur
+                        // -- utiliser IDistributedCache
+                        var key = Guid.NewGuid().ToString("N"); // -- clé d'instance
+                        // -- enregistrement dans la cache
+                        var data = new RefreshCookieData(result.Token ?? string.Empty
+                            , result.Profil?.Id ?? string.Empty, result.Profil?.Login ?? string.Empty);
+                        _cache?.Set(key, data, TimeSpan.FromSeconds(30));
+                        _navigationManager?.NavigateTo($"/Account/refresh?key={key}&returnUrl=/Account/profile", forceLoad: true);
+
                     }
                     else
                     {
