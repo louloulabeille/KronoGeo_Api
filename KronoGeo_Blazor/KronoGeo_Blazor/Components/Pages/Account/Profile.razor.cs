@@ -12,8 +12,11 @@ namespace KronoGeo_Blazor.Components.Pages.Account
     public class ProfileBase : ComponentBase
     {
         #region protected properties
+        // -- profilDTO de modification celui affiché 
         protected ProfilUpdateDTO Profil { get; set; } = new();
+        // -- profilDTO par défaut remonter de l'API
         protected ProfilDTO? ProfilDTO { get; set; } = default;
+        protected ProfilMpDTO ProfilMpDTO { get; set; } = new();
         #endregion
 
         #region inject properties
@@ -42,6 +45,47 @@ namespace KronoGeo_Blazor.Components.Pages.Account
         #endregion
 
         #region public method
+        /// <summary>
+        /// Modifie le mail
+        /// </summary>
+        /// <returns></returns>
+        public async Task UpdateMail()
+        {
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Exception dans UpdateMail dans Profil.razor, {message}", ex.Message);
+                if (_toastService is not null)
+                    await _toastService.ErreurAsync("Erreur lors de l'enregistrement de la nouvelle adresse mail.");
+
+            }
+        }
+
+        /// <summary>
+        /// modification du mot de passe
+        /// </summary>
+        /// <returns></returns>
+        public async Task UpdateMotdePasse()
+        {
+            try
+            {
+
+            }catch(Exception ex)
+            {
+                _logger?.LogError(ex, "Exception dans UpdateMotdePasse dans Profil.razor, {message}", ex.Message);
+                if (_toastService is not null)
+                    await _toastService.ErreurAsync("Erreur lors de l'enregistrement du nouveau mot de passe.");
+
+            }
+        }
+
+        /// <summary>
+        /// modifie le login ou le numéro de téléphone
+        /// </summary>
+        /// <returns></returns>
         public async Task ValidProfil()
         {
             try
@@ -77,6 +121,8 @@ namespace KronoGeo_Blazor.Components.Pages.Account
                         var data = new RefreshCookieData(result.Token ?? string.Empty
                             , result.Profil?.Id ?? string.Empty, result.Profil?.Login ?? string.Empty);
                         _cache?.Set(key, data, TimeSpan.FromSeconds(30));
+                        // -- test data is null
+                        //_cache?.Set(string.Empty, data, TimeSpan.FromSeconds(30));
                         _navigationManager?.NavigateTo($"/Account/refresh?key={key}&returnUrl=/Account/profile", forceLoad: true);
 
                     }

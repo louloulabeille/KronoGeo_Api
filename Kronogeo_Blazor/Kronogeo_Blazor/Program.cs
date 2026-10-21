@@ -128,18 +128,16 @@ app.UseAntiforgery();
 // -- 
 app.MapControllers();
 // -- logout
-app.MapPost("/Account/Logout", async (HttpContext ctx, [FromForm] string? returnUrl) =>
-{
-    await ctx.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-    return Results.LocalRedirect("/");
-}).AllowAnonymous()
-.DisableAntiforgery();
+app.AddEndPointLogOut();
 #endregion
 
 #region paramétrage du proxy vers OpenStreetMap
 app.ProxyOpenStreetMap();
 #endregion
 
+#region endPoint pour le refresh du cookie 
+app.BuildEndPointRefresh();
+#endregion
 
 #region Ilogger - lancement de l'application - Message
 // -- démarrage de l'application 

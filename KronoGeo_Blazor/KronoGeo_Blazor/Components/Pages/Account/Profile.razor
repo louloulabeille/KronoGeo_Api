@@ -22,7 +22,7 @@
                 <div class="form-floating mb-3">
                     <InputText @bind-Value="Profil.PhoneNumber" type="tel" class="form-control" id="inputPhone" aria-describedby="phoneHelp" />
                     <label for="inputPhone" class="form-label">Numéro de téléphone</label>
-                    <div id="phoneHelp" class="form-text">Numéro de téléphone</div>
+                    <div id="phoneHelp" class="form-text"></div>
                     <small>
                         <ValidationMessage For="() => Profil.PhoneNumber" />
                     </small>
@@ -44,13 +44,13 @@
 <div class="container border p-3 mt-6">
     <div class="row">
         <div class="col-8 ">
-            <EditForm Model="Profil" OnValidSubmit="ValidProfil" FormName="profilForm" method="post">
+            <EditForm Model="Profil" OnValidSubmit="UpdateMail" FormName="mailForm" method="post">
                 <DataAnnotationsValidator />
 
                 <div class="form-floating mb-3">
                     <InputText @bind-Value="Profil.Email" type="email" class="form-control" id="inputEmail" aria-describedby="emailHelp" />
                     <label for="inputEmail" class="form-label">Email - couriel</label>
-                    <div id="emailHelp" class="form-text">Email ou courriel</div>
+                    <div id="emailHelp" class="form-text"></div>
                     <small>
                         <ValidationMessage For="() => Profil.Email" />
                     </small>
@@ -65,6 +65,41 @@
         <div class="col-4">
         </div>
     </div>
+</div>
+
+<div class="container border p-3 mt-6">
+    <EditForm Model="ProfilMpDTO" OnValidSubmit="UpdateMotdePasse" FormName="passwordForm" method="post">
+        <DataAnnotationsValidator />
+    <div class="row">
+        <div class="col-6 ">
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="ProfilMpDTO.Password" type="password" class="form-control" id="inputPassword" aria-describedby="emailHelp" />
+                    <label for="inputPassword" class="form-label">Nouveau mot de passe</label>
+                <div id="passwordlHelp" class="form-text">
+                        Votre mot de passe doit contenir + de 12 caractères, lettres, nombres et des caractères spéciaux ²&~#{[|`\\^@@]}'()-_=?;.:/!, et ne contient pas d'espaces ni d'emoji.
+                </div>
+                <small>
+                    <ValidationMessage For="() => ProfilMpDTO.Password" />
+                </small>
+            </div>    
+        </div>
+        <div class="col-6">
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="ProfilMpDTO.PasswordRepeat" type="password" class="form-control" id="inputPasswordRepeat" aria-describedby="emailHelp" />
+                    <label for="inputPasswordRepeat" class="form-label">Confirmation de mot de passe</label>
+                    <div id="passwordRepeatHelp" class="form-text">
+                        Votre mot de passe doit contenir + de 12 caractères, lettres, nombres et des caractères spéciaux ²&~#{[|`\\^@@]}'()-_=?;.:/!, et ne contient pas d'espaces ni d'emoji.
+                    </div>
+                    <small>
+                        <ValidationMessage For="() => ProfilMpDTO.PasswordRepeat" />
+                    </small>
+                </div>
+        </div>
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-secondary">Modifier</button>
+            </div>
+    </div>
+    </EditForm>
 </div>
 
 
