@@ -5,6 +5,6 @@ namespace KronoGeo_Api.Applications.MediatR.Commands.Identity
 {
     public class UpdateUserEmailCommand : IRequest<RegisterIdentity>
     {
-        public required RegisterDTO Register { get; set; }
+        public required ProfilUpdateEmailDTO Register { get; set; }
     }
 }

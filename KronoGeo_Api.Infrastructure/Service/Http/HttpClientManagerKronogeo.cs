@@ -14,7 +14,7 @@ using static Microsoft.Maui.Authentication.AppleSignInAuthenticator;
 
 namespace KronoGeo_Api.Infrastructure.Service.Http
 {
-    public class HttpClientManagerKronogeo(HttpClient httpClient
+    public partial class HttpClientManagerKronogeo(HttpClient httpClient
         , IOptions<TokenTunnel> tokenTunnel, IOptions<UrlApiManager> options)
         : HttpClientDefault(httpClient, tokenTunnel), IServiceHttpManagerKronoGeo
     {
@@ -82,7 +82,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             return new ResponseApiManager
             {
                 ApiStatus = EnumApiStatus.Problem,
-                Message = $" Status Code retour {response.IsSuccessStatusCode}"
+                Message = $" Status Code retour {response.StatusCode}"
             };
 
         }
@@ -114,10 +114,12 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             return new ResponseApiManager
             {
                 ApiStatus = EnumApiStatus.Problem,
-                Message = $" Status Code retour {response.IsSuccessStatusCode}"
+                Message = $" Status Code retour {response.StatusCode}"
             };
 
         }
+
+        
         #endregion
     }
 }

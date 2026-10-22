@@ -32,6 +32,11 @@ namespace KronoGeo_Api.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.BadRequest, Message = ModelState.ToString() });
+                }
+
                 var result = await _mediaR.Send(new ConfirmEmailCommand() { Id = user, Token = token });
                 if (result.IdentityResult is not null && result.IdentityResult.Succeeded)
                 {
@@ -65,6 +70,11 @@ namespace KronoGeo_Api.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.BadRequest, Message = ModelState.ToString() });
+                }
+
                 var result = await _mediaR.Send(new ConfirmUpdateOrNotEmailCommand()
                 { 
                     Id = user, 
@@ -110,6 +120,11 @@ namespace KronoGeo_Api.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.BadRequest, Message = ModelState.ToString() });
+                }
+
                 var result = await _mediaR.Send(new ConfirmUpdateOrNotEmailCommand()
                 {
                     Id = user,
@@ -142,11 +157,16 @@ namespace KronoGeo_Api.Controllers
         /// <param name="register"></param>
         /// <returns></returns>
         [HttpPost("UpdateEmail")]
-        [Authorize(Roles = "Admin,User,Manager")]
-        public async Task<IActionResult> UpdateEmail([FromBody] RegisterDTO register)
+        //[Authorize(Roles = "Admin,User,Manager")]
+        public async Task<IActionResult> UpdateEmail([FromBody] ProfilUpdateEmailDTO register)
         {
             try
             {
+                if(!ModelState.IsValid)
+                {
+                    return BadRequest(new ResponseApiAuthenticate { ApiStatus = EnumApiStatus.BadRequest, Message = ModelState.ToString() });
+                }
+
                 var result = await _mediaR.Send(new UpdateUserEmailCommand() { Register = register });
                 if (result.IdentityResult is not null && result.IdentityResult.Succeeded)
                 {

@@ -14,7 +14,7 @@ namespace KronoGeo_Blazor.Infrastructure.MediatR.Queries.Manager
         {
             if (HttpKronoGeo is not null)
             {
-                var result = await HttpKronoGeo.UpdateProfilAsync(request.profil);
+                var result = await HttpKronoGeo.UpdateProfilAsync(request.Profil);
                 return result;
             }
 

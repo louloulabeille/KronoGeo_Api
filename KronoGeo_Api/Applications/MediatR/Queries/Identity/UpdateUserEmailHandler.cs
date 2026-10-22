@@ -7,6 +7,7 @@ using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Infrastructure.Email;
 using KronoGeo_Api.Models.Infrastructure.Options;
+using KronoGeo_Api.Models.Model.DTO;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
@@ -38,15 +39,22 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
         /// <exception cref="NotImplementedException"></exception>
         public async Task<RegisterIdentity> Handle(UpdateUserEmailCommand request, CancellationToken cancellationToken)
         {
-            RegisterIdentity result = new() { Register = request.Register };
+            var register = new RegisterDTO
+            {
+                Id = request.Register.Id,
+                Login = request.Register.Login ?? string.Empty,
+                PhoneNumber = request.Register.PhoneNumber,
+                Email = request.Register.Email
+            };
+            RegisterIdentity result = new() { Register = register };
             try
             {
                 var user = await _signInManager.UserManager.FindByIdAsync(request.Register.Id ?? string.Empty) 
-                    ?? await _signInManager.UserManager.FindByNameAsync(request.Register.Login);
+                    ?? await _signInManager.UserManager.FindByNameAsync(request.Register.Login ?? string.Empty);
 
                 if (user is null) return new RegisterIdentity()
                 {
-                    Register = request.Register,
+                    Register = register,
                     IdentityResult = IdentityResult.Failed(new IdentityError { Description = "User not found." })
                 };
 

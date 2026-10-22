@@ -11,6 +11,7 @@ namespace KronoGeo_Api.Models.Infrastructure.Http
         Problem,
         NotFound,
         Locked,
+        Unauthorized,
     }
 
     public abstract class ResponseApi

@@ -58,12 +58,17 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                         Message = "Erreur lors de la désérialisation de la réponse de l'API."
                     };
                 }
+                else if (retour.StatusCode == HttpStatusCode.Unauthorized)
+                { // -- gérer le changement au niveau du compte utilisateur
+                  // déconnecter proprement le compte si le compte n'a plus les autorisations
+                    return new() { ApiStatus = EnumApiStatus.Unauthorized };
+                }
                 else
                 {
                     return new()
                     {
                         ApiStatus = EnumApiStatus.BadRequest,
-                        Message = $" Status Code retour {retour.IsSuccessStatusCode}"
+                        Message = $" Status Code retour {retour.StatusCode}"
                     };
                 }
             }
@@ -116,6 +121,13 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                     PhotoDTO = result
                 };
             }
+            else if( retour.StatusCode == HttpStatusCode.Unauthorized )
+            {
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Unauthorized,
+                };
+            }
             else
             {
                 return new ResponseApiImage
@@ -143,16 +155,38 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
 
             using var retour = await HttpClient.GetAsync(url);
             retour.EnsureSuccessStatusCode();
-
-            var result = await retour.Content.ReadAsStringAsync();
-            var deserializedResult = JsonSerializer.Deserialize<ResponseApiLocalisations>(result, JsonOptions.GetJsonOptions());
-            return deserializedResult ?? new ResponseApiLocalisations
+            if (retour.IsSuccessStatusCode)
             {
-                ApiStatus = EnumApiStatus.NotFound,
-                Message = $"Aucun groupe de localisation trouvé pour l'utilisateur ",
-                LocalisationGroupDTO = null,
-                GroupsDTO = []
-            };
+                var result = await retour.Content.ReadAsStringAsync();
+                var deserializedResult = JsonSerializer.Deserialize<ResponseApiLocalisations>(result, JsonOptions.GetJsonOptions());
+                return deserializedResult ?? new ResponseApiLocalisations
+                {
+                    ApiStatus = EnumApiStatus.NotFound,
+                    Message = $"Aucun groupe de localisation trouvé pour l'utilisateur ",
+                    LocalisationGroupDTO = null,
+                    GroupsDTO = []
+                };
+            }
+            else if (retour.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Unauthorized,
+                    Message = "Vous n'êtes plus autorisé sur l'application.",
+                    LocalisationGroupDTO = null,
+                    GroupsDTO = []
+                };
+            }
+            else
+            {
+                return new ResponseApiLocalisations
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = $"Problème de désérialisation.",
+                    LocalisationGroupDTO = null,
+                    GroupsDTO = []
+                };
+            }
         }
 
         /// <summary>
@@ -162,7 +196,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <param name="photo"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task<bool> UpdateImageAsync(LocalisationPhotoDTO photo)
+        public async Task<ResponseApiBool> UpdateImageAsync(LocalisationPhotoDTO photo)
         {
 
             // -- sérialisation de localisationPhotoDTO en JSON
@@ -177,10 +211,24 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             {
                 var result = await retour.Content.ReadAsStringAsync();
                 var deserializedResult = JsonSerializer.Deserialize<bool>(result, JsonOptions.GetJsonOptions());
-                return deserializedResult;
+                return new ()
+                {
+                    ApiStatus = EnumApiStatus.Success,
+                    Retour = deserializedResult
+                };
+            }
+            else if( retour.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return new() { ApiStatus = EnumApiStatus.Unauthorized };
             }
 
-            return false;
+            return new()
+            {
+                ApiStatus = EnumApiStatus.Problem,
+                Message = "Problème lors de la modification.",
+                Retour = false,
+
+            };
         }
 
         /// <summary>
@@ -230,6 +278,13 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                         GroupsDTO = []
                     };
             }
+            else if (result.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Unauthorized,
+                };
+            }
 
             return new ResponseApiLocalisations()
             {
@@ -268,6 +323,12 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                         LocalisationGroupDTO = null,
                         GroupsDTO = []
                     };
+            } else if (result.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return new ()
+                {
+                    ApiStatus = EnumApiStatus.Unauthorized,
+                };
             }
 
             return new ResponseApiLocalisations()

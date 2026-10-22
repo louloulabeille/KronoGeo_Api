@@ -6,6 +6,6 @@ namespace KronoGeo_Blazor.Infrastructure.MediatR.Commands.Manager
 {
     public class UpdateUserProfileCommand : IRequest<ResponseApiManager>
     {
-        public required ProfilDTO profil { get; set; }
+        public required ProfilDTO Profil { get; set; }
     }
 }

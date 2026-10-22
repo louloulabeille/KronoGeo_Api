@@ -1,9 +1,11 @@
 ﻿using KronoGeo_Api.Models.Infrastructure.Cookie;
 using KronoGeo_Api.Models.Model.DTO;
 using KronoGeo_Blazor.Client.Infrastructure.Service;
+using KronoGeo_Blazor.Infrastructure.MediatR.Commands.Email;
 using KronoGeo_Blazor.Infrastructure.MediatR.Commands.Manager;
 using MediatR;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -53,7 +55,37 @@ namespace KronoGeo_Blazor.Components.Pages.Account
         {
             try
             {
+                // -- différence de mail 
+                if( Profil?.Email?.Trim() != ProfilDTO?.Email && _mediator is not null)
+                {
+                    var register = new ProfilUpdateEmailDTO
+                    {
+                        Id = ProfilDTO?.Id,
+                        Login = Profil?.Login ?? string.Empty,
+                        Email = Profil?.Email?.Trim(),
+                    };
 
+                    var result = await _mediator.Send(new UpdateUserEmailCommand { RegisterDTO = register });
+
+                    if (result.IsSuccess)
+                    {
+                        if (_toastService is not null)
+                            await _toastService.InfoAsync("Enregistrement du nouveau email.\n" +
+                                "Un email a été envoyé vers votre nouveau adresse, il faut valider le lien pour mettre en place la modification." +
+                                "Puis lors de la la validation, un email sera envoyé vers l'ancienne adresse pour la récupération valable 72h.\n" +
+                                "Après le changement, veuillez vous déconnecter.");
+                    }
+                    else
+                    {
+
+                        Profil?.Email = ProfilDTO?.Email;
+
+                        if (_toastService is not null)
+                            await _toastService.ErreurAsync($"Erreur lors de l'enregistrement. \n{result.Message ?? "Erreur lors de l'enregistrement du nouveau email."}");
+                    }
+
+
+                }
             }
             catch (Exception ex)
             {
@@ -106,7 +138,7 @@ namespace KronoGeo_Blazor.Components.Pages.Account
                     };
                     
                     var result = await _mediator.Send(new UpdateUserProfileCommand() 
-                        { profil = profilUpdate });
+                        { Profil = profilUpdate });
 
                     if( result.IsSuccess )
                     {
