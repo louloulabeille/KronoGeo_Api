@@ -43,6 +43,8 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         /// </summary>
         [Inject]
         private ToastsService? _toastService { get; set; } = default;
+        [Inject]
+        private NavigationManager? _navigationManager { get; set; } = default;
         #endregion
 
         #region public properties
@@ -207,11 +209,21 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
 
                         if (localisationPhotoDTO is null) return;
                         var result = await _serviceHttp.UpdateImageAsync(localisationPhotoDTO);
-                        if ( result  && _toastService is not null)
+                        if ( result.Retour  && _toastService is not null)
                         {
                             // -- affichage d'un message de succès
                             await _toastService.SuccesAsync($"Description modifiée avec succès.");
                             StateHasChanged();
+                        }
+                        else if (result.IsUnauthorized)
+                        {   // -- logout si unauthorized
+                            _navigationManager?.NavigateTo($"Account/Logout", forceLoad: true);
+                        }
+                        else 
+                        {
+                            if(_toastService is not  null)
+                                // -- affichage d'un message de succès
+                                await _toastService.SuccesAsync($"Impossible de faire la modification.");
                         }
                     }
 
@@ -241,7 +253,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                 if (photo is not null && _serviceHttp is not null)
                 {
                     var result = await _serviceHttp.DeleteImageAsync(photo);
-                    if (result && _toastService is not null && _viewPhoto is not null 
+                    if (result.Retour && _toastService is not null && _viewPhoto is not null 
                         && LocalisationPhoto is not null)
                     {
                         // -- affichage d'un message de succès
@@ -277,6 +289,10 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                         HandleOpenRequested();
 
                         StateHasChanged();
+                    }
+                    else if( result.IsUnauthorized)
+                    {   // -- logout si unauthorized
+                        _navigationManager?.NavigateTo($"Account/Logout", forceLoad: true);
                     }
                     else
                     {

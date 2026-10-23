@@ -39,5 +39,6 @@ namespace KronoGeo_Api.Models.Infrastructure.Http
         /// </summary>
         public bool IsNotFound { get { return ApiStatus == EnumApiStatus.NotFound; }}
         public bool IsLocked { get { return ApiStatus == EnumApiStatus.Locked; }}
+        public bool IsUnauthorized { get { return ApiStatus == EnumApiStatus.Unauthorized; } }
     }
 }

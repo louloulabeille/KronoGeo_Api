@@ -15,6 +15,7 @@ using System.Text;
 using System.Text.Json;
 using static Microsoft.Maui.ApplicationModel.Permissions;
 using static Microsoft.Maui.Authentication.AppleSignInAuthenticator;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace KronoGeo_Api.Infrastructure.Service.Http
 {
@@ -188,7 +189,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <param name="userId"></param>
         /// <param name="photo"></param>
         /// <returns></returns>
-        public async Task<bool> UpdateImageAsync( LocalisationPhotoDTO photo)
+        public async Task<ResponseApiBool> UpdateImageAsync( LocalisationPhotoDTO photo)
         {
             try
             {
@@ -200,16 +201,35 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                 if(result.IsSuccessStatusCode)
                 {
                     var retour = await result.Content.ReadAsStringAsync();
-                    var data = JsonSerializer.Deserialize<bool>(retour, JsonOptions.GetJsonOptions());
-                    return data;
+                    var data = JsonSerializer.Deserialize<ResponseApiBool>(retour, JsonOptions.GetJsonOptions());
+                    return data?? new() { 
+                        ApiStatus = EnumApiStatus.Problem, 
+                        Message ="Problème de la sérialisation du retour.",
+                        Retour  =false
+                    };
+                }
+                else if( result.StatusCode == HttpStatusCode.Unauthorized )
+                {
+                    return new()
+                    {
+                        ApiStatus = EnumApiStatus.Unauthorized,
+                        Retour = false
+                    };
                 }
 
-                return false;
+                return new() { 
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = "Problème au niveau la modification.",
+                    Retour = false
+                };
             }
             catch(Exception ex)
             {
                 _logger.LogError(ex, "Erreur lors de la modification d'une LocalisationPhoto : {ex.Message}", ex.Message);
-                return false;
+                return new() { ApiStatus = EnumApiStatus.Problem,
+                    Message = "Problème interne au niveau de la modification de l'image.",
+                    Retour = false,
+                };
             }
         }
 
@@ -255,7 +275,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <param name="photo"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<bool> DeleteImageAsync(LocalisationPhotoDTO photo)
+        public async Task<ResponseApiBool> DeleteImageAsync(LocalisationPhotoDTO photo)
         {
             try
             {
@@ -268,16 +288,39 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                 if (result.IsSuccessStatusCode)
                 {
                     var retour = await result.Content.ReadAsStringAsync();
-                    var data = JsonSerializer.Deserialize<bool>(retour, JsonOptions.GetJsonOptions());
-                    return data;
+                    var data = JsonSerializer.Deserialize<ResponseApiBool>(retour, JsonOptions.GetJsonOptions());
+                    return data ?? new()
+                    {
+                        Retour = false,
+                        ApiStatus = EnumApiStatus.Problem,
+                        Message = "Problème de la sérialisation du retour.",
+                    };
                 }
+                else if (result.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    return new()
+                    {
+                        Retour = false,
+                        ApiStatus = EnumApiStatus.Unauthorized
+                    };
 
-                return false;
+                }
+                return new()
+                {
+                    Retour = false,
+                    Message = "Problème lors de la supression d'une image",
+                    ApiStatus = EnumApiStatus.Problem,
+                };
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erreur lors de la modification d'une LocalisationPhoto : {ex.Message}", ex.Message);
-                return false;
+                return new()
+                {
+                    Retour = false,
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = "Problème lors de la supression, erreur interne."
+                }; 
             }
         }
 
@@ -325,7 +368,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <param name="localisationGroup"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<bool> DeleteLocalisationGroupAsync(LocalisationGroupDTO localisationGroup)
+        public async Task<ResponseApiBool> DeleteLocalisationGroupAsync(LocalisationGroupDTO localisationGroup)
         {
             try
             {
@@ -337,16 +380,40 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                 if ( result.IsSuccessStatusCode)
                 {
                     var retour = await result.Content.ReadAsStringAsync();
-                    var data = JsonSerializer.Deserialize<bool>(retour, JsonOptions.GetJsonOptions());
+                    var data = JsonSerializer.Deserialize<ResponseApiBool>(retour, JsonOptions.GetJsonOptions());
 
-                    return data;
+                    return data ?? new ()
+                    {
+                        ApiStatus = EnumApiStatus.Success,
+                        Retour = false,
+                        Message = "Problème de la sérialisation du retour.",
+                    };
                 }
-                return false;
+                else if( result.StatusCode == HttpStatusCode.Unauthorized )
+                {
+                    return new()
+                    {
+                        ApiStatus = EnumApiStatus.Unauthorized,
+                        Retour = false,
+                    };
+                }
+
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Retour = false,
+                    Message = "Problème lors de la supression."
+                }; ;
             }
             catch(Exception ex)
             {
                 _logger.LogError(ex, "Erreur lors de la suppression de la localisation Group id : {id}", localisationGroup.Id);
-                return false;
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Retour = false,
+                    Message = "Erreur lors de la supression."
+                }; ;
             }
         }
 

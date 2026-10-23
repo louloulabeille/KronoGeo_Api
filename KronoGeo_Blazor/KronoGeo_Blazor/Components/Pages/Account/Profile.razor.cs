@@ -75,9 +75,12 @@ namespace KronoGeo_Blazor.Components.Pages.Account
                                 "Puis lors de la la validation, un email sera envoyé vers l'ancienne adresse pour la récupération valable 72h.\n" +
                                 "Après le changement, veuillez vous déconnecter.");
                     }
+                    else if (result.IsUnauthorized)
+                    {   // -- logout - déconnexion
+                        _navigationManager?.NavigateTo($"Account/Logout", forceLoad: true);
+                    }
                     else
                     {
-
                         Profil?.Email = ProfilDTO?.Email;
 
                         if (_toastService is not null)
@@ -159,6 +162,10 @@ namespace KronoGeo_Blazor.Components.Pages.Account
                         _navigationManager?.NavigateTo($"/Account/refresh?key={key}&returnUrl=/Account/profile", forceLoad: true);
 
                     }
+                    else if ( result.IsUnauthorized )
+                    {   // -- logout - déconnexion
+                        _navigationManager?.NavigateTo($"Account/Logout", forceLoad: true);
+                    }
                     else
                     {
 
@@ -201,6 +208,10 @@ namespace KronoGeo_Blazor.Components.Pages.Account
                             Email = result.Profil.Email,
                             PhoneNumber = result.Profil.PhoneNumber
                         };
+                    }
+                    else if (result.IsUnauthorized)
+                    {   // -- logout - déconnexion
+                        _navigationManager?.NavigateTo($"Account/Logout", forceLoad: true);
                     }
                 }
             }

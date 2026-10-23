@@ -31,6 +31,8 @@ namespace KronoGeo_Blazor.Client.Pages
         // -- service pour lancer des method javascript
         [Inject]
         private IJSRuntime? _iJSRuntime { get; set; } = default;
+        [Inject]
+        private NavigationManager? _navigationManager { get; set; } = default;
         #endregion
 
         #region protected properties view
@@ -181,6 +183,12 @@ namespace KronoGeo_Blazor.Client.Pages
                 }
 
                 var result = await _serviceHttp.GetLocalisationsByIdAsync(group.Id);
+                if(result.IsUnauthorized)
+                {
+                    // -- logout si unauthorized
+                    _navigationManager?.NavigateTo($"Account/Logout", forceLoad: true);
+                }
+                
                 if (result.IsSuccess)
                     group.Localisations = result.LocalisationGroupDTO?.Localisations?.Select(l => l.Get()).ToList();
                 else
@@ -258,7 +266,7 @@ namespace KronoGeo_Blazor.Client.Pages
 
                 
                 var result = await _serviceHttp.DeleteLocalisationGroupAsync(localisationGroupdto);
-                if (result)
+                if (result.Retour)
                 {
                     _localisationGroup?.Remove(localisationGroup);
                     await FilterSearch();
@@ -268,6 +276,10 @@ namespace KronoGeo_Blazor.Client.Pages
                     if (_toastService is not null)
                         // -- affichage d'un message de succès
                         await _toastService.SuccesAsync("Supression réussie.");
+                }
+                else if ( result.IsUnauthorized )
+                {   // -- logout si unauthorized
+                    _navigationManager?.NavigateTo($"Account/Logout", forceLoad: true);
                 }
                 else
                     if (_toastService is not null)
@@ -343,6 +355,9 @@ namespace KronoGeo_Blazor.Client.Pages
                     if (_toastService is not null)
                         // -- affichage d'un message d'erreur
                         await _toastService.SuccesAsync("L'enregistrement effectué.");
+                }else if( result.IsUnauthorized )
+                {   // -- logout si unauthorized
+                    _navigationManager?.NavigateTo($"Account/Logout", forceLoad: true);
                 }
                 else
                 {
@@ -381,6 +396,11 @@ namespace KronoGeo_Blazor.Client.Pages
                     //var user = authState.User.Identities.FirstOrDefault()?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
                     var result = await _serviceHttp.GetUserGroupLocalisationAsync();
 
+                    if (result.IsUnauthorized)
+                    {
+                        // -- logout si unauthorized
+                        _navigationManager?.NavigateTo($"Account/Logout", forceLoad: true);
+                    }
                     _localisationGroup = result?.GroupsDTO?
                         .Select(lg => new LocalisationGroup()
                         {

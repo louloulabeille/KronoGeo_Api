@@ -215,6 +215,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                 {
                     ApiStatus = EnumApiStatus.Success,
                     Retour = deserializedResult
+
                 };
             }
             else if( retour.StatusCode == HttpStatusCode.Unauthorized)
@@ -236,7 +237,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// </summary>
         /// <param name="photo"></param>
         /// <returns></returns>
-        public async Task<bool> DeleteImageAsync(int id)
+        public async Task<ResponseApiBool> DeleteImageAsync(int id)
         {
             var url = $"{_options.Value.DeleteImage}/{WebUtility.UrlEncode(id.ToString())}";
 
@@ -247,10 +248,24 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             {
                 var responseContent = await result.Content.ReadAsStringAsync();
                 var deserializedResult = JsonSerializer.Deserialize<bool>(responseContent, JsonOptions.GetJsonOptions());
-                return deserializedResult;
+                return new() 
+                { 
+                    ApiStatus = EnumApiStatus.Success,
+                    Retour = true    
+                };
+            }
+            else if (result.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return new() { ApiStatus = EnumApiStatus.Unauthorized };
             }
 
-            return false;
+
+            return new()
+            {
+                ApiStatus = EnumApiStatus.Problem,
+                Message = "Problème lors de la supression d'une image",
+                Retour = false
+            };
         }
 
         /// <summary>
@@ -346,7 +361,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <param name="id"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<bool> DeleteLocalisationGroupAsync(int id)
+        public async Task<ResponseApiBool> DeleteLocalisationGroupAsync(int id)
         {
             var url = $"{_options.Value.DeleteLocalisationGroup}/{WebUtility.UrlEncode(id.ToString())}";
             
@@ -357,10 +372,25 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             {
                 var responseContent = await result.Content.ReadAsStringAsync();
                 var content = JsonSerializer.Deserialize<bool>(responseContent, JsonOptions.GetJsonOptions());
-                return content;
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Success,
+                    Retour = content,
+                };
             }
-            
-            return false;
+            else if (result.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Unauthorized,
+                };
+            }
+
+            return new() { 
+                ApiStatus = EnumApiStatus.Problem,
+                Message = "Problème lors de la supression.",
+                Retour = false
+            };
         }
 
         #endregion

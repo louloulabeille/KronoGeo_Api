@@ -21,6 +21,8 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         private IServiceHttpClientAssembly? _serviceHttp { get; set; } = default;
         [Inject]
         private ToastsService? _toastsService { get; set; } = default;
+        [Inject]
+        private NavigationManager? _navigationManager { get; set; } = default;
         #endregion
 
         #region protected properties view
@@ -99,6 +101,10 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                     && result.LocalisationGroupDTO.Localisations is not null)
                 {
                     Localisations.AddRange(result.LocalisationGroupDTO.Localisations.Select(l => l.Get()).ToList());
+                }
+                else if(result is not null && result.IsUnauthorized )
+                {   // -- logout - déconnexion
+                    _navigationManager?.NavigateTo($"Account/Logout", forceLoad: true);
                 }
                 else
                 {
