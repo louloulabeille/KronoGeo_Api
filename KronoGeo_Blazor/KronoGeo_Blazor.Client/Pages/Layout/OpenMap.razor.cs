@@ -203,6 +203,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
 
                     if (_authenticationStateProvider is not null && LocalisationPhoto is not null && _serviceHttp is not null)
                     {
+                        var initText = LocalisationPhoto.Description;
                         LocalisationPhoto.Description = Description.Trim();
                         
                         var localisationPhotoDTO = LocalisationPhoto.GetDTO() as LocalisationPhotoDTO ?? null;
@@ -221,15 +222,14 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                         }
                         else 
                         {
-                            if(_toastService is not  null)
+                            LocalisationPhoto.Description = initText;
+                            if (_toastService is not  null)
                                 // -- affichage d'un message de succès
                                 await _toastService.SuccesAsync($"Impossible de faire la modification.");
                         }
                     }
 
                 }
-
-
                 StateHasChanged();
             }
             catch(Exception ex)

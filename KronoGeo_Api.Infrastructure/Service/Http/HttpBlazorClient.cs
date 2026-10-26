@@ -5,6 +5,9 @@ using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Infrastructure.Options;
 using KronoGeo_Api.Models.Model.DTO;
 using KronoGeo_Api.Models.Parameter;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -13,9 +16,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using static Microsoft.Maui.ApplicationModel.Permissions;
-using static Microsoft.Maui.Authentication.AppleSignInAuthenticator;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+
 
 namespace KronoGeo_Api.Infrastructure.Service.Http
 {
@@ -196,9 +197,9 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                 var adress = _options.Value.UpdateImage;
                 HttpContent content = new StringContent(JsonSerializer.Serialize(photo), Encoding.UTF8, "application/json");
                 using var result = await _httpClient.PostAsync(adress, content);
-                result.EnsureSuccessStatusCode();
+                //result.EnsureSuccessStatusCode();
 
-                if(result.IsSuccessStatusCode)
+                if (result.IsSuccessStatusCode)
                 {
                     var retour = await result.Content.ReadAsStringAsync();
                     var data = JsonSerializer.Deserialize<ResponseApiBool>(retour, JsonOptions.GetJsonOptions());
@@ -206,14 +207,6 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                         ApiStatus = EnumApiStatus.Problem, 
                         Message ="Problème de la sérialisation du retour.",
                         Retour  =false
-                    };
-                }
-                else if( result.StatusCode == HttpStatusCode.Unauthorized )
-                {
-                    return new()
-                    {
-                        ApiStatus = EnumApiStatus.Unauthorized,
-                        Retour = false
                     };
                 }
 
@@ -247,7 +240,6 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                 using var result = await _httpClient.GetAsync(url);
                 result.EnsureSuccessStatusCode();
 
-                
                 var retour = await result.Content.ReadAsStringAsync();
                 var data = JsonSerializer.Deserialize<ResponseApiLocalisations>(retour, JsonOptions.GetJsonOptions());
 
@@ -256,7 +248,8 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                     ApiStatus = EnumApiStatus.NotFound,
                     Message = $"Aucune localisation trouvée pour le groupe de localisation {IdLocalisationGroup}"
                 };
-                
+
+
             }
             catch(Exception ex)
             {
@@ -387,14 +380,6 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                         ApiStatus = EnumApiStatus.Success,
                         Retour = false,
                         Message = "Problème de la sérialisation du retour.",
-                    };
-                }
-                else if( result.StatusCode == HttpStatusCode.Unauthorized )
-                {
-                    return new()
-                    {
-                        ApiStatus = EnumApiStatus.Unauthorized,
-                        Retour = false,
                     };
                 }
 

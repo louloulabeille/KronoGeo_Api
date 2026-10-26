@@ -2,20 +2,14 @@
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using KronoGeo_Api.Infrastructure.Service.Http;
 using KronoGeo_Api.Interface.Service;
-using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Model.DTO;
 using KronoGeo_Maui.Applications.Helpers;
 using KronoGeo_Maui.Applications.Interface;
-using KronoGeo_Maui.Applications.Services;
 using KronoGeo_Maui.PageHelpers;
 using Plugin.Fingerprint;
 using Plugin.Fingerprint.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.Json;
+
 
 namespace KronoGeo_Maui.ModelViews
 {

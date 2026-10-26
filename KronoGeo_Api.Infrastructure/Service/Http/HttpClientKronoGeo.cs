@@ -4,6 +4,7 @@ using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Infrastructure.Options;
 using KronoGeo_Api.Models.Model.DTO;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Options;
 using Microsoft.Win32;
 using System;
@@ -41,7 +42,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                 HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokkenBearer);
                 
                 using var retour = await HttpClient.PostAsync(_options.Value.SaveGroupLocalisations, content);
-                retour.EnsureSuccessStatusCode();
+                //retour.EnsureSuccessStatusCode();
 
                 if (retour.IsSuccessStatusCode)
                 {
@@ -103,7 +104,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             // send it
             HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokkenBearer);
             using var retour = await HttpClient.PostAsync(_options.Value.SavePhoto, multipartContent);
-            retour.EnsureSuccessStatusCode();
+            //retour.EnsureSuccessStatusCode();
 
             var result = JsonSerializer.Deserialize<PhotoDTO>(retour.Content.ReadAsStringAsync().Result, JsonOptions.GetJsonOptions())
                 ?? new PhotoDTO
@@ -154,7 +155,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             var url = $"{_options.Value.GetUserGroupLocalisation}";
 
             using var retour = await HttpClient.GetAsync(url);
-            retour.EnsureSuccessStatusCode();
+            //retour.EnsureSuccessStatusCode();
             if (retour.IsSuccessStatusCode)
             {
                 var result = await retour.Content.ReadAsStringAsync();
@@ -205,7 +206,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             var url = $"{_options.Value.UpdateImage}";
             // -- envoi en Http 
             using var retour = await HttpClient.PostAsync(url, content);
-            retour.EnsureSuccessStatusCode();
+            //retour.EnsureSuccessStatusCode();
 
             if( retour.IsSuccessStatusCode )
             {
@@ -242,7 +243,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             var url = $"{_options.Value.DeleteImage}/{WebUtility.UrlEncode(id.ToString())}";
 
             using var result = await HttpClient.DeleteAsync(url);
-            result.EnsureSuccessStatusCode();
+            //result.EnsureSuccessStatusCode();
 
             if (result.IsSuccessStatusCode)
             {
@@ -279,7 +280,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             var url = $"{_options.Value.GetLocalisationsById}/{WebUtility.UrlEncode(IdLocalisationGroup.ToString())}";
 
             using var result = await HttpClient.GetAsync(url);
-            result.EnsureSuccessStatusCode();
+            //result.EnsureSuccessStatusCode();
 
             if( result.IsSuccessStatusCode )
             {
@@ -324,7 +325,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
 
             // -- envoi en Httpclient
             using var result = await HttpClient.PostAsync(url, content);
-            result.EnsureSuccessStatusCode();
+            //result.EnsureSuccessStatusCode();
 
             if (result.IsSuccessStatusCode)
             {
@@ -366,7 +367,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             var url = $"{_options.Value.DeleteLocalisationGroup}/{WebUtility.UrlEncode(id.ToString())}";
             
             using var result = await HttpClient.DeleteAsync(url);
-            result.EnsureSuccessStatusCode();
+            //result.EnsureSuccessStatusCode();
 
             if (result.IsSuccessStatusCode)
             {

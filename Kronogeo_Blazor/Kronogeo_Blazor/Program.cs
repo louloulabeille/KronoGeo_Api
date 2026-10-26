@@ -1,19 +1,8 @@
 
-using BruTile.Wms;
-using KronoGeo_Api.Infrastructure.Service.Http;
-using KronoGeo_Api.Infrastructure.Service.Map;
-using KronoGeo_Api.Interface.Service;
-using KronoGeo_Api.Models.Infrastructure.Http;
-using KronoGeo_Api.Models.Infrastructure.Options;
-using KronoGeo_Blazor.Client.Pages;
 using KronoGeo_Blazor.Components;
 using KronoGeo_Blazor.Infrastructure.Extends;
 using KronoGeo_Blazor.Infrastructure.Extends.App;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using KronoGeo_Blazor.Client.Infrastructure.Extends;
 
