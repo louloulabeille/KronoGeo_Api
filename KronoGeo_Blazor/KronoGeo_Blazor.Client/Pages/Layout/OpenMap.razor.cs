@@ -253,19 +253,19 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                 if (photo is not null && _serviceHttp is not null)
                 {
                     var result = await _serviceHttp.DeleteImageAsync(photo);
-                    if (result.Retour && _toastService is not null && _viewPhoto is not null 
+                    if (result.IsSuccess && result.Retour && _viewPhoto is not null 
                         && LocalisationPhoto is not null)
                     {
                         // -- affichage d'un message de succès
-                        await _toastService.SuccesAsync($"Photo supprimée avec succès.");
+                        if(_toastService is not null)
+                            await _toastService.SuccesAsync($"Photo supprimée avec succès.");
                         // -- supprime dans le dictionnaire le feature supprimer
                         //var retour = _featureImageMap.Remove(_viewPhoto);
 
                         // -- suppression dans liste des points qui sont chargés dans la map
                         int index = MapStateService?.CurrentLocalisations?.ToList().FindIndex(l => l.Id == LocalisationPhoto.Id) ?? -1;
                         if ( index != -1 && MapStateService is not null && MapStateService.CurrentLocalisations is not null)
-                        {
-                            
+                        { 
                             var localisation = new Localisation
                             {
                                 Accuracy = LocalisationPhoto.Accuracy,

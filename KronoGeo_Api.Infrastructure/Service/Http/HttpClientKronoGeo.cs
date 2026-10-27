@@ -17,13 +17,14 @@ using static Microsoft.Maui.ApplicationModel.Permissions;
 using static System.Net.WebRequestMethods;
 
 namespace KronoGeo_Api.Infrastructure.Service.Http
-{
+{//, NavigationManager nav
     public class HttpClientKronoGeo(IOptions<UrlApiMetier> options, HttpClient httpClient
             , IOptions<TokenTunnel>? tokenTunnel) 
         : HttpClientDefault(httpClient, tokenTunnel), IServiceHttpKronoGeo
     {
         #region private properties
         private readonly IOptions<UrlApiMetier> _options = options;
+        //private readonly NavigationManager _nav = nav;
         #endregion
 
         #region public method interface IServiceHttpKronoGeo
@@ -221,6 +222,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             }
             else if( retour.StatusCode == HttpStatusCode.Unauthorized)
             {
+                //_nav.NavigateTo("Account/Logout", forceLoad: true);
                 return new() { ApiStatus = EnumApiStatus.Unauthorized };
             }
 

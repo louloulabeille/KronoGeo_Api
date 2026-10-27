@@ -64,7 +64,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         {
 
             using var response = await HttpClient.GetAsync(_options.Value.GetProfile);
-            response.EnsureSuccessStatusCode();
+            //response.EnsureSuccessStatusCode();
 
             if (response.IsSuccessStatusCode)
             {
@@ -77,6 +77,13 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                     };
 
                 return result;
+            }
+            else if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Unauthorized
+                };
             }
 
             return new ResponseApiManager
@@ -96,7 +103,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         {
             var content = new StringContent(JsonSerializer.Serialize(profil), Encoding.UTF8, "application/json");
             using var response = await HttpClient.PostAsync(_options.Value.UpdateProfile, content);
-            response.EnsureSuccessStatusCode();
+            //response.EnsureSuccessStatusCode();
 
             if ( response.IsSuccessStatusCode )
             {
@@ -109,6 +116,13 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                     };
 
                 return result;
+            }
+            else if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Unauthorized
+                };
             }
 
             return new ResponseApiManager

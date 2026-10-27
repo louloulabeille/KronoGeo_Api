@@ -28,7 +28,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         {
             HttpContent content = new StringContent(JsonSerializer.Serialize(register), Encoding.UTF8, "application/json");
             using var response = await HttpClient.PostAsync(_options.Value.UpdateUserEmail, content);
-            response.EnsureSuccessStatusCode();
+            //response.EnsureSuccessStatusCode();
 
             if ( response.IsSuccessStatusCode || response.StatusCode == HttpStatusCode.BadRequest)
             {
@@ -41,6 +41,10 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                     };
 
                 return result;
+            }
+            else if ( response.StatusCode == HttpStatusCode.Unauthorized )
+            {
+                return new() { ApiStatus = EnumApiStatus.Unauthorized };
             }
             else
             {

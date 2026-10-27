@@ -104,6 +104,10 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                 }
                 else if(result is not null && result.IsUnauthorized )
                 {   // -- logout - déconnexion
+                    // -- gestion en cas de modification qui modifie le stamp de sécurité 
+                    // -- comme le projet est en BFF, gestion à la main en faisant un logout
+                    // -- on ne peut pas faire un handler à cause du de la navigation manager qui n'est pas
+                    // -- charger lors de l'appel du handler
                     _navigationManager?.NavigateTo($"Account/Logout", forceLoad: true);
                 }
                 else

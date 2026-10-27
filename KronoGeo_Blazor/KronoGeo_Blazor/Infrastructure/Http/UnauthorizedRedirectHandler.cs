@@ -8,7 +8,13 @@ namespace KronoGeo_Blazor.Infrastructure.Http
     // -- Handler attaché au httpclient pour déconnecter lors de la réception d'un retour 401
     public class UnauthorizedRedirectHandler : DelegatingHandler
     {
-
+        /// <summary>
+        /// lever d'une exception lors d'un statuscode a Unauthorized
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        /// <exception cref="SessionExpiredException"></exception>
         protected override async Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request, CancellationToken ct)
         {
