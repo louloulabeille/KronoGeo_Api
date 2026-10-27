@@ -183,11 +183,11 @@ namespace KronoGeo_Blazor.Client.Pages
                 }
 
                 var result = await _serviceHttp.GetLocalisationsByIdAsync(group.Id);
-                if(result.IsUnauthorized)
+                /*if(result.IsUnauthorized)
                 {
                     // -- logout si unauthorized
                     _navigationManager?.NavigateTo($"Account/Logout", forceLoad: true);
-                }
+                }*/
                 
                 if (result.IsSuccess)
                     group.Localisations = result.LocalisationGroupDTO?.Localisations?.Select(l => l.Get()).ToList();

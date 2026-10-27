@@ -1,4 +1,5 @@
-﻿using KronoGeo_Api.Models.Infrastructure.Http;
+﻿using KronoGeo_Api.Infrastructure.Exceptions.Http;
+using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Model.DTO;
 using KronoGeo_Blazor.Infrastructure.MediatR.Commands.Gps;
 using MediatR;
@@ -43,6 +44,10 @@ namespace KronoGeo_Blazor.Components.Api
                 var result = await _mediaR.Send(new GroupLocationUserCommand());
 
                 return Ok(result);
+            }
+            catch(SessionExpiredException)
+            {
+                return this.Ok( new ResponseApiLocalisations() { ApiStatus = EnumApiStatus.Unauthorized } );
             }
             catch (Exception ex)
             {

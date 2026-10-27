@@ -1,4 +1,9 @@
-﻿@using KronoGeo_Blazor.Client.Pages.Account
+﻿@* @using KronoGeo_Api.Infrastructure.Service.Http
+
+@implements IDisposable
+@inject SessionNotificationService SessionNotification
+@inject NavigationManager Nav *@
+
 <Router AppAssembly="typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(Client._Imports).Assembly }" NotFoundPage="typeof(Pages.NotFound)">
     <Found Context="routeData">
         <!--<RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />-->
@@ -6,3 +11,34 @@
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
 </Router>
+
+@* @code {
+    /// <summary>
+    /// initialisation de la fenêtre
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        // -- mise en place de l'écoute sur event de l'expiration de compte
+        Console.WriteLine($"SessionNotification.OnSessionExpired en écoute guid {SessionNotification.Guid}");
+        SessionNotification.OnSessionExpired += handleSessionExpired;
+        base.OnInitialized();
+    }
+
+    /// <summary>
+    /// Méthod qui est appelé lors de l'expiration unauthorized
+    /// </summary>
+    private void handleSessionExpired()
+    { // -- on éconnecte proprement - il faut ajouter une reason 
+        Console.WriteLine($"Navigate to logout guid {SessionNotification.Guid}");
+        Nav.NavigateTo($"Account/Logout?reason=expired", forceLoad: true);
+    }
+
+    /// <summary>
+    /// Fermeture propre pour enlever l'écoute sur l'event
+    /// </summary>
+    public void Dispose()
+    {
+        SessionNotification.OnSessionExpired -= handleSessionExpired;
+        GC.SuppressFinalize(this);
+    }
+} *@

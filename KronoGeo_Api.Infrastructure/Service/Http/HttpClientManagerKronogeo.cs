@@ -1,4 +1,5 @@
 ﻿using KronoGeo_Api.Infrastructure.Applications.Helpers;
+using KronoGeo_Api.Infrastructure.Exceptions.Http;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Infrastructure.Options;
@@ -62,35 +63,52 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <exception cref="NotImplementedException"></exception>
         public async Task<ResponseApiManager> GetProfileAsync()
         {
-
-            using var response = await HttpClient.GetAsync(_options.Value.GetProfile);
-            //response.EnsureSuccessStatusCode();
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var retour = await response.Content.ReadAsStringAsync();
-                var result = JsonSerializer.Deserialize<ResponseApiManager>(retour, JsonOptions.GetJsonOptions())
-                    ?? new ResponseApiManager
-                    {
-                        ApiStatus = EnumApiStatus.Problem,
-                        Message = "Erreur lors de la désérialisation de la réponse de l'API."
-                    };
+                using var response = await HttpClient.GetAsync(_options.Value.GetProfile);
+                //response.EnsureSuccessStatusCode();
 
-                return result;
+                if (response.IsSuccessStatusCode)
+                {
+                    var retour = await response.Content.ReadAsStringAsync();
+                    var result = JsonSerializer.Deserialize<ResponseApiManager>(retour, JsonOptions.GetJsonOptions())
+                        ?? new ResponseApiManager
+                        {
+                            ApiStatus = EnumApiStatus.Problem,
+                            Message = "Erreur lors de la désérialisation de la réponse de l'API."
+                        };
+
+                    return result;
+                }
+                else if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    return new()
+                    {
+                        ApiStatus = EnumApiStatus.Unauthorized
+                    };
+                }
+
+                return new ResponseApiManager
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = $" Status Code retour {response.StatusCode}"
+                };
             }
-            else if (response.StatusCode == HttpStatusCode.Unauthorized)
+            catch (SessionExpiredException)
             {
                 return new()
                 {
-                    ApiStatus = EnumApiStatus.Unauthorized
+                    ApiStatus = EnumApiStatus.Unauthorized,
                 };
             }
-
-            return new ResponseApiManager
+            catch (Exception)
             {
-                ApiStatus = EnumApiStatus.Problem,
-                Message = $" Status Code retour {response.StatusCode}"
-            };
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = "Erreur lors du retour du profil utilisateur."
+                };
+            }
 
         }
 
@@ -99,40 +117,58 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// </summary>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<ResponseApiManager> UpdateProfilAsync( ProfilDTO profil )
+        public async Task<ResponseApiManager> UpdateProfilAsync(ProfilDTO profil)
         {
-            var content = new StringContent(JsonSerializer.Serialize(profil), Encoding.UTF8, "application/json");
-            using var response = await HttpClient.PostAsync(_options.Value.UpdateProfile, content);
-            //response.EnsureSuccessStatusCode();
-
-            if ( response.IsSuccessStatusCode )
+            try
             {
-                var retour = await response.Content.ReadAsStringAsync();
-                var result = JsonSerializer.Deserialize<ResponseApiManager>(retour, JsonOptions.GetJsonOptions())
-                    ?? new ResponseApiManager
-                    {
-                        ApiStatus = EnumApiStatus.Problem,
-                        Message = "Erreur lors de la désérialisation de la réponse de l'API."
-                    };
 
-                return result;
+                var content = new StringContent(JsonSerializer.Serialize(profil), Encoding.UTF8, "application/json");
+                using var response = await HttpClient.PostAsync(_options.Value.UpdateProfile, content);
+                //response.EnsureSuccessStatusCode();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var retour = await response.Content.ReadAsStringAsync();
+                    var result = JsonSerializer.Deserialize<ResponseApiManager>(retour, JsonOptions.GetJsonOptions())
+                        ?? new ResponseApiManager
+                        {
+                            ApiStatus = EnumApiStatus.Problem,
+                            Message = "Erreur lors de la désérialisation de la réponse de l'API."
+                        };
+
+                    return result;
+                }
+                else if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    return new()
+                    {
+                        ApiStatus = EnumApiStatus.Unauthorized
+                    };
+                }
+
+                return new ResponseApiManager
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = $" Status Code retour {response.StatusCode}"
+                };
             }
-            else if (response.StatusCode == HttpStatusCode.Unauthorized)
+            catch (SessionExpiredException)
             {
                 return new()
                 {
-                    ApiStatus = EnumApiStatus.Unauthorized
+                    ApiStatus = EnumApiStatus.Unauthorized,
+                };
+            }
+            catch (Exception)
+            {
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = "Erreur lors de l'enregistrement du profil utilisateur."
                 };
             }
 
-            return new ResponseApiManager
-            {
-                ApiStatus = EnumApiStatus.Problem,
-                Message = $" Status Code retour {response.StatusCode}"
-            };
-
         }
-
         
         #endregion
     }

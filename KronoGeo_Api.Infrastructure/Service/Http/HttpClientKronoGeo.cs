@@ -1,4 +1,5 @@
 ﻿using KronoGeo_Api.Infrastructure.Applications.Helpers;
+using KronoGeo_Api.Infrastructure.Exceptions.Http;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Infrastructure.Http;
@@ -37,45 +38,64 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <exception cref="ArgumentNullException"></exception>
         public virtual async Task<ResponseApiLocalisations> SaveGroupLocalisationsAsync(LocalisationGroupDTO localisationGroup, string tokkenBearer)
         {
-            if ( localisationGroup.Localisations is not null )
+            try
             {
-                HttpContent content = new StringContent(JsonSerializer.Serialize(localisationGroup), Encoding.UTF8, "application/json");
-                HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokkenBearer);
-                
-                using var retour = await HttpClient.PostAsync(_options.Value.SaveGroupLocalisations, content);
-                //retour.EnsureSuccessStatusCode();
-
-                if (retour.IsSuccessStatusCode)
+                if (localisationGroup.Localisations is not null)
                 {
-                    var result = JsonSerializer.Deserialize<ResponseApiLocalisations>(retour.Content.ReadAsStringAsync().Result, JsonOptions.GetJsonOptions());
-                        
-                    if ( result is not null )
+                    HttpContent content = new StringContent(JsonSerializer.Serialize(localisationGroup), Encoding.UTF8, "application/json");
+                    HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokkenBearer);
+
+                    using var retour = await HttpClient.PostAsync(_options.Value.SaveGroupLocalisations, content);
+                    //retour.EnsureSuccessStatusCode();
+
+                    if (retour.IsSuccessStatusCode)
                     {
-                        return result;
+                        var result = JsonSerializer.Deserialize<ResponseApiLocalisations>(retour.Content.ReadAsStringAsync().Result, JsonOptions.GetJsonOptions());
+
+                        if (result is not null)
+                        {
+                            return result;
+                        }
+
+                        return new()
+                        {
+                            ApiStatus = EnumApiStatus.Problem,
+                            Message = "Erreur lors de la désérialisation de la réponse de l'API."
+                        };
                     }
-
-                    return new()
+                    else if (retour.StatusCode == HttpStatusCode.Unauthorized)
+                    { // -- gérer le changement au niveau du compte utilisateur
+                      // déconnecter proprement le compte si le compte n'a plus les autorisations
+                        return new() { ApiStatus = EnumApiStatus.Unauthorized };
+                    }
+                    else
                     {
-                        ApiStatus = EnumApiStatus.Problem,
-                        Message = "Erreur lors de la désérialisation de la réponse de l'API."
-                    };
+                        return new()
+                        {
+                            ApiStatus = EnumApiStatus.BadRequest,
+                            Message = $" Status Code retour {retour.StatusCode}"
+                        };
+                    }
                 }
-                else if (retour.StatusCode == HttpStatusCode.Unauthorized)
-                { // -- gérer le changement au niveau du compte utilisateur
-                  // déconnecter proprement le compte si le compte n'a plus les autorisations
-                    return new() { ApiStatus = EnumApiStatus.Unauthorized };
-                }
-                else
+                throw new ArgumentNullException(nameof(localisationGroup), "Les localisations sont nulles. Pas d'enregistrements.");
+            }
+            catch (SessionExpiredException)
+            {
+                return new()
                 {
-                    return new()
-                    {
-                        ApiStatus = EnumApiStatus.BadRequest,
-                        Message = $" Status Code retour {retour.StatusCode}"
-                    };
-                }
+                    ApiStatus = EnumApiStatus.Unauthorized,
+                };
+            }
+            catch(Exception)
+            {
+                return new ResponseApiLocalisations
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = "Erreur lors de la sauvegarde des localisations"
+                };
             }
 
-            throw new ArgumentNullException(nameof(localisationGroup), "Les localisations sont nulles. Pas d'enregistrements.");
+            
         }       
 
         /// <summary>
@@ -88,57 +108,78 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <exception cref="ArgumentNullException"></exception>
         public virtual async Task<ResponseApiImage> SavePhotoAsync(PhotoDTO photo, string tokkenBearer)
         {
-            if ( photo.PathComplet is null )
+            try
             {
-                throw new ArgumentNullException(nameof(photo));
-            }
-
-            using var multipartContent = new MultipartFormDataContent();
-
-            // -- Load the file and set the file's Content-Type header
-            var streamContent = new StreamContent(System.IO.File.OpenRead(photo.PathComplet));
-            streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/jpg");
-
-            // -- Add the file content to the multipart content
-            multipartContent.Add(streamContent,"file",photo.Name??string.Empty);
-
-            // send it
-            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokkenBearer);
-            using var retour = await HttpClient.PostAsync(_options.Value.SavePhoto, multipartContent);
-            //retour.EnsureSuccessStatusCode();
-
-            var result = JsonSerializer.Deserialize<PhotoDTO>(retour.Content.ReadAsStringAsync().Result, JsonOptions.GetJsonOptions())
-                ?? new PhotoDTO
+                if (photo.PathComplet is null)
                 {
-                    PathPhoto = null,
-                    Name = null
-                };
+                    throw new ArgumentNullException(nameof(photo));
+                }
 
-            if (retour.IsSuccessStatusCode)
-            {
-                return new ResponseApiImage
+                using var multipartContent = new MultipartFormDataContent();
+
+                // -- Load the file and set the file's Content-Type header
+                var streamContent = new StreamContent(System.IO.File.OpenRead(photo.PathComplet));
+                streamContent.Headers.ContentType = new MediaTypeHeaderValue("image/jpg");
+
+                // -- Add the file content to the multipart content
+                multipartContent.Add(streamContent, "file", photo.Name ?? string.Empty);
+
+                // send it
+                if( !string.IsNullOrEmpty(tokkenBearer))
+                    HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokkenBearer);
+                
+                using var retour = await HttpClient.PostAsync(_options.Value.SavePhoto, multipartContent);
+                //retour.EnsureSuccessStatusCode();
+
+                var result = JsonSerializer.Deserialize<PhotoDTO>(retour.Content.ReadAsStringAsync().Result, JsonOptions.GetJsonOptions())
+                    ?? new PhotoDTO
+                    {
+                        PathPhoto = null,
+                        Name = null
+                    };
+
+                if (retour.IsSuccessStatusCode)
                 {
-                    ApiStatus = EnumApiStatus.Success,
-                    Message = "Photo saved successfully",
-                    PhotoDTO = result
-                };
+                    return new ResponseApiImage
+                    {
+                        ApiStatus = EnumApiStatus.Success,
+                        Message = "Photo saved successfully",
+                        PhotoDTO = result
+                    };
+                }
+                else if (retour.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    return new()
+                    {
+                        ApiStatus = EnumApiStatus.Unauthorized,
+                    };
+                }
+                else
+                {
+                    return new ResponseApiImage
+                    {
+                        ApiStatus = EnumApiStatus.Problem,
+                        Message = "Error saving photo",
+                        PhotoDTO = result
+                    };
+                }
             }
-            else if( retour.StatusCode == HttpStatusCode.Unauthorized )
+            catch (SessionExpiredException)
             {
                 return new()
                 {
                     ApiStatus = EnumApiStatus.Unauthorized,
                 };
             }
-            else
+            catch (Exception)
             {
-                return new ResponseApiImage
+                return new ()
                 {
                     ApiStatus = EnumApiStatus.Problem,
-                    Message = "Error saving photo",
-                    PhotoDTO = result
+                    Message = "Erreur lors de la sauvegarde des informations de l'image"
                 };
             }
+
 
         }
 
@@ -149,46 +190,65 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <returns></returns>
         public async Task<ResponseApiLocalisations> GetUserGroupLocalisationAsync()
         {
-            /*if( string.IsNullOrEmpty(userId) ) throw new ArgumentNullException(nameof(userId), "L'identifiant de l'utilisateur est null ou vide.");
+            try
+            {
+                /*if( string.IsNullOrEmpty(userId) ) throw new ArgumentNullException(nameof(userId), "L'identifiant de l'utilisateur est null ou vide.");
             
             var url = $"{_options.Value.GetUserGroupLocalisation}/{WebUtility.UrlEncode(userId)}";
             */
-            var url = $"{_options.Value.GetUserGroupLocalisation}";
+                var url = $"{_options.Value.GetUserGroupLocalisation}";
 
-            using var retour = await HttpClient.GetAsync(url);
-            //retour.EnsureSuccessStatusCode();
-            if (retour.IsSuccessStatusCode)
-            {
-                var result = await retour.Content.ReadAsStringAsync();
-                var deserializedResult = JsonSerializer.Deserialize<ResponseApiLocalisations>(result, JsonOptions.GetJsonOptions());
-                return deserializedResult ?? new ResponseApiLocalisations
+                using var retour = await HttpClient.GetAsync(url);
+                //retour.EnsureSuccessStatusCode();
+                if (retour.IsSuccessStatusCode)
                 {
-                    ApiStatus = EnumApiStatus.NotFound,
-                    Message = $"Aucun groupe de localisation trouvé pour l'utilisateur ",
-                    LocalisationGroupDTO = null,
-                    GroupsDTO = []
-                };
+                    var result = await retour.Content.ReadAsStringAsync();
+                    var deserializedResult = JsonSerializer.Deserialize<ResponseApiLocalisations>(result, JsonOptions.GetJsonOptions());
+                    return deserializedResult ?? new ResponseApiLocalisations
+                    {
+                        ApiStatus = EnumApiStatus.NotFound,
+                        Message = $"Aucun groupe de localisation trouvé pour l'utilisateur ",
+                        LocalisationGroupDTO = null,
+                        GroupsDTO = []
+                    };
+                }
+                else if (retour.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    return new()
+                    {
+                        ApiStatus = EnumApiStatus.Unauthorized,
+                        Message = "Vous n'êtes plus autorisé sur l'application.",
+                        LocalisationGroupDTO = null,
+                        GroupsDTO = []
+                    };
+                }
+                else
+                {
+                    return new ResponseApiLocalisations
+                    {
+                        ApiStatus = EnumApiStatus.Problem,
+                        Message = $"Problème de désérialisation.",
+                        LocalisationGroupDTO = null,
+                        GroupsDTO = []
+                    };
+                }
             }
-            else if (retour.StatusCode == HttpStatusCode.Unauthorized)
+            catch (SessionExpiredException)
             {
                 return new()
                 {
                     ApiStatus = EnumApiStatus.Unauthorized,
-                    Message = "Vous n'êtes plus autorisé sur l'application.",
-                    LocalisationGroupDTO = null,
-                    GroupsDTO = []
                 };
             }
-            else
+            catch (Exception)
             {
-                return new ResponseApiLocalisations
+                return new()
                 {
                     ApiStatus = EnumApiStatus.Problem,
-                    Message = $"Problème de désérialisation.",
-                    LocalisationGroupDTO = null,
-                    GroupsDTO = []
+                    Message = "Erreur pendant la récupération des groupes de lcoalisations."
                 };
             }
+
         }
 
         /// <summary>
@@ -200,39 +260,56 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <exception cref="ArgumentNullException"></exception>
         public async Task<ResponseApiBool> UpdateImageAsync(LocalisationPhotoDTO photo)
         {
-
-            // -- sérialisation de localisationPhotoDTO en JSON
-            var content = new StringContent(JsonSerializer.Serialize(photo), Encoding.UTF8, "application/json");
-
-            var url = $"{_options.Value.UpdateImage}";
-            // -- envoi en Http 
-            using var retour = await HttpClient.PostAsync(url, content);
-            //retour.EnsureSuccessStatusCode();
-
-            if( retour.IsSuccessStatusCode )
+            try
             {
-                var result = await retour.Content.ReadAsStringAsync();
-                var deserializedResult = JsonSerializer.Deserialize<bool>(result, JsonOptions.GetJsonOptions());
-                return new ()
+                // -- sérialisation de localisationPhotoDTO en JSON
+                var content = new StringContent(JsonSerializer.Serialize(photo), Encoding.UTF8, "application/json");
+
+                var url = $"{_options.Value.UpdateImage}";
+                // -- envoi en Http 
+                using var retour = await HttpClient.PostAsync(url, content);
+                //retour.EnsureSuccessStatusCode();
+
+                if (retour.IsSuccessStatusCode)
                 {
-                    ApiStatus = EnumApiStatus.Success,
-                    Retour = deserializedResult
+                    var result = await retour.Content.ReadAsStringAsync();
+                    var deserializedResult = JsonSerializer.Deserialize<bool>(result, JsonOptions.GetJsonOptions());
+                    return new()
+                    {
+                        ApiStatus = EnumApiStatus.Success,
+                        Retour = deserializedResult
+
+                    };
+                }
+                else if (retour.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    //_nav.NavigateTo("Account/Logout", forceLoad: true);
+                    return new() { ApiStatus = EnumApiStatus.Unauthorized };
+                }
+
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = "Problème lors de la modification.",
+                    Retour = false,
 
                 };
             }
-            else if( retour.StatusCode == HttpStatusCode.Unauthorized)
+            catch (SessionExpiredException)
             {
-                //_nav.NavigateTo("Account/Logout", forceLoad: true);
-                return new() { ApiStatus = EnumApiStatus.Unauthorized };
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Unauthorized,
+                };
             }
-
-            return new()
+            catch (Exception)
             {
-                ApiStatus = EnumApiStatus.Problem,
-                Message = "Problème lors de la modification.",
-                Retour = false,
-
-            };
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = "Erreur lors de la sauvegarde des informations de l'image"
+                };
+            }
         }
 
         /// <summary>
@@ -242,33 +319,53 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <returns></returns>
         public async Task<ResponseApiBool> DeleteImageAsync(int id)
         {
-            var url = $"{_options.Value.DeleteImage}/{WebUtility.UrlEncode(id.ToString())}";
-
-            using var result = await HttpClient.DeleteAsync(url);
-            //result.EnsureSuccessStatusCode();
-
-            if (result.IsSuccessStatusCode)
+            try
             {
-                var responseContent = await result.Content.ReadAsStringAsync();
-                var deserializedResult = JsonSerializer.Deserialize<bool>(responseContent, JsonOptions.GetJsonOptions());
-                return new() 
-                { 
-                    ApiStatus = EnumApiStatus.Success,
-                    Retour = true    
+
+
+                var url = $"{_options.Value.DeleteImage}/{WebUtility.UrlEncode(id.ToString())}";
+
+                using var result = await HttpClient.DeleteAsync(url);
+                //result.EnsureSuccessStatusCode();
+
+                if (result.IsSuccessStatusCode)
+                {
+                    var responseContent = await result.Content.ReadAsStringAsync();
+                    var deserializedResult = JsonSerializer.Deserialize<bool>(responseContent, JsonOptions.GetJsonOptions());
+                    return new()
+                    {
+                        ApiStatus = EnumApiStatus.Success,
+                        Retour = true
+                    };
+                }
+                else if (result.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    return new() { ApiStatus = EnumApiStatus.Unauthorized };
+                }
+
+
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = "Problème lors de la supression d'une image",
+                    Retour = false
                 };
             }
-            else if (result.StatusCode == HttpStatusCode.Unauthorized)
+            catch (SessionExpiredException)
             {
-                return new() { ApiStatus = EnumApiStatus.Unauthorized };
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Unauthorized,
+                };
             }
-
-
-            return new()
+            catch (Exception)
             {
-                ApiStatus = EnumApiStatus.Problem,
-                Message = "Problème lors de la supression d'une image",
-                Retour = false
-            };
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = "Erreur de la supression de l'image"
+                };
+            }
         }
 
         /// <summary>
@@ -279,38 +376,58 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <exception cref="NotImplementedException"></exception>
         public async Task<ResponseApiLocalisations> GetLocalisationsByIdAsync(int IdLocalisationGroup)
         {
-            var url = $"{_options.Value.GetLocalisationsById}/{WebUtility.UrlEncode(IdLocalisationGroup.ToString())}";
-
-            using var result = await HttpClient.GetAsync(url);
-            //result.EnsureSuccessStatusCode();
-
-            if( result.IsSuccessStatusCode )
+            try
             {
-                var responseContent = await result.Content.ReadAsStringAsync();
-                var deserializedResult = JsonSerializer.Deserialize<ResponseApiLocalisations>(responseContent, JsonOptions.GetJsonOptions());
-                return deserializedResult ??
-                    new ResponseApiLocalisations() {
-                        ApiStatus = EnumApiStatus.NotFound,
-                        Message = $"Aucun groupe de localisation trouvé pour l'identifiant {IdLocalisationGroup}.",
-                        LocalisationGroupDTO = null,
-                        GroupsDTO = []
+                var url = $"{_options.Value.GetLocalisationsById}/{WebUtility.UrlEncode(IdLocalisationGroup.ToString())}";
+
+                using var result = await HttpClient.GetAsync(url);
+                //result.EnsureSuccessStatusCode();
+
+                if (result.IsSuccessStatusCode)
+                {
+                    var responseContent = await result.Content.ReadAsStringAsync();
+                    var deserializedResult = JsonSerializer.Deserialize<ResponseApiLocalisations>(responseContent, JsonOptions.GetJsonOptions());
+                    return deserializedResult ??
+                        new ResponseApiLocalisations()
+                        {
+                            ApiStatus = EnumApiStatus.NotFound,
+                            Message = $"Aucun groupe de localisation trouvé pour l'identifiant {IdLocalisationGroup}.",
+                            LocalisationGroupDTO = null,
+                            GroupsDTO = []
+                        };
+                }
+                else if (result.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    return new()
+                    {
+                        ApiStatus = EnumApiStatus.Unauthorized,
                     };
+                }
+
+                return new ResponseApiLocalisations()
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = $"Probleme lors de la récupération des localisations pour l'identifiant {IdLocalisationGroup}.",
+                    LocalisationGroupDTO = null,
+                    GroupsDTO = []
+                };
             }
-            else if (result.StatusCode == HttpStatusCode.Unauthorized)
+            catch (SessionExpiredException)
             {
                 return new()
                 {
                     ApiStatus = EnumApiStatus.Unauthorized,
                 };
             }
-
-            return new ResponseApiLocalisations()
+            catch (Exception)
             {
-                ApiStatus = EnumApiStatus.Problem,
-                Message = $"Probleme lors de la récupération des localisations pour l'identifiant {IdLocalisationGroup}.",
-                LocalisationGroupDTO = null,
-                GroupsDTO = []
-            };
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = "Erreur pendant la récupération d'un trajet."
+                };
+            }
+
         }
 
         /// <summary>
@@ -321,41 +438,60 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <exception cref="NotImplementedException"></exception>
         public async Task<ResponseApiLocalisations> UpdateLocalisationGroupAsync(LocalisationGroupDTO localisationGroup)
         {
-            var url = $"{_options.Value.UpdateLocalisationGroup}";
-            // -- sérialisation de la localisation Group
-            var content = new StringContent(JsonSerializer.Serialize(localisationGroup), Encoding.UTF8, "application/json");
-
-            // -- envoi en Httpclient
-            using var result = await HttpClient.PostAsync(url, content);
-            //result.EnsureSuccessStatusCode();
-
-            if (result.IsSuccessStatusCode)
+            try
             {
-                var responseContent = await result.Content.ReadAsStringAsync();
-                var deserializedResult = JsonSerializer.Deserialize<ResponseApiLocalisations>(responseContent, JsonOptions.GetJsonOptions());
-                return deserializedResult ??
-                    new ResponseApiLocalisations()
+                var url = $"{_options.Value.UpdateLocalisationGroup}";
+                // -- sérialisation de la localisation Group
+                var content = new StringContent(JsonSerializer.Serialize(localisationGroup), Encoding.UTF8, "application/json");
+
+                // -- envoi en Httpclient
+                using var result = await HttpClient.PostAsync(url, content);
+                //result.EnsureSuccessStatusCode();
+
+                if (result.IsSuccessStatusCode)
+                {
+                    var responseContent = await result.Content.ReadAsStringAsync();
+                    var deserializedResult = JsonSerializer.Deserialize<ResponseApiLocalisations>(responseContent, JsonOptions.GetJsonOptions());
+                    return deserializedResult ??
+                        new ResponseApiLocalisations()
+                        {
+                            ApiStatus = EnumApiStatus.BadRequest,
+                            Message = $"Erreur lors de l'enregistrement de {localisationGroup.Id}.",
+                            LocalisationGroupDTO = null,
+                            GroupsDTO = []
+                        };
+                }
+                else if (result.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    return new()
                     {
-                        ApiStatus = EnumApiStatus.BadRequest,
-                        Message = $"Erreur lors de l'enregistrement de {localisationGroup.Id}.",
-                        LocalisationGroupDTO = null,
-                        GroupsDTO = []
+                        ApiStatus = EnumApiStatus.Unauthorized,
                     };
-            } else if (result.StatusCode == HttpStatusCode.Unauthorized)
+                }
+
+                return new ResponseApiLocalisations()
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = $"Probleme lorsd l'enregistrement pour {localisationGroup.Id}.",
+                    LocalisationGroupDTO = null,
+                    GroupsDTO = []
+                };
+            }
+            catch (SessionExpiredException)
             {
-                return new ()
+                return new()
                 {
                     ApiStatus = EnumApiStatus.Unauthorized,
                 };
             }
-
-            return new ResponseApiLocalisations()
+            catch (Exception)
             {
-                ApiStatus = EnumApiStatus.Problem,
-                Message = $"Probleme lorsd l'enregistrement pour {localisationGroup.Id}.",
-                LocalisationGroupDTO = null,
-                GroupsDTO = []
-            };
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = "Erreur lors de l'enregistrement."
+                };
+            }
         }
 
         /// <summary>
@@ -366,34 +502,53 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <exception cref="NotImplementedException"></exception>
         public async Task<ResponseApiBool> DeleteLocalisationGroupAsync(int id)
         {
-            var url = $"{_options.Value.DeleteLocalisationGroup}/{WebUtility.UrlEncode(id.ToString())}";
-            
-            using var result = await HttpClient.DeleteAsync(url);
-            //result.EnsureSuccessStatusCode();
-
-            if (result.IsSuccessStatusCode)
+            try
             {
-                var responseContent = await result.Content.ReadAsStringAsync();
-                var content = JsonSerializer.Deserialize<bool>(responseContent, JsonOptions.GetJsonOptions());
+                var url = $"{_options.Value.DeleteLocalisationGroup}/{WebUtility.UrlEncode(id.ToString())}";
+
+                using var result = await HttpClient.DeleteAsync(url);
+                //result.EnsureSuccessStatusCode();
+
+                if (result.IsSuccessStatusCode)
+                {
+                    var responseContent = await result.Content.ReadAsStringAsync();
+                    var content = JsonSerializer.Deserialize<bool>(responseContent, JsonOptions.GetJsonOptions());
+                    return new()
+                    {
+                        ApiStatus = EnumApiStatus.Success,
+                        Retour = content,
+                    };
+                }
+                else if (result.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    return new()
+                    {
+                        ApiStatus = EnumApiStatus.Unauthorized,
+                    };
+                }
+
                 return new()
                 {
-                    ApiStatus = EnumApiStatus.Success,
-                    Retour = content,
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = "Problème lors de la supression.",
+                    Retour = false
                 };
             }
-            else if (result.StatusCode == HttpStatusCode.Unauthorized)
+            catch (SessionExpiredException)
             {
                 return new()
                 {
                     ApiStatus = EnumApiStatus.Unauthorized,
                 };
             }
-
-            return new() { 
-                ApiStatus = EnumApiStatus.Problem,
-                Message = "Problème lors de la supression.",
-                Retour = false
-            };
+            catch (Exception)
+            {
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = "Erreur lors de la supression d'un trajet."
+                };
+            }
         }
 
         #endregion

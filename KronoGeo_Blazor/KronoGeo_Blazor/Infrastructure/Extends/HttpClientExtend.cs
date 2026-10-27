@@ -1,8 +1,6 @@
 ﻿using KronoGeo_Api.Infrastructure.Service.Http;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models.Infrastructure.Options;
-using KronoGeo_Blazor.Infrastructure.Http;
-using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.Extensions.Options;
 using Polly;
 
@@ -24,11 +22,13 @@ namespace KronoGeo_Blazor.Infrastructure.Extends
                 services.AddHttpContextAccessor();
                 // -- service pour injecter IMemoryCache appelé dans la classe TokenHeaderHandler
                 services.AddMemoryCache();
+                // -- injection de SessionNotificationService qui est utilisé dans UnauthorizedRedirectHandler
+                //services.AddScoped<SessionNotificationService>();
                 // -- injection de la classe TokenHeaderHandler
                 // -- le mettre avant AddHttpClient
                 services.AddTransient<TokenHeaderHandler>();
                 // -- injection de UnauthorizedRedirectHandler pour pouvoir l'utiliser par la suite
-                //services.AddTransient<UnauthorizedRedirectHandler>();
+                services.AddScoped<UnauthorizedRedirectHandler>();
                 // -- injection et options de l'injection du HttpClient
                 services.AddHttpClient<IServiceHttpKronoGeo, HttpClientKronoGeo>("api",(serviceProvider, client) => {
                     var options = serviceProvider.GetRequiredService<IOptions<UrlApiMetier>>();
@@ -36,7 +36,7 @@ namespace KronoGeo_Blazor.Infrastructure.Extends
 
                 })
                     .AddHttpMessageHandler<TokenHeaderHandler>() //-- ajoue du handler qui va chercher le token en memoire selon la session id de l'utilisateur
-                    //.AddHttpMessageHandler<UnauthorizedRedirectHandler>()
+                    .AddHttpMessageHandler<UnauthorizedRedirectHandler>()
                     .AddTransientHttpErrorPolicy(policyBuilder => policyBuilder.WaitAndRetryAsync(
                         retryCount: 3,
                         retryNumber => TimeSpan.FromMilliseconds(50 + retryNumber * 150))); ;
@@ -47,8 +47,8 @@ namespace KronoGeo_Blazor.Infrastructure.Extends
                     client.BaseAddress = new Uri(options.Value.BasicAdress);
 
                 })
-                    .AddHttpMessageHandler<TokenHeaderHandler>() //-- ajoue du handler qui va chercher le token en memoire selon la session id de l'utilisateur
-                    //.AddHttpMessageHandler<UnauthorizedRedirectHandler>()
+                    .AddHttpMessageHandler<TokenHeaderHandler>() //-- ajoute du handler qui va chercher le token en memoire selon la session id de l'utilisateur
+                    .AddHttpMessageHandler<UnauthorizedRedirectHandler>()
                     .AddTransientHttpErrorPolicy(policyBuilder => policyBuilder.WaitAndRetryAsync(
                         retryCount: 3,
                         retryNumber => TimeSpan.FromMilliseconds(50 + retryNumber * 150))); ;

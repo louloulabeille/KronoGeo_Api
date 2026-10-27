@@ -1,4 +1,5 @@
 ﻿using KronoGeo_Api.Infrastructure.Applications.Helpers;
+using KronoGeo_Api.Infrastructure.Exceptions.Http;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Infrastructure.Options;
@@ -26,35 +27,52 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <exception cref="NotImplementedException"></exception>
         public async Task<ResponseApiAuthenticate> UpdateUserEmailAsync(ProfilUpdateEmailDTO register)
         {
-            HttpContent content = new StringContent(JsonSerializer.Serialize(register), Encoding.UTF8, "application/json");
-            using var response = await HttpClient.PostAsync(_options.Value.UpdateUserEmail, content);
-            //response.EnsureSuccessStatusCode();
-
-            if ( response.IsSuccessStatusCode || response.StatusCode == HttpStatusCode.BadRequest)
+            try
             {
-                var retour = await response.Content.ReadAsStringAsync();
-                var result = JsonSerializer.Deserialize<ResponseApiAuthenticate>(retour, JsonOptions.GetJsonOptions())
-                    ?? new ResponseApiAuthenticate
+                HttpContent content = new StringContent(JsonSerializer.Serialize(register), Encoding.UTF8, "application/json");
+                using var response = await HttpClient.PostAsync(_options.Value.UpdateUserEmail, content);
+                //response.EnsureSuccessStatusCode();
+
+                if (response.IsSuccessStatusCode || response.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    var retour = await response.Content.ReadAsStringAsync();
+                    var result = JsonSerializer.Deserialize<ResponseApiAuthenticate>(retour, JsonOptions.GetJsonOptions())
+                        ?? new ResponseApiAuthenticate
+                        {
+                            ApiStatus = EnumApiStatus.Problem,
+                            Message = "Erreur lors de la désérialisation de la réponse de l'API."
+                        };
+
+                    return result;
+                }
+                else if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    return new() { ApiStatus = EnumApiStatus.Unauthorized };
+                }
+                else
+                {
+                    return new()
                     {
                         ApiStatus = EnumApiStatus.Problem,
-                        Message = "Erreur lors de la désérialisation de la réponse de l'API."
+                        Message = $" Status Code retour {response.StatusCode}",
                     };
-
-                return result;
+                }
             }
-            else if ( response.StatusCode == HttpStatusCode.Unauthorized )
+            catch (SessionExpiredException)
             {
-                return new() { ApiStatus = EnumApiStatus.Unauthorized };
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Unauthorized,
+                };
             }
-            else
+            catch (Exception)
             {
                 return new()
                 {
                     ApiStatus = EnumApiStatus.Problem,
-                    Message = $" Status Code retour {response.StatusCode}",
+                    Message = "Erreur lors de la modification du email du profil utilisateur."
                 };
             }
-
         }
         #endregion
     }

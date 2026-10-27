@@ -161,7 +161,16 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                 var adress = _options.Value.GetUserGroupLocalisation;
 
                 using var result = await _httpClient.GetAsync(adress);
-                result.EnsureSuccessStatusCode();
+                //result.EnsureSuccessStatusCode();
+
+                if( result.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    return new()
+                    {
+                        ApiStatus = EnumApiStatus.Unauthorized
+                    };
+                }
+
 
                 var retour = await result.Content.ReadAsStringAsync();
                 var data = JsonSerializer.Deserialize<ResponseApiLocalisations>(retour, JsonOptions.GetJsonOptions());
