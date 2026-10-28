@@ -71,36 +71,54 @@
 <div class="container border p-3 mt-6">
     <EditForm Model="ProfilMpDTO" OnValidSubmit="UpdateMotdePasse" FormName="passwordForm" method="post">
         <DataAnnotationsValidator />
-    <div class="row">
-        <div class="col-6 ">
-            <div class="form-floating mb-3">
-                <InputText @bind-Value="ProfilMpDTO.Password" type="password" class="form-control" id="inputPassword" aria-describedby="emailHelp" />
-                    <label for="inputPassword" class="form-label">Nouveau mot de passe</label>
-                    <div id="passwordlHelp" class="form-text">
-                        Votre mot de passe doit contenir + de 12 caractères, lettres, nombres et des caractères spéciaux <span class="text-primary fw-bold">²&~#{[|`\\^@@]}'()-_=?;.:/!,</span> et ne contient pas d'espaces ni d'emoji.
-                </div>
-                <small>
-                    <ValidationMessage For="() => ProfilMpDTO.Password" />
-                </small>
-            </div>    
-        </div>
-        <div class="col-6">
+        <div class="row">
+            <div class="col-6">
                 <div class="form-floating mb-3">
-                    <InputText @bind-Value="ProfilMpDTO.PasswordRepeat" type="password" class="form-control" id="inputPasswordRepeat" aria-describedby="emailHelp" />
-                    <label for="inputPasswordRepeat" class="form-label">Confirmation de mot de passe</label>
-                    <div id="passwordRepeatHelp" class="form-text">
+                    <InputText @bind-Value="ProfilMpDTO.PasswordOld" type="@TypePasswordOld" class="form-control" id="inputPasswordOld" aria-describedby="passwordOldHelp" />
+                    <i class="@ClassIPasswordOld" @onclick="() => OnChangeAffichePassword(3)"></i>
+                    <label for="inputPasswordOld" class="form-label">Ancien mot de passe</label>
+                    <div id="passwordOldHelp" class="form-text">
                         Votre mot de passe doit contenir + de 12 caractères, lettres, nombres et des caractères spéciaux <span class="text-primary fw-bold">²&~#{[|`\\^@@]}'()-_=?;.:/!,</span> et ne contient pas d'espaces ni d'emoji.
                     </div>
                     <small>
-                        <ValidationMessage For="() => ProfilMpDTO.PasswordRepeat" />
+                        <ValidationMessage For="() => ProfilMpDTO.PasswordOld" />
                     </small>
                 </div>
-        </div>
-        <!-- validation -->
-            <div class="form-group mt-3">
-                <button type="submit" class="btn btn-secondary">Modifier</button>
             </div>
-    </div>
+            
+        </div>
+        <div class="row">
+            <div class="col-6 ">
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="ProfilMpDTO.Password" type="@TypePassword1" class="form-control" id="inputPassword" aria-describedby="passwordHelp" />
+                        <i class="@ClassIPassword1" @onclick="() =>OnChangeAffichePassword(1)"></i>
+                    <label for="inputPassword" class="form-label">Nouveau mot de passe</label>
+                    <div id="passwordlHelp" class="form-text">
+                        Votre mot de passe doit contenir + de 12 caractères, lettres, nombres et des caractères spéciaux <span class="text-primary fw-bold">²&~#{[|`\\^@@]}'()-_=?;.:/!,</span> et ne contient pas d'espaces ni d'emoji.
+                    </div>
+                    <small>
+                        <ValidationMessage For="() => ProfilMpDTO.Password" />
+                    </small>
+                </div>    
+            </div>
+            <div class="col-6">
+                    <div class="form-floating mb-3">
+                    <InputText @bind-Value="ProfilMpDTO.PasswordRepeat" type="@TypePassword2" class="form-control" id="inputPasswordRepeat" aria-describedby="passwordRepeatHelp" />
+                        <i class="@ClassIPassword2" @onclick="() => OnChangeAffichePassword(2)"></i>
+                        <label for="inputPasswordRepeat" class="form-label">Confirmation de mot de passe</label>
+                        <div id="passwordRepeatHelp" class="form-text">
+                            Votre mot de passe doit contenir + de 12 caractères, lettres, nombres et des caractères spéciaux <span class="text-primary fw-bold">²&~#{[|`\\^@@]}'()-_=?;.:/!,</span> et ne contient pas d'espaces ni d'emoji.
+                        </div>
+                        <small>
+                            <ValidationMessage For="() => ProfilMpDTO.PasswordRepeat" />
+                        </small>
+                    </div>
+            </div>
+            <!-- validation -->
+                <div class="form-group mt-3">
+                    <button type="submit" class="btn btn-secondary">Modifier</button>
+                </div>
+        </div>
     </EditForm>
 </div>
 

@@ -5,6 +5,7 @@ using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Infrastructure.Options;
 using KronoGeo_Api.Models.Model.DTO;
 using Microsoft.Extensions.Options;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -47,6 +48,60 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                 }
                 else if (response.StatusCode == HttpStatusCode.Unauthorized)
                 {
+                    return new() { ApiStatus = EnumApiStatus.Unauthorized };
+                }
+                else
+                {
+                    return new()
+                    {
+                        ApiStatus = EnumApiStatus.Problem,
+                        Message = $" Status Code retour {response.StatusCode}",
+                    };
+                }
+            }
+            catch (SessionExpiredException)
+            {
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Unauthorized,
+                };
+            }
+            catch (Exception)
+            {
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = "Erreur lors de la modification du email du profil utilisateur."
+                };
+            }
+        }
+
+        /// <summary>
+        /// Method qui modifie le mot de passe
+        /// </summary>
+        /// <param name="profil"></param>
+        /// <returns></returns>
+        public async Task<ResponseApiManager> UpdatePasswordAsync(ProfilDTO profil)
+        {
+            try
+            {
+                HttpContent content = new StringContent(JsonSerializer.Serialize(profil), Encoding.UTF8, "application/json");
+                using var response = await HttpClient.PostAsync(_options.Value.UpdateUserPassword, content);
+
+                if (response.IsSuccessStatusCode || response.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    var retour = await response.Content.ReadAsStringAsync();
+                    var result = JsonSerializer.Deserialize<ResponseApiManager>(retour, JsonOptions.GetJsonOptions())
+                        ?? new ()
+                        {
+                            ApiStatus = EnumApiStatus.Problem,
+                            Message = "Erreur lors de la désérialisation de la réponse de l'API."
+                        };
+
+                    return result;
+                }
+                else if (response.StatusCode == HttpStatusCode.Unauthorized)
+                { // -- gestion des Unauthorized
                     return new() { ApiStatus = EnumApiStatus.Unauthorized };
                 }
                 else

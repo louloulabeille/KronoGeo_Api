@@ -11,5 +11,6 @@ namespace KronoGeo_Api.Models.Infrastructure.Options
         public string GetProfile { get; set; } = string.Empty;
         public string UpdateProfile { get; set; } = string.Empty;
         public string UpdateUserEmail { get; set; } = string.Empty;
+        public string UpdateUserPassword { get; set; } = string.Empty;
     }
 }

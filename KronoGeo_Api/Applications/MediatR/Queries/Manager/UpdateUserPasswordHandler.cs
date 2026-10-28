@@ -1,4 +1,5 @@
-﻿using KronoGeo_Api.Applications.MediatR.Commands.Identity;
+﻿using KronoGeo_Api.Applications.Authentification;
+using KronoGeo_Api.Applications.MediatR.Commands.Identity;
 using KronoGeo_Api.Applications.MediatR.Commands.Manager;
 using KronoGeo_Api.Applications.MediatR.Queries.Identity;
 using KronoGeo_Api.Interface.Service;
@@ -42,11 +43,23 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
                     var identityResult = await SignInManager.UserManager.ChangePasswordAsync(user, request.Profil.Password, request.Profil.NewPassword);
                     if ( identityResult.Succeeded )
                     {
-                        return new ResponseApiManager { ApiStatus = EnumApiStatus.Success };
+                        // -- mise a jour de la sécurité stamp qui prend en compte le login ou username
+                        await SignInManager.UserManager.UpdateSecurityStampAsync(user);
+
+                        return new ResponseApiManager { 
+                            ApiStatus = EnumApiStatus.Success, 
+                            Message = "L'utilisateur a été mis à jour.",
+                            Profil = request.Profil,
+                            Token = await SecurityTokenGenerate.GenerateJwtToken(user, KeyBearer.Value, SignInManager.UserManager)
+                        };
                     }
                     else
                     {
-                        return new ResponseApiManager { ApiStatus = EnumApiStatus.BadRequest, Message = "Impossible to update password" };
+                        string message = string.Join(",", identityResult.Errors.Select(e => e.Description));
+                        return new ResponseApiManager { 
+                            ApiStatus = EnumApiStatus.BadRequest, 
+                            Message = message
+                        };
                     }
                 }
                 else

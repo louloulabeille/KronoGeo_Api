@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Caching.Memory;
+using System.Security.Claims;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace KronoGeo_Blazor.Components.Pages.Account
 {
@@ -19,6 +21,19 @@ namespace KronoGeo_Blazor.Components.Pages.Account
         // -- profilDTO par défaut remonter de l'API
         protected ProfilDTO? ProfilDTO { get; set; } = default;
         protected ProfilMpDTO ProfilMpDTO { get; set; } = new();
+        protected string TypePassword1 { get; set; } = _passwdNoView;
+        protected string TypePassword2 { get; set; } = _passwdNoView;
+        protected string TypePasswordOld { get; set; } = _passwdNoView;
+        protected string ClassIPassword1 { get; set; } = _iconPasswdNoView;
+        protected string ClassIPassword2 { get; set; } = _iconPasswdNoView;
+        protected string ClassIPasswordOld { get; set; } = _iconPasswdNoView;
+        #endregion
+
+        #region private const properties
+        private const string _passwdNoView = "password";
+        private const string _passwdView = "text";
+        private const string _iconPasswdNoView = "input-group-text bi-eye";
+        private const string _iconPasswdView = "input-group-text bi-eye-slash";
         #endregion
 
         #region inject properties
@@ -35,6 +50,11 @@ namespace KronoGeo_Blazor.Components.Pages.Account
         private NavigationManager? _navigationManager { get; set; } = default;
         [Inject]
         private IMemoryCache? _cache { get; set; } = default;
+        #endregion
+
+        #region CascadingParameter properties
+        /*[CascadingParameter]
+        private Task<AuthenticationState>? AuthState { get; set; }*/
         #endregion
 
         #region override method
@@ -107,7 +127,47 @@ namespace KronoGeo_Blazor.Components.Pages.Account
         {
             try
             {
-                _toastService?.InfoAsync("Mot de passe modifié.");
+                if (!string.IsNullOrEmpty(ProfilMpDTO.PasswordOld.Trim())
+                     && !string.IsNullOrEmpty(ProfilMpDTO.Password.Trim())
+                     && _mediator is not null)
+                {
+
+                    /*var user = (await AuthState!).User;
+                    var id = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;*/
+
+                    var changeMP = new ProfilDTO
+                    {
+                        Id = ProfilDTO?.Id,
+                        Login = ProfilDTO?.Login,
+                        Password = ProfilMpDTO.PasswordOld.Trim(),
+                        NewPassword = ProfilMpDTO.Password.Trim()
+                    };
+
+                    var result = await _mediator.Send(new UpdatePasswordCommand { Profil = changeMP });
+
+                    if (result.IsSuccess)
+                    {
+                        if (_toastService is not null)
+                            await _toastService.InfoAsync("Modification effectuée.");
+
+                        var data = new RefreshCookieData( result.Token ?? string.Empty
+                            , result?.Profil?.Id ?? string.Empty
+                            , result?.Profil?.Login ?? string.Empty);
+
+                        RefreshCookieOnly(data);
+                    }
+                    else if (result.IsUnauthorized)
+                    {
+                        _navigationManager?.NavigateTo($"Account/Logout", forceLoad: true);
+                    }
+                    else
+                    {
+                        if (_toastService is not null)
+                            await _toastService.ErreurAsync($"Erreur lors de la modification. \n{result.Message ?? "Erreur lors de l'enregistrement du nouveau mot de passe."}");
+                    }
+                }
+                
+                
             }
             catch(Exception ex)
             {
@@ -148,18 +208,11 @@ namespace KronoGeo_Blazor.Components.Pages.Account
                         if (_toastService is not null)
                             await _toastService.InfoAsync("Enregistrement.");
 
-                        // Dans le composant, après l'appel API réussi
-                        // -- appel vers le endpoint de refresh du cookie
-                        // -- enregistrement des datas dans le cache avec IMemory ou sinon plusieurs instance de serveur
-                        // -- utiliser IDistributedCache
-                        var key = Guid.NewGuid().ToString("N"); // -- clé d'instance
+                        
                         // -- enregistrement dans la cache
                         var data = new RefreshCookieData(result.Token ?? string.Empty
                             , result.Profil?.Id ?? string.Empty, result.Profil?.Login ?? string.Empty);
-                        _cache?.Set(key, data, TimeSpan.FromSeconds(30));
-                        // -- test data is null
-                        //_cache?.Set(string.Empty, data, TimeSpan.FromSeconds(30));
-                        _navigationManager?.NavigateTo($"/Account/refresh?key={key}&returnUrl=/Account/profile", forceLoad: true);
+                        RefreshCookieOnly(data);
 
                     }
                     else if ( result.IsUnauthorized )
@@ -184,6 +237,38 @@ namespace KronoGeo_Blazor.Components.Pages.Account
                 _logger?.LogError(ex, "Exception dans ValidProfil dans Profil.razor, {message}", ex.Message);
             }
             
+        }
+
+        /// <summary>
+        /// méthod qui affiche ou non le mot de passe
+        /// </summary>
+        /// <param name="i"></param>
+        protected void OnChangeAffichePassword(int i)
+        {
+            switch(i)
+            {
+                case 1: // -- pour le premier mot de passe
+                    TypePassword1 = TypePassword1 == _passwdNoView ? _passwdView : _passwdNoView;
+                    ClassIPassword1 = TypePassword1 == _passwdNoView ? _iconPasswdNoView : _iconPasswdView;
+                    break;
+                case 2: // -- pour le 2ième mot de passe
+                    TypePassword2 = TypePassword2 == _passwdNoView ? _passwdView : _passwdNoView;
+                    ClassIPassword2 = TypePassword2 == _passwdNoView ? _iconPasswdNoView : _iconPasswdView;
+                    break;
+                case 3:
+                    TypePasswordOld = TypePasswordOld == _passwdNoView ? _passwdView : _passwdNoView;
+                    ClassIPasswordOld = TypePasswordOld == _passwdNoView ? _iconPasswdNoView : _iconPasswdView;
+                    break;
+                default: // -- par défaut on affiche les 2 ou pas en même temps
+                    TypePassword1 = TypePassword1 == _passwdNoView ? _passwdView : _passwdNoView;
+                    ClassIPassword1 = TypePassword1 == _passwdNoView ? _iconPasswdNoView : _iconPasswdView;
+                    TypePassword2 = TypePassword2 == _passwdNoView ? _passwdView : _passwdNoView;
+                    ClassIPassword2 = TypePassword2 == _passwdNoView ? _iconPasswdNoView : _iconPasswdView;
+                    TypePasswordOld = TypePasswordOld == _passwdNoView ? _passwdView : _passwdNoView;
+                    ClassIPasswordOld = TypePasswordOld == _passwdNoView ? _iconPasswdNoView : _iconPasswdView;
+                    break;
+            }
+            StateHasChanged();
         }
         #endregion
 
@@ -220,6 +305,26 @@ namespace KronoGeo_Blazor.Components.Pages.Account
                 if (_logger is not null) _logger.LogError(ex, "Erreur au niveau de la remontée du profil {message}",ex.Message);
                 _toastService?.ErreurAsync("Un problème interne a été remonté.");
             }
+        }
+
+        /// <summary>
+        /// method qui envoie les datas pour le rafraichissement du cookie
+        /// vers le serveur avec un ImemoryCache et envoie la requete avec un lien
+        /// vers un endPoint RefreshCookie 
+        /// </summary>
+        /// <param name="cookieData"></param>
+        private void RefreshCookieOnly(RefreshCookieData cookieData)
+        {
+            // Dans le composant, après l'appel API réussi
+            // -- appel vers le endpoint de refresh du cookie
+            // -- enregistrement des datas dans le cache avec IMemory ou sinon plusieurs instance de serveur
+            // -- utiliser IDistributedCache
+            var key = Guid.NewGuid().ToString("N"); // -- clé d'instance
+            // -- envoie de la data vers le serveur
+            _cache?.Set(key, cookieData, TimeSpan.FromSeconds(30));
+            
+            // -- requete vers le endpoint pou rafraichir le cookie
+            _navigationManager?.NavigateTo($"/Account/refresh?key={key}&returnUrl=/Account/profile", forceLoad: true);
         }
         #endregion
     }
