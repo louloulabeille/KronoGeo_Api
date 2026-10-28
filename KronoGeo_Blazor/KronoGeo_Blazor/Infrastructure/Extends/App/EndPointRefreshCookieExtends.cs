@@ -28,7 +28,7 @@ namespace KronoGeo_Blazor.Infrastructure.Extends.App
                     // -- cookie
                     if( string.IsNullOrEmpty(data.token) || string.IsNullOrEmpty(data.Id)
                     || string.IsNullOrEmpty(data.Login))
-                    {
+                    { // -- déconnexion
                         return Results.Redirect("/Account/Logout");
                     }
 
