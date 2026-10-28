@@ -23,7 +23,16 @@ namespace KronoGeo_Blazor.Infrastructure.Extends.App
                     if (!cache.TryGetValue(key, out RefreshCookieData? data) || data is null)
                         return Results.Redirect("/Account/Logout");
                     cache.Remove(key); // usage unique
-                     // -- refactorisation des données pour le refactisation du cookie
+
+                    // -- test si data n'a pas de value a null ou vide, impossible de recréer le
+                    // -- cookie
+                    if( string.IsNullOrEmpty(data.token) || string.IsNullOrEmpty(data.Id)
+                    || string.IsNullOrEmpty(data.Login))
+                    {
+                        return Results.Redirect("/Account/Logout");
+                    }
+
+                    // -- refactorisation des données pour le refactisation du cookie
                     var result = HttpOnlyCookie.BuildCookie(data.Token, data.Id, data.Login);
                     ClaimsPrincipal principal = result.Item1;
                     AuthenticationProperties props = result.Item2;
