@@ -32,14 +32,15 @@
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                         <li><a class="dropdown-item" href="account/profile">Mon espace</a></li>
-                        <AuthorizeView Context="authContextAdminManager" Roles="Admin, Manager">
-                            <li>
-                                    <a class="dropdown-item" href="account/manager/gestionAccount">Gestion de comptes</a>
-                            </li>
-                        </AuthorizeView>
+                        
                         <li>
                             <a class="dropdown-item" href="map">Map</a>
                         </li>
+                        <AuthorizeView Context="authContextAdminManager" Roles="Admin, Manager">
+                        <li>
+                            <a class="dropdown-item" href="account/manager/gestionAccount">Gestion de comptes</a>
+                        </li>
+                        </AuthorizeView>
                         <li>
                             <form action="/Account/Logout" method="post">
                             <AntiforgeryToken />
@@ -47,6 +48,7 @@
                             </form>
                             <!--<a class="dropdown-item" href="account/logout">Me déconnecter</a>-->
                         </li>
+
                         
                     </ul>
                 </div>
