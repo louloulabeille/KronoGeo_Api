@@ -201,6 +201,59 @@ namespace KronoGeo_Api.Controllers
             }
         }
 
+        /// <summary>
+        /// retourne la liste des utilisateurs
+        /// </summary>
+        /// <returns></returns>
+        [Authorize(Roles ="Admin,Manager")]
+        [HttpGet("ListUsers")]
+        public async Task<IActionResult> ListUsers()
+        {
+            // -- récupération de Id
+            var idUser = User.FindFirstValue("Id");
+            try
+            {
+                if (string.IsNullOrEmpty(idUser) )
+                {
+                    return Unauthorized("Profil unauthorized");
+                }
+
+                var result = await _mediaR.Send(new ProfilAllUsersCommand { IdUser = idUser } );
+
+                return this.Ok(result);
+                
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while list profile for users.");
+                return this.Problem("An error occurred while processing your request list all profils.");
+            }
+        }
+
+
+        /// <summary>
+        /// action pour modifier le role d'un utilisateur
+        /// règle un manager peut modifier le role d'un utilisateur
+        /// mais ne paut pas modifier un compte manager ou admin
+        /// & admin peut tout modifier
+        /// </summary>
+        /// <param name="profil"></param>
+        /// <returns></returns>
+        [Authorize(Roles = "Admin,Manager")]
+        [HttpPost("UpdateUserRoles")]
+        public async Task<IActionResult> UpdateUserRoles([FromBody] ProfilDTO profil)
+        {
+            try
+            {
+                bool roleManager = User.IsInRole("Manager");
+                throw new NotImplementedException();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while update profil role.");
+                return this.Problem("An error occurred while processing your request update profil role.");
+            }
+        }
         #endregion
     }
 }

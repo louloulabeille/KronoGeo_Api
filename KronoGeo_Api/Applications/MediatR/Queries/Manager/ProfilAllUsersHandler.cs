@@ -5,6 +5,7 @@ using KronoGeo_Api.Models.Infrastructure.Options;
 using KronoGeo_Api.Models.Model.DTO;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
@@ -31,9 +32,9 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
                     return new ResponseApiManager { ApiStatus = EnumApiStatus.NotFound, Message = "User not found" };
                 }
                 else
-                {
+                {   // -- récupération du role de l'utilisateur 
                     var roles = await SignInManager.UserManager.GetRolesAsync(user);
-                    // -- récupération des users de la base de données
+                    
                     if (roles.ToList().Exists(r => r == "Admin" || r == "Manager"))
                     {
                         ResponseApiManager response = new () {
@@ -41,28 +42,35 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
                             Profils = []
                         };
 
-                        // -- role User
-                        var users = await SignInManager.UserManager.GetUsersInRoleAsync("User");
-                        foreach(var item in users)
-                        {
-                            var roleItem = await SignInManager.UserManager.GetRolesAsync(item);
-                            var profil = new ProfilDTO
-                            {
-                                Id = item.Id,
-                                Login = item.UserName,
-                                Email = item.Email,
-                                PhoneNumber = item.PhoneNumber,
-                                Roles = roleItem.ToList()
-                            };
-                            response.Profils?.Add(profil);
+                        // -- récupération des utilisateurs
+                        var users = await SignInManager.UserManager.Users.AsNoTracking().ToListAsync();
+                        //var result = new List<ProfilDTOAdmin>();
 
-                            // -- éviter de mettre les utilisateurs Admin pour les Manager
-                            if ( roles.ToList().Exists(r=> r=="Manager" ) 
-                                && roleItem.ToList().Exists(rI => rI == "Admin"))
+                        // -- recherche des roles et si enregistrement dans la liste
+                        // -- si role Manager il ne peut pas accéder aux compte admin
+
+                        foreach (var u in users)
+                        {
+                            var rolesUtil = await SignInManager.UserManager.GetRolesAsync(u);
+                            var profil = new ProfilDTOAdmin
                             {
-                                response.Profils?.Remove(profil);
+                                Id = u.Id,
+                                Login = u.UserName,
+                                Email = u.Email,
+                                Roles = rolesUtil.ToList()
+                            };
+                            response.Profils.Add(profil);
+
+                            // -- pour éviter de donner la possibilité au manager de voir les admin
+                            // -- et de pouvoir les modifier
+                            if (roles.ToList().Exists(r => r == "Manager")
+                                && rolesUtil.ToList().Exists(rI => rI == "Admin"))
+                            {
+                                response.Profils.Remove(profil);
                             }
+                            
                         }
+
                         return response;
                     }
                     else

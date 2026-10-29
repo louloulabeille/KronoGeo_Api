@@ -10,7 +10,7 @@ namespace KronoGeo_Api.Models.Infrastructure.Http
     {
         public ProfilDTO? Profil { get; set; } = default;
         
-        public List<ProfilDTO>? Profils { get; set; }
+        public List<ProfilDTOAdmin>? Profils { get; set; }
         public string? Token { get; set; }
     }
 }

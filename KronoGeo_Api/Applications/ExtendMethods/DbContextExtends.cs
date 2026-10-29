@@ -22,6 +22,9 @@ namespace KronoGeo_Api.Applications.ExtendMethods
                 services.AddDbContext<KronoGeoDbContext>(options =>
                     options.UseNpgsql(stringConnection));
 
+               /* services.AddDbContextFactory<KronoGeoDbContext>(options =>
+                    options.UseNpgsql(stringConnection), ServiceLifetime.Scoped);*/
+
                 return services;
             }
         }
