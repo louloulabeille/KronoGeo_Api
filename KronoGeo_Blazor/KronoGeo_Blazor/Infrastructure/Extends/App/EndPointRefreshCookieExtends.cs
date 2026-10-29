@@ -32,10 +32,10 @@ namespace KronoGeo_Blazor.Infrastructure.Extends.App
                         return Results.Redirect("/Account/Logout");
                     }
 
-                    // -- refactorisation des données pour le refactisation du cookie
+                    // -- mise en place du nouveau cookie
                     var result = HttpOnlyCookie.BuildCookie(data.Token, data.Id, data.Login);
-                    ClaimsPrincipal principal = result.Item1;
-                    AuthenticationProperties props = result.Item2;
+                    ClaimsPrincipal principal = result.Item1; // -- extraction du claims
+                    AuthenticationProperties props = result.Item2; // -- extration du properties
                     // -- envoie du cookie vers le navigateur
                     await ctx.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, props);
                     // -- retourne vers url

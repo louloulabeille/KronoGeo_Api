@@ -21,15 +21,13 @@ namespace KronoGeo_Api.Infrastructure.Applications.Cookies
             ( string token, string id , string login )
         {
             // -- mise en place de httponly cookie 
-
-
             var handler = new JwtSecurityTokenHandler();
             var jwtToken = handler.ReadJwtToken(token);
 
             // -- extraction du role pour l'utilisateur
             var roles = jwtToken.Claims.Where(r => r.Type == "role").ToList();
 
-            // -- Émettre le Cookie d'authentification vers le navigateur
+            // -- création des claims
             var claims = new List<Claim>
                         {
                             new (ClaimTypes.NameIdentifier, id),
@@ -52,6 +50,7 @@ namespace KronoGeo_Api.Infrastructure.Applications.Cookies
                 new AuthenticationToken { Name = "jwt_token", Value = token}
             ]);
 
+            //-- retourner les informations pour les emettre le cookie vers le navigateur
             var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
             return (claimsPrincipal, authProperties);
         }

@@ -5,11 +5,7 @@ using KronoGeo_Blazor.Infrastructure.MediatR.Commands.Email;
 using KronoGeo_Blazor.Infrastructure.MediatR.Commands.Manager;
 using MediatR;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Caching.Memory;
-using System.Security.Claims;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace KronoGeo_Blazor.Components.Pages.Account
 {
