@@ -129,6 +129,58 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                 };
             }
         }
+
+        /// <summary>
+        /// method qui retourne les utilisateurs pour l'admin ou Manager
+        /// /// </summary>
+        /// <returns></returns>
+        public async Task<ResponseApiManager> GetListUsersAsync()
+        {
+            try
+            {
+                using var response = await HttpClient.GetAsync(_options.Value.GetUsers);
+
+                if (response.IsSuccessStatusCode || response.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    var retour = await response.Content.ReadAsStringAsync();
+                    var result = JsonSerializer.Deserialize<ResponseApiManager>(retour, JsonOptions.GetJsonOptions())
+                        ?? new()
+                        {
+                            ApiStatus = EnumApiStatus.Problem,
+                            Message = "Erreur lors de la désérialisation de la réponse de l'API."
+                        };
+
+                    return result;
+                }
+                else if (response.StatusCode == HttpStatusCode.Unauthorized)
+                { // -- gestion des Unauthorized
+                    return new() { ApiStatus = EnumApiStatus.Unauthorized };
+                }
+                else
+                {
+                    return new()
+                    {
+                        ApiStatus = EnumApiStatus.Problem,
+                        Message = $" Status Code retour {response.StatusCode}",
+                    };
+                }
+            }
+            catch (SessionExpiredException)
+            {
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Unauthorized,
+                };
+            }
+            catch (Exception)
+            {
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = "Erreur lors de la remonté de la liste des utilisateurs."
+                };
+            }
+        }
         #endregion
     }
 }

@@ -84,6 +84,10 @@ namespace KronoGeo_Blazor.Components.Api
                 var result = await _mediaR.Send(new GroupLocalisationsByIdCommand() { Id = idGroup });
                 return Ok(result);
             }
+            catch (SessionExpiredException)
+            {
+                return this.Ok(new ResponseApiLocalisations() { ApiStatus = EnumApiStatus.Unauthorized });
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erreur lors de l'envoi du groupe des localisations. idUser {idUser}, idGroup {idGroup}", userId, idGroup);
@@ -121,6 +125,10 @@ namespace KronoGeo_Blazor.Components.Api
                 return Ok(result);
 
             }
+            catch (SessionExpiredException)
+            {
+                return this.Ok(new ResponseApiLocalisations() { ApiStatus = EnumApiStatus.Unauthorized });
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erreur lors de la sauvegarde de la localisation group {id} : {message}", localisationGroup.Id, ex.Message);
@@ -150,6 +158,10 @@ namespace KronoGeo_Blazor.Components.Api
 
                 var result = await _mediaR.Send(new DeleteLocalisationGroupCommand { Id = id });
                 return this.Ok(result);
+            }
+            catch (SessionExpiredException)
+            {
+                return this.Ok(new ResponseApiLocalisations() { ApiStatus = EnumApiStatus.Unauthorized });
             }
             catch (Exception ex)
             {

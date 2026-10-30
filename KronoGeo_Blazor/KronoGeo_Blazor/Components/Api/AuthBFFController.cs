@@ -37,27 +37,37 @@ namespace KronoGeo_Blazor.Components.Api
         [HttpGet("Me")]
         public async Task<IActionResult> GetCurrentUser()
         {
-            if ( User.Identity?.IsAuthenticated != true )
+            try
             {
-                return Ok(new UserInfos()
+                if (User.Identity?.IsAuthenticated != true)
                 {
-                    IsAuthenticate = false,
-                    Id = string.Empty,
-                });
+                    return Ok(new UserInfos()
+                    {
+                        IsAuthenticate = false,
+                        Id = string.Empty,
+                    });
+                }
+
+                var info = new UserInfos()
+                {
+                    IsAuthenticate = true,
+                    Id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty,
+                    Login = User.Identity.Name ?? string.Empty,
+                    Roles = [.. User.FindAll(ClaimTypes.Role).Select(r => r.Value)],
+                    Claims = User.Claims.Where(c => c.Type != ClaimTypes.Name &&
+                        c.Type != ClaimTypes.Role && c.Type != ClaimTypes.Name)
+                        .ToDictionary(c => c.Type, c => c.Value)
+                };
+
+                return Ok(info);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de la prise d'information de la personne." +
+                    " Une exception a été levée. {message}", ex.Message);
+                return this.Problem("Erreur lors de la prise d'information de la personne.");
             }
 
-            var info = new UserInfos()
-            {
-                IsAuthenticate = true,
-                Id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty,
-                Login = User.Identity.Name ?? string.Empty,
-                Roles = [.. User.FindAll(ClaimTypes.Role).Select(r => r.Value)],
-                Claims = User.Claims.Where(c => c.Type != ClaimTypes.Name &&
-                    c.Type != ClaimTypes.Role && c.Type != ClaimTypes.Name)
-                    .ToDictionary(c => c.Type, c => c.Value)
-            };
-
-            return Ok(info);
         }
     }
 }
