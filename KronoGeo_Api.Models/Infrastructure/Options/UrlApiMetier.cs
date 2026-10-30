@@ -15,5 +15,6 @@ namespace KronoGeo_Api.Models.Infrastructure.Options
         public string GetLocalisationsById { get; set; } = string.Empty;
         public string UpdateLocalisationGroup { get; set; } = string.Empty;
         public string DeleteLocalisationGroup { get; set; } = string.Empty;
+        public string GetUsers { get; set; } = string.Empty;
     }
 }

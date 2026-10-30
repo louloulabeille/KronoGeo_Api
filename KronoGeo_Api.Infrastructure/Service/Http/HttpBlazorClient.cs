@@ -26,7 +26,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
     /// </summary>
     /// <param name="options"></param>
     /// <param name="httpClient"></param>
-    public class HttpBlazorClient(IOptions<UrlApiBlazorClient> options , HttpClient httpClient
+    public partial class HttpBlazorClient(IOptions<UrlApiBlazorClient> options , HttpClient httpClient
         , ILogger<HttpBlazorClient> logger) 
         : IServiceHttpClientAssembly, IDisposable
     {
@@ -104,7 +104,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             {
                 var adress = _options.Value.Me;
                 using var result = await _httpClient.GetAsync(adress);
-                result.EnsureSuccessStatusCode();
+                //result.EnsureSuccessStatusCode();
 
                 var data = await result.Content.ReadAsStringAsync();
                 var userInfos = JsonSerializer.Deserialize<UserInfos>(data, JsonOptions.GetJsonOptions());
@@ -219,6 +219,14 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                     };
                 }
 
+                if (result.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    return new()
+                    {
+                        ApiStatus = EnumApiStatus.Unauthorized
+                    };
+                }
+
                 return new() { 
                     ApiStatus = EnumApiStatus.Problem,
                     Message = "Problème au niveau la modification.",
@@ -247,7 +255,15 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             {
                 var url = _options.Value.GetLocalisationsById + "/" + WebUtility.UrlEncode(IdLocalisationGroup.ToString());
                 using var result = await _httpClient.GetAsync(url);
-                result.EnsureSuccessStatusCode();
+                //result.EnsureSuccessStatusCode();
+
+                if (result.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    return new()
+                    {
+                        ApiStatus = EnumApiStatus.Unauthorized
+                    };
+                }
 
                 var retour = await result.Content.ReadAsStringAsync();
                 var data = JsonSerializer.Deserialize<ResponseApiLocalisations>(retour, JsonOptions.GetJsonOptions());
@@ -285,7 +301,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                 HttpContent content = new StringContent(JsonSerializer.Serialize(photo), Encoding.UTF8, "application/json");
 
                 using var result = await _httpClient.DeleteAsync(url);
-                result.EnsureSuccessStatusCode();
+                //result.EnsureSuccessStatusCode();
 
                 if (result.IsSuccessStatusCode)
                 {
@@ -340,7 +356,15 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                 var content = new StringContent(JsonSerializer.Serialize(localisationGroup), Encoding.UTF8, "application/json");
 
                 using var result = await _httpClient.PostAsync(url, content);
-                result.EnsureSuccessStatusCode();
+                //result.EnsureSuccessStatusCode();
+
+                if (result.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    return new()
+                    {
+                        ApiStatus = EnumApiStatus.Unauthorized
+                    };
+                }
 
                 var retour = await result.Content.ReadAsStringAsync();
                 var data = JsonSerializer.Deserialize<ResponseApiLocalisations>(retour, JsonOptions.GetJsonOptions());
@@ -377,7 +401,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                 var url = $"{_options.Value.DeleteLocalisationGroup}/{WebUtility.UrlEncode(localisationGroup.Id.ToString())}";
                 
                 using var result = await _httpClient.DeleteAsync(url);
-                result.EnsureSuccessStatusCode();
+                //result.EnsureSuccessStatusCode();
 
                 if ( result.IsSuccessStatusCode)
                 {
@@ -389,6 +413,14 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                         ApiStatus = EnumApiStatus.Success,
                         Retour = false,
                         Message = "Problème de la sérialisation du retour.",
+                    };
+                }
+
+                if (result.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    return new()
+                    {
+                        ApiStatus = EnumApiStatus.Unauthorized
                     };
                 }
 
