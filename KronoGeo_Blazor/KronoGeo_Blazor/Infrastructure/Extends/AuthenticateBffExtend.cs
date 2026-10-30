@@ -11,9 +11,9 @@ namespace KronoGeo_Blazor.Infrastructure.Extends
         extension ( IServiceCollection services )
         {
             /// <summary>
-            /// method qui ajoute les options d'autehntication sur le serveur Blazor
+            /// method qui ajoute les options d'authentication sur le serveur Blazor
             /// pour la mise en place du design pattern Bff (backend for frontend)
-            /// en le serveur  blazor et web assembly (client blazord)
+            /// sur le serveur  blazor et web assembly (client blazord)
             /// </summary>
             /// <returns></returns>
             public IServiceCollection AddAuthentifcateBffServeur()

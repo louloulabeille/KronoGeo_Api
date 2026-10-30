@@ -1,7 +1,6 @@
 ﻿using KronoGeo_Api.Infrastructure.Service.Http;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models.Infrastructure.Options;
-using KronoGeo_Blazor.Client.Pages.Account;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -20,14 +19,33 @@ namespace KronoGeo_Blazor.Client.Infrastructure.Extends
             /// <returns></returns>
             public IServiceCollection AddHttpClientBFF (WebAssemblyHostBuilder builder )
             {
+                /*services.AddHttpClient<HttpBlazorClient>((serviceProvider, client) => {
+                    client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
+                })
+                    .AddTransientHttpErrorPolicy(policyBuilder => policyBuilder.WaitAndRetryAsync(
+                        retryCount: 3,
+                        retryNumber => TimeSpan.FromMilliseconds(50 + retryNumber * 150)));
+
+                services.AddTransient<IServiceHttpClientAssembly>(sp => sp.GetRequiredService<HttpBlazorClient>());
+                services.AddTransient<IServiceHttpManagerClientAssembly>(sp => sp.GetRequiredService<HttpBlazorClient>());
+*/
+
                 // -- configuration de Httpclient avec l'adresse de base de url donc de lui même 
                 services.AddHttpClient<IServiceHttpClientAssembly, HttpBlazorClient>((serviceProvider, client) => {
                     client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
                 })
                     .AddTransientHttpErrorPolicy(policyBuilder => policyBuilder.WaitAndRetryAsync(
                         retryCount: 3,
-                        retryNumber => TimeSpan.FromMilliseconds(50 + retryNumber * 150))); ;
+                        retryNumber => TimeSpan.FromMilliseconds(50 + retryNumber * 150)));
+
                 
+                /*services.AddHttpClient<IServiceHttpManagerClientAssembly, HttpBlazorClient>((serviceProvider, client) => {
+                    client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
+                })
+                    .AddTransientHttpErrorPolicy(policyBuilder => policyBuilder.WaitAndRetryAsync(
+                        retryCount: 3,
+                        retryNumber => TimeSpan.FromMilliseconds(50 + retryNumber * 150)));*/
+
                 return services;
             }
         }

@@ -41,7 +41,9 @@ namespace KronoGeo_Api.Infrastructure.Applications.Cookies
             }
 
             var claimsIdentity = new ClaimsIdentity(claims
-                , CookieAuthenticationDefaults.AuthenticationScheme);
+                , CookieAuthenticationDefaults.AuthenticationScheme
+                , ClaimTypes.Name
+                , ClaimTypes.Role);
 
             // -- ajout dans le cookie le token jwt
             var authProperties = new AuthenticationProperties();

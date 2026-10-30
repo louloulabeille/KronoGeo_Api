@@ -15,5 +15,8 @@ namespace KronoGeo_Api.Models.Model.DTO
         public string? PhoneNumber { get; set; }
         // -- liste des roles
         public List<string>? Roles { get; set; }
+
+        public bool IsAdmin => Roles?.Exists(r=>r=="Admin") ?? false;
+        public bool IsManager => Roles?.Exists(r => r == "Manager") ?? false;
     }
 }

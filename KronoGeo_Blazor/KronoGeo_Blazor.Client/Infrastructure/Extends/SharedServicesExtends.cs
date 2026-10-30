@@ -1,7 +1,10 @@
-﻿using KronoGeo_Api.Infrastructure.Service.Map;
+﻿using KronoGeo_Api.Infrastructure.Service.Http;
+using KronoGeo_Api.Infrastructure.Service.Map;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models.Infrastructure.Options;
 using KronoGeo_Blazor.Client.Infrastructure.Service;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Polly;
 
 namespace KronoGeo_Blazor.Client.Infrastructure.Extends
 {

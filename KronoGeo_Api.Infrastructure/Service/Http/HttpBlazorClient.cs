@@ -26,7 +26,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
     /// </summary>
     /// <param name="options"></param>
     /// <param name="httpClient"></param>
-    public partial class HttpBlazorClient(IOptions<UrlApiBlazorClient> options , HttpClient httpClient
+    public class HttpBlazorClient(IOptions<UrlApiBlazorClient> options , HttpClient httpClient
         , ILogger<HttpBlazorClient> logger) 
         : IServiceHttpClientAssembly, IDisposable
     {

@@ -3,6 +3,7 @@ using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models.Infrastructure.Options;
 using Microsoft.Extensions.Options;
 using Polly;
+using static Microsoft.Maui.Authentication.AppleSignInAuthenticator;
 
 namespace KronoGeo_Blazor.Infrastructure.Extends
 {
@@ -67,6 +68,18 @@ namespace KronoGeo_Blazor.Infrastructure.Extends
             /// <returns></returns>
             public IServiceCollection AddHttpClientBFF()
             {
+                /*services.AddHttpClient<HttpBlazorClient>("ApiBff", (serviceProvider, client) => {
+                    var options = serviceProvider.GetRequiredService<IOptions<UrlApiBlazorClient>>();
+                    client.BaseAddress = new Uri(options.Value.BasicAdress);
+                })
+                    .AddTransientHttpErrorPolicy(policyBuilder => policyBuilder.WaitAndRetryAsync(
+                        retryCount: 3,
+                        retryNumber => TimeSpan.FromMilliseconds(50 + retryNumber * 150)));
+
+                services.AddTransient<IServiceHttpClientAssembly>(sp => sp.GetRequiredService<HttpBlazorClient>());
+                services.AddTransient<IServiceHttpManagerClientAssembly>(sp => sp.GetRequiredService<HttpBlazorClient>());
+*/
+
                 // -- configuration de Httpclient avec l'adresse de base de url donc de lui même 
                 services.AddHttpClient<IServiceHttpClientAssembly, HttpBlazorClient>("ApiBff", (serviceProvider, client) => {
                     var options = serviceProvider.GetRequiredService<IOptions<UrlApiBlazorClient>>();
@@ -74,7 +87,17 @@ namespace KronoGeo_Blazor.Infrastructure.Extends
                 })
                     .AddTransientHttpErrorPolicy(policyBuilder => policyBuilder.WaitAndRetryAsync(
                         retryCount: 3,
-                        retryNumber => TimeSpan.FromMilliseconds(50 + retryNumber * 150))); ;
+                        retryNumber => TimeSpan.FromMilliseconds(50 + retryNumber * 150)));
+
+
+                /*// -- ajout du service IServiceHttpManagerClientAssembly
+                services.AddHttpClient<IServiceHttpManagerClientAssembly, HttpBlazorClient>("ApiManagerBff", (serviceProvider, client) => {
+                    var options = serviceProvider.GetRequiredService<IOptions<UrlApiBlazorClient>>();
+                    client.BaseAddress = new Uri(options.Value.BasicAdress);
+                })
+                    .AddTransientHttpErrorPolicy(policyBuilder => policyBuilder.WaitAndRetryAsync(
+                        retryCount: 3,
+                        retryNumber => TimeSpan.FromMilliseconds(50 + retryNumber * 150)));*/
 
                 return services;
             }

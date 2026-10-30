@@ -1,0 +1,46 @@
+﻿@page "/account/gestionAccount"
+
+@inherits GestionAccountBase
+
+@if (@DataOnView is not null)
+{
+    <div class="container">
+        <table class="table table-secondary table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Login</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Numéro de téléphone</th>
+                    <th scope="colgroup">User</th>
+                    <th scope="colgroup">Admin</th>
+                    <th scope="colgroup">Manager</th>
+                </tr>
+            </thead>
+    
+        @foreach(var item in DataOnView)
+        {
+            <tbody>
+                <tr>
+                    <th scope="row">@item.Login</th>
+                    <td>@item.Email</td>
+                    <td>@item.PhoneNumber</td>
+                    <td class="text-start">
+                        <input class="form-check-input" type="checkbox" checked disabled>
+                    </td>
+                    <td class="text-start">
+                        @*<InputCheckbox class="form-check-input" checked="@item.IsAdmin" />*@
+                        <input class="form-check-input" type="checkbox" checked="@item.IsAdmin" />
+                    </td>
+                    <td class="text-start">
+                        @*<InputCheckbox class="form-check-input" checked="@item.IsManager" />*@
+                        <input class="form-check-input" type="checkbox" checked="@item.IsManager" />
+                    </td>
+                </tr>
+            </tbody>
+        }
+        </table>
+    </div>
+}
+
+
+

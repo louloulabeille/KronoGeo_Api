@@ -3,6 +3,7 @@ using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Model.DTO;
 using KronoGeo_Blazor.Infrastructure.MediatR.Commands.Gps;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
