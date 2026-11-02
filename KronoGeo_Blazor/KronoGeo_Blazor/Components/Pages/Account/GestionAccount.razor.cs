@@ -23,19 +23,33 @@ namespace KronoGeo_Blazor.Components.Pages.Account
 
         #region properties protected 
         // -- pagination
-        protected IEnumerable<ProfilDTOAdmin>? DataOnView => _profils
+        // -- liste des profils à afficher sur la page
+        protected IEnumerable<ProfilDTOAdmin>? DataOnView => _filterProfils
             .OrderBy(lg => lg.Login).Skip((PageActuel - 1) * _pageSize).Take(_pageSize).ToList();
         protected int PageActuel { get; set; } = 1;
-        // ----------
+
+        protected bool DisabledPreviousPage => PageActuel == 1;
+        protected bool DisabledNextPage => PageActuel == TotalPages;
+        /// <summary>
+        /// nombre total de page pour la pagination
+        /// nombre / pageSize + 1 si reste > 0 calcul avec le modulo
+        /// </summary>
+        protected int TotalPages =>
+            (_filterProfils?.Count ?? 0) / _pageSize + ((_filterProfils?.Count ?? 0) % _pageSize > 0 ? 1 : 0);
 
         // -- Dictionnaire pour désactiver le bouton de sauvegarde pour chaque utilisateur
         protected Dictionary<string,bool> DesabledSaveUser { get; set; } = [];
+
+        // -- Search pour la recherche d'utilisateur au niveau du login
+        protected string Search { get; set; } = string.Empty;
         #endregion
 
         #region private properties
         // -- liste initial
         private List<ProfilDTOAdmin> _profils { get; set; } = new();
         private int _pageSize = 15;
+        // -- list des profils filtrés en fonction de la recherche
+        protected List<ProfilDTOAdmin> _filterProfils { get; set; } = [];
         #endregion
 
         #region protected override method
@@ -53,12 +67,20 @@ namespace KronoGeo_Blazor.Components.Pages.Account
         /// <param name="user"></param>
         protected void OnDeleteUSer(ProfilDTOAdmin? user)
         {
-            if (user is not null && _profils.Contains(user))
+            try
             {
-                _profils.Remove(user);
-                _toastService?.SuccesAsync("Supression réussie.");
+                if (user is not null && _profils.Contains(user))
+                {
+                    _profils.Remove(user);
+                    _toastService?.SuccesAsync("Supression réussie.");
+                }
+                StateHasChanged();
             }
-            StateHasChanged();
+            catch(Exception ex)
+            {
+                _toastService?.ErreurAsync($"Erreur lors de la suppression de l'utilisateur : {ex.Message}");
+            }
+           
         }
 
         /// <summary>
@@ -67,25 +89,88 @@ namespace KronoGeo_Blazor.Components.Pages.Account
         /// <param name="user"></param>
         protected void OnSaveUser(ProfilDTOAdmin? user)
         {
-            if (user is not null && _profils.Contains(user))
+            try
             {
-                var index = _profils.IndexOf(user);
-                _profils[index] = user;
+                if (user is not null && _profils.Contains(user))
+                {
+                    var index = _profils.IndexOf(user);
+                    _profils[index] = user;
+
+                }
             }
-            StateHasChanged();
+            catch(Exception ex)
+            {
+                _toastService?.ErreurAsync($"Erreur lors de la sauvegarde de l'utilisateur : {ex.Message}");
+            }
         }
 
         /// <summary>
-        /// 
+        /// method qui modifie les roles d'un utilisateur 
+        /// et active le bouton de sauvegarde pour cet utilisateur
+        /// 1 -> Admin
+        /// 2 -> Manager
         /// </summary>
         /// <param name="user"></param>
-        protected void OnUserRolesChanged (ProfilDTOAdmin? user)
+        protected void OnUserRolesChanged (ProfilDTOAdmin? user, bool ischecked, int role)
         {
             if (user is not null && _profils.Contains(user))
             {
                 var index = _profils.IndexOf(user);
+                if (ischecked)
+                {
+                    user.Roles?.Add(role == 1 ? "Admin" : "Manager");
+                }
+                else
+                {
+                    user.Roles?.Remove(role == 1 ? "Admin" : "Manager");
+                }
                 _profils[index] = user;
-                DesabledSaveUser[user.Id ?? string.Empty] = false;
+                if (user.Id is not null && DesabledSaveUser.ContainsKey(user.Id))
+                {   // -- Activer le bouton de sauvegarde pour cet utilisateur
+                    DesabledSaveUser[user.Id] = false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Fait une recherche par rapport au login des utilisateurs
+        /// </summary>
+        protected void FilterSearch()
+        {
+            if (!string.IsNullOrWhiteSpace(Search))
+            {
+                // -- filtrer la liste des utilisateurs en fonction du login
+                _filterProfils = _profils.Where(u => u.Login?.Contains(Search, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+            }
+            else
+            {
+                InitialiserUserList();
+            }
+        }
+        #endregion
+
+        #region protected method Pagination
+        protected void ChangePage(int page)
+        {
+            if (page >= 1 && page <= TotalPages)
+            {
+                PageActuel = page;
+            }
+        }
+
+        protected void PreviousPage()
+        {
+            if (PageActuel > 1)
+            {
+                PageActuel--;
+            }
+        }
+
+        protected void NextPage()
+        {
+            if (PageActuel < TotalPages)
+            {
+                PageActuel++;
             }
         }
         #endregion
@@ -99,10 +184,8 @@ namespace KronoGeo_Blazor.Components.Pages.Account
                 if (result.IsSuccess && result.Profils is not null)
                 {
                     _profils.AddRange(result.Profils);
-                    foreach (var item in _profils)
-                    {
-                        DesabledSaveUser.Add(item.Id ?? string.Empty, true);
-                    }
+                    InitDesabledSaveUser();
+                    InitialiserUserList();
                     return;
                 }
                 if (result.IsUnauthorized)
@@ -114,6 +197,23 @@ namespace KronoGeo_Blazor.Components.Pages.Account
             }
 
             _toastService?.ErreurAsync("Impossible de remonter la liste. Erreur au niveau du navigateur.");
+        }
+
+        /// <summary>
+        /// init le dictionnaire pour desabled le bouton de sauvegarde pour chaque utilisateur
+        /// </summary>
+        private void InitDesabledSaveUser()
+        {
+            foreach (var item in _profils)
+            {
+                DesabledSaveUser.Add(item.Id ?? string.Empty, true);
+            }
+        }
+
+        // -- initalisation de la liste des utilisateurs filtrés
+        private void InitialiserUserList()
+        {
+            _filterProfils = _profils;
         }
         #endregion
     }
