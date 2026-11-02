@@ -5,6 +5,7 @@ using KronoGeo_Blazor.Infrastructure.MediatR.Commands.Manager;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
+using NetTopologySuite.Index.HPRtree;
 
 namespace KronoGeo_Blazor.Components.Pages.Account
 {
@@ -21,9 +22,14 @@ namespace KronoGeo_Blazor.Components.Pages.Account
         #endregion
 
         #region properties protected 
+        // -- pagination
         protected IEnumerable<ProfilDTOAdmin>? DataOnView => _profils
-            .OrderByDescending(lg => lg.Login).Skip((PageActuel - 1) * _pageSize).Take(_pageSize).ToList();
+            .OrderBy(lg => lg.Login).Skip((PageActuel - 1) * _pageSize).Take(_pageSize).ToList();
         protected int PageActuel { get; set; } = 1;
+        // ----------
+
+        // -- Dictionnaire pour désactiver le bouton de sauvegarde pour chaque utilisateur
+        protected Dictionary<string,bool> DesabledSaveUser { get; set; } = [];
         #endregion
 
         #region private properties
@@ -40,6 +46,50 @@ namespace KronoGeo_Blazor.Components.Pages.Account
         }
         #endregion
 
+        #region protected method
+        /// <summary>
+        /// Delete user
+        /// </summary>
+        /// <param name="user"></param>
+        protected void OnDeleteUSer(ProfilDTOAdmin? user)
+        {
+            if (user is not null && _profils.Contains(user))
+            {
+                _profils.Remove(user);
+                _toastService?.SuccesAsync("Supression réussie.");
+            }
+            StateHasChanged();
+        }
+
+        /// <summary>
+        /// Save USer
+        /// </summary>
+        /// <param name="user"></param>
+        protected void OnSaveUser(ProfilDTOAdmin? user)
+        {
+            if (user is not null && _profils.Contains(user))
+            {
+                var index = _profils.IndexOf(user);
+                _profils[index] = user;
+            }
+            StateHasChanged();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="user"></param>
+        protected void OnUserRolesChanged (ProfilDTOAdmin? user)
+        {
+            if (user is not null && _profils.Contains(user))
+            {
+                var index = _profils.IndexOf(user);
+                _profils[index] = user;
+                DesabledSaveUser[user.Id ?? string.Empty] = false;
+            }
+        }
+        #endregion
+
         #region private method
         private async Task InitListUsers()
         {
@@ -49,12 +99,18 @@ namespace KronoGeo_Blazor.Components.Pages.Account
                 if (result.IsSuccess && result.Profils is not null)
                 {
                     _profils.AddRange(result.Profils);
+                    foreach (var item in _profils)
+                    {
+                        DesabledSaveUser.Add(item.Id ?? string.Empty, true);
+                    }
+                    return;
                 }
                 if (result.IsUnauthorized)
                 {
                     _navigationManager?.NavigateTo($"Account/Logout", forceLoad: true);
                 }
                 _toastService?.AvertissementAsync("Problème lors de la récupération des utilisateurs");
+                return;
             }
 
             _toastService?.ErreurAsync("Impossible de remonter la liste. Erreur au niveau du navigateur.");
