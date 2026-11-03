@@ -241,7 +241,7 @@ namespace KronoGeo_Api.Controllers
 
 
         /// <summary>
-        /// action pour modifier le role d'un utilisateur
+        /// action pour modifier le role d'un utilisateur (delete or add)
         /// règle un manager peut modifier le role d'un utilisateur
         /// mais ne paut pas modifier un compte manager ou admin
         /// & admin peut tout modifier
@@ -260,7 +260,9 @@ namespace KronoGeo_Api.Controllers
                 }
 
                 bool isManager = User.IsInRole("Manager");
-                throw new NotImplementedException();
+                var result = await _mediaR.Send(new UpdateUserRoleCommand {  Profil = profil, isManager = isManager });
+
+                return this.Ok(result);
             }
             catch (Exception ex)
             {

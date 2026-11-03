@@ -14,5 +14,6 @@ namespace KronoGeo_Api.Models.Infrastructure.Options
         public string UpdateUserPassword { get; set; } = string.Empty;
         public string GetUsers { get; set; } = string.Empty;
         public string DeleteUser { get; set; } = string.Empty;
+        public string UpdateUserRole { get; set; } = string.Empty;
     }
 }

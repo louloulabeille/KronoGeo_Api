@@ -12,25 +12,52 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
     public class UpdateUserRoleHandler(SignInManager<ApplicationUser> signInManager
         , ILogger<UpdateUserRoleHandler> logger, IOptions<KeyBearer> keyBearer)
         : ManagerHandler(logger, signInManager, keyBearer)
-        , IRequestHandler<UpdateUserCommand, ResponseApiManager>
+        , IRequestHandler<UpdateUserRoleCommand, ResponseApiManager>
     {
-        public async Task<ResponseApiManager> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
+        public async Task<ResponseApiManager> Handle(UpdateUserRoleCommand request, CancellationToken cancellationToken)
         {
             try
             {
                 var user = await SignInManager.UserManager.FindByIdAsync(request.Profil.Id ?? string.Empty)
                     ?? await SignInManager.UserManager.FindByEmailAsync(request.Profil.Email ?? string.Empty);
 
+                // -- si l'utilisateur est un manager,
+                // -- il ne peut pas modifier les roles d'un utilisateur qui est admin ou manager
                 if (user is not null && request.Profil.Roles is not null)
                 {
-                    var roles = await SignInManager.UserManager.GetRolesAsync(user);
-                    List<string> addRoles = request.Profil.Roles.Except(roles).ToList();
-                    List<string> removeRoles = roles.Except(request.Profil.Roles).ToList();
+                    var userRoles = await SignInManager.UserManager.GetRolesAsync(user);
+                    if (request.isManager)
+                    {
+                        // Check if the user is trying to modify a manager or admin
+                        if (userRoles.Contains("Admin") || userRoles.Contains("Manager"))
+                        {
+                            return new ResponseApiManager()
+                            {
+                                ApiStatus = EnumApiStatus.BadRequest,
+                                Message = "You are not allowed to modify the roles of an admin or manager."
+                            };
+                        }
 
-                    if ( addRoles is not null)
+                        if( request.Profil.Roles.Contains("Admin") )
+                        {
+                            return new ResponseApiManager()
+                            {
+                                ApiStatus = EnumApiStatus.BadRequest,
+                                Message = "You are not authorized to edit the Admin user."
+                            };
+                        }
+                    }
+
+                    // -- récupération des rôles à ajouter et à supprimer
+                    List<string> addRoles = request.Profil.Roles.Except(userRoles).ToList();
+                    List<string> removeRoles = userRoles.Except(request.Profil.Roles).ToList();
+
+                    // -- mise à jour des rôles de l'utilisateur
+                    if ( addRoles is not null && addRoles.Count > 0)
                         await SignInManager.UserManager.AddToRolesAsync(user, addRoles);
-                    if (removeRoles is not null)
+                    if (removeRoles is not null && removeRoles.Count > 0)
                         await SignInManager.UserManager.RemoveFromRolesAsync(user, removeRoles);
+
                     return new ResponseApiManager()
                     {
                         ApiStatus = EnumApiStatus.Success,

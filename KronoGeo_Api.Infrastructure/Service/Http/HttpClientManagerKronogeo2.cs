@@ -241,9 +241,59 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <param name="profil"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public Task<ResponseApiManager> UpdateUserRoleAsync(ProfilDTOAdmin profil)
+        public async Task<ResponseApiManager> UpdateUserRoleAsync(ProfilDTOAdmin profil)
         {
-            throw new NotImplementedException();
+            try
+            {
+                ProfilDTO profilDto = new ProfilDTO()
+                {
+                    Id = profil.Id,
+                    Login = profil.Login,
+                    Email = profil.Email,
+                    Roles = profil.Roles
+                };
+                HttpContent content = new StringContent(JsonSerializer.Serialize(profilDto), Encoding.UTF8, "application/json");
+                using var response = await HttpClient.PostAsync($"{_options.Value.UpdateUserRole}", content);
+                if (response.IsSuccessStatusCode || response.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    var retour = await response.Content.ReadAsStringAsync();
+                    var result = JsonSerializer.Deserialize<ResponseApiManager>(retour, JsonOptions.GetJsonOptions())
+                        ?? new()
+                        {
+                            ApiStatus = EnumApiStatus.Problem,
+                            Message = "Erreur lors de la désérialisation de la réponse de l'API."
+                        };
+
+                    return result;
+                }
+                else if (response.StatusCode == HttpStatusCode.Unauthorized)
+                { // -- gestion des Unauthorized
+                    return new() { ApiStatus = EnumApiStatus.Unauthorized };
+                }
+                else
+                {
+                    return new()
+                    {
+                        ApiStatus = EnumApiStatus.Problem,
+                        Message = $" Status Code retour {response.StatusCode}",
+                    };
+                }
+            }
+            catch (SessionExpiredException)
+            {   // -- gestion des Unauthorized lors du changement de certaines données de l'utilisateur
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Unauthorized,
+                };
+            }
+            catch (Exception)
+            {
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = "Erreur lors de la modification du role utilisateur."
+                };
+            }
         }
 
         #endregion
