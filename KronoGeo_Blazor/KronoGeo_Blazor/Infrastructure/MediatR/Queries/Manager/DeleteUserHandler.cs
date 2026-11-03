@@ -10,9 +10,19 @@ namespace KronoGeo_Blazor.Infrastructure.MediatR.Queries.Manager
         : ManagerHandler<DeleteUserHandler>(serviceHttp, logger)
         , IRequestHandler<DeleteUserCommand, ResponseApiManager>
     {
-        public Task<ResponseApiManager> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
+        public async Task<ResponseApiManager> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            if (HttpKronoGeo is not null)
+            {
+                var result = await HttpKronoGeo.DeleteUserAsync(request.Id);
+                return result;
+            }
+
+            return new()
+            {
+                ApiStatus = EnumApiStatus.Problem,
+                Message = "Problème de connexion vers le serveur."
+            };
         }
     }
 }

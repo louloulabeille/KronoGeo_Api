@@ -32,7 +32,7 @@ namespace KronoGeo_Api.Controllers
             var id = User.FindFirstValue("Id");
             try
             {
-                var result = await _mediaR.Send(new DeleteUserCommand() { Id = id ?? string.Empty });
+                var result = await _mediaR.Send(new DeleteUserCommand() { Id = id ?? string.Empty, IsManager = false });
                 return this.Ok(result);
             }
             catch (Exception ex)
@@ -59,7 +59,16 @@ namespace KronoGeo_Api.Controllers
                     return BadRequest(new ResponseApiManager { ApiStatus = EnumApiStatus.BadRequest, Message = ModelState.ToString() });
                 }
 
-                var result = await _mediaR.Send(new DeleteUserCommand() { Id = id });
+                var userId = User.FindFirstValue("Id");
+                if ( userId == id)
+                {
+                    return BadRequest(new ResponseApiManager { ApiStatus = EnumApiStatus.BadRequest, Message = "Vous ne pouvez pas supprimer votre propre compte." });
+                }
+
+                var userRoles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+                bool isManager = userRoles.Contains("Manager");
+
+                var result = await _mediaR.Send(new DeleteUserCommand() { Id = id, IsManager = isManager });
                 return this.Ok(result);
             }
             catch (Exception ex)
@@ -245,7 +254,12 @@ namespace KronoGeo_Api.Controllers
         {
             try
             {
-                bool roleManager = User.IsInRole("Manager");
+                if( !ModelState.IsValid && profil.Roles is null )
+                {
+                    return BadRequest(new ResponseApiManager { ApiStatus = EnumApiStatus.BadRequest, Message = "Invalid model state." });
+                }
+
+                bool isManager = User.IsInRole("Manager");
                 throw new NotImplementedException();
             }
             catch (Exception ex)

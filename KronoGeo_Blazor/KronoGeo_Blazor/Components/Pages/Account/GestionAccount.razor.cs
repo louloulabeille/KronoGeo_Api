@@ -5,7 +5,9 @@ using KronoGeo_Blazor.Infrastructure.MediatR.Commands.Manager;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using NetTopologySuite.Index.HPRtree;
+using System.Security.Claims;
 
 namespace KronoGeo_Blazor.Components.Pages.Account
 {
@@ -19,6 +21,9 @@ namespace KronoGeo_Blazor.Components.Pages.Account
         private ToastsService? _toastService { get; set; } = default;
         [Inject]
         private NavigationManager? _navigationManager { get; set; } = default;
+        // -- pour récupérer l'état de l'authentification de l'utilisateur
+        [Inject]
+        private AuthenticationStateProvider? _authenticationStateProvider { get; set; } = default;
         #endregion
 
         #region properties protected 
@@ -65,16 +70,58 @@ namespace KronoGeo_Blazor.Components.Pages.Account
         /// Delete user
         /// </summary>
         /// <param name="user"></param>
-        protected void OnDeleteUSer(ProfilDTOAdmin? user)
+        protected async Task OnDeleteUSer(ProfilDTOAdmin? user)
         {
             try
             {
-                if (user is not null && _profils.Contains(user))
+                // -- vérification si l'admin ou le manager ne peut pas supprimer son propre compte
+                // -- vérification si l'utilisateur est un manager il ne peut pas supprimer un admin
+                // -- juste une vérifiacation mais normalement le manager ne peut pas voir un compte admin dans sa liste
+                // -- juste au cas ou
+                if (_authenticationStateProvider is not null && user is not null)
                 {
-                    _profils.Remove(user);
-                    _toastService?.SuccesAsync("Supression réussie.");
+                    // -- récupération de l'utilisateur connecté pour récupérer les groupes de localisation
+                    var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+                    // -- récupération du claim NameIdentifier pour récupérer l'id de l'utilisateur
+                    var userId = authState.User.Identities.FirstOrDefault()?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+                    // -- récupération des roles de l'utilisateur connecté
+                    var userRoles = authState.User.Identities.FirstOrDefault()?.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
+                    if (userId is not null  && user.Id == userId.Value)
+                    {
+                        _toastService?.AvertissementAsync("Vous ne pouvez pas supprimer votre propre compte.");
+                        return;
+                    }
+                    // -- vérification si l'utilisateur est un manager il ne peut pas supprimer un admin
+                    if ( userRoles?.Contains("Manager") == true && user.Roles?.Contains("Admin") == true)
+                    {
+                        _toastService?.AvertissementAsync("Vous ne pouvez pas supprimer un utilisateur avec le rôle d'administrateur.");
+                        return;
+                    }
                 }
-                StateHasChanged();
+
+                // -- suppression de l'utilisateur en utilisant le mediator pour envoyer la commande DeleteUserCommand
+                if (user is not null && _profils.Contains(user) && _mediator is not null
+                    && user.Id is not null)
+                {
+                    var result = await _mediator.Send(new DeleteUserCommand { Id = user.Id });
+
+                    if(result.IsSuccess)
+                    { // -- suppression réussie supression dans la liste aussi
+                        _profils.Remove(user);
+                        _toastService?.SuccesAsync("Supression réussie.");
+                    }
+                    else if (result.IsUnauthorized)
+                    {   // -- logout - déconnexion pas d'autorized dfe l'utilisateur
+                        _navigationManager?.NavigateTo($"Account/Logout", forceLoad: true);
+                    }
+                    else
+                    { // -- problème autre 
+                        _toastService?.AvertissementAsync("Impossible de supprimer l'utilisateur. Problème interne.");
+                    }
+                    
+                    return;
+                }
+                _toastService?.AvertissementAsync("Impossible de supprimer l'utilisateur. Vérifier que l'utilisateur existe.");
             }
             catch(Exception ex)
             {

@@ -190,7 +190,49 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <exception cref="NotImplementedException"></exception>
         public async Task<ResponseApiManager> DeleteUserAsync(string id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                using var response = await HttpClient.DeleteAsync($"{_options.Value.DeleteUser}/{id}");
+                if (response.IsSuccessStatusCode || response.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    var retour = await response.Content.ReadAsStringAsync();
+                    var result = JsonSerializer.Deserialize<ResponseApiManager>(retour, JsonOptions.GetJsonOptions())
+                        ?? new()
+                        {
+                            ApiStatus = EnumApiStatus.Problem,
+                            Message = "Erreur lors de la désérialisation de la réponse de l'API."
+                        };
+
+                    return result;
+                }
+                else if (response.StatusCode == HttpStatusCode.Unauthorized)
+                { // -- gestion des Unauthorized
+                    return new() { ApiStatus = EnumApiStatus.Unauthorized };
+                }
+                else
+                {
+                    return new()
+                    {
+                        ApiStatus = EnumApiStatus.Problem,
+                        Message = $" Status Code retour {response.StatusCode}",
+                    };
+                }
+            }
+            catch (SessionExpiredException)
+            {   // -- gestion des Unauthorized lors du changement de certaines données de l'utilisateur
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Unauthorized,
+                };
+            }
+            catch (Exception)
+            {
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = "Erreur lors de la supression du compte."
+                };
+            }
         }
 
         /// <summary>

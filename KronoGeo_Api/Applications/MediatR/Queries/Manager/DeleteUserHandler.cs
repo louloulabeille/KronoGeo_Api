@@ -31,15 +31,26 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
             try
             {
                 var user =  await SignInManager.UserManager.FindByIdAsync(request.Id);
-
+                
                 if (user is not null)
                 {
+                    var roles = await SignInManager.UserManager.GetRolesAsync(user);
                     // - vérification de ne pas supprimer un utilisateur avec des rôles critiques (ex: admin)
                     // - il doit en rester au moins un dans le système
-                    if(!await CanDeleteUser(user))
+                    if (!await CanDeleteUser(user))
                     {
                         profilManager.ApiStatus = EnumApiStatus.BadRequest;
                         profilManager.Message = "Cannot delete user with critical roles.";
+                        return profilManager;
+                    }
+
+                    // -- si l'utilisateur est un manager et que le rôle de l'utilisateur
+                    // -- à supprimer est admin ou manager 
+                    // -- on bloque la suppression
+                    if ( request.IsManager && ( roles.ToList().Contains("Admin") || roles.ToList().Contains("Manager") ) )
+                    {
+                        profilManager.ApiStatus = EnumApiStatus.BadRequest;
+                        profilManager.Message = "Cannot delete user with admin or manager role.";
                         return profilManager;
                     }
 
