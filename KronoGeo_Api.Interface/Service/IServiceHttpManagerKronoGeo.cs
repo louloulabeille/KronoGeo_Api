@@ -14,5 +14,7 @@ namespace KronoGeo_Api.Interface.Service
         public Task<ResponseApiAuthenticate> UpdateUserEmailAsync(ProfilUpdateEmailDTO register);
         public Task<ResponseApiManager> UpdatePasswordAsync(ProfilDTO profil);
         public Task<ResponseApiManager> GetListUsersAsync();
+        public Task<ResponseApiManager> DeleteUserAsync(string id);
+        public Task<ResponseApiManager> UpdateUserRoleAsync(ProfilDTOAdmin profil);
     }
 }

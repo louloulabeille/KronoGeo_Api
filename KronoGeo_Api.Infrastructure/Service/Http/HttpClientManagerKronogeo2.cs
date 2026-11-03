@@ -181,6 +181,29 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                 };
             }
         }
+
+        /// <summary>
+        /// Methode de supression d'un compte utilisateur
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<ResponseApiManager> DeleteUserAsync(string id)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Modification role d'un utilisateur
+        /// </summary>
+        /// <param name="profil"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public Task<ResponseApiManager> UpdateUserRoleAsync(ProfilDTOAdmin profil)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 }

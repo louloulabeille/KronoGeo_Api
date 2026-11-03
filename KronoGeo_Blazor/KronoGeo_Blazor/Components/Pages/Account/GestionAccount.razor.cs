@@ -27,7 +27,6 @@ namespace KronoGeo_Blazor.Components.Pages.Account
         protected IEnumerable<ProfilDTOAdmin>? DataOnView => _filterProfils
             .OrderBy(lg => lg.Login).Skip((PageActuel - 1) * _pageSize).Take(_pageSize).ToList();
         protected int PageActuel { get; set; } = 1;
-
         protected bool DisabledPreviousPage => PageActuel == 1;
         protected bool DisabledNextPage => PageActuel == TotalPages;
         /// <summary>
@@ -36,6 +35,7 @@ namespace KronoGeo_Blazor.Components.Pages.Account
         /// </summary>
         protected int TotalPages =>
             (_filterProfils?.Count ?? 0) / _pageSize + ((_filterProfils?.Count ?? 0) % _pageSize > 0 ? 1 : 0);
+        // ------------------------------------------------------//
 
         // -- Dictionnaire pour désactiver le bouton de sauvegarde pour chaque utilisateur
         protected Dictionary<string,bool> DesabledSaveUser { get; set; } = [];
@@ -116,15 +116,21 @@ namespace KronoGeo_Blazor.Components.Pages.Account
             if (user is not null && _profils.Contains(user))
             {
                 var index = _profils.IndexOf(user);
+                // -- si le role est coché, on l'ajoute à la liste des roles de l'utilisateur
                 if (ischecked)
                 {
                     user.Roles?.Add(role == 1 ? "Admin" : "Manager");
+                    // -- évite d'avoir Manager et admin en même temps
+                    // -- c'est soit l'un ou l'autre
+                    user.Roles?.Remove(role == 1 ? "Manager" : "Admin");
                 }
                 else
-                {
+                { //-- supprimer le role de l'utilisateur si il est décoché
                     user.Roles?.Remove(role == 1 ? "Admin" : "Manager");
                 }
+                // -- modification de l'utilisateur dans la liste des profils
                 _profils[index] = user;
+                // -- Activer le bouton de sauvegarde pour cet utilisateur en utilisant le dictionnaire DesabledSaveUser
                 if (user.Id is not null && DesabledSaveUser.ContainsKey(user.Id))
                 {   // -- Activer le bouton de sauvegarde pour cet utilisateur
                     DesabledSaveUser[user.Id] = false;
@@ -176,6 +182,10 @@ namespace KronoGeo_Blazor.Components.Pages.Account
         #endregion
 
         #region private method
+        /// <summary>
+        /// method d'initialisation de la liste des user
+        /// </summary>
+        /// <returns></returns>
         private async Task InitListUsers()
         {
             if (_mediator is not null)
@@ -184,6 +194,7 @@ namespace KronoGeo_Blazor.Components.Pages.Account
                 if (result.IsSuccess && result.Profils is not null)
                 {
                     _profils.AddRange(result.Profils);
+                    //AjoutTestUser();
                     InitDesabledSaveUser();
                     InitialiserUserList();
                     return;
@@ -215,6 +226,20 @@ namespace KronoGeo_Blazor.Components.Pages.Account
         {
             _filterProfils = _profils;
         }
+
+        /*private void AjoutTestUser()
+        {
+            for(int i = 0; i<= 50; i++)
+            {
+                ProfilDTOAdmin profil = new() { 
+                    Email = $"MagalieCalmon{i}@sfr.fr", 
+                    Id = $"212123dsdq3{i}1dq3d1q", 
+                    Login = $"MagalieCalmon{i}" 
+                };
+                _profils.Add(profil);
+            }
+
+        }*/
         #endregion
     }
 }
