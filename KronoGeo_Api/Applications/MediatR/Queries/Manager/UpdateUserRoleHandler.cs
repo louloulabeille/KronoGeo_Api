@@ -28,13 +28,13 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
                     var userRoles = await SignInManager.UserManager.GetRolesAsync(user);
                     if (request.isManager)
                     {
-                        // Check if the user is trying to modify a manager or admin
-                        if (userRoles.Contains("Admin") || userRoles.Contains("Manager"))
+                        // Check if the user is trying to modify admin
+                        if (userRoles.Contains("Admin") )
                         {
                             return new ResponseApiManager()
                             {
                                 ApiStatus = EnumApiStatus.BadRequest,
-                                Message = "You are not allowed to modify the roles of an admin or manager."
+                                Message = "You are not allowed to modify the roles of an admin."
                             };
                         }
 
@@ -55,7 +55,16 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
                     // -- mise à jour des rôles de l'utilisateur
                     if ( addRoles is not null && addRoles.Count > 0)
                         await SignInManager.UserManager.AddToRolesAsync(user, addRoles);
-                    if (removeRoles is not null && removeRoles.Count > 0)
+                    if ( !await CanDeleteUser(removeRoles))
+                    {
+                        return new ResponseApiManager()
+                        {
+                            ApiStatus = EnumApiStatus.BadRequest,
+                            Message = "Impossible to delete this admin role when there's only one left."
+                        };
+                    }
+
+                    if (removeRoles is not null && removeRoles.Count > 0 )
                         await SignInManager.UserManager.RemoveFromRolesAsync(user, removeRoles);
 
                     return new ResponseApiManager()
@@ -86,5 +95,27 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
                 };
             }
         }
+
+        #region private methods
+        /// <summary>
+        /// retourne s'il est possible de supprimer un role admin à un utilisateur
+        /// </summary>
+        /// <param name="removeRoles"></param>
+        /// <returns></returns>
+        private async Task<bool> CanDeleteUser(List<string> removeRoles)
+        {
+            // Vérification si l'utilisateur a des rôles critiques (ex: admin)
+            if (removeRoles.Contains("Admin"))
+            {
+                // Vérification s'il reste au moins un utilisateur avec le rôle critique
+                var usersWithCriticalRole = await SignInManager.UserManager.GetUsersInRoleAsync("Admin");
+                if (usersWithCriticalRole.Count <= 1)
+                {
+                    return false; // Ne peut pas supprimer le dernier utilisateur avec un rôle critique
+                }
+            }
+            return true; // Peut supprimer l'utilisateur
+        }
+        #endregion
     }
 }

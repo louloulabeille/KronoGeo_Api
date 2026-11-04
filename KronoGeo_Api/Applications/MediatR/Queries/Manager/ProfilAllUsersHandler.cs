@@ -76,7 +76,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Manager
                     else
                     {
                         Logger.LogCritical("Utilisateur qui ne devrait pas être ici pas les droits {id} ", request.IdUser);
-                        return new ResponseApiManager { ApiStatus = EnumApiStatus.BadRequest, Message = "Unauthorized user." };
+                        return new ResponseApiManager { ApiStatus = EnumApiStatus.Unauthorized, Message = "Unauthorized user." };
                     }
 
                 }

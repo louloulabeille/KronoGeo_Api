@@ -47,6 +47,8 @@ namespace KronoGeo_Blazor.Components.Pages.Account
 
         // -- Search pour la recherche d'utilisateur au niveau du login
         protected string Search { get; set; } = string.Empty;
+        // -- user manager or not
+        protected bool IsManager { get; set; } = false;
         #endregion
 
         #region private properties
@@ -61,6 +63,14 @@ namespace KronoGeo_Blazor.Components.Pages.Account
         protected override async Task OnInitializedAsync()
         {
             await InitListUsers();
+            // -- vérifie si l'utilisateur est un manager pour désactiver certaines fonctionnalités
+            // -- au niveau du tableau de gestion des utilisateurs
+            if ( _authenticationStateProvider is not null )
+            {
+                var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+                var userRoles = authState.User.Identities.FirstOrDefault()?.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
+                IsManager = userRoles?.Contains("Manager") == true;
+            }
             await base.OnInitializedAsync();
         }
         #endregion
@@ -108,7 +118,7 @@ namespace KronoGeo_Blazor.Components.Pages.Account
                     if(result.IsSuccess)
                     { // -- suppression réussie supression dans la liste aussi
                         _profils.Remove(user);
-                        _toastService?.SuccesAsync("Supression réussie.");
+                        _toastService?.SuccesAsync("Suppression réussie.");
                     }
                     else if (result.IsUnauthorized)
                     {   // -- logout - déconnexion pas d'autorized dfe l'utilisateur
@@ -134,16 +144,62 @@ namespace KronoGeo_Blazor.Components.Pages.Account
         /// Save USer
         /// </summary>
         /// <param name="user"></param>
-        protected void OnSaveUser(ProfilDTOAdmin? user)
+        protected async Task OnSaveUser(ProfilDTOAdmin? user)
         {
             try
             {
-                if (user is not null && _profils.Contains(user))
+                if ( _authenticationStateProvider is not null && user is not null )
                 {
-                    var index = _profils.IndexOf(user);
-                    _profils[index] = user;
+                    // -- récupération de l'utilisateur connecté pour récupérer les groupes de localisation
+                    var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+                    // -- récupération du claim role de l'utilisateur
+                    var roles = authState.User.Identities.FirstOrDefault()?.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
+                    var idUser = authState.User.Identities.FirstOrDefault()?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+                    // -- vérification si l'utilisateur est un manager il ne peut pas modifier le rôle d'un admin ou l'ajouter ou l'enlever
+                    if ( roles is not null && user.Roles is not null 
+                        && roles.Contains("Manager") && user.Roles.Contains("Admin"))
+                    {
+                        _toastService?.AvertissementAsync("Vous n'avez pas les droits pour ajouter le role administrateur.");
+                        return;
+                    }
+
+                    // -- vérification si la personne s'enlève les droits bloqués
+                    if( idUser is not null && user.Id is not null
+                        && idUser.Value == user.Id)
+                    {
+                        user.Roles?.Add("Manager");
+                        DesabledSaveUser[user.Id] = true;
+                        _toastService?.AvertissementAsync("Vous ne pouvez pas changer vos attributions vous même.");
+                        return;
+                    }
 
                 }
+
+                if (user is not null && _profils.Contains(user) && _mediator is not null )
+                {
+
+                    var result = await _mediator.Send(new UpdateUserRoleCommand { Profil = user });
+                    var index = _profils.IndexOf(user);
+                    if (result.IsSuccess)
+                    { // -- suppression réussie supression dans la liste aussi
+                        _profils[index] = user;
+                        DesabledSaveUser[user.Id ?? string.Empty] = true;
+                        _toastService?.SuccesAsync("Modification réussie.");
+                    }
+                    else if (result.IsUnauthorized)
+                    {   // -- logout - déconnexion pas d'autorized dfe l'utilisateur
+                        _navigationManager?.NavigateTo($"Account/Logout", forceLoad: true);
+                    }
+                    else
+                    { // -- problème autre
+                        _toastService?.AvertissementAsync("Impossible de modifier le role de l'utilisateur. Vous n'avez pas les droits.");
+                       StateHasChanged();
+                    }
+
+                    return;
+                }
+
+                _toastService?.AvertissementAsync("Impossible de modifier le role de l'utilisateur. Problème interne.");
             }
             catch(Exception ex)
             {
