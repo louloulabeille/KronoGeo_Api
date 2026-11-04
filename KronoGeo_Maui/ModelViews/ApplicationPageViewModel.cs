@@ -8,7 +8,6 @@ using Xamarin.Google.Crypto.Tink.Signature;
 #endif
 
 using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -16,15 +15,8 @@ using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models;
 using KronoGeo_Maui.Applications.Interface;
 using KronoGeo_Maui.Applications.Message;
-using Microsoft.Extensions.Primitives;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using CancellationTokenSource = System.Threading.CancellationTokenSource;
 using Task = System.Threading.Tasks.Task;
-using System.Collections.ObjectModel;
-using KronoGeo_Api.Models.Carousel;
-using System.Diagnostics;
 using KronoGeo_Api.Models.Model.DTO;
 using Microsoft.Maui.Controls.Maps;
 using KronoGeo_Maui.Applications.Models;
@@ -39,7 +31,6 @@ using KronoGeo_Api.Models.ModelEventArgs;
 using KronoGeo_Maui.Applications.Factory.Geolocalisation;
 #if ANDROID
 using Android.Util;
-using System.Runtime.CompilerServices;
 #endif
 namespace KronoGeo_Maui.ModelViews
 {
@@ -169,11 +160,6 @@ namespace KronoGeo_Maui.ModelViews
 
             // -- supprime les photos en local
             // _camera.DeletePhotos();
-
-
-#if ANDROID
-            Log.Debug("GeoAndroidService", $"[VM créé] HashCode: {GetHashCode()}");
-#endif
 
         }
         #endregion
@@ -483,6 +469,7 @@ namespace KronoGeo_Maui.ModelViews
                     }
 
                     _routeTelemetry.DateTimeBegin = DateTimeOffset.Now; // -- type date heure local non utc
+                    SheetViewModel.GetRouteTeletry(_routeTelemetry); // -- passage de la RouteTelemetry vers le BottomSheet 
                     IsEnablePhoto = true; // -- donne la possibilité de prendre des photos
                     IsStart = true;
                     PlayPause = "\ue1a2";
@@ -715,6 +702,7 @@ namespace KronoGeo_Maui.ModelViews
                 }
                 await _dialogService.ClosePopup(popupAttente);
                 IsEnableSave = false;
+                
             }
             catch (Exception ex)
             {
@@ -852,6 +840,8 @@ namespace KronoGeo_Maui.ModelViews
             WeakReferenceMessenger.Default.Send(new PinMapMessage(null));
             // -- reinitalise la telemetrie
             _routeTelemetry = _serviceTelemetry.CalculateTelemetry(_localisations);
+            // -- initialisation
+            SheetViewModel.GetRouteTeletry(_routeTelemetry); // -- passage de la RouteTelemetry vers le BottomSheet
         }
 
         /// <summary>

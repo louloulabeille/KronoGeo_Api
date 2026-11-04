@@ -72,16 +72,22 @@
                 <Border Grid.Row="1" StrokeThickness="1" BackgroundColor="#F9EDE1"
                 StrokeShape="RoundRectangle 10,10,10,10" Stroke="#51638B">
                     <VerticalStackLayout >
+                        <HorizontalStackLayout  Padding="3" VerticalOptions="Center">
+                            <Label HorizontalOptions="Start" Text="Date début : " FontSize="16" TextColor="#51638B"/>
+                            <Label HorizontalOptions="End"
+                                Text="{Binding Source={x:Reference ApplicationBottom}, Path=BindingContext.DateTimeBegin}" 
+                                FontSize="16" TextColor="#51638B"/>
+                        </HorizontalStackLayout>
                         <HorizontalStackLayout  Padding="3"
                                            VerticalOptions="Center">
-                            <Label HorizontalOptions="Start" Text="Distance parcourue " FontSize="16" TextColor="#51638B"/>
+                            <Label HorizontalOptions="Start" Text="Distance parcourue : " FontSize="16" TextColor="#51638B"/>
                             <Label HorizontalOptions="End"
                             Text="{Binding Source={x:Reference ApplicationBottom}, Path=BindingContext.MessageDistance}" 
                                FontSize="16" TextColor="#51638B"/>
                         </HorizontalStackLayout>
                         <HorizontalStackLayout  Padding="3"
                                            VerticalOptions="Center">
-                            <Label HorizontalOptions="Start" Text="Vitesse moyenne " FontSize="16" TextColor="#51638B"/>
+                            <Label HorizontalOptions="Start" Text="Vitesse moyenne : " FontSize="16" TextColor="#51638B"/>
                             <Label HorizontalOptions="End" Text="{Binding Source={x:Reference ApplicationBottom}, Path=BindingContext.MessageVitesseMoyen}" FontSize="16" TextColor="#51638B"/>
                         </HorizontalStackLayout>
                         <HorizontalStackLayout  Padding="3"
@@ -93,7 +99,7 @@
                         </HorizontalStackLayout>
                         <HorizontalStackLayout  Padding="3"
                             VerticalOptions="Center">
-                            <Label HorizontalOptions="Start" Text="Ascension negative " FontSize="16" TextColor="#51638B"/>
+                            <Label HorizontalOptions="Start" Text="Ascension negative : " FontSize="16" TextColor="#51638B"/>
                             <Label HorizontalOptions="End"
                             Text="{Binding Source={x:Reference ApplicationBottom}, Path=BindingContext.MessageNegativeElevation}" FontSize="16" TextColor="#51638B"/>
                         </HorizontalStackLayout>

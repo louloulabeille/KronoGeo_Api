@@ -48,6 +48,8 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
         public partial string MessageNegativeElevation { get; set; } = "0";
         [ObservableProperty]
         public partial string MessagePostiveElevation { get; set; } = "0";
+        [ObservableProperty]
+        public partial string DateTimeBegin { get; set; }
         #endregion
 
         #region public constructeur
@@ -61,6 +63,10 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
             // -- chargement des services
             _camera = camera;
             //MesPhotos = _camera.
+
+            // -- chargement la date de début de la route
+            DateTimeBegin = _routeTelemetry?.DateTimeBegin.ToString("dd/MM/yyyy HH:mm:ss") 
+                ?? string.Empty;
         }
         #endregion
 
@@ -111,6 +117,7 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
                 unit = "mi";
                 elevation = "ft";
             }
+            DateTimeBegin = _routeTelemetry.DateTimeBegin.ToString("dd/MM/yyyy HH:mm:ss");
             MessageDistance = $"{Math.Round(_routeTelemetry.Distance, 3)} {unit}";
             MessageVitesseMoyen = $"{Math.Round(_routeTelemetry.AverageSpeed, 3)} {unit}/h";
             MessageNegativeElevation = $"{Math.Round(_routeTelemetry.NegativeElevationGain)} {elevation}";
