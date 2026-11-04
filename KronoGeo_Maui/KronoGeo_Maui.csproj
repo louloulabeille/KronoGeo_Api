@@ -75,9 +75,9 @@
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Maui" Version="15.0.1" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.13" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.14" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.120" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.13" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.14" />
 		<PackageReference Include="Microsoft.Maui.Controls.Maps" Version="10.0.120" />
 		<PackageReference Include="Plugin.Fingerprint" Version="2.1.5" />
 		<PackageReference Include="The49.Maui.BottomSheet" Version="8.0.3" />
@@ -134,8 +134,8 @@
 		<PackageReference Include="Xamarin.AndroidX.Collection.Jvm" Version="1.6.0.1" />
 		<PackageReference Include="Xamarin.AndroidX.Lifecycle.Runtime" Version="2.11.0.1" />
 		<!-- erreur lors du build les 2 versions n'étaient pas à la même version -->
-		<PackageReference Include="Xamarin.AndroidX.Fragment" Version="1.9.0" />
-		<PackageReference Include="Xamarin.AndroidX.Fragment.Ktx" Version="1.9.0" />
+		<PackageReference Include="Xamarin.AndroidX.Fragment" Version="1.9.1" />
+		<PackageReference Include="Xamarin.AndroidX.Fragment.Ktx" Version="1.9.1" />
 	</ItemGroup>
 	  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-android'">
 	    <PackageReference Include="Xamarin.GooglePlayServices.Location">
