@@ -12,6 +12,8 @@ using KronoGeo_Maui.Applications.Services.Geolocation;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Debug;
 using The49.Maui.BottomSheet;
+using KronoGeo_Api.Infrastructure.Database;
+
 
 
 
@@ -60,6 +62,10 @@ namespace KronoGeo_Maui
 
             #region injection pour la sauvegarde en memoire de l'utilisateur
             builder.Services.AddScoped<IServiceSaveUser,InMemoriMauiUser>();
+            #endregion
+
+            #region injection pour la sauvegarde en sqlite de la localisation
+            builder.Services.AddSingleton<DatabaseSqliteMaui>();
             #endregion
 
             #region Camera Injection

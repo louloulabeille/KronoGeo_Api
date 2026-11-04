@@ -29,6 +29,7 @@ using KronoGeo_Maui.BottomSheets;
 using KronoGeo_Maui.ModelViews.BottomSheets;
 using KronoGeo_Api.Models.ModelEventArgs;
 using KronoGeo_Maui.Applications.Factory.Geolocalisation;
+using KronoGeo_Api.Infrastructure.Database;
 #if ANDROID
 using Android.Util;
 #endif
@@ -57,6 +58,7 @@ namespace KronoGeo_Maui.ModelViews
         private readonly IServiceBackupGps _serviceBackupGps;
         private readonly IServiceProvider _serviceProvider;
         private readonly IServicePermissions _servicePermissions;
+        private readonly DatabaseSqliteMaui _dbSqlite;
 
         #endregion
 #if ANDROID
@@ -119,7 +121,8 @@ namespace KronoGeo_Maui.ModelViews
             , IServiceTelemetry serviceTelemetry, IServiceBackupGps serviceBackupGps
             , ApplicationBottomSheetViewModel sheetViewModel
             , IServiceProvider serviceProvider , IServicePermissions servicePermissions
-            , IServiceBattery? serviceBattery, IServiceSaveParametrage? parametrage)
+            , IServiceBattery? serviceBattery, IServiceSaveParametrage? parametrage
+            , DatabaseSqliteMaui sqliteMaui)
         {
             // -- pour affichage des différentes pages du carousel
             /*MesPages = [];
@@ -136,6 +139,7 @@ namespace KronoGeo_Maui.ModelViews
             _serviceBackupGps = serviceBackupGps;
             _serviceProvider = serviceProvider;
             _servicePermissions = servicePermissions;
+            _dbSqlite = sqliteMaui;
 
 #if !ANDROID
             _serviceGeo.LocationChanged += OnLocalication_Changed;
