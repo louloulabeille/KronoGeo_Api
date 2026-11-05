@@ -14,6 +14,7 @@
     <PackageReference Include="Mapsui.Blazor" Version="5.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.14" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.14" />
+    <PackageReference Include="SkiaSharp" Version="4.154.0" />
   </ItemGroup>
 
  <ItemGroup>

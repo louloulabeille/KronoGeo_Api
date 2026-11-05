@@ -29,9 +29,12 @@ using KronoGeo_Maui.BottomSheets;
 using KronoGeo_Maui.ModelViews.BottomSheets;
 using KronoGeo_Api.Models.ModelEventArgs;
 using KronoGeo_Maui.Applications.Factory.Geolocalisation;
-using KronoGeo_Api.Infrastructure.Database;
+using KronoGeo_Api.Models.Model.Maui;
+using Application = Microsoft.Maui.Controls.Application;
+
 #if ANDROID
 using Android.Util;
+using Android.App;
 #endif
 namespace KronoGeo_Maui.ModelViews
 {
@@ -49,16 +52,16 @@ namespace KronoGeo_Maui.ModelViews
     {
         #region private readonly properties
         private readonly IServiceGeolocalisation _serviceGeo;
-        private readonly List<Localisation> _localisations;
+        //private readonly List<Localisation> _localisations;
         private readonly IServiceSaveLocalisation _saveLocalisation;
         private readonly IServiceCamera _camera;
         private readonly IDialogService _dialogService;
         private readonly IServiceSaveUser _serviceSaveUser;
         private readonly IServiceTelemetry _serviceTelemetry;
-        private readonly IServiceBackupGps _serviceBackupGps;
+        //private readonly IServiceBackupGps _serviceBackupGps;
         private readonly IServiceProvider _serviceProvider;
         private readonly IServicePermissions _servicePermissions;
-        private readonly DatabaseSqliteMaui _dbSqlite;
+        private readonly IServiceDatabaseMaui _dbSqlite;
 
         #endregion
 #if ANDROID
@@ -67,8 +70,10 @@ namespace KronoGeo_Maui.ModelViews
 #endif
 
         #region private properties
-        private Localisation? _lastLocation { get; set; } = default;
-        private RouteTelemetry _routeTelemetry { get; set; }
+        private LocalisationMaui? _lastLocation { get; set; } = default;
+        private RouteTelemetryMaui _routeTelemetry { get; set; } = new RouteTelemetryMaui();
+        //private Localisation? _lastLocation { get; set; } = default;
+        //private RouteTelemetry _routeTelemetry { get; set; }
         private DateTimeOffset _startPauseTime { get; set; }
         private bool _takePhoto = false;
         #endregion
@@ -118,11 +123,12 @@ namespace KronoGeo_Maui.ModelViews
         public ApplicationPageViewModel(FactoryGeolocation factoryGeolocation
             , IServiceSaveLocalisation saveLocalisation, IServiceCamera camera
             , IDialogService dialogService, IServiceSaveUser serviceSaveUser
-            , IServiceTelemetry serviceTelemetry, IServiceBackupGps serviceBackupGps
+            , IServiceTelemetry serviceTelemetry
+            // , IServiceBackupGps serviceBackupGps
             , ApplicationBottomSheetViewModel sheetViewModel
             , IServiceProvider serviceProvider , IServicePermissions servicePermissions
             , IServiceBattery? serviceBattery, IServiceSaveParametrage? parametrage
-            , DatabaseSqliteMaui sqliteMaui)
+            , IServiceDatabaseMaui sqliteMaui)
         {
             // -- pour affichage des différentes pages du carousel
             /*MesPages = [];
@@ -136,27 +142,28 @@ namespace KronoGeo_Maui.ModelViews
             _dialogService = dialogService;
             _serviceSaveUser = serviceSaveUser;
             _serviceTelemetry = serviceTelemetry;
-            _serviceBackupGps = serviceBackupGps;
-            _serviceProvider = serviceProvider;
+            //_serviceBackupGps = serviceBackupGps;
+            _serviceProvider = serviceProvider; //-- service pour l'injection de dépendance
             _servicePermissions = servicePermissions;
             _dbSqlite = sqliteMaui;
 
 #if !ANDROID
-            _serviceGeo.LocationChanged += OnLocalication_Changed;
+            _serviceGeo.LocationChanged += async(sender, e) => await OnLocalication_Changed(sender, e);
 #endif
 #if ANDROID
             _serviceBattery = serviceBattery;
             _parametrage = parametrage;
 #endif
 
-        _localisations = [];
+            //_localisations = [];
             _saveLocalisation = saveLocalisation;
             // -- initialise l'object télémétrie
-            _routeTelemetry = _serviceTelemetry.CalculateTelemetry(_localisations);
+            //_routeTelemetry = _serviceTelemetry.CalculateTelemetry(_localisations);
+            //_routeTelemetry = _serviceTelemetry.CalculateTelemetry([]);
 
             // -- chargement du view model ApplicationBottomSheetViewModel
             SheetViewModel = sheetViewModel;
-            SheetViewModel.DeletePhoto += DeletePhoto;
+            
 
             // -- enregistrer dans le registre des messages pour recevoir les messages de type LocationChangedMessage
             //WeakReferenceMessenger.Default.RegisterAll(this);
@@ -180,8 +187,10 @@ namespace KronoGeo_Maui.ModelViews
             var window = (windowList is not null && windowList.Count > 0) ? windowList[0] : null;
             if (window is not null)
             {
-                //window.Stopped += SaveLocalisation;
-                window.Destroying += DestroyingSaveLocalisation;
+                window.Stopped += async (sender, e) => await SaveLocalisation(sender, e);
+                window.Destroying += async(sender, e) => await DestroyingSaveLocalisation(sender, e);
+
+                SheetViewModel.DeletePhoto += async (sender, e) => await DeletePhoto(sender, e);
             }
         }
 
@@ -197,7 +206,8 @@ namespace KronoGeo_Maui.ModelViews
             await GetUserLocationAsync();
 
             // - chargement du popup si un backup existe pour recharger les points dedans
-            if (_serviceBackupGps.FileExist())
+            //if (_serviceBackupGps.FileExist() || await _dbSqlite.Count() > 0)
+            if ( await _dbSqlite.Count() > 0)
             {
                 var popup = new PopupRechargementPage();
                 var result = await _dialogService.ShowPopupAsync<string>(popup, new PopupOptions
@@ -208,15 +218,17 @@ namespace KronoGeo_Maui.ModelViews
                 // - traitement du résultat
                 if ( result is not null && bool.Parse(result) )
                 {   // -- recharge les données
-                    var localisations = _serviceBackupGps.ReturnLocalisation();
+                    //var localisations = _serviceBackupGps.ReturnLocalisation();
+                    var localisations = await _dbSqlite.GetAllAsync();
                     if ( localisations is not null && localisations.Count > 0)
                     {
-                        _localisations.Clear();
-                        _localisations.AddRange(localisations.OrderBy(ob => ob.OrderIndex));
+                        //_localisations.Clear();
+                        //_localisations.AddRange(localisations.OrderBy(ob => ob.OrderIndex));
                         //_lastLocation = (_localisations.Count > 0) ? _localisations[_localisations.Count - 1] : null;
-                        _lastLocation = (_localisations.Count > 0) ? _localisations[^1] : null;
+                        _lastLocation = (localisations.Count > 0) 
+                            ? localisations.OrderBy(ob => ob.OrderIndex).ToList()[^1] : null;
 
-                        _routeTelemetry = _serviceTelemetry.CalculateTelemetry(_localisations);
+                        //_routeTelemetry = _serviceTelemetry.CalculateTelemetry(localisations);
 
                         // -- passage de la RouteTelemetry vers le BottomSheet
                         SheetViewModel.GetRouteTeletry(_routeTelemetry);
@@ -227,21 +239,21 @@ namespace KronoGeo_Maui.ModelViews
                         // -- mise a jour de la carte
                         foreach (var item in localisations) {
                             var location = item.GetLocation();
-                            if (item is LocalisationPhoto photo)
+                            if (item.Name is not null)  // -- localisationMauiPhoto
                             {
                                 // -- chargement des photos dans le carroussel correspondant 
                                 // -- du BottomSheet
                                 SheetViewModel.MiseAjourPhoto(new()
                                 {
-                                    Name = photo.Name,
-                                    PathPhoto = photo.PathPhoto
+                                    Name = item.Name,
+                                    PathPhoto = item.PathPhoto
                                 });
                                 // -- mise a jour du pîn de la map
                                 PinMessage pinMessage = new()
                                 {
                                     Pin = new()
                                     {
-                                        Label = $"Photo: {photo.Name}",
+                                        Label = $"Photo: {item.Name}",
                                         Address = $"Position : latitude {location.Latitude}, longitude {location.Longitude}",
                                         Type = PinType.SavedPin,
                                         Location = location,
@@ -257,12 +269,13 @@ namespace KronoGeo_Maui.ModelViews
                                 WeakReferenceMessenger.Default.Send(new PolyneMapMessage(location));
                             }
                         };
-                        _serviceBackupGps.DeleteFile();
+                        // _serviceBackupGps.DeleteFile();
                     }
                 }
                 else
                 {
-                    _serviceBackupGps.DeleteFile();
+                    // _serviceBackupGps.DeleteFile();
+                    await _dbSqlite.Clear(); // -- supprime toutes les données de la base de données
                     // -- supprime toutes les photos du BottomSheet
                     SheetViewModel.DeleteAllPhotos();
                     //_camera.DeletePhotos();
@@ -282,14 +295,18 @@ namespace KronoGeo_Maui.ModelViews
             var window = (windowList is not null && windowList.Count > 0) ? windowList[0] : null;
             if (window is not null)
             {
-                //window.Stopped -= SaveLocalisation; // -- quand l'application perd le focus ou passe en arrière plan
-                window.Destroying -= DestroyingSaveLocalisation;
-                SheetViewModel.DeletePhoto -= DeletePhoto;
+                window.Stopped -= async (sender, e) => await SaveLocalisation(sender, e); // -- quand l'application perd le focus ou passe en arrière plan
+                window.Destroying -= async (sender, e) => await DestroyingSaveLocalisation(sender, e);
+                SheetViewModel.DeletePhoto -= async (sender, e) => await DeletePhoto(sender, e);
             }
         }
         #endregion
 
         #region method RelayCommand
+        /// <summary>
+        /// Commande pour l'ouverture du ButtonSheet
+        /// </summary>
+        /// <returns></returns>
         [RelayCommand]
         public async Task OpenButtomSheet()
         {
@@ -358,12 +375,12 @@ namespace KronoGeo_Maui.ModelViews
                         
                         // -- envoie un message pour ajouter un pin sur la map
                         WeakReferenceMessenger.Default.Send(new PinMapMessage(pinMessage));
-                        // -- ajoute la localisation dans la liste pour l'enregistrement
-                        _localisations.Add(new LocalisationPhoto()
+                        LocalisationMaui photoLocalisation = new()
                         {
                             Latitude = location.Latitude,
                             Longitude = location.Longitude,
-                            OrderIndex = _localisations.Count,
+                            //OrderIndex = _localisations.Count,
+                            OrderIndex = (await _dbSqlite.Count()),
                             Timestamp = location.Timestamp,
                             Altitude = location.Altitude,
                             Accuracy = location.Accuracy,
@@ -372,7 +389,11 @@ namespace KronoGeo_Maui.ModelViews
                             VerticalAccuracy = location.VerticalAccuracy,
                             Name = photo.Name,
                             PathPhoto = photo.PathPhoto
-                        });
+                        };
+                        // -- ajout de la localisation dans la base donnée locale
+                        await _dbSqlite.SaveAsync(photoLocalisation);
+                        // -- ajoute la localisation dans la liste pour l'enregistrement
+                        //_localisations.Add(photoLocalisation);
 
                         // -- envoie un message pour mettre à jour le tracé sur la map
                         WeakReferenceMessenger.Default.Send(new PolyneMapMessage(location));
@@ -576,7 +597,8 @@ namespace KronoGeo_Maui.ModelViews
             IsMessageError = false;
             try
             {
-                if (_localisations.Count > 0)
+                //if (_localisations.Count > 0)
+                if( await _dbSqlite.Count() > 0 )
                 {
                     // -- mise a jour de la date de fin du parcours
                     _routeTelemetry.DateTimeEnd = DateTimeOffset.Now;
@@ -610,7 +632,7 @@ namespace KronoGeo_Maui.ModelViews
                     {
                         // -- supression de toutes les données
                         IsEnableSave = false;
-                        InitWindow();
+                        await InitWindow();
                     }
 
 #if ANDROID
@@ -689,20 +711,24 @@ namespace KronoGeo_Maui.ModelViews
                     return;
                 }
 
+                var localisationsMaui = await _dbSqlite.GetAllAsync();
+
                 var localisationGroup = new LocalisationGroup()
                 {
                     //Name = $"Localisation_{DateTime.Now:yyyyMMdd_HHmmss}",
                     Name = name ?? $"Localisation_{DateTime.Now:yyyyMMdd_HHmmss}",
                     Date = DateTimeOffset.Now,
                     ApplicationUserId = register.Id, // -- à adapter selon l'authentification
-                    Localisations = _localisations,
-                    RouteTelemetry = _routeTelemetry,
+                    //Localisations = _localisations,
+                    
+                    Localisations = localisationsMaui.Select(l => l.ToLocalisation().Get()).ToList(),
+                    RouteTelemetry = _routeTelemetry.ToLocalisation().Get(),
                 };
 
                 _dialogService.ShowPopup(popupAttente);
                 if (await _saveLocalisation.SaveLocalisation(localisationGroup, new System.Threading.CancellationToken()))
                 {
-                    InitWindow();
+                    await InitWindow();
                 }
                 await _dialogService.ClosePopup(popupAttente);
                 IsEnableSave = false;
@@ -789,9 +815,20 @@ namespace KronoGeo_Maui.ModelViews
         /// </summary>
         /// <param name="message"></param>
         /// <exception cref="NotImplementedException"></exception>
-        public void Receive( LocationChangedMessage message )
+        public async void Receive( LocationChangedMessage message )
         {
-            TraitementLocalisation(message.Value);
+            try
+            {
+                await TraitementLocalisation(message.Value);
+            }
+            catch (Exception ex)
+            {
+                IsMessageError = true;
+                Message = "Erreur interne";
+                Console.WriteLine(ex.Message);
+                var cancellationToken = new System.Threading.CancellationToken();
+                await Toast.Make($"{Message}", ToastDuration.Long).Show(cancellationToken);
+            }
         }
 
         #endregion
@@ -828,7 +865,7 @@ namespace KronoGeo_Maui.ModelViews
         /// <summary>
         /// Method d'intialisation d'une fenêtre
         /// </summary>
-        private void InitWindow()
+        private async Task InitWindow()
         {
             _lastLocation = null;
             //MesPhotos.Clear();
@@ -837,13 +874,18 @@ namespace KronoGeo_Maui.ModelViews
             IsMessageError = false;
 
             // -- enregistrement ok
-            _localisations.Clear();
+            //_localisations.Clear();
+            await _dbSqlite.Clear(); // -- supprime toutes les données de la base de données
             // -- initalisation de la map au niveau de Polyne
             WeakReferenceMessenger.Default.Send(new PolyneMapMessage(null));
             // -- initialisation des pins sur la map
             WeakReferenceMessenger.Default.Send(new PinMapMessage(null));
             // -- reinitalise la telemetrie
-            _routeTelemetry = _serviceTelemetry.CalculateTelemetry(_localisations);
+            //_routeTelemetry = _serviceTelemetry.CalculateTelemetry(_localisations);
+            var localisations = await _dbSqlite.GetAllAsync();
+            _routeTelemetry = RouteTelemetryMaui.FromRouteTelemetry(_serviceTelemetry
+                .CalculateTelemetry(localisations.Select(l => l.ToLocalisation().Get()).ToList())
+                .GetDTO());
             // -- initialisation
             SheetViewModel.GetRouteTeletry(_routeTelemetry); // -- passage de la RouteTelemetry vers le BottomSheet
         }
@@ -852,9 +894,9 @@ namespace KronoGeo_Maui.ModelViews
         /// Method de traitement de la localisation
         /// </summary>
         /// <param name="location"></param>
-        private void TraitementLocalisation (Location location)
+        private async Task TraitementLocalisation (Location location)
         {
-            Localisation localisation = new()
+            LocalisationMaui localisation = new()
             {
                 OrderIndex = 0,
                 Altitude = location.Altitude,
@@ -870,14 +912,16 @@ namespace KronoGeo_Maui.ModelViews
             Log.Debug("GeoAndroidService", $"Accuracy :{localisation.Accuracy} - Longitude : {localisation.Longitude} - Latitude : {localisation.Latitude}" );
 #endif
             // -- si des doublons au niveau de eventchange Google lors de la mise a jour de la position, donc on ne garde que les nouvelles positions
-            if ( !_localisations.Exists(l=> l.Longitude == localisation.Longitude && l.Latitude == localisation.Latitude) )
-            {
+            //if ( !_localisations.Exists(l=> l.Longitude == localisation.Longitude && l.Latitude == localisation.Latitude) )
+            if (!await _dbSqlite.Exists(localisation))
+                {
                 if (_lastLocation is not null)
                 {
                     // -- calcul de la distance entre la dernière position et la nouvelle
-                    var route = _routeTelemetry;
-                    _serviceTelemetry.CalculateTelemetry(_lastLocation, localisation, ref route);
-                    _routeTelemetry = route;
+                    var route = _routeTelemetry.ToLocalisation().Get();
+                    _serviceTelemetry.CalculateTelemetry(_lastLocation.ToLocalisation().Get(),
+                        localisation.ToLocalisation().Get(), ref route);
+                    _routeTelemetry = RouteTelemetryMaui.FromRouteTelemetry(route.GetDTO());
                     // -- faire le traitement dans le thread principal pour éviter les erreurs de cross thread
                     MainThread.BeginInvokeOnMainThread(() =>
                     {
@@ -885,14 +929,16 @@ namespace KronoGeo_Maui.ModelViews
                     });
                 }
                 _lastLocation = localisation; // -- pour la mise a jour du dernier point pour le calcul de la distance
-                
+
                 // -- envoie un message pour recentrer la map sur la position de l'utilisateur
                 //WeakReferenceMessenger.Default.Send(new RecenterMapMessage(location));
 
                 // -- ajoute la localisation dans la liste pour l'enregistrement
-                int index = _localisations.Count;
+                //int index = _localisations.Count;
+                int index = await _dbSqlite.Count();
                 localisation.OrderIndex = index; // -- mise a jour de l'index
-                _localisations.Add(localisation);
+                //_localisations.Add(localisation);
+                await _dbSqlite.SaveAsync(localisation); // -- ajout de la localisation dans la base donnée locale
 #if ANDROID
                 Log.Debug("GeoAndroidService", $"Ajout localisation - Longitude : {localisation.Longitude}");
 #endif
@@ -933,30 +979,32 @@ namespace KronoGeo_Maui.ModelViews
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void OnLocalication_Changed(object? sender, GeolocationLocationChangedEventArgs e)
+        public async Task OnLocalication_Changed(object? sender, GeolocationLocationChangedEventArgs e)
         {
-            TraitementLocalisation(e.Location);
+            await TraitementLocalisation(e.Location);
         }
 
+        
         /// <summary>
         /// method pour la sauvegarde lors de la fermeture de l'application quand le service est encore lancé
         /// </summary>
         /// <param name="send"></param>
         /// <param name="args"></param>
-        public void SaveLocalisation (object? send, EventArgs args)
+        public async Task SaveLocalisation (object? send, EventArgs args)
         {
             // -- pendant la prise photo ne pas faire de backup
             if (_takePhoto) return;
 
             // -- si le fichier existe le back up est déjà fait
-            if (_serviceBackupGps.FileExist()) return; 
+            //if (_serviceBackupGps.FileExist()) return; 
 
+            var localisations = await _dbSqlite.GetAllAsync();
             // le service a démarré & il y a des points de localisation
-            if (IsStart && _localisations.Count > 0)
+            if (IsStart && localisations.Count > 0)
             { // -- sauvegarde
-                _serviceBackupGps.SavePointsLocalisation(_localisations);
+                //_serviceBackupGps.SavePointsLocalisation(_localisations);
+                await _dbSqlite.SaveTelemetryAsync(_routeTelemetry); // -- sauvegarde de la télémétrie)
             }
-
         }
 
         /// <summary>
@@ -964,10 +1012,10 @@ namespace KronoGeo_Maui.ModelViews
         /// </summary>
         /// <param name="send"></param>
         /// <param name="args"></param>
-        public async void DestroyingSaveLocalisation (object? send, EventArgs args)
+        public async Task DestroyingSaveLocalisation (object? send, EventArgs args)
         {
             if (_takePhoto) return;
-            SaveLocalisation(send, args);
+            await SaveLocalisation(send, args);
             if (IsStart)
             {
                 await StopService(); // -- on arrête le service propremement
@@ -983,21 +1031,17 @@ namespace KronoGeo_Maui.ModelViews
         /// </summary>
         /// <param name="send"></param>
         /// <param name="args"></param>
-        public void DeletePhoto(object? send, PhotoEventArgs args)
+        public async Task DeletePhoto(object? send, PhotoEventArgs args)
         {
             var photo = args.PhotoDTO;
 
             // -- recherche de l'object LocalisationPhoto
             // -- dans la liste des localisations pour le supprimer
-            LocalisationPhoto? local = null;
-            for (int i = 0; i < _localisations.Count; i++)
-            {
-                if (_localisations[i] is LocalisationPhoto lp && lp.Name == photo.Name)
-                {
-                    local = lp;
-                    break;
-                }
-            }
+            LocalisationMaui? local = null;
+            //for (int i = 0; i < _localisations.Count; i++)
+            var localisations = await _dbSqlite.GetAllAsync();
+
+            var localPhoto = localisations.FirstOrDefault(p => p.Name == args.PhotoDTO.Name);
 
             if (local is not null)
             {
@@ -1015,7 +1059,8 @@ namespace KronoGeo_Maui.ModelViews
                 // -- envoi vers le behavior pour supprimer le pin
                 WeakReferenceMessenger.Default.Send(new PinMapMessage(pinMessage));
 
-                _localisations.Remove(local);
+                await _dbSqlite.DeleteAsync(local); // -- supprime la localisation de la base de données
+                //_localisations.Remove(local);
             }
         }
         #endregion

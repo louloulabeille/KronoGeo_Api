@@ -23,7 +23,9 @@ namespace KronoGeo_Maui.Applications.ExtendMethods
                 services.AddTransient<IServiceSavePhotoOsDirectory, ServiceSavePhotoLocalAndroid>();
 #endif
 #if IOS
+#region non testé pas d'Iphone
                 services.AddTransient<IServiceSavePhotoOsDirectory,ServiceSavePhotoLocalIOS>();
+#endregion
 #endif
 
                 return services;

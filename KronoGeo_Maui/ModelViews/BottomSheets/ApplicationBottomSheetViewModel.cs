@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Carousel;
 using KronoGeo_Api.Models.Model.DTO;
+using KronoGeo_Api.Models.Model.Maui;
 using KronoGeo_Api.Models.ModelEventArgs;
 using KronoGeo_Maui.Applications.Interface;
 using KronoGeo_Maui.Applications.Message;
@@ -34,7 +35,7 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
         #endregion
 
         #region private method
-        private RouteTelemetry? _routeTelemetry = default;
+        private RouteTelemetryMaui? _routeTelemetry = default;
         #endregion
 
         #region public observable properties
@@ -107,7 +108,7 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
         /// method de mise a jour de la telemtry pour le BottomSheet
         /// </summary>
         /// <param name="route"></param>
-        public void GetRouteTeletry ( RouteTelemetry route )
+        public void GetRouteTeletry ( RouteTelemetryMaui route )
         {
             _routeTelemetry = route;
             string unit = "km";

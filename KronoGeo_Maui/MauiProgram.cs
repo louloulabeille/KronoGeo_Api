@@ -65,7 +65,7 @@ namespace KronoGeo_Maui
             #endregion
 
             #region injection pour la sauvegarde en sqlite de la localisation
-            builder.Services.AddSingleton<DatabaseSqliteMaui>();
+            builder.Services.AddSingleton<IServiceDatabaseMaui, DatabaseSqliteMaui>();
             #endregion
 
             #region Camera Injection
