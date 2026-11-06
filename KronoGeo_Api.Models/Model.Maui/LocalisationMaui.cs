@@ -27,7 +27,7 @@ namespace KronoGeo_Api.Models.Model.Maui
         public double? Course { get; set; }
 
         // -- pour les photos héritage de LocalisationMauiPhoto
-        public string? Name { get; set; } = string.Empty;
+        public string? Name { get; set; }
         public string? PathPhoto { get; set; }
         public string? Description { get; set; }
 
@@ -39,7 +39,7 @@ namespace KronoGeo_Api.Models.Model.Maui
         /// <returns></returns>
         public virtual LocalisationDTO ToLocalisation()
         {
-            if ( Name is not null )
+            if ( !string.IsNullOrEmpty( this.Name ) )
             {
                 return new LocalisationPhotoDTO()
                 {

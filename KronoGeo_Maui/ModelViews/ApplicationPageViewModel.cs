@@ -52,7 +52,7 @@ namespace KronoGeo_Maui.ModelViews
     {
         #region private readonly properties
         private readonly IServiceGeolocalisation _serviceGeo;
-        //private readonly List<Localisation> _localisations;
+        //private readonly List<Localisation> _localisations; // -- remplacer par un base sqlite
         private readonly IServiceSaveLocalisation _saveLocalisation;
         private readonly IServiceCamera _camera;
         private readonly IDialogService _dialogService;
@@ -62,12 +62,12 @@ namespace KronoGeo_Maui.ModelViews
         private readonly IServiceProvider _serviceProvider;
         private readonly IServicePermissions _servicePermissions;
         private readonly IServiceDatabaseMaui _dbSqlite;
-
-        #endregion
+        
 #if ANDROID
         private readonly IServiceSaveParametrage? _parametrage;
         private readonly IServiceBattery? _serviceBattery;
 #endif
+        #endregion
 
         #region private properties
         private LocalisationMaui? _lastLocation { get; set; } = default;
@@ -76,6 +76,10 @@ namespace KronoGeo_Maui.ModelViews
         //private RouteTelemetry _routeTelemetry { get; set; }
         private DateTimeOffset _startPauseTime { get; set; }
         private bool _takePhoto = false;
+        /// <summary>
+        /// true si il y a des enregistrements lors du chargement de l'application
+        /// </summary>
+        private bool _isLoaded = false;
         #endregion
 
         #region public properties
@@ -222,6 +226,7 @@ namespace KronoGeo_Maui.ModelViews
                     var localisations = await _dbSqlite.GetAllAsync();
                     if ( localisations is not null && localisations.Count > 0)
                     {
+                        _isLoaded = true;
                         //_localisations.Clear();
                         //_localisations.AddRange(localisations.OrderBy(ob => ob.OrderIndex));
                         //_lastLocation = (_localisations.Count > 0) ? _localisations[_localisations.Count - 1] : null;
@@ -420,6 +425,7 @@ namespace KronoGeo_Maui.ModelViews
                     var cancellationToken = new System.Threading.CancellationToken();
                     // -- systeme de messagerie 
                     await Toast.Make($"{Message}",ToastDuration.Long).Show(cancellationToken);
+                    IsMessageError = false;
                 }
             }
 
@@ -493,7 +499,10 @@ namespace KronoGeo_Maui.ModelViews
                         
                     }
 
-                    _routeTelemetry.DateTimeBegin = DateTimeOffset.Now; // -- type date heure local non utc
+                    // -- si pas de chargement la telemetry est initialisé à zéro sinon on garde la telemetry du chargement
+                    if ( !_isLoaded) 
+                        _routeTelemetry.DateTimeBegin = DateTimeOffset.Now; // -- type date heure local non utc
+                    
                     SheetViewModel.GetRouteTeletry(_routeTelemetry); // -- passage de la RouteTelemetry vers le BottomSheet 
                     IsEnablePhoto = true; // -- donne la possibilité de prendre des photos
                     IsStart = true;
@@ -582,6 +591,7 @@ namespace KronoGeo_Maui.ModelViews
                     PlayPause = "\ue1c4";
                     var cancellationToken = new System.Threading.CancellationToken();
                     await Toast.Make($"{Message}",ToastDuration.Long).Show(cancellationToken);
+                    IsMessageError = false;
                 }
             }
         }
@@ -602,6 +612,7 @@ namespace KronoGeo_Maui.ModelViews
                 {
                     // -- mise a jour de la date de fin du parcours
                     _routeTelemetry.DateTimeEnd = DateTimeOffset.Now;
+                   
 
                     // -- création d'un service pour marcher en arrière plan
                     // -- pour arrêter le service
@@ -627,12 +638,16 @@ namespace KronoGeo_Maui.ModelViews
                     {
                         // -- sauvegarde
                         IsEnableSave = true;
+                        SheetViewModel.GetRouteTeletry(_routeTelemetry); // -- passage de la RouteTelemetry vers le BottomSheet 
                     }
                     else
                     {
                         // -- supression de toutes les données
                         IsEnableSave = false;
                         await InitWindow();
+                        // -- réinitialisation de la RouteTelemetry
+                        _routeTelemetry = new RouteTelemetryMaui();
+                        SheetViewModel.GetRouteTeletry(_routeTelemetry); // -- passage de la RouteTelemetry vers le BottomSheet 
                     }
 
 #if ANDROID
@@ -670,6 +685,7 @@ namespace KronoGeo_Maui.ModelViews
                     //await _dialogService.ClosePopup(popupAttente);
                     var cancellationToken = new System.Threading.CancellationToken();
                     await Toast.Make($"{Message}",ToastDuration.Long).Show(cancellationToken);
+                    IsMessageError = false;
                 }
             }
         }
@@ -688,6 +704,7 @@ namespace KronoGeo_Maui.ModelViews
 
             try
             {
+                // -- popup pour demander le nom du groupe de localisation
                 var popup = new PopupNameLocalisationGroup();
                 var name = await _dialogService.ShowPopupAsync<string>(popup, new PopupOptions
                 {
@@ -702,17 +719,19 @@ namespace KronoGeo_Maui.ModelViews
 
                 if (name is null) return;
 
+                // -- information sur l'utilisateur connecté pour l'enregistrement de la localisation
                 RegisterDTO? register = await _serviceSaveUser.GetRegister();
 
+                // -- si l'utilisateur n'est pas connecté on ne peut pas sauvegarder les données
                 if (register is null || string.IsNullOrEmpty(register.Id))
                 {
                     IsMessageError = true;
                     Message = "L'utilisateur n'est pas connecté.";
                     return;
                 }
-
+                // -- récupération de toutes les localisations dans la base de données locale
                 var localisationsMaui = await _dbSqlite.GetAllAsync();
-
+                // -- création d'un objet LocalisationGroup pour l'enregistrement au niveau du serveur
                 var localisationGroup = new LocalisationGroup()
                 {
                     //Name = $"Localisation_{DateTime.Now:yyyyMMdd_HHmmss}",
@@ -724,15 +743,20 @@ namespace KronoGeo_Maui.ModelViews
                     Localisations = localisationsMaui.Select(l => l.ToLocalisation().Get()).ToList(),
                     RouteTelemetry = _routeTelemetry.ToLocalisation().Get(),
                 };
-
+                // -- affichage du popup d'attente
                 _dialogService.ShowPopup(popupAttente);
                 if (await _saveLocalisation.SaveLocalisation(localisationGroup, new System.Threading.CancellationToken()))
                 {
                     await InitWindow();
+                    IsEnableSave = false;
+                    await _dialogService.ClosePopup(popupAttente);
                 }
-                await _dialogService.ClosePopup(popupAttente);
-                IsEnableSave = false;
-                
+                else
+                {
+                    await _dialogService.ClosePopup(popupAttente);
+                    IsMessageError = true;
+                    Message = "Erreur lors de la sauvegarde des données. Veuillez réessayer plus tard."; 
+                }
             }
             catch (Exception ex)
             {
@@ -799,19 +823,22 @@ namespace KronoGeo_Maui.ModelViews
                 {
                     var cancellationToken = new System.Threading.CancellationToken();
                     await Toast.Make($"{Message}", ToastDuration.Long).Show(cancellationToken);
+                    IsMessageError = false;
                 }
             }
             
         }
 
-        
 
-#endregion
+
+        #endregion
 
         #region public method interface IRecipient<LocationChangedMessage>
         /// <summary>
         /// method qui est appelé lors d'un send sur le message LocationChangedMessage
         /// il est en écoute
+        /// Attention ne pas trop faire un async void car il peut y avoir des problèmes de cross thread
+        /// rajouter un try catch pour éviter le blocage à cause d'une exception non gérée
         /// </summary>
         /// <param name="message"></param>
         /// <exception cref="NotImplementedException"></exception>
@@ -826,8 +853,15 @@ namespace KronoGeo_Maui.ModelViews
                 IsMessageError = true;
                 Message = "Erreur interne";
                 Console.WriteLine(ex.Message);
-                var cancellationToken = new System.Threading.CancellationToken();
-                await Toast.Make($"{Message}", ToastDuration.Long).Show(cancellationToken);
+            }
+            finally
+            {
+                if (IsMessageError)
+                {
+                    var cancellationToken = new System.Threading.CancellationToken();
+                    await Toast.Make($"{Message}", ToastDuration.Long).Show(cancellationToken);
+                    IsMessageError = false;
+                }
             }
         }
 
@@ -882,12 +916,7 @@ namespace KronoGeo_Maui.ModelViews
             WeakReferenceMessenger.Default.Send(new PinMapMessage(null));
             // -- reinitalise la telemetrie
             //_routeTelemetry = _serviceTelemetry.CalculateTelemetry(_localisations);
-            var localisations = await _dbSqlite.GetAllAsync();
-            _routeTelemetry = RouteTelemetryMaui.FromRouteTelemetry(_serviceTelemetry
-                .CalculateTelemetry(localisations.Select(l => l.ToLocalisation().Get()).ToList())
-                .GetDTO());
-            // -- initialisation
-            SheetViewModel.GetRouteTeletry(_routeTelemetry); // -- passage de la RouteTelemetry vers le BottomSheet
+            SheetViewModel.GetRouteTeletry(new()); // -- passage de la RouteTelemetry vers le BottomSheet
         }
 
         /// <summary>

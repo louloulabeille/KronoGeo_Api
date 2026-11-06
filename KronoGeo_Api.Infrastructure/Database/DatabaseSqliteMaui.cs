@@ -1,6 +1,8 @@
 ﻿using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models;
+using KronoGeo_Api.Models.Infrastructure.Options;
 using KronoGeo_Api.Models.Model.Maui;
+using Microsoft.Extensions.Options;
 using Microsoft.Maui.Storage;
 using SQLite;
 using System;
@@ -12,8 +14,13 @@ namespace KronoGeo_Api.Infrastructure.Database
     /// <summary>
     /// class Database pour l'enregistrement au niveau de Maui
     /// </summary>
-    public class DatabaseSqliteMaui : IServiceDatabaseMaui
+    public class DatabaseSqliteMaui (IOptions<SqliteOptions> options) : IServiceDatabaseMaui
     {
+
+        #region private readonly properties
+        private readonly IOptions<SqliteOptions> _option = options;
+        #endregion
+
         #region private db sqlite
         private SQLiteAsyncConnection? _db;
         #endregion
@@ -26,7 +33,7 @@ namespace KronoGeo_Api.Infrastructure.Database
             if (_db != null) return;
 
             // -- création debase de données sqlite
-            var path = Path.Combine(FileSystem.AppDataDirectory, "app.db3");
+            var path = Path.Combine(FileSystem.AppDataDirectory, _option.Value.DatabaseName);
             _db = new SQLiteAsyncConnection(path);
             await _db.CreateTableAsync<LocalisationMaui>();
             await _db.CreateTableAsync<RouteTelemetryMaui>();
