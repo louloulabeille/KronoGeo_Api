@@ -234,7 +234,7 @@ namespace KronoGeo_Maui.ModelViews
                             ? localisations.OrderBy(ob => ob.OrderIndex).ToList()[^1] : null;
 
                         //_routeTelemetry = _serviceTelemetry.CalculateTelemetry(localisations);
-
+                        _routeTelemetry = await _dbSqlite.GetTelemetryAsync();
                         // -- passage de la RouteTelemetry vers le BottomSheet
                         SheetViewModel.GetRouteTeletry(_routeTelemetry);
 
@@ -902,6 +902,7 @@ namespace KronoGeo_Maui.ModelViews
         private async Task InitWindow()
         {
             _lastLocation = null;
+            _isLoaded = false;
             //MesPhotos.Clear();
             SheetViewModel.DeleteAllPhotos();
             Message = string.Empty;
