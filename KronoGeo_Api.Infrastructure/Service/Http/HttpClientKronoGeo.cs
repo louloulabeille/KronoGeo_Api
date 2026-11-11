@@ -36,14 +36,15 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <param name="tokkenBearer"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public virtual async Task<ResponseApiLocalisations> SaveGroupLocalisationsAsync(LocalisationGroupDTO localisationGroup, string tokkenBearer)
+        //public virtual async Task<ResponseApiLocalisations> SaveGroupLocalisationsAsync(LocalisationGroupDTO localisationGroup, string tokkenBearer)
+        public virtual async Task<ResponseApiLocalisations> SaveGroupLocalisationsAsync(LocalisationGroupDTO localisationGroup)
         {
             try
             {
                 if (localisationGroup.Localisations is not null)
                 {
                     HttpContent content = new StringContent(JsonSerializer.Serialize(localisationGroup), Encoding.UTF8, "application/json");
-                    HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokkenBearer);
+                    //HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokkenBearer);
 
                     using var retour = await HttpClient.PostAsync(_options.Value.SaveGroupLocalisations, content);
                     //retour.EnsureSuccessStatusCode();
@@ -106,7 +107,8 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         /// <param name="photo"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public virtual async Task<ResponseApiImage> SavePhotoAsync(PhotoDTO photo, string tokkenBearer)
+        //public virtual async Task<ResponseApiImage> SavePhotoAsync(PhotoDTO photo, string tokkenBearer)
+        public virtual async Task<ResponseApiImage> SavePhotoAsync(PhotoDTO photo)
         {
             try
             {
@@ -125,8 +127,8 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                 multipartContent.Add(streamContent, "file", photo.Name ?? string.Empty);
 
                 // send it
-                if( !string.IsNullOrEmpty(tokkenBearer))
-                    HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokkenBearer);
+                /*if( !string.IsNullOrEmpty(tokkenBearer))
+                    HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokkenBearer);*/
                 
                 using var retour = await HttpClient.PostAsync(_options.Value.SavePhoto, multipartContent);
                 //retour.EnsureSuccessStatusCode();

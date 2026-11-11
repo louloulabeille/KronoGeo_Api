@@ -186,6 +186,9 @@ namespace KronoGeo_Maui.ModelViews
         /// <returns></returns>
         [RelayCommand]
         public async Task AppearingExe() {
+            // -- chargement des tracés
+            await InitTrace();
+
             // -- lancement de l'écoute sur les eventHandlers pour sauvegarde des en cas de fermetures accidentel
             var windowList = Application.Current?.Windows;
             var window = (windowList is not null && windowList.Count > 0) ? windowList[0] : null;
@@ -879,6 +882,29 @@ namespace KronoGeo_Maui.ModelViews
         #endregion
 
         #region private method
+
+        /// <summary>
+        /// Remonte les tracés de la personne pour qu'il puisse chargé le tracé sur la Map
+        /// </summary>
+        /// <returns></returns>
+        private async Task InitTrace()
+        {
+            await _dbSqlite.ClearGroupsTraceAsync(); // -- supprime toutes les données de la base de données
+            var localisations = await _saveLocalisation.GetAllTraceAsync();
+            if (localisations is null || localisations.Count == 0 ) return;
+            foreach(var item in localisations)
+            {
+                var location = new LocalisationGroupTraceMaui() {
+                    Id = item.Id,
+                    Name = item.Name ,
+                    Date = item.Date
+                };
+                await _dbSqlite.SaveAsync(item);
+            }
+
+            await SheetViewModel.GetAfficheListGroup(true);
+
+        }
 
         /// <summary>
         /// Pour gérer le lancement et relancement du système de géolocalisation 

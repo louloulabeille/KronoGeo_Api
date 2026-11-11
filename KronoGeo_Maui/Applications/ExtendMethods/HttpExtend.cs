@@ -50,14 +50,17 @@ namespace KronoGeo_Maui.Applications.ExtendMethods
             /// <returns></returns>
             public IServiceCollection AddHttpClientService()
             {
-                // - HttpClient utilisé par injection de dépendance
-                
+                // -- ajout du service du TokenHandler
+                services.AddTransient<TokenHeaderMauiHandler>();
+
                 // -- service métier HttpClient
                 services.AddHttpClient<IServiceHttpKronoGeo, HttpClientKronoGeo>((serviceProvider, client) =>
                 {
                     var options = serviceProvider.GetRequiredService<IOptions<UrlApiMetier>>();
                     client.BaseAddress = new Uri(options.Value.BasicAdress);
-                })  // - nombre d'essai 5 et intervalle en milliseconde i = (50 + i*150)
+                })  
+                    .AddHttpMessageHandler<TokenHeaderMauiHandler>()
+                    // - nombre d'essai 5 et intervalle en milliseconde i = (50 + i*150)
                     .AddTransientHttpErrorPolicy(policyBuilder => policyBuilder.WaitAndRetryAsync(
                         retryCount: 5,
                         retryNumber => TimeSpan.FromMilliseconds(50 + retryNumber * 150)));

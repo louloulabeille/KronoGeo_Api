@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Carousel;
 using KronoGeo_Api.Models.Model.DTO;
@@ -27,18 +28,22 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
         #endregion
 
         #region public properties
-        public ObservableCollection<PageBaseViewModel> MesPages { get; set; }
+        public ObservableCollection<PageBaseViewModel> MesPages { get; set; } 
         #endregion
 
         #region private readonly properties service
         private readonly IServiceCamera _camera;
+        private readonly IServiceDatabaseMaui _dbMaui;
         #endregion
 
         #region private method
         private RouteTelemetryMaui? _routeTelemetry = default;
+        private bool _isListGroupTrace = true;
         #endregion
 
         #region public observable properties
+        [ObservableProperty]
+        public partial ObservableCollection<LocalisationGroupTraceMaui> MesTraces { get; set; } = [];
         [ObservableProperty]
         public partial ObservableCollection<PhotoDTO> MesPhotos { get; set; } = [];
         [ObservableProperty]
@@ -54,15 +59,23 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
         #endregion
 
         #region public constructeur
-        public ApplicationBottomSheetViewModel(IServiceCamera camera)
+        public ApplicationBottomSheetViewModel(IServiceCamera camera, IServiceDatabaseMaui dbMaui)
         {
             // -- pour affichage des différentes pages du carousel
             MesPages = [];
-            MesPages.Add(new ListImageViewModel());
-            MesPages.Add(new ResumeViewModel());
+            if (_isListGroupTrace)
+            {
+                MesPages.Add(new ListTraceViewModel());
+            }
+            else
+            {
+                MesPages.Add(new ListImageViewModel());
+                MesPages.Add(new ResumeViewModel());
+            }
 
             // -- chargement des services
             _camera = camera;
+            _dbMaui = dbMaui;
             //MesPhotos = _camera.
 
             // -- chargement la date de début de la route
@@ -125,6 +138,38 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
             MessagePostiveElevation = $"{Math.Round(_routeTelemetry.PositiveElevationGain)} {elevation}";
         } 
 
+        /// <summary>
+        /// Pour l'affichage de la liste group tracé
+        /// ou non sinon affichage des images et de la route Telemetry
+        /// </summary>
+        /// <param name="isListGroupTrace"></param>
+        public async Task GetAfficheListGroup(bool isListGroupTrace)
+        {
+            _isListGroupTrace = isListGroupTrace;
+            if ( isListGroupTrace )
+            {
+                await InitListeGroupTraceAsync();
+            }
+            else
+            {
+
+            }
+        }
+        #endregion
+
+        #region private method
+        /// <summary>
+        /// Method qui remonte la liste des tracés
+        /// </summary>
+        /// <returns></returns>
+        private async Task InitListeGroupTraceAsync()
+        {
+            var traces =  await _dbMaui.GetGroupsTraceAsync();
+            foreach ( var item in traces.OrderByDescending(t => t.Date) )
+            {
+                MesTraces.Add(item);
+            }
+        }
         #endregion
 
         #region public method RelayCommand
@@ -159,6 +204,18 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
             if (sheet is null) return;
             await sheet.DismissAsync();
         }
+
+        /// <summary>
+        /// Charge le tracé au niveau de la Map
+        /// </summary>
+        /// <param name="localisationGroup"></param>
+        public static void LoadTrace(LocalisationGroupTraceMaui localisationGroup)
+        {
+            if (localisationGroup is null) return;
+            // -- envoie du message pour chargement de la trace
+            //WeakReferenceMessenger.Default.Send(new LoadTraceMessage(localisationGroup));
+        }
+
         #endregion
 
 
