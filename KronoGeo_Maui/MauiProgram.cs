@@ -14,10 +14,6 @@ using Microsoft.Extensions.Logging.Debug;
 using The49.Maui.BottomSheet;
 using KronoGeo_Api.Infrastructure.Database;
 
-
-
-
-
 #if ANDROID
 using KronoGeo_Maui.Platforms.Android.Applicatif.Factory.WakeLock;
 using KronoGeo_Maui.Platforms.Android.Applicatif.OsManager;

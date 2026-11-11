@@ -11,8 +11,22 @@ namespace KronoGeo_Api.Interface.Service
     /// </summary>
     public interface IServiceHttpKronoGeo
     {
-        public Task<ResponseApiLocalisations> SaveGroupLocalisationsAsync( LocalisationGroupDTO localisationGroup, string tokkenBearer );
-        public Task<ResponseApiImage> SavePhotoAsync(PhotoDTO photo, string tokkenBearer);
+        /// <summary>
+        /// Enregistre un tracé complet de localisation
+        /// </summary>
+        /// <param name="localisationGroup"></param>
+        /// <returns></returns>
+        public Task<ResponseApiLocalisations> SaveGroupLocalisationsAsync(LocalisationGroupDTO localisationGroup);
+        /// <summary>
+        /// Enregistre la photo au niveau du serveur
+        /// </summary>
+        /// <param name="photo"></param>
+        /// <returns></returns>
+        public Task<ResponseApiImage> SavePhotoAsync(PhotoDTO photo);
+        /// <summary>
+        /// Retourn tous les tracés d'un utilisateur
+        /// </summary>
+        /// <returns></returns>
         public Task<ResponseApiLocalisations> GetUserGroupLocalisationAsync();
         public Task<ResponseApiLocalisations> GetLocalisationsByIdAsync(int IdLocalisationGroup);
         public Task<ResponseApiLocalisations> UpdateLocalisationGroupAsync(LocalisationGroupDTO localisationGroup);

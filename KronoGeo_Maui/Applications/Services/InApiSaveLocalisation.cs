@@ -67,7 +67,7 @@ namespace KronoGeo_Maui.Applications.Services
                     }
                 }
 
-                string token = await GetToken();
+                //string token = await GetToken();
 
                 LocalisationGroupDTO dTO = new()
                 {
@@ -129,7 +129,8 @@ namespace KronoGeo_Maui.Applications.Services
                     }
                     ).ToList()
                 };
-                var retour = await _serviceHttpKronoGeo.SaveGroupLocalisationsAsync(dTO, token);
+                //var retour = await _serviceHttpKronoGeo.SaveGroupLocalisationsAsync(dTO, token);
+                var retour = await _serviceHttpKronoGeo.SaveGroupLocalisationsAsync(dTO);
 
                 if (retour.IsSuccess)
                 {
@@ -144,6 +145,36 @@ namespace KronoGeo_Maui.Applications.Services
                 throw new Exception($"Erreur lors de l'envoi des photos. {ex.Message}", ex);
             }
         }
+
+        /// <summary>
+        /// Retourne la liste des tracés de l'utilisateur
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<List<LocalisationGroupDTO>> GetAllTraceAsync()
+        {
+            try
+            {
+                var result = await _serviceHttpKronoGeo.GetUserGroupLocalisationAsync();
+                if (result.IsSuccess)
+                {
+                    return result.GroupsDTO ?? [];
+                }
+
+                return [];
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Erreur lors de la récupération des tracés. {ex.Message}", ex);
+            }
+            
+        }
+
+        public Task<LocalisationDTO> GetLocalisationAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
 
         #region private method
@@ -155,8 +186,8 @@ namespace KronoGeo_Maui.Applications.Services
         /// <exception cref="NotImplementedException"></exception>
         private async Task<ResponseApiImage> SavePhotoAsync (PhotoDTO photo)
         {
-            string token = await GetToken();
-            return await _serviceHttpKronoGeo.SavePhotoAsync(photo, token);
+            //string token = await GetToken();
+            return await _serviceHttpKronoGeo.SavePhotoAsync(photo);
         }
 
         /// <summary>
@@ -172,6 +203,8 @@ namespace KronoGeo_Maui.Applications.Services
 
             return register.Token;
         }
+
+        
         #endregion
     }
 }

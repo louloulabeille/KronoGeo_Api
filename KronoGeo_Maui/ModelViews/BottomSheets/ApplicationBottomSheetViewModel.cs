@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Carousel;
 using KronoGeo_Api.Models.Model.DTO;
@@ -12,6 +13,7 @@ using KronoGeo_Maui.Applications.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using The49.Maui.BottomSheet;
 
@@ -27,18 +29,24 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
         #endregion
 
         #region public properties
-        public ObservableCollection<PageBaseViewModel> MesPages { get; set; }
+        public ObservableCollection<PageBaseViewModel>? MesPages { get; set; } = [];
         #endregion
 
         #region private readonly properties service
         private readonly IServiceCamera _camera;
+        private readonly IServiceDatabaseMaui _dbMaui;
         #endregion
 
-        #region private method
+        #region private properties
         private RouteTelemetryMaui? _routeTelemetry = default;
+        private bool? _isListGroupTrace;
+        // -- tracé initial avant recherche
+        private List<LocalisationGroupTraceMaui>? _listGroupTrace = default;
         #endregion
 
         #region public observable properties
+        [ObservableProperty]
+        public partial ObservableCollection<LocalisationGroupTraceMaui> MesTraces { get; set; } = [];
         [ObservableProperty]
         public partial ObservableCollection<PhotoDTO> MesPhotos { get; set; } = [];
         [ObservableProperty]
@@ -51,23 +59,48 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
         public partial string MessagePostiveElevation { get; set; } = "0";
         [ObservableProperty]
         public partial string DateTimeBegin { get; set; }
+        [ObservableProperty]
+        public partial string SearchText { get; set; } = string.Empty;
         #endregion
 
         #region public constructeur
-        public ApplicationBottomSheetViewModel(IServiceCamera camera)
+        public ApplicationBottomSheetViewModel(IServiceCamera camera, IServiceDatabaseMaui dbMaui)
         {
             // -- pour affichage des différentes pages du carousel
-            MesPages = [];
-            MesPages.Add(new ListImageViewModel());
-            MesPages.Add(new ResumeViewModel());
+            /*MesPages = [];
+            if (_isListGroupTrace)
+            {
+                MesPages.Add(new ListTraceViewModel());
+            }
+            else
+            {
+                MesPages.Add(new ListImageViewModel());
+                MesPages.Add(new ResumeViewModel());
+            }*/
 
             // -- chargement des services
             _camera = camera;
+            _dbMaui = dbMaui;
             //MesPhotos = _camera.
 
             // -- chargement la date de début de la route
-            DateTimeBegin = _routeTelemetry?.DateTimeBegin.ToString("dd/MM/yyyy HH:mm:ss") 
+            DateTimeBegin = _routeTelemetry?.DateTimeBegin.ToString("dd/MM/yyyy HH:mm:ss")
                 ?? string.Empty;
+        }
+        #endregion
+
+        #region public method OnChanged
+        /// <summary>
+        /// Method qui filtre les tracés
+        /// </summary>
+        /// <param name="value"></param>
+        public void OnSearchTextChanged(string value)
+        {
+            if (string.IsNullOrEmpty(value)) return;
+            
+            var traceFiltre = _listGroupTrace?.Where(t => t.Name.Contains(value, StringComparison.OrdinalIgnoreCase)).ToList();
+            MesTraces.Clear();
+            LoadTrace(traceFiltre ?? []);
         }
         #endregion
 
@@ -125,6 +158,60 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
             MessagePostiveElevation = $"{Math.Round(_routeTelemetry.PositiveElevationGain)} {elevation}";
         } 
 
+        /// <summary>
+        /// Pour l'affichage de la liste group tracé
+        /// ou non sinon affichage des images et de la route Telemetry
+        /// </summary>
+        /// <param name="isListGroupTrace"></param>
+        public async Task GetAfficheListGroup(bool isListGroupTrace)
+        {
+            if (_isListGroupTrace == isListGroupTrace) return;
+
+            _isListGroupTrace = isListGroupTrace;
+
+            var pages = new ObservableCollection<PageBaseViewModel>();
+            if (isListGroupTrace)
+            {
+                pages.Add(new ListTraceViewModel());
+            }
+            else
+            {
+                pages.Add(new ListImageViewModel());
+                pages.Add(new ResumeViewModel());
+            }
+
+            MesPages = null;
+            MesPages = pages;      // le binding reçoit un PropertyChanged
+            await Task.Yield();
+
+            if (isListGroupTrace)
+                await InitListeGroupTraceAsync();
+        }
+        #endregion
+
+        #region private method
+        /// <summary>
+        /// Method qui remonte la liste des tracés
+        /// </summary>
+        /// <returns></returns>
+        private async Task InitListeGroupTraceAsync()
+        {
+            var traces =  await _dbMaui.GetGroupsTraceAsync();
+            _listGroupTrace = traces.OrderByDescending(t => t.Date).ToList();
+            LoadTrace(_listGroupTrace);
+        }
+
+        /// <summary>
+        /// Charge le tracés dans la liste des tracés
+        /// </summary>
+        /// <param name="traces"></param>
+        private void LoadTrace( List<LocalisationGroupTraceMaui> traces )
+        {
+            foreach (var item in traces)
+            {
+                MesTraces.Add(item);
+            }
+        }
         #endregion
 
         #region public method RelayCommand
@@ -159,6 +246,18 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
             if (sheet is null) return;
             await sheet.DismissAsync();
         }
+
+        /// <summary>
+        /// Charge le tracé au niveau de la Map
+        /// </summary>
+        /// <param name="localisationGroup"></param>
+        public static void LoadTrace(LocalisationGroupTraceMaui localisationGroup)
+        {
+            if (localisationGroup is null) return;
+            // -- envoie du message pour chargement de la trace
+            //WeakReferenceMessenger.Default.Send(new LoadTraceMessage(localisationGroup));
+        }
+
         #endregion
 
 

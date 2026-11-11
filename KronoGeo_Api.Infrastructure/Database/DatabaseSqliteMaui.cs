@@ -1,6 +1,7 @@
 ﻿using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Infrastructure.Options;
+using KronoGeo_Api.Models.Model.DTO;
 using KronoGeo_Api.Models.Model.Maui;
 using Microsoft.Extensions.Options;
 using Microsoft.Maui.Storage;
@@ -37,6 +38,8 @@ namespace KronoGeo_Api.Infrastructure.Database
             _db = new SQLiteAsyncConnection(path);
             await _db.CreateTableAsync<LocalisationMaui>();
             await _db.CreateTableAsync<RouteTelemetryMaui>();
+            await _db.CreateTableAsync<LocalisationTraceMaui>();
+            await _db.CreateTableAsync<LocalisationGroupTraceMaui>();
         }
         #endregion
 
@@ -147,6 +150,85 @@ namespace KronoGeo_Api.Infrastructure.Database
             return await _db!.DeleteAsync(p);
         }
 
+        #endregion
+
+        #region table LocalisationGroupTraceMaui & LocalisationTraceMaui
+        /// <summary>
+        /// Retourne la liste des localisations pour un id group localisation
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<List<LocalisationTraceMaui>> GetLocalisationsTraceAsync(int id)
+        {
+            await Init();
+            return await _db!.Table<LocalisationTraceMaui>().Where(l => l.LocalisationGroupId == id).ToListAsync();
+        }
+
+        /// <summary>
+        /// Retourne tous les groups localisations d'un individu
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<List<LocalisationGroupTraceMaui>> GetGroupsTraceAsync()
+        {
+            await Init();
+            return await _db!.Table<LocalisationGroupTraceMaui>().ToListAsync();
+        }
+
+        /// <summary>
+        /// Supprime les enregistrements des tables LocalisationTraceMaui & LocalisationGroupTraceMaui
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task ClearGroupsTraceAsync()
+        {
+            await Init();
+            await _db!.DeleteAllAsync<LocalisationTraceMaui>();
+            await _db!.DeleteAllAsync<LocalisationGroupTraceMaui>();
+        }
+
+        /// <summary>
+        /// Enresgistre les éléments dans les tables LocalisationTraceMaui & LocalisationGroupTraceMaui
+        /// à partir des LocalisationGroupDTO
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<int> SaveAsync(LocalisationGroupDTO p)
+        {
+            await Init();
+            // -- enregistre le group localisation
+            int i = await _db!.InsertAsync(new LocalisationGroupTraceMaui()
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Date = p.Date
+            });
+
+            if (p.Localisations is not null)
+            {
+                foreach (var localisation in p.Localisations)
+                {
+                    await _db!.InsertAsync(new LocalisationTraceMaui()
+                    {
+                        Id = localisation.Id,
+                        OrderIndex = localisation.OrderIndex,
+                        Timestamp = localisation.Timestamp,
+                        Latitude = localisation.Latitude,
+                        Longitude = localisation.Longitude,
+                        Altitude = localisation.Altitude,
+                        Accuracy = localisation.Accuracy,
+                        VerticalAccuracy = localisation.VerticalAccuracy,
+                        Speed = localisation.Speed,
+                        Course = localisation.Course,
+                        LocalisationGroupId = p.Id
+                    });
+                    i++;
+                }
+            }
+
+            return i;
+        }
         #endregion
     }
 }

@@ -16,18 +16,21 @@ namespace KronoGeo_Maui.Applications.Outils.Views
         //public DataTemplate? MapTemplate { get; set; } = default;
         public DataTemplate? ListImageTemplate { get; set; } = default;
         public DataTemplate? ResumeTemplate { get; set; } = default;
+        public DataTemplate? ListGroupTraceTemplate { get; set; } = default;
 
         // La méthode magique qui fait le choix
         protected override DataTemplate OnSelectTemplate(object item, BindableObject container)
         {
             if (ListImageTemplate is null 
-                || ResumeTemplate is null ) return (DataTemplate)item;
+                || ResumeTemplate is null || ListGroupTraceTemplate is null) return (DataTemplate)item;
             return item switch
             {
                 //MapViewModel => MapTemplate,
                 ListImageViewModel => ListImageTemplate,
                 ResumeViewModel => ResumeTemplate,
-                _ => ListImageTemplate // Choix par défaut par sécurité
+                ListTraceViewModel => ListGroupTraceTemplate,
+                _=> ListGroupTraceTemplate
+                //_ => ListImageTemplate // Choix par défaut par sécurité
             };
         }
     }

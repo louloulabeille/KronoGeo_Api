@@ -186,6 +186,9 @@ namespace KronoGeo_Maui.ModelViews
         /// <returns></returns>
         [RelayCommand]
         public async Task AppearingExe() {
+            // -- chargement des tracés
+            await InitTrace();
+
             // -- lancement de l'écoute sur les eventHandlers pour sauvegarde des en cas de fermetures accidentel
             var windowList = Application.Current?.Windows;
             var window = (windowList is not null && windowList.Count > 0) ? windowList[0] : null;
@@ -205,6 +208,8 @@ namespace KronoGeo_Maui.ModelViews
         [RelayCommand]
         public async Task LoadedExe()
         {
+            // -- mise en place du carroussel
+            await SheetViewModel.GetAfficheListGroup(true);
 
             // -- mise a jour dans la Map de la geolocalisation sinon il affiche la map par défaut
             await GetUserLocationAsync();
@@ -441,6 +446,7 @@ namespace KronoGeo_Maui.ModelViews
             Message = string.Empty;
             IsMessageError = false;
             IsEnableSave = false;
+            await SheetViewModel.GetAfficheListGroup(false); // -- affichage des images et de la route telemetry
             try
             {
 #if ANDROID
@@ -642,6 +648,8 @@ namespace KronoGeo_Maui.ModelViews
                     }
                     else
                     {
+                        // -- affichage des différents tracés
+                        await SheetViewModel.GetAfficheListGroup(true); 
                         // -- supression de toutes les données
                         IsEnableSave = false;
                         await InitWindow();
@@ -704,6 +712,8 @@ namespace KronoGeo_Maui.ModelViews
 
             try
             {
+                // -- affichage des différents tracés
+                await SheetViewModel.GetAfficheListGroup(true);
                 // -- popup pour demander le nom du groupe de localisation
                 var popup = new PopupNameLocalisationGroup();
                 var name = await _dialogService.ShowPopupAsync<string>(popup, new PopupOptions
@@ -879,6 +889,29 @@ namespace KronoGeo_Maui.ModelViews
         #endregion
 
         #region private method
+
+        /// <summary>
+        /// Remonte les tracés de la personne pour qu'il puisse chargé le tracé sur la Map
+        /// </summary>
+        /// <returns></returns>
+        private async Task InitTrace()
+        {
+            await _dbSqlite.ClearGroupsTraceAsync(); // -- supprime toutes les données de la base de données
+            var localisations = await _saveLocalisation.GetAllTraceAsync();
+            if (localisations is null || localisations.Count == 0 ) return;
+            foreach(var item in localisations)
+            {
+                var location = new LocalisationGroupTraceMaui() {
+                    Id = item.Id,
+                    Name = item.Name ,
+                    Date = item.Date
+                };
+                await _dbSqlite.SaveAsync(item);
+            }
+
+            //await SheetViewModel.GetAfficheListGroup(true);
+
+        }
 
         /// <summary>
         /// Pour gérer le lancement et relancement du système de géolocalisation 

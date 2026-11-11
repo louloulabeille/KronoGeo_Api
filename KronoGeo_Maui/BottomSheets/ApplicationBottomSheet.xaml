@@ -4,6 +4,7 @@
              xmlns:the49="https://schemas.the49.com/dotnet/2023/maui"
              xmlns:viewmodels="clr-namespace:KronoGeo_Maui.ModelViews.BottomSheets"
              xmlns:models="clr-namespace:KronoGeo_Api.Models.Model.DTO;assembly=KronoGeo_Api.Models"
+             xmlns:modelsmaui="clr-namespace:KronoGeo_Api.Models.Model.Maui;assembly=KronoGeo_Api.Models" 
              xmlns:carousel="clr-namespace:KronoGeo_Maui.Applications.Outils.Views" x:DataType="viewmodels:ApplicationBottomSheetViewModel"
                    x:Class="KronoGeo_Maui.BottomSheets.ApplicationBottomSheet"
              x:Name="ApplicationBottom"
@@ -16,6 +17,50 @@
 
     <!-- Ressources de la page -->
     <the49:BottomSheet.Resources>
+        <DataTemplate x:Key="ListTrace" x:DataType="viewmodels:ApplicationBottomSheetViewModel">
+            <Grid BackgroundColor="#96BD8E" Padding="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Border Grid.Row="0" StrokeThickness="1"  BackgroundColor="#F9EDE1"
+                StrokeShape="RoundRectangle 10,10,10,10" Stroke="#51638B">
+                    <Entry Placeholder="Rechercher une trace" HorizontalOptions="Center" FontSize="16"
+                           VerticalOptions="Center" TextColor="#51638B"
+                           Text="{Binding Source={x:Reference ApplicationBottom}, Path=BindingContext.SearchText, Mode=TwoWay}"
+                        />
+                </Border>
+                <Border Grid.Row="1" StrokeThickness="1" BackgroundColor="#F9EDE1"
+                StrokeShape="RoundRectangle 10,10,10,10" Stroke="#51638B">
+
+                    <CollectionView ItemsSource="{Binding Source={x:Reference ApplicationBottom},Path=BindingContext.MesTraces}">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Vertical"/>
+                        </CollectionView.ItemsLayout>
+                        <!-- Design de chaque cellule de la grille -->
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="modelsmaui:LocalisationGroupTraceMaui" >
+                                <Border StrokeThickness="1" 
+                                    StrokeShape="RoundRectangle 20,20,20,20" Stroke="#51638B">
+                                    <Grid RowDefinitions="*, Auto">
+                                        <!--CommandParameter="{Binding .}"-->
+                                        <Button Text="{Binding AffichageName}" HorizontalOptions="End" FontSize="16"
+                                                Command="{Binding BindingContext.LoadTraceCommand, Source={x:Reference ApplicationBottom}}"
+                                                CommandParameter="{Binding .}"
+                                                VerticalOptions="Start" Margin="5" WidthRequest="30"
+                                                HeightRequest="30" CornerRadius="15" 
+                                                BackgroundColor="Transparent"
+                                                TextColor="White" FontAttributes="Bold"
+                                                />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Border>
+            </Grid>
+        </DataTemplate>
+
         <!-- liste des images -->
         <DataTemplate x:Key="PhotoGeo" x:DataType="viewmodels:ApplicationBottomSheetViewModel">
             <!-- mettre en place la camera -->
@@ -114,6 +159,7 @@
         <!-- aiguilleur du carroussel -->
         <carousel:KronoGeoCarouselTemplateSelector 
             x:Key="PhotoTeletryTemplate"
+            ListGroupTraceTemplate="{StaticResource ListTrace}"
             ListImageTemplate="{StaticResource PhotoGeo}"
             ResumeTemplate="{StaticResource ResumeGeo}"/>
         <!--MapTemplate="{StaticResource MapGeo}"-->

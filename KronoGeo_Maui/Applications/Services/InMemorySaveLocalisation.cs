@@ -2,6 +2,7 @@
 using CommunityToolkit.Maui.Storage;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models;
+using KronoGeo_Api.Models.Model.DTO;
 using Npgsql.Internal;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,9 @@ using System.Text;
 
 namespace KronoGeo_Maui.Applications.Services
 {
+    /// <summary>
+    /// Class de test
+    /// </summary>
     public class InMemorySaveLocalisation : IServiceSaveLocalisation
     {
 
@@ -78,6 +82,17 @@ namespace KronoGeo_Maui.Applications.Services
                 await Toast.Make($"Le fichier n'a pas été enregistré avec succès. Erreur: {fileSaverResult.Exception.Message}").Show(cancellationToken);
                 return false;
             }
+        }
+
+
+        public Task<List<LocalisationGroupDTO>> GetAllTraceAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<LocalisationDTO> GetLocalisationAsync(int id)
+        {
+            throw new NotImplementedException();
         }
         #endregion
     }

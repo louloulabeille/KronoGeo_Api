@@ -1,4 +1,5 @@
 ﻿using KronoGeo_Api.Models;
+using KronoGeo_Api.Models.Model.DTO;
 using KronoGeo_Api.Models.Model.Maui;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ namespace KronoGeo_Api.Interface.Service
 {
     public interface IServiceDatabaseMaui
     {
+        // -- Table LocalisationMaui
         public Task<List<LocalisationMaui>> GetAllAsync();
         public Task<int> Count();
         public Task Clear();
@@ -15,10 +17,16 @@ namespace KronoGeo_Api.Interface.Service
         public Task<int> DeleteAsync(LocalisationMaui p);
         public Task<bool> Exists(LocalisationMaui p);
 
-        // -- j'aurai pu le mettre dans un autre service
+        // -- Table RouteTelemetryMaui
         public Task<RouteTelemetryMaui> GetTelemetryAsync();
         public Task<int> SaveTelemetryAsync(RouteTelemetryMaui p);
         public Task<int> DeleteTelemetryAsync(RouteTelemetryMaui p);
+
+        // -- Table LocalisationGroupTraceMaui & LocalisationTraceMaui
+        public Task<List<LocalisationTraceMaui>> GetLocalisationsTraceAsync(int id);
+        public Task<List<LocalisationGroupTraceMaui>> GetGroupsTraceAsync();
+        public Task ClearGroupsTraceAsync();
+        public Task<int> SaveAsync(LocalisationGroupDTO p);
 
     }
 }
