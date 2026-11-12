@@ -71,7 +71,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
                     // - email de recuperation 
                     var mailAuto = new ApiMailIdentity(_serviceSendMail, _logger);
                 
-                    var resultEmail = mailAuto.SendEmail(request.Register.Email, new MessageChangeEmailCreator(_signInManager.UserManager, user, _urlOptions, urlNewMail),"Mail de validation de changement de votre adresse mail.");
+                    var resultEmail = await mailAuto.SendEmail(request.Register.Email, new MessageChangeEmailCreator(_signInManager.UserManager, user, _urlOptions, urlNewMail),"Mail de validation de changement de votre adresse mail.");
                     if (resultEmail.Status == EmailResultStatus.Success) { 
                         //_logger.LogDebug("Url {url} d'authentificatrion de modification de mail pour le compte : {login} ", urlNewMail, user.UserName);
                         result.IdentityResult = IdentityResult.Success;

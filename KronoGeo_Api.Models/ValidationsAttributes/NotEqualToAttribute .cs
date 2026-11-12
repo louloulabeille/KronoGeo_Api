@@ -31,7 +31,7 @@ namespace KronoGeo_Api.Models.ValidationsAttributes
             if (Equals(value, otherValue))
                 return new ValidationResult(ErrorMessage ?? "Les valeurs doivent être différentes.");
 
-            return ValidationResult.Success;
+            return ValidationResult.Success ?? new ValidationResult("Erreur interne.");
         }
     }
 }

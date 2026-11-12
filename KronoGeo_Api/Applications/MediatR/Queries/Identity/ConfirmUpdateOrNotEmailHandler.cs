@@ -74,7 +74,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
 
                             // - Send confirmation email 
                             var mailAuto = new ApiMailIdentity(_serviceSendMail, _logger);
-                            var recuptMail = mailAuto.SendEmail(oldMail, new MessageRecupOldEmailCreator(_signInManager.UserManager, user, _urlOptions, urlRecupAccount), "Mail de récupération de l'ancienne adresse mail.");
+                            var recuptMail = await mailAuto.SendEmail(oldMail, new MessageRecupOldEmailCreator(_signInManager.UserManager, user, _urlOptions, urlRecupAccount), "Mail de récupération de l'ancienne adresse mail.");
                             if (recuptMail.Status == EmailResultStatus.Failure)
                             {
                                 _logger.LogError("An error occurred while processing send email recovery  {user}", user.UserName);

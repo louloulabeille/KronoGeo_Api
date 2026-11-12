@@ -5,6 +5,7 @@ using MimeKit;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using MailKit.Net.Smtp;
 
 namespace KronoGeo_Api.Infrastructure.Service.Email
 {
@@ -15,7 +16,7 @@ namespace KronoGeo_Api.Infrastructure.Service.Email
         #endregion
 
         #region interface implementation
-        public MessageResult Send(string to, string subject, string body)
+        public async Task<MessageResult> Send(string to, string subject, string body)
         {
             MimeMessage message = new();
             message.From.Add(new MailboxAddress(_options.FromName, _options.From));
@@ -26,13 +27,14 @@ namespace KronoGeo_Api.Infrastructure.Service.Email
                 Text = body
             };
 
-            var client = new MailKit.Net.Smtp.SmtpClient();
+            using var client = new SmtpClient();
             try
             {
-                client.Connect(_options.Server, _options.Port, true);
-                client.Authenticate(_options.Username, _options.Password);
-                client.Send(message);
-                client.Disconnect(true);
+                await client.ConnectAsync(_options.Server, _options.Port, true);
+                await client.AuthenticateAsync(_options.Username, _options.Password);
+                var result = await client.SendAsync(message);
+                await client.DisconnectAsync(true);
+
                 return new MessageResult
                 {
                     To = to,

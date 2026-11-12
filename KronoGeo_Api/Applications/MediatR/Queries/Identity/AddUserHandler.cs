@@ -59,7 +59,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Identity
 
                     // - Send confirmation email 
                     var MailAuto = new ApiMailIdentity(_serviceSendMail, _logger);
-                    var resultEmail = MailAuto.SendEmail(user, new MessageAuthentificationCreator(_signInManager.UserManager, user, _urlOptions));
+                    var resultEmail = await MailAuto.SendEmail(user, new MessageAuthentificationCreator(_signInManager.UserManager, user, _urlOptions));
 
                     // - il faudra modifier toutes cette partie pour gérer la possilité de renvoyer le mail
                     // - 

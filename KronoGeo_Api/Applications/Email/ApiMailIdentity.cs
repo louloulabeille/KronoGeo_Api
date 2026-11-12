@@ -29,16 +29,16 @@ namespace KronoGeo_Api.Applications.Email
         /// <param name="user"></param>
         /// <param name="objectMessage"></param>
         /// <returns></returns>
-        public MessageResult SendEmail(ApplicationUser user, MessageCourrielFactory objectMessage)
+        public async Task<MessageResult> SendEmail(ApplicationUser user, MessageCourrielFactory objectMessage)
         {
-            return SendEmail(user, objectMessage, null);
+            return await SendEmail(user, objectMessage, null);
         }
 
 
-        public MessageResult SendEmail(string emailUser, MessageCourrielFactory objectMessage,string? subject)
+        public async Task<MessageResult> SendEmail(string emailUser, MessageCourrielFactory objectMessage,string? subject)
         {
             var user = new ApplicationUser() { Email = emailUser };
-            return SendEmail(user, objectMessage, subject);
+            return await SendEmail(user, objectMessage, subject);
         }
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace KronoGeo_Api.Applications.Email
         /// <param name="messagObjectMessage">Object d'instanciation du body du mail</param>
         /// <param name="subject">subject du mail pas obligatoire - message par défaut : Confirmation de votre adresse email</param>
         /// <returns></returns>
-        public MessageResult SendEmail(ApplicationUser user, MessageCourrielFactory objectMessage, string? subject)
+        public async Task<MessageResult> SendEmail(ApplicationUser user, MessageCourrielFactory objectMessage, string? subject)
         {
           
             var message = MessageCourriel.Message(objectMessage);
@@ -64,7 +64,7 @@ namespace KronoGeo_Api.Applications.Email
                 };
             }
 
-            var result = _serviceSendMail.Send(user.Email, subject??"Confirmation de votre adresse email", message);
+            var result = await _serviceSendMail.Send(user.Email, subject??"Confirmation de votre adresse email", message);
             if (result.Status == EmailResultStatus.Failure)
             {
                 _logger.LogError("Failed to send confirmation email to {Email}: {Message}", user.Email, result.Message);
