@@ -43,7 +43,6 @@
                                 <Border StrokeThickness="1" 
                                     StrokeShape="RoundRectangle 20,20,20,20" Stroke="#51638B">
                                     <Grid RowDefinitions="*, Auto">
-                                        <!--CommandParameter="{Binding .}"-->
                                         <Button Text="{Binding AffichageName}" HorizontalOptions="End" FontSize="16"
                                                 Command="{Binding BindingContext.LoadTraceCommand, Source={x:Reference ApplicationBottom}}"
                                                 CommandParameter="{Binding .}"

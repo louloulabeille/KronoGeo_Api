@@ -29,7 +29,7 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
         #endregion
 
         #region public properties
-        public ObservableCollection<PageBaseViewModel>? MesPages { get; set; } = [];
+        public ObservableCollection<PageBaseViewModel> MesPages { get; set; } = [];
         #endregion
 
         #region private readonly properties service
@@ -39,7 +39,7 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
 
         #region private properties
         private RouteTelemetryMaui? _routeTelemetry = default;
-        private bool? _isListGroupTrace;
+        private bool? _isListGroupTrace = default;
         // -- tracé initial avant recherche
         private List<LocalisationGroupTraceMaui>? _listGroupTrace = default;
         #endregion
@@ -68,15 +68,9 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
         {
             // -- pour affichage des différentes pages du carousel
             /*MesPages = [];
-            if (_isListGroupTrace)
-            {
-                MesPages.Add(new ListTraceViewModel());
-            }
-            else
-            {
-                MesPages.Add(new ListImageViewModel());
-                MesPages.Add(new ResumeViewModel());
-            }*/
+            MesPages.Add(new ListTraceViewModel());
+            MesPages.Add(new ListImageViewModel());
+            MesPages.Add(new ResumeViewModel());*/
 
             // -- chargement des services
             _camera = camera;
@@ -94,7 +88,7 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
         /// Method qui filtre les tracés
         /// </summary>
         /// <param name="value"></param>
-        public void OnSearchTextChanged(string value)
+        partial void OnSearchTextChanged(string value)
         {
             if (string.IsNullOrEmpty(value)) return;
             
@@ -165,25 +159,26 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
         /// <param name="isListGroupTrace"></param>
         public async Task GetAfficheListGroup(bool isListGroupTrace)
         {
-            if (_isListGroupTrace == isListGroupTrace) return;
+             if( _isListGroupTrace == isListGroupTrace) return;
 
             _isListGroupTrace = isListGroupTrace;
 
-            var pages = new ObservableCollection<PageBaseViewModel>();
+            MesPages.Clear();
+            //var pages = new ObservableCollection<PageBaseViewModel>();
             if (isListGroupTrace)
             {
-                pages.Add(new ListTraceViewModel());
+                MesPages.Add(new ListTraceViewModel());
             }
             else
             {
-                pages.Add(new ListImageViewModel());
-                pages.Add(new ResumeViewModel());
+                MesPages.Add(new ListImageViewModel());
+                MesPages.Add(new ResumeViewModel());
             }
 
-            MesPages = null;
-            MesPages = pages;      // le binding reçoit un PropertyChanged
-            await Task.Yield();
+            //MesPages = pages;     
+            //await Task.Yield();
 
+           // System.Diagnostics.Debug.WriteLine($"Pages: {MesPages?.Count} / {string.Join(",", MesPages!.Select(p => p.GetType().Name))}");
             if (isListGroupTrace)
                 await InitListeGroupTraceAsync();
         }

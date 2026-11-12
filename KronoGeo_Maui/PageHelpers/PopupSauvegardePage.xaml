@@ -5,8 +5,8 @@
            xmlns:system="clr-namespace:System;assembly=mscorlib"
            x:TypeArguments="system:String"
            x:Class="KronoGeo_Maui.PageHelpers.PopupSauvegardePage"
-             >
-    <VerticalStackLayout BackgroundColor="#F9EDE1" Padding="5">
+           BackgroundColor="#F9EDE1">
+    <VerticalStackLayout Padding="5">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>

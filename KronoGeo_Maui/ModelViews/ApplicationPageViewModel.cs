@@ -221,7 +221,13 @@ namespace KronoGeo_Maui.ModelViews
                 var popup = new PopupRechargementPage();
                 var result = await _dialogService.ShowPopupAsync<string>(popup, new PopupOptions
                 {
-                    CanBeDismissedByTappingOutsideOfPopup = false,
+                    Shape = new RoundRectangle
+                    {
+                        CornerRadius = new CornerRadius(20, 20, 20, 20),
+                        StrokeThickness = 1,
+                        Stroke = Colors.LightGray
+                    },
+                    CanBeDismissedByTappingOutsideOfPopup = false
                 }, new CancellationToken());
 
                 // - traitement du résultat
@@ -635,7 +641,7 @@ namespace KronoGeo_Maui.ModelViews
                         Shape = new RoundRectangle
                         {
                             CornerRadius = new CornerRadius(20, 20, 20, 20),
-                            StrokeThickness = 2,
+                            StrokeThickness = 1,
                             Stroke = Colors.LightGray
                         }
                     }, new CancellationToken());
@@ -722,9 +728,10 @@ namespace KronoGeo_Maui.ModelViews
                     Shape = new RoundRectangle
                     {
                         CornerRadius = new CornerRadius(20, 20, 20, 20),
-                        StrokeThickness = 2,
+                        StrokeThickness = 1,
                         Stroke = Colors.LightGray
-                    }
+                    },
+                    Shadow = null
                 }, new CancellationToken());
 
                 if (name is null) return;

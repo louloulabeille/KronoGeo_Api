@@ -5,12 +5,12 @@
            xmlns:system="clr-namespace:System;assembly=mscorlib"
            x:Class="KronoGeo_Maui.PageHelpers.PopupRechargementPage"
            x:TypeArguments="system:String"
-            >
+           BackgroundColor="#F9EDE1" >
             <!-- Changed type argument from Boolean to Object to satisfy generic constraint of IDialogService.ShowPopupAsync<T> -->
 
             <!-- If a boolean result is needed, CloseAsync should return an object (box the bool) -->
 
-    <VerticalStackLayout BackgroundColor="#F9EDE1">
+    <VerticalStackLayout >
         <Grid BackgroundColor="#F9EDE1" Padding="5" RowSpacing="20" >
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
