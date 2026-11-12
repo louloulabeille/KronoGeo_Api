@@ -46,10 +46,9 @@
                                         <Button Text="{Binding AffichageName}" HorizontalOptions="End" FontSize="16"
                                                 Command="{Binding BindingContext.LoadTraceCommand, Source={x:Reference ApplicationBottom}}"
                                                 CommandParameter="{Binding .}"
-                                                VerticalOptions="Start" Margin="5" WidthRequest="30"
-                                                HeightRequest="30" CornerRadius="15" 
+                                                VerticalOptions="Start" Margin="5" CornerRadius="15" 
                                                 BackgroundColor="Transparent"
-                                                TextColor="White" FontAttributes="Bold"
+                                                TextColor="#51638B" FontAttributes="Bold"
                                                 />
                                     </Grid>
                                 </Border>
