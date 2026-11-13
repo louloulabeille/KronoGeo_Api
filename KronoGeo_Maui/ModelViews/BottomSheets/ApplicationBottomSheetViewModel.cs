@@ -250,7 +250,9 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
         {
             if (localisationGroup is null) return;
             // -- envoie du message pour chargement de la trace
-            //WeakReferenceMessenger.Default.Send(new LoadTraceMessage(localisationGroup));
+
+            var listTrace = 
+            WeakReferenceMessenger.Default.Send(new TraceMapMessage(null));
         }
 
         #endregion
