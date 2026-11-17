@@ -1,6 +1,7 @@
 ﻿using KronoGeo_Api.Applications.MediatR.Commands.Gps;
 using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Model.DTO;
+using KronoGeo_Api.Models.Model.DTO.RegionBounds;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -183,6 +184,40 @@ namespace KronoGeo_Api.Controllers
             }
         }
 
+        /// <summary>
+        /// Prend les coodonnées d'une region 
+        /// et retourne les Pins de cette région
+        /// </summary>
+        /// <param name="region"></param>
+        /// <returns></returns>
+        [HttpPost("PinGeographique")]
+        public async Task<IActionResult> PinGeographique([FromBody] RegionBountsDTO region)
+        {
+            try
+            {
+                var idUser = User.FindFirstValue("Id");
+                if (!ModelState.IsValid)
+                {
+                    return this.BadRequest("Invalid model state.");
+                }
+
+                if (string.IsNullOrEmpty(idUser))
+                {
+                    _logger.LogWarning("User Id is required for GetAllGroupLocalisations. idUser {idUser}", idUser);
+                    return Unauthorized("User Id is required");
+                }
+
+                var command = new GetPinRegionBoundsCommand() { Region = region };
+                var result = await _mediaR.Send(command);
+
+                return this.Ok(result);
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de la recherche des pins dans l'espace géographique.");
+                return this.Problem("Erreur lors de la recherche des pins dans l'espace géographique.");
+            }
+        }
         #endregion
     }
 }
