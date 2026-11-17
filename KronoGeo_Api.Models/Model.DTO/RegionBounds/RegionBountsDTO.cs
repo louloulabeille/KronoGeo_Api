@@ -11,6 +11,14 @@ namespace KronoGeo_Api.Models.Model.DTO.RegionBounds
     {
         public required double Latitude { get; set; }
         public required double Longitude { get; set; }
+
+
+        #region override method
+        public override string ToString()
+        {
+            return $"latitude: {Latitude} & longitude: {Longitude}";
+        }
+        #endregion
     }
 
     /// <summary>
