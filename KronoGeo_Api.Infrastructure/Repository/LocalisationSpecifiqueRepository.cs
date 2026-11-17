@@ -15,6 +15,11 @@ namespace KronoGeo_Api.Infrastructure.Repository
     public class LocalisationSpecifiqueRepository (KronoGeoDbContext context)
         : Repository<Localisation>(context), ILocalisationSpecifiqueRepository
     {
+        /// <summary>
+        /// supprime la localisation Photo pour la transformer en localisation normale
+        /// </summary>
+        /// <param name="idPhoto"></param>
+        /// <returns></returns>
         public bool ConvertLocalisationPhotoToLocalisation(int idPhoto)
         {
 
@@ -30,6 +35,16 @@ namespace KronoGeo_Api.Infrastructure.Repository
             return rows > 0;
         }
 
- 
+        public async Task<IEnumerable<LocalisationPhoto>>
+            GetLocalisationPhotoByUserIdAndMinMaxLatitude(string idUSer, double minLat, double maxLat)
+        {
+            var query = await Context.LocalisationPhotos
+                .Include(p => p.LocalisationGroup)
+                .Where(p => p.LocalisationGroup != null &&
+                p.LocalisationGroup.ApplicationUserId == idUSer
+                && p.Latitude >= minLat && p.Latitude <= maxLat).ToListAsync();
+
+            return query;
+        }
     }
 }

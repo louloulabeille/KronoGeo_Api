@@ -207,7 +207,10 @@ namespace KronoGeo_Api.Controllers
                     return Unauthorized("User Id is required");
                 }
 
-                var command = new GetPinRegionBoundsCommand() { Region = region };
+                var command = new GetPinRegionBoundsCommand() { 
+                    Region = region,
+                    IdUser = idUser
+                };
                 var result = await _mediaR.Send(command);
 
                 return this.Ok(result);
