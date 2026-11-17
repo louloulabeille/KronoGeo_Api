@@ -1,6 +1,7 @@
 ﻿using KronoGeo_Api.Infrastructure.Exceptions.Http;
 using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Model.DTO;
+using KronoGeo_Api.Models.Model.DTO.RegionBounds;
 using KronoGeo_Blazor.Infrastructure.MediatR.Commands.Gps;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -167,6 +168,33 @@ namespace KronoGeo_Blazor.Components.Api
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erreur lors de la supression de la localisation group {id} : {message}", id, ex.Message);
+                return this.Ok(false);
+            }
+        }
+
+        [HttpPost("GetPinByRegionBounds")]
+        public async Task<IActionResult> GetPinByRegionBounds([FromBody] RegionBountsDTO region)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest("Invalid model state.");
+                }
+
+                var result = await _mediaR.Send( new GetPinRegionBoundsCommand()
+                {
+                    Region = region
+                });
+                return this.Ok(result);
+            }
+            catch (SessionExpiredException)
+            {
+                return this.Ok(new ResponseApiPinRegionBounds() { ApiStatus = EnumApiStatus.Unauthorized });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors de la recherche des Pins selon des coordonnées");
                 return this.Ok(false);
             }
         }
