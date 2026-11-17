@@ -4,6 +4,7 @@ using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Infrastructure.Options;
 using KronoGeo_Api.Models.Model.DTO;
+using KronoGeo_Api.Models.Model.DTO.RegionBounds;
 using KronoGeo_Api.Models.Parameter;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -440,6 +441,46 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                     Retour = false,
                     Message = "Erreur lors de la supression."
                 }; ;
+            }
+        }
+
+        public async Task<ResponseApiPinRegionBounds> GetPinByRegionBounds(RegionBountsDTO region)
+        {
+            try
+            {
+                var url = $"{_options.Value.GetPinByRegionBounds}";
+                var content = new StringContent(JsonSerializer.Serialize(region), Encoding.UTF8, "application/json");
+
+                using var result = await _httpClient.PostAsync(url, content);
+                //result.EnsureSuccessStatusCode();
+
+                if (result.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    return new()
+                    {
+                        ApiStatus = EnumApiStatus.Unauthorized
+                    };
+                }
+
+                var retour = await result.Content.ReadAsStringAsync();
+                var data = JsonSerializer.Deserialize<ResponseApiPinRegionBounds>(retour, JsonOptions.GetJsonOptions());
+
+                return data ?? new()
+                {
+                    ApiStatus = EnumApiStatus.BadRequest,
+                    Message = $"Erreur lors de la désérialisation de la réponse.",
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,"Erreur lors de la recherche des Pins selon les coordonnées " +
+                    "données minLat: {minLat},  minLon: {minLon}, maxLat: {maxLat}, maxLong: {maxLong}; message: {message}"
+                    , region.MinBounds.Latitude, region.MinBounds.Longitude, region.MaxBounds.Latitude, region.MaxBounds.Longitude,ex.Message);
+                return new ()
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = $"Erreur lors de ma recherche des Pins"
+                };
             }
         }
 

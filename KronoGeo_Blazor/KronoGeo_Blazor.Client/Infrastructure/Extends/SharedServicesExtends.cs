@@ -32,6 +32,7 @@ namespace KronoGeo_Blazor.Client.Infrastructure.Extends
                     options.GetLocalisationsById = "api/v1/GpsBFF/GetLocalisationsById";
                     options.UpdateLocalisationGroup = "api/v1/GpsBFF/UpdateLocalisationGroup";
                     options.DeleteLocalisationGroup = "api/v1/GpsBFF/DeleteLocalisationGroup";
+                    options.GetPinByRegionBounds = "api/v1/GpsBFF/GetPinByRegionBounds";
                 });
                 // -- ajout du service ToastsService pour l'affichage des notifications toast
                 // -- javascript interop pour l'affichage des notifications toast
