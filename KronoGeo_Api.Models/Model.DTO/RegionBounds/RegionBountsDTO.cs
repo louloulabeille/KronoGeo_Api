@@ -7,7 +7,7 @@ namespace KronoGeo_Api.Models.Model.DTO.RegionBounds
     /// <summary>
     /// class de coodonnées Latitude et Longitude
     /// </summary>
-    public class CoordonneeDTO
+    public record CoordonneeDTO
     {
         public required double Latitude { get; set; }
         public required double Longitude { get; set; }

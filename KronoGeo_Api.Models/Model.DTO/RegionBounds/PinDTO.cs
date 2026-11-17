@@ -7,9 +7,9 @@ namespace KronoGeo_Api.Models.Model.DTO.RegionBounds
     /// <summary>
     /// Pin DTO 
     /// </summary>
-    public class PinDTO
+    public record PinDTO
     {
-        public required CoordonneeDTO PinCoordonee { get; set; }
+        public required CoordonneeDTO PinCoordonnee { get; set; }
         public string? Name { get; set; }
         public string? Path { get; set; }
         public string? Description { get; set; }
