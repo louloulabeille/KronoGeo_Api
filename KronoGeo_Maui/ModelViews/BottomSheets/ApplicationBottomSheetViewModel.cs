@@ -35,6 +35,8 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
         #region private readonly properties service
         private readonly IServiceCamera _camera;
         private readonly IServiceDatabaseMaui _dbMaui;
+        //   -- pour retourner la liste des localisations d'un group de localisation 
+        private readonly IServiceSaveLocalisation _serviceSaveLocalisation; 
         #endregion
 
         #region private properties
@@ -60,11 +62,18 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
         [ObservableProperty]
         public partial string DateTimeBegin { get; set; }
         [ObservableProperty]
+        public partial string TotalTime { get; set; } = string.Empty;
+        /// <summary>
+        /// systeme pour filter mais pose plus de problèmes au niveau de l'interface et je ne vois pas trop
+        /// la plus value
+        /// </summary>
+        [ObservableProperty]
         public partial string SearchText { get; set; } = string.Empty;
         #endregion
 
         #region public constructeur
-        public ApplicationBottomSheetViewModel(IServiceCamera camera, IServiceDatabaseMaui dbMaui)
+        public ApplicationBottomSheetViewModel(IServiceCamera camera, IServiceDatabaseMaui dbMaui
+            , IServiceSaveLocalisation serviceSaveLocalisation)
         {
             // -- pour affichage des différentes pages du carousel
             /*MesPages = [];
@@ -75,6 +84,7 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
             // -- chargement des services
             _camera = camera;
             _dbMaui = dbMaui;
+            _serviceSaveLocalisation = serviceSaveLocalisation;
             //MesPhotos = _camera.
 
             // -- chargement la date de début de la route
@@ -189,7 +199,7 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
         /// Method qui remonte la liste des tracés
         /// </summary>
         /// <returns></returns>
-        private async Task InitListeGroupTraceAsync()
+        public async Task InitListeGroupTraceAsync()
         {
             var traces =  await _dbMaui.GetGroupsTraceAsync();
             _listGroupTrace = traces.OrderByDescending(t => t.Date).ToList();
@@ -246,13 +256,20 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
         /// Charge le tracé au niveau de la Map
         /// </summary>
         /// <param name="localisationGroup"></param>
-        public static void LoadTrace(LocalisationGroupTraceMaui localisationGroup)
+        /// 
+        //[RelayCommand]
+        [RelayCommand(AllowConcurrentExecutions = true)]
+        public async Task LoadTrace(LocalisationGroupTraceMaui localisationGroup)
         {
             if (localisationGroup is null) return;
+            
+            // -- retour des localisations pour le tracé
+            var listTrace = await _serviceSaveLocalisation.GetLocalisationsAsync(localisationGroup.IdGroup);
             // -- envoie du message pour chargement de la trace
+            WeakReferenceMessenger.Default.Send(new TraceMapMessage(listTrace.Select(l => l.Get().GetLocation()).ToList()));
 
-            var listTrace = 
-            WeakReferenceMessenger.Default.Send(new TraceMapMessage(null));
+            // -- messenger pour envoyer l'ordre de fermer le buttomsheet
+            WeakReferenceMessenger.Default.Send(new CloseBottomSheetMessage());
         }
 
         #endregion

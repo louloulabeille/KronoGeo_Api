@@ -25,10 +25,15 @@
                 </Grid.RowDefinitions>
                 <Border Grid.Row="0" StrokeThickness="1"  BackgroundColor="#F9EDE1"
                 StrokeShape="RoundRectangle 10,10,10,10" Stroke="#51638B">
-                    <Entry Placeholder="Rechercher une trace" HorizontalOptions="Center" FontSize="16"
+                    <Label TextColor="#51638B" FontAttributes="Bold" VerticalOptions="Start" 
+                           HorizontalOptions="Center" FontSize="15">
+                        Liste des tracés
+                    </Label>
+                    <!--<Entry Placeholder="Rechercher une trace" HorizontalOptions="Center" FontSize="16"
                            VerticalOptions="Center" TextColor="#51638B"
                            Text="{Binding Source={x:Reference ApplicationBottom}, Path=BindingContext.SearchText, Mode=TwoWay}"
                         />
+                    -->
                 </Border>
                 <Border Grid.Row="1" StrokeThickness="1" BackgroundColor="#F9EDE1"
                 StrokeShape="RoundRectangle 10,10,10,10" Stroke="#51638B">
@@ -145,6 +150,11 @@
                             <Label HorizontalOptions="End"
                             Text="{Binding Source={x:Reference ApplicationBottom}, Path=BindingContext.MessageNegativeElevation}" FontSize="16" TextColor="#51638B"/>
                         </HorizontalStackLayout>
+                        <HorizontalStackLayout  Padding="3" VerticalOptions="Center">
+                            <Label HorizontalOptions="Start" Text="Ascension negative : " FontSize="16" TextColor="#51638B"/>
+                            <Label HorizontalOptions="End"
+                            Text="{Binding Source={x:Reference ApplicationBottom}, Path=BindingContext.TotalTime}" FontSize="16" TextColor="#51638B"/>
+                        </HorizontalStackLayout>
                     </VerticalStackLayout>
 
                 </Border>
@@ -178,10 +188,8 @@
             HeightRequest="650" ItemsSource="{Binding Source={x:Reference ApplicationBottom}, Path=BindingContext.MesPages}"
             ItemTemplate="{StaticResource PhotoTeletryTemplate}"
             Loop="False">
-                    <!--InputTransparent="True" VerticalOptions="End"-->
+            <!--InputTransparent="True" VerticalOptions="End"-->
         </CarouselView>
     </Grid>
-    
-    
-    
+
 </the49:BottomSheet>

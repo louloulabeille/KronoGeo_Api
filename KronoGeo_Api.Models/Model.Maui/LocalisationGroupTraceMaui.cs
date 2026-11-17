@@ -10,6 +10,7 @@ namespace KronoGeo_Api.Models.Model.Maui
     {
         [SQLite.PrimaryKey, AutoIncrement]
         public int Id { get; set; }
+        public int IdGroup { get; set; }
         public string Name { get; set; } = string.Empty;
         public DateTimeOffset Date { get; set; } = DateTimeOffset.Now;
         public string AffichageName => $"{Name} {Date.ToLocalTime().ToString("dd/MM/yyyy")}";

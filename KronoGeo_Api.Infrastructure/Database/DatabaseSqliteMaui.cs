@@ -20,6 +20,8 @@ namespace KronoGeo_Api.Infrastructure.Database
 
         #region private readonly properties
         private readonly IOptions<SqliteOptions> _option = options;
+        private readonly SemaphoreSlim _initLock = new(1, 1);
+        private bool _initialized = false;
         #endregion
 
         #region private db sqlite
@@ -28,19 +30,32 @@ namespace KronoGeo_Api.Infrastructure.Database
 
         #region IA claude private method
         // -- initialise la base de données sqlite
-        private async Task Init()
+        private async Task InitAsync()
         {
             // -- si la base existe alors return
-            if (_db != null) return;
+            if (_db == null)
+            {
+                // -- création debase de données sqlite
+                var path = Path.Combine(FileSystem.AppDataDirectory, _option.Value.DatabaseName);
+                _db = new SQLiteAsyncConnection(path);
+            }
 
-            // -- création debase de données sqlite
-            var path = Path.Combine(FileSystem.AppDataDirectory, _option.Value.DatabaseName);
-            _db = new SQLiteAsyncConnection(path);
-            await _db.CreateTableAsync<LocalisationMaui>();
-            await _db.CreateTableAsync<RouteTelemetryMaui>();
-            await _db.CreateTableAsync<LocalisationTraceMaui>();
-            await _db.CreateTableAsync<LocalisationGroupTraceMaui>();
+            if (_initialized) return;
+            await _initLock.WaitAsync();
+
+            try
+            {   // -- passage au moins une fois en initialize au démmarage de l'application
+                // -- en cas que le model soit modifié marche si le model ajout de colonne
+                // -- ou création de la table si inexistant
+                await _db.CreateTableAsync<LocalisationMaui>();
+                await _db.CreateTableAsync<RouteTelemetryMaui>();
+                await _db.CreateTableAsync<LocalisationTraceMaui>();
+                await _db.CreateTableAsync<LocalisationGroupTraceMaui>();
+                _initialized = true;
+            }
+            finally { _initLock.Release(); }
         }
+
         #endregion
 
         #region public method 
@@ -50,7 +65,7 @@ namespace KronoGeo_Api.Infrastructure.Database
         /// <returns></returns>
         public async Task<List<LocalisationMaui>> GetAllAsync()
         {
-            await Init();
+            await InitAsync();
             return await _db!.Table<LocalisationMaui>().ToListAsync();
         }
 
@@ -60,7 +75,7 @@ namespace KronoGeo_Api.Infrastructure.Database
         /// <returns></returns>
         public async Task<int> Count()
         {
-            await Init();
+            await InitAsync();
             return await _db!.Table<LocalisationMaui>().CountAsync();
         }
 
@@ -70,7 +85,7 @@ namespace KronoGeo_Api.Infrastructure.Database
         /// <returns></returns>
         public async Task Clear()
         {
-            await Init();
+            await InitAsync();
             await _db!.DeleteAllAsync<LocalisationMaui>();
             await _db!.DeleteAllAsync<RouteTelemetryMaui>();
         }
@@ -82,7 +97,7 @@ namespace KronoGeo_Api.Infrastructure.Database
         /// <returns></returns>
         public async Task<int> SaveAsync(LocalisationMaui p)
         {
-            await Init();
+            await InitAsync();
             return await _db!.InsertAsync(p);
         }
 
@@ -93,7 +108,7 @@ namespace KronoGeo_Api.Infrastructure.Database
         /// <returns></returns>
         public async Task<int> DeleteAsync(LocalisationMaui p)
         {
-            await Init();
+            await InitAsync();
             return await _db!.DeleteAsync(p);
         }
 
@@ -104,7 +119,7 @@ namespace KronoGeo_Api.Infrastructure.Database
         /// <returns></returns>
         public async Task<bool> Exists(LocalisationMaui p)
         {
-            await Init();
+            await InitAsync();
             return await _db!.Table<LocalisationMaui>()
                 .Where(l => l.Longitude == p.Longitude && l.Latitude == p.Latitude).CountAsync() > 0;
         }
@@ -117,7 +132,7 @@ namespace KronoGeo_Api.Infrastructure.Database
         /// <returns></returns>
         public async Task<RouteTelemetryMaui> GetTelemetryAsync()
         {
-            await Init();
+            await InitAsync();
             var telemetry = await _db!.Table<RouteTelemetryMaui>().FirstOrDefaultAsync();
             if (telemetry == null)
             {
@@ -134,7 +149,7 @@ namespace KronoGeo_Api.Infrastructure.Database
         /// <returns></returns>
         public async Task<int> SaveTelemetryAsync(RouteTelemetryMaui p)
         { 
-            await Init();
+            await InitAsync();
             // -- supprime tous les enregistrements
             await _db!.DeleteAllAsync<RouteTelemetryMaui>();
             return await _db!.InsertAsync(p); 
@@ -146,7 +161,7 @@ namespace KronoGeo_Api.Infrastructure.Database
         /// <returns></returns>
         public async Task<int> DeleteTelemetryAsync(RouteTelemetryMaui p)
         {
-            await Init();
+            await InitAsync();
             return await _db!.DeleteAsync(p);
         }
 
@@ -160,7 +175,7 @@ namespace KronoGeo_Api.Infrastructure.Database
         /// <returns></returns>
         public async Task<List<LocalisationTraceMaui>> GetLocalisationsTraceAsync(int id)
         {
-            await Init();
+            await InitAsync();
             return await _db!.Table<LocalisationTraceMaui>().Where(l => l.LocalisationGroupId == id).ToListAsync();
         }
 
@@ -171,7 +186,7 @@ namespace KronoGeo_Api.Infrastructure.Database
         /// <exception cref="NotImplementedException"></exception>
         public async Task<List<LocalisationGroupTraceMaui>> GetGroupsTraceAsync()
         {
-            await Init();
+            await InitAsync();
             return await _db!.Table<LocalisationGroupTraceMaui>().ToListAsync();
         }
 
@@ -182,7 +197,7 @@ namespace KronoGeo_Api.Infrastructure.Database
         /// <exception cref="NotImplementedException"></exception>
         public async Task ClearGroupsTraceAsync()
         {
-            await Init();
+            await InitAsync();
             await _db!.DeleteAllAsync<LocalisationTraceMaui>();
             await _db!.DeleteAllAsync<LocalisationGroupTraceMaui>();
         }
@@ -196,22 +211,22 @@ namespace KronoGeo_Api.Infrastructure.Database
         /// <exception cref="NotImplementedException"></exception>
         public async Task<int> SaveAsync(LocalisationGroupDTO p)
         {
-            await Init();
+            await InitAsync();
             // -- enregistre le group localisation
             int i = await _db!.InsertAsync(new LocalisationGroupTraceMaui()
             {
-                Id = p.Id,
+                IdGroup = p.Id,
                 Name = p.Name,
                 Date = p.Date
             });
 
-            if (p.Localisations is not null)
+            if (p.Localisations is not null && p.Localisations.Count > 0)
             {
                 foreach (var localisation in p.Localisations)
                 {
                     await _db!.InsertAsync(new LocalisationTraceMaui()
                     {
-                        Id = localisation.Id,
+                        IdLocation = localisation.Id,
                         OrderIndex = localisation.OrderIndex,
                         Timestamp = localisation.Timestamp,
                         Latitude = localisation.Latitude,

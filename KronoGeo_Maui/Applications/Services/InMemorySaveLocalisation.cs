@@ -90,7 +90,7 @@ namespace KronoGeo_Maui.Applications.Services
             throw new NotImplementedException();
         }
 
-        public Task<LocalisationDTO> GetLocalisationAsync(int id)
+        public Task<List<LocalisationDTO>> GetLocalisationsAsync(int id)
         {
             throw new NotImplementedException();
         }

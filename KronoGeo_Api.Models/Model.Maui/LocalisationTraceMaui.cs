@@ -9,6 +9,7 @@ namespace KronoGeo_Api.Models.Model.Maui
     {
         [SQLite.PrimaryKey, AutoIncrement]
         public int Id { get; set; }
+        public int IdLocation { get; set; }
         public int OrderIndex { get; set; } = 0;   // -- compteur des localisations pour le tri
         public DateTimeOffset Timestamp { get; set; }
         public double Latitude { get; set; }

@@ -170,9 +170,28 @@ namespace KronoGeo_Maui.Applications.Services
             
         }
 
-        public Task<LocalisationDTO> GetLocalisationAsync(int id)
+        /// <summary>
+        /// Retourne la liste des localisations^pour un group de localisation
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<List<LocalisationDTO>> GetLocalisationsAsync(int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var result = await _serviceHttpKronoGeo.GetLocalisationsByIdAsync(id);
+                if (result.IsSuccess)
+                {
+                    return result.LocalisationGroupDTO?.Localisations ?? [];
+                }
+
+                return [];
+            }
+            catch(Exception ex)
+            {
+                throw new Exception($"Erreur lors de la récupération le chemin du tracé. {ex.Message}", ex);
+            }
         }
 
         #endregion

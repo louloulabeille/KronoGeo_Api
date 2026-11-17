@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Text;
 using Map = Microsoft.Maui.Controls.Maps.Map;
 using Microsoft.Maui.Controls.Maps;
+using Microsoft.Maui.Maps;
+
 
 
 
@@ -19,6 +21,7 @@ namespace KronoGeo_Maui.Applications.Behaviors
     {
         #region private properties 
         private Polyline? _loaded;
+        private bool _init = false;
         #endregion
 
         /// <summary>
@@ -39,12 +42,14 @@ namespace KronoGeo_Maui.Applications.Behaviors
                     Log.Debug("GeoAndroidService", $"Polyne tracé ajout du tracé au niveau de la map");
                     Log.Debug("GeoAndroidService", $"--------------------------------------------------");
 #endif
-                    if ( _loaded is null )
+                    if ( _loaded is not null )
                     {
-                        // -- ajout du polyne à la map
-                        _loaded = new Polyline { StrokeColor = Colors.Gray, StrokeWidth = 6 };
-                    } 
-                    
+                        bindable.MapElements.Remove(_loaded);
+                    }
+
+                    // -- ajout du polyne à la map
+                    _loaded = new Polyline { StrokeColor = Colors.Gray, StrokeWidth = 6 };
+
                     if ( message.Value is null && bindable.MapElements.Contains(_loaded) )
                     {
                         bindable.MapElements.Remove(_loaded);
@@ -54,6 +59,14 @@ namespace KronoGeo_Maui.Applications.Behaviors
                         // -- ajout des points de location 
                         foreach (var location in message.Value) _loaded.Geopath.Add(location);
                         bindable.MapElements.Insert(0, _loaded);
+                        
+                        if (!_init )
+                        {
+                            var location = message.Value.FirstOrDefault();
+                            if (location is not null)
+                                bindable.MoveToRegion(MapSpan.FromCenterAndRadius(location, Distance.FromMeters(150)));
+                        }
+                            
                     }
 
                 });
@@ -65,6 +78,8 @@ namespace KronoGeo_Maui.Applications.Behaviors
             base.OnDetachingFrom(bindable);
             // Très important : on se désabonne pour éviter les fuites mémoire
             WeakReferenceMessenger.Default.Unregister<TraceMapMessage>(this);
+            _loaded = null;
+
         }
     }
 }

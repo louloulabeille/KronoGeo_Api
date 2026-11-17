@@ -10,7 +10,7 @@ namespace KronoGeo_Api.Interface.Service
     {
         public Task<bool> SaveLocalisation(LocalisationGroup localisations, CancellationToken cancellationToken);
         public Task<List<LocalisationGroupDTO>> GetAllTraceAsync();
-        public Task<LocalisationDTO> GetLocalisationAsync(int id);
+        public Task<List<LocalisationDTO>> GetLocalisationsAsync(int id);
     }
 }
  

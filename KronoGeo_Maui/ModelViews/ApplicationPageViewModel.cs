@@ -512,8 +512,14 @@ namespace KronoGeo_Maui.ModelViews
                     }
 
                     // -- si pas de chargement la telemetry est initialisé à zéro sinon on garde la telemetry du chargement
-                    if ( !_isLoaded) 
-                        _routeTelemetry.DateTimeBegin = DateTimeOffset.Now; // -- type date heure local non utc
+                    if (!_isLoaded)
+                    {   // -- iniatialisation de la télémetrie
+                        _routeTelemetry = new RouteTelemetryMaui()
+                        {   // -- type date heure local non utc
+                            DateTimeBegin = DateTimeOffset.Now 
+                        };
+                    }
+                     
                     
                     SheetViewModel.GetRouteTeletry(_routeTelemetry); // -- passage de la RouteTelemetry vers le BottomSheet 
                     IsEnablePhoto = true; // -- donne la possibilité de prendre des photos
@@ -908,15 +914,10 @@ namespace KronoGeo_Maui.ModelViews
             if (localisations is null || localisations.Count == 0 ) return;
             foreach(var item in localisations)
             {
-                var location = new LocalisationGroupTraceMaui() {
-                    Id = item.Id,
-                    Name = item.Name ,
-                    Date = item.Date
-                };
                 await _dbSqlite.SaveAsync(item);
             }
-
-            //await SheetViewModel.GetAfficheListGroup(true);
+            // -- mise en place des enregistrements
+            await SheetViewModel.InitListeGroupTraceAsync();
 
         }
 
