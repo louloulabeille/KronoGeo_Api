@@ -1,5 +1,6 @@
 ﻿using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Model.DTO;
+using KronoGeo_Api.Models.Model.DTO.RegionBounds;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -33,5 +34,11 @@ namespace KronoGeo_Api.Interface.Service
         public Task<ResponseApiBool> UpdateImageAsync(LocalisationPhotoDTO photo);
         public Task<ResponseApiBool> DeleteImageAsync(int id);
         public Task<ResponseApiBool> DeleteLocalisationGroupAsync(int id);
+        /// <summary>
+        /// Retourne la liste des Pins pour un user dans une région de la map
+        /// </summary>
+        /// <param name=""></param>
+        /// <returns></returns>
+        public Task<ResponseApiPinRegionBounds> GetPinByRegionBounds(RegionBountsDTO region);
     }
 }

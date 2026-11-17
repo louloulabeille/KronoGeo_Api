@@ -5,6 +5,7 @@ using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Infrastructure.Http;
 using KronoGeo_Api.Models.Infrastructure.Options;
 using KronoGeo_Api.Models.Model.DTO;
+using KronoGeo_Api.Models.Model.DTO.RegionBounds;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Options;
 using Microsoft.Win32;
@@ -514,11 +515,11 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
                 if (result.IsSuccessStatusCode)
                 {
                     var responseContent = await result.Content.ReadAsStringAsync();
-                    var content = JsonSerializer.Deserialize<bool>(responseContent, JsonOptions.GetJsonOptions());
+                    var dataResult = JsonSerializer.Deserialize<bool>(responseContent, JsonOptions.GetJsonOptions());
                     return new()
                     {
                         ApiStatus = EnumApiStatus.Success,
-                        Retour = content,
+                        Retour = dataResult,
                     };
                 }
                 else if (result.StatusCode == HttpStatusCode.Unauthorized)
@@ -553,6 +554,63 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
             }
         }
 
+        /// <summary>
+        /// Retourne les pins dans une zone donnée 
+        /// </summary>
+        /// <param name="region"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<ResponseApiPinRegionBounds> GetPinByRegionBounds(RegionBountsDTO region)
+        {
+            try
+            {
+                var url = $"{_options.Value.GetPinByRegionBounds}";
+                var content = new StringContent(JsonSerializer.Serialize(region), Encoding.UTF8, "application/json");
+
+                using var result = await HttpClient.PostAsync(url, content);
+
+                if (result.IsSuccessStatusCode)
+                {
+                    var responseContent = await result.Content.ReadAsStringAsync();
+                    var dataResult = JsonSerializer.Deserialize<ResponseApiPinRegionBounds>(responseContent, JsonOptions.GetJsonOptions());
+                    return dataResult ??
+                        new()
+                        {
+                            ApiStatus = EnumApiStatus.BadRequest,
+                            Message = "Problème de la désérialisation du message de retour."
+                        };
+                }
+                else if (result.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    return new()
+                    {
+                        ApiStatus = EnumApiStatus.Unauthorized,
+                    };
+                }
+
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = "Problème lors de la recherche des pins."
+                };
+            }
+            catch (SessionExpiredException)
+            {
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Unauthorized,
+                };
+            }
+            catch (Exception)
+            {
+                return new()
+                {
+                    ApiStatus = EnumApiStatus.Problem,
+                    Message = "Erreur lors de la recherche des pins."
+                };
+            }
+        }
+
         #endregion
 
         #region public method interface IDisposable
@@ -560,9 +618,11 @@ namespace KronoGeo_Api.Infrastructure.Service.Http
         {
             GC.SuppressFinalize(this);
         }
-        #endregion
 
         
+        #endregion
+
+
 
     }
 }
