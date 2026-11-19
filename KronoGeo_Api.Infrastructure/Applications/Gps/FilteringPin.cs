@@ -47,7 +47,7 @@ namespace KronoGeo_Api.Infrastructure.Applications.Gps
         /// <param name="pins"></param>
         /// <param name="minDistanceMeters"></param>
         /// <returns></returns>
-        public static List<ClusterPin> ClusterPins(IEnumerable<Pin> pins, double minDistanceMeters)
+        public static List<ClusterPin> ClusterPins(List<Pin> pins, double minDistanceMeters)
         {
             var clusters = new List<ClusterPin>();
 

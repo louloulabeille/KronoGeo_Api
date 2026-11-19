@@ -1,7 +1,7 @@
 ﻿using BruTile.Predefined;
 using BruTile.Web;
 using DotNext.Collections.Generic;
-using KronoGeo_Api.Infrastructure.Service.Map;
+using KronoGeo_Api.Infrastructure.Applications.Gps;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Model.DTO;
@@ -82,14 +82,14 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         #region private properties
         private Layer? _trace = default;
         private MemoryLayer? _photoLayer = default;
-        private MemoryLayer? _pinLayer = default;
+        //private MemoryLayer? _pinLayer = default;
         private MemoryLayer? _clusterLayer = default;
         // -- dictionnaire des images qui sont affichés de la map ( -- images du tracé en cours --)
-        private readonly Dictionary<Mapsui.IFeature, LocalisationPhoto> _featureImageMap = [];
+        private Dictionary<Mapsui.IFeature, LocalisationPhoto> _featureImageMap = [];
         // -- dictionnaire des pins qui sont affichés et qui appartiennent aux autres tracés
         private readonly Dictionary<Mapsui.IFeature, Pin> _featurePinMap = [];
         // -- dictionnaire des clusters qui sont affichés à la place des Pins (pour réunir les pins avec le même point)
-        private readonly Dictionary<Mapsui.IFeature, ClusterPin> _featureClusterMap = [];
+        private Dictionary<Mapsui.IFeature, ClusterPin> _featureClusterMap = [];
         private Mapsui.IFeature? _viewPhoto = default;
         private CancellationTokenSource? _cts;
         
@@ -368,15 +368,25 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                         var result = await _serviceHttp.GetPinByRegionBounds(b);
                         if (result.IsSuccess)
                         {
+                            // -- supression des Layer déjà présent sur la Map
+                            if (_clusterLayer is not null && MapControl is not null)
+                                MapControl.Map.Layers.Remove(_clusterLayer);
+
                             // var visibles = RemoveTooClose(pins, 40 * b.MetersPerPixel);
                             // mise à jour de la couche de pins…
                             // -- 
-                            var pins = result.PinRegion.Select(p => p.ToPin()).ToList();
+                            var clusterPins = FilteringPin.ClusterPins(result.PinRegion.Select(p => p.ToPin()).ToList(),15);
                             // -- chargement des points
-                            var pointLayer = AddPointImage(pins);
-                            if (pointLayer is not null && MapControl is not null)
-                                MapControl.Map.Layers.Add(pointLayer);
+                            if (clusterPins is not null)
+                            {
+                                var pointLayer = ToolsMapSui.AddPointImage(clusterPins, out _featureClusterMap);
 
+                                if (pointLayer is not null && MapControl is not null)
+                                {
+                                    MapControl.Map.Layers.Add(pointLayer);
+
+                                }
+                            }
                         }
                         else if (result.IsUnauthorized)
                         {   // -- logout si unauthorized
@@ -465,7 +475,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
             MapControl.Map.Layers.Add(traceLayer);
 
             // -- chargement des points
-            var pointLayer = AddPointImage(localisations);
+            var pointLayer = ToolsMapSui.AddPointImage(localisations, out _featureImageMap);
             if(pointLayer is not null)
                 MapControl.Map.Layers.Add(pointLayer);
 
@@ -478,91 +488,6 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
 
             MapControl.Refresh();
 
-        }
-
-        /// <summary>
-        /// Affiche les points layer pour les photos
-        /// </summary>
-        /// <param name="localisations"></param>
-        /// <returns></returns>
-        private MemoryLayer? AddPointImage( IEnumerable<Localisation> localisations ) {
-
-            var photos = localisations.OrderBy(x => x.OrderIndex).OfType<LocalisationPhoto>().ToList();
-
-            if (photos is null || photos.Count == 0 ) return default;
-            var features = new List<Mapsui.IFeature>();
-
-            foreach (var photo in photos) {
-
-                if ( string.IsNullOrEmpty(photo.PathPhoto)) continue;
-
-                // -- transformation des points longitude et latitude en points mercator
-                var coordonate = SphericalMercator.FromLonLat(photo.Longitude, photo.Latitude);
-                var feature = new PointFeature(coordonate);
-
-                feature.Styles.Add(ImgPin());
-
-                // -- ajout dans le dictionnaire pour retrouver les photos par rapport 
-                // -- à leur feature
-                _featureImageMap.Add(feature, photo);
-
-                // -- ajout dans la liste des features pour l'intégrer dans le layer
-                features.Add(feature);
-            }
-
-            var memoryLayer = new MemoryLayer
-            {
-                Name = "Photo",
-                Features = features
-            };
-
-            _photoLayer = memoryLayer;
-
-            return memoryLayer;
-
-        }
-
-        /// <summary>
-        /// Affiche les points layer pour les photos
-        /// </summary>
-        /// <param name="localisations"></param>
-        /// <returns></returns>
-        private MemoryLayer? AddPointImage(IEnumerable<Pin> pins)
-        { 
-            if (_pinLayer is not null)
-                MapControl?.Map?.Layers.Remove(_pinLayer);
-
-            // -- vérification si des enregistrements dans la liste
-            if ( !pins.Any() ) return default;
-            // -- retour du feature qui retourné dans le MemoryLayer
-            var features = new List<Mapsui.IFeature>();
-
-            foreach ( var pin in pins )
-            {
-                if (string.IsNullOrEmpty(pin.Path)) continue;
-
-                // -- transformation des points longitude et latitude en points mercator
-                var coordonate = SphericalMercator.FromLonLat(pin.PinCoordonnee.Longitude, pin.PinCoordonnee.Latitude);
-                var feature = new PointFeature(coordonate);
-
-                feature.Styles.Add(OtherPin());
-                // -- ajout dans le dictionnaire pour retrouver les photos par rapport 
-                // -- à leur feature
-                _featurePinMap.Add(feature, pin);
-
-                // -- ajout dans la liste des features pour l'intégrer dans le layer
-                features.Add(feature);
-            }
-
-            var memoryLayer = new MemoryLayer
-            {
-                Name = "Pin",
-                Features = features
-            };
-
-            _pinLayer = memoryLayer;
-
-            return memoryLayer;
         }
 
         /// <summary>
@@ -679,45 +604,9 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
             if (_photoLayer is not null)
                 MapControl?.Map?.Layers.Remove(_photoLayer);
 
-            if (_pinLayer is not null)
-                MapControl?.Map?.Layers.Remove(_pinLayer);
-
             if (_clusterLayer is not null)
                 MapControl?.Map?.Layers.Remove(_clusterLayer);
 
-        }
-
-        /// <summary>
-        /// Retourne le style Pin pour qu'il soit afficher
-        /// </summary>
-        /// <returns></returns>
-        private static ImageStyle OtherPin()
-        {
-
-            var svg = $"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-geo-alt\" viewBox=\"0 0 16 16\">\r\n  <path d=\"M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A32 32 0 0 1 8 14.58a32 32 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10\"/>\r\n  <path d=\"M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6\"/>\r\n</svg>";
-            var imageStyle = new ImageStyle
-            {
-                Image = new Image { Source = $"svg-content://{svg}" },
-                SymbolScale = 1,
-            };
-
-            return imageStyle;
-        }
-
-        /// <summary>
-        /// Retourne le style image pour qu'il soit afficher
-        /// </summary>
-        /// <returns></returns>
-        private static ImageStyle ImgPin()
-        {
-            var svg = $"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-camera2\" viewBox=\"0 0 16 16\">\r\n  <path d=\"M5 8c0-1.657 2.343-3 4-3V4a4 4 0 0 0-4 4\"/>\r\n  <path d=\"M12.318 3h2.015C15.253 3 16 3.746 16 4.667v6.666c0 .92-.746 1.667-1.667 1.667h-2.015A5.97 5.97 0 0 1 9 14a5.97 5.97 0 0 1-3.318-1H1.667C.747 13 0 12.254 0 11.333V4.667C0 3.747.746 3 1.667 3H2a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1h.682A5.97 5.97 0 0 1 9 2c1.227 0 2.367.368 3.318 1M2 4.5a.5.5 0 1 0-1 0 .5.5 0 0 0 1 0M14 8A5 5 0 1 0 4 8a5 5 0 0 0 10 0\"/>\r\n</svg>";
-            var imageStyle = new ImageStyle
-            {
-                Image = new Image { Source = $"svg-content://{svg}" },
-                SymbolScale = 1,
-            };
-
-            return imageStyle;
         }
 
         public void InitMapAndZoom ()
