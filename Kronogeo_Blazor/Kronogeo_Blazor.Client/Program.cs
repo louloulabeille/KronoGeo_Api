@@ -21,9 +21,5 @@ builder.Services.AddHttpClientBFF(builder);
 builder.Services.AddAutorizationClient();
 #endregion
 
-#region  injection de dépendance
-
-#endregion
-
 
 await builder.Build().RunAsync();

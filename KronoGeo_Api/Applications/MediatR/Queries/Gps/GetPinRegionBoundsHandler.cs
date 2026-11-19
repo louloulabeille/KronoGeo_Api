@@ -23,7 +23,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
         /// <summary>
         /// nombre max de retour de pin pour une zone 
         /// </summary>
-        private const int MaxClusterPin = 25;
+        private const int MaxClusterPin = 35;
         #endregion
 
         /// <summary>
@@ -39,25 +39,15 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
             double maxLat = request.Region.MaxBounds.Latitude;
             double maxLon = request.Region.MaxBounds.Longitude;
 
-            var result = await GetPinsInBoundsAsync(minLat, maxLat, minLon, maxLon, request.IdUser);
+            var result = await GetPinsInBoundsAsync(minLat, maxLat, minLon, maxLon, request.IdUser, request.Region.IgnoredId);
 
             if (result.Count > 0)
             {
-                List<ClusterPinDTO> clusters = [];
-                foreach( var item in result )
-                {
-                    List<PinDTO> pins = [];
-                    pins.Add(item);
-                    clusters.Add(new ClusterPinDTO()
-                    {
-                        Cluster = pins
-                    });
-                }
-
+                
                 return new()
                 {
                     ApiStatus = EnumApiStatus.Success,
-                    PinRegion = clusters.Take(MaxClusterPin).ToList()
+                    PinRegion = result.Take(MaxClusterPin).ToList()
                 };
             }
 
@@ -82,10 +72,10 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
         public async Task<List<PinDTO>> GetPinsInBoundsAsync(
             double minLat, double maxLat, double minLon, double maxLon
             //double centerLat, double centerLon
-            , string idUser, int max = 50)
+            , string idUser, int idIgnore,int max = 50)
         {
             var query = await _unitOfWork.LocalisationSpecifiqueRepository
-                .GetLocalisationPhotoByUserIdAndMinMaxLatitude(idUser, minLat, maxLat);
+                .GetLocalisationPhotoByUserIdAndMinMaxLatitude(idUser, minLat, maxLat, idIgnore);
 
             // Cas du passage de l'antiméridien (±180°)
             // -- pour gérer la frontière entre le + 180 degrès et -180 degrès
@@ -121,13 +111,14 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
         /// <param name="centerLon"></param>
         /// <param name="max"></param>
         /// <returns></returns>
-        public List<PinDTO> GetPinsInBoundsAsync(
+        public async Task<List<PinDTO>> GetPinsInBoundsAsync(
             double minLat, double maxLat, double minLon, double maxLon
             , double centerLat, double centerLon
+            , string idUser, int idIgnore
             , int max = 50)
         {
-            var query = _unitOfWork.Repository<LocalisationPhoto>()
-                .Where(p => p.Latitude >= minLat && p.Latitude <= maxLat);
+            var query = await _unitOfWork.LocalisationSpecifiqueRepository
+                .GetLocalisationPhotoByUserIdAndMinMaxLatitude(idUser, minLat, maxLat, idIgnore);
 
             // Cas du passage de l'antiméridien (±180°)
             // -- pour gérer la frontière entre le + 180 degrès et -180 degrès

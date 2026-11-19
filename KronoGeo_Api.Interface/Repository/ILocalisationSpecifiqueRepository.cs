@@ -21,6 +21,6 @@ namespace KronoGeo_Api.Interface.Repository
         /// <param name="maxLat"></param>
         /// <returns></returns>
         public Task<IEnumerable<LocalisationPhoto>> GetLocalisationPhotoByUserIdAndMinMaxLatitude(string idUSer, 
-            double minLat, double maxLat);
+            double minLat, double maxLat, int idIgnore);
     }
 }

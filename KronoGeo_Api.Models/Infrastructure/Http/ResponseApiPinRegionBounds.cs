@@ -7,6 +7,6 @@ namespace KronoGeo_Api.Models.Infrastructure.Http
 {
     public class ResponseApiPinRegionBounds : ResponseApi
     {
-        public List<ClusterPinDTO> PinRegion { get; set; } = [];
+        public List<PinDTO> PinRegion { get; set; } = [];
     }
 }

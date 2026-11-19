@@ -26,6 +26,7 @@ namespace KronoGeo_Api.Models.Model.DTO.RegionBounds
     /// </summary>
     public class RegionBountsDTO
     {
+        public required int IgnoredId { get; set; }
         public required CoordonneeDTO MinBounds { get; set; }
         public required CoordonneeDTO MaxBounds { get; set; }
     }

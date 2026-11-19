@@ -35,16 +35,37 @@ namespace KronoGeo_Api.Infrastructure.Repository
             return rows > 0;
         }
 
+        /// <summary>
+        /// Repository spécifique pour retourner les géolocalisations 
+        /// avec une jointure
+        /// </summary>
+        /// <param name="idUSer"></param>
+        /// <param name="minLat"></param>
+        /// <param name="maxLat"></param>
+        /// <param name="idIgnore"></param>
+        /// <returns></returns>
         public async Task<IEnumerable<LocalisationPhoto>>
-            GetLocalisationPhotoByUserIdAndMinMaxLatitude(string idUSer, double minLat, double maxLat)
+            GetLocalisationPhotoByUserIdAndMinMaxLatitude(string idUSer, double minLat, double maxLat, int idIgnore)
         {
-            var query = await Context.LocalisationPhotos
+            if ( idIgnore == 0 )
+            {
+                return await Context.LocalisationPhotos
                 .Include(p => p.LocalisationGroup)
                 .Where(p => p.LocalisationGroup != null &&
                 p.LocalisationGroup.ApplicationUserId == idUSer
                 && p.Latitude >= minLat && p.Latitude <= maxLat).ToListAsync();
+            }
+            else
+            {   // -- pour ignorer LocalisationGroupId qui est déjà affiché dans la Map
+                return await Context.LocalisationPhotos
+                .Include(p => p.LocalisationGroup)
+                .Where(p => p.LocalisationGroup != null &&
+                p.LocalisationGroup.ApplicationUserId == idUSer
+                && p.Latitude >= minLat && p.Latitude <= maxLat 
+                && p.LocalisationGroupId != idIgnore).ToListAsync();
+            }
 
-            return query;
+            
         }
     }
 }

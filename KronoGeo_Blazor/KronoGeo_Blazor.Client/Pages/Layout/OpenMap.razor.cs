@@ -5,6 +5,7 @@ using KronoGeo_Api.Infrastructure.Service.Map;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Model.DTO;
+using KronoGeo_Api.Models.Model.DTO.RegionBounds;
 using KronoGeo_Blazor.Client.Infrastructure.Service;
 using Mapsui;
 using Mapsui.Extensions;
@@ -24,13 +25,20 @@ using Microsoft.AspNetCore.Components.Web;
 using NetTopologySuite.Geometries;
 using SkiaSharp;
 using Svg.Skia;
+using System.ComponentModel;
 using System.Security.Claims;
+using static Microsoft.Maui.ApplicationModel.Permissions;
 using static System.Net.WebRequestMethods;
 
 namespace KronoGeo_Blazor.Client.Pages.Layout
 {
     public class OpenMapBase : ComponentBase, IDisposable
     {
+        #region private const properties
+        // -- temps de recherche et d'affichage des pins sur la map
+        private const int tpsTempo = 1800;
+        #endregion
+
         #region public inject
         [Inject]
         public IMapStateService? MapStateService { get; set; }
@@ -72,9 +80,15 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
 
         #region private properties
         private Layer? _trace = default;
-        private MemoryLayer? _photoLayer = default; 
+        private MemoryLayer? _photoLayer = default;
+        private MemoryLayer? _pinLayer = default;
+        // -- dictionnaire des images qui sont affichés de la map ( -- images du tracé en cours --)
         private readonly Dictionary<Mapsui.IFeature, LocalisationPhoto> _featureImageMap = [];
+        // -- dictionnaire des pins qui sont des affichés qui aapartieent aux autres tracés
+        private readonly Dictionary<Mapsui.IFeature, PinDTO> _featurePinMap = [];
         private Mapsui.IFeature? _viewPhoto = default;
+        private CancellationTokenSource? _cts;
+        
         #endregion
 
         #region protected override method
@@ -110,10 +124,24 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
 
         protected override void OnInitialized()
         {
+            // -- event pour afficher les cards au niveau du survol
             MapStateService?.OnOpenRequested += HandleOpenRequested;
+            
             base.OnInitialized();
         }
 
+        protected override Task OnAfterRenderAsync(bool firstRender)
+        {
+            if( firstRender )
+            {
+                // -- initialisation de la Map avec un event qui va se déclencher
+                // -- quand la Map va bouger après 400 ms pour éviter de tout rechercher à la voler
+                if (MapControl is not null)
+                    InitMap(MapControl.Map);
+            }
+
+            return base.OnAfterRenderAsync(firstRender);
+        }
         #endregion
 
         #region protected method 
@@ -312,12 +340,87 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         }
         #endregion
 
+        #region 
+        /// <summary>
+        /// Initialise la Map pour charger les Pins selon la région passé en paramètre 
+        /// </summary>
+        /// <param name="map"></param>
+        public void InitMap(Mapsui.Map map)
+        {
+            map.Navigator.ViewportChanged += async (s, e) =>
+            {
+                _cts?.Cancel();
+                _cts = new CancellationTokenSource();
+                try
+                {
+                    await Task.Delay(tpsTempo, _cts.Token);          // debounce
+                    int id = MapStateService?.CurrentLocalisations?.FirstOrDefault()?.LocalisationGroupId ?? 0;
+                    var b = GetGeoBounds(map, id);
+                    if (b is null ) return;
+
+                    if (_serviceHttp is not null)
+                    {
+                        var result = await _serviceHttp.GetPinByRegionBounds(b);
+                        if (result.IsSuccess)
+                        {
+                            // var visibles = RemoveTooClose(pins, 40 * b.MetersPerPixel);
+                            // mise à jour de la couche de pins…
+
+                            // -- chargement des points
+                            var pointLayer = AddPointImage(result.PinRegion);
+                            if (pointLayer is not null && MapControl is not null)
+                                MapControl.Map.Layers.Add(pointLayer);
+
+                        }
+                        else if (result.IsUnauthorized)
+                        {   // -- logout si unauthorized
+                            _navigationManager?.NavigateTo($"Account/Logout", forceLoad: true);
+                        }
+                    }
+
+                }
+                catch (TaskCanceledException) { }
+            };
+        }
+
+        /// <summary>
+        /// Retourne les limites de la régions pour retourner les pins
+        /// dans l'espace de la map
+        /// </summary>
+        /// <param name="map"></param>
+        /// <returns></returns>
+        public static RegionBountsDTO? GetGeoBounds(Mapsui.Map map, int idIgnore)
+        {
+            var vp = map.Navigator.Viewport;
+            if (vp.Width <= 0 || vp.Height <= 0) return null;   // carte pas encore dimensionnée
+
+            var extent = vp.ToExtent();                          // MRect en mètres Mercator
+            // -- sud ouest
+            var sw = SphericalMercator.ToLonLat(extent.MinX, extent.MinY);
+            // -- nord est 
+            var ne = SphericalMercator.ToLonLat(extent.MaxX, extent.MaxY);
+            // -- centre 
+            // var c = SphericalMercator.ToLonLat(vp.CenterX, vp.CenterY);
+
+            // Resolution = unités Mercator par pixel ; on corrige par cos(lat) pour obtenir des mètres réels
+            // double mpp = vp.Resolution * Math.Cos(c.lat * Math.PI / 180);
+            
+            return new RegionBountsDTO()
+            {
+                IgnoredId = idIgnore,
+                MinBounds = new() { Latitude = Math.Max(-90, sw.lat), Longitude = Math.Max(-180, sw.lon) },
+                MaxBounds = new() { Latitude = Math.Min(90, ne.lat), Longitude = Math.Min(180, ne.lon) }
+            };
+        }
+
+
+        #endregion
 
         #region private methods
         /// <summary>
         /// method qui est appelé lors de la transmission des localisations
         /// </summary>
-        private  void HandleOpenRequested()
+        private void HandleOpenRequested()
         {
             if( MapStateService?.CurrentLocalisations is not null && MapStateService?.CurrentLocalisations?.Count() > 1)
             { // -- affichage des localisations
@@ -327,7 +430,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                 StateHasChanged();
             }
             else if( MapStateService?.CurrentLocalisations is not null && MapStateService?.CurrentLocalisations?.Count() == 1)
-            { // -- affichage poun un point
+            { // -- affichage pour un point
                 InitMap();
                 HandlerCloseCard();
                 ZoomTo(MapStateService?.CurrentLocalisations?.First(), 18);
@@ -411,6 +514,47 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
 
             return memoryLayer;
 
+        }
+
+        /// <summary>
+        /// Affiche les points layer pour les photos
+        /// </summary>
+        /// <param name="localisations"></param>
+        /// <returns></returns>
+        private MemoryLayer? AddPointImage(IEnumerable<PinDTO> pins)
+        { 
+            if (_pinLayer is not null)
+                MapControl?.Map?.Layers.Remove(_pinLayer);
+
+            if ( !pins.Any() ) return default;
+            var features = new List<Mapsui.IFeature>();
+
+            foreach ( var pin in pins )
+            {
+                if (string.IsNullOrEmpty(pin.Path)) continue;
+
+                // -- transformation des points longitude et latitude en points mercator
+                var coordonate = SphericalMercator.FromLonLat(pin.PinCoordonnee.Longitude, pin.PinCoordonnee.Latitude);
+                var feature = new PointFeature(coordonate);
+
+                feature.Styles.Add(OtherPin());
+                // -- ajout dans le dictionnaire pour retrouver les photos par rapport 
+                // -- à leur feature
+                _featurePinMap.Add(feature, pin);
+
+                // -- ajout dans la liste des features pour l'intégrer dans le layer
+                features.Add(feature);
+            }
+
+            var memoryLayer = new MemoryLayer
+            {
+                Name = "Pin",
+                Features = features
+            };
+
+            _pinLayer = memoryLayer;
+
+            return memoryLayer;
         }
 
         /// <summary>
@@ -526,6 +670,26 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
 
             if (_photoLayer is not null)
                 MapControl?.Map?.Layers.Remove(_photoLayer);
+
+            if (_pinLayer is not null)
+                MapControl?.Map?.Layers.Remove(_pinLayer);
+        }
+
+        /// <summary>
+        /// Retourne le style Pin pour qu'il soit afficher
+        /// </summary>
+        /// <returns></returns>
+        private static ImageStyle OtherPin()
+        {
+
+            var svg = $"<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-geo-alt\" viewBox=\"0 0 16 16\">\r\n  <path d=\"M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A32 32 0 0 1 8 14.58a32 32 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10\"/>\r\n  <path d=\"M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6\"/>\r\n</svg>";
+            var imageStyle = new ImageStyle
+            {
+                Image = new Image { Source = $"svg-content://{svg}" },
+                SymbolScale = 1,
+            };
+
+            return imageStyle;
         }
 
         /// <summary>

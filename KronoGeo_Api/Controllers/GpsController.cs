@@ -190,7 +190,7 @@ namespace KronoGeo_Api.Controllers
         /// </summary>
         /// <param name="region"></param>
         /// <returns></returns>
-        [HttpPost("PinGeographique")]
+        [HttpPost("GetPinByRegionBounds")]
         public async Task<IActionResult> PinGeographique([FromBody] RegionBountsDTO region)
         {
             try
