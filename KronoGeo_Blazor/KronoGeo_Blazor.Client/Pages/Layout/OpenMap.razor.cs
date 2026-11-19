@@ -366,7 +366,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                     if (_serviceHttp is not null)
                     {
                         var result = await _serviceHttp.GetPinByRegionBounds(b);
-                        if (result.IsSuccess)
+                        if (result.IsSuccess && MapControl is not null)
                         {
                             // -- supression des Layer déjà présent sur la Map
                             if (_clusterLayer is not null && MapControl is not null)
@@ -375,15 +375,17 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                             // var visibles = RemoveTooClose(pins, 40 * b.MetersPerPixel);
                             // mise à jour de la couche de pins…
                             // -- 
-                            var clusterPins = FilteringPin.ClusterPins(result.PinRegion.Select(p => p.ToPin()).ToList(),30);
+                            //var clusterPins = FilteringPin.ClusterPins(result.PinRegion.Select(p => p.ToPin()).ToList(),30);
+                            var d = MapControl?.Map.Navigator.Viewport.Resolution ?? 0;
+                            var clusterPins = FilteringPin.ClusterByScreenDistance(result.PinRegion.Select(p => p.ToPin()).ToList(), d);
                             // -- chargement des points
                             if (clusterPins is not null)
                             {
                                 var pointLayer = ToolsMapSui.AddPointImage(clusterPins, out _featureClusterMap);
 
-                                if (pointLayer is not null && MapControl is not null)
+                                if (pointLayer is not null )
                                 {
-                                    MapControl.Map.Layers.Add(pointLayer);
+                                    MapControl?.Map.Layers.Add(pointLayer);
                                 }
                             }
                         }
