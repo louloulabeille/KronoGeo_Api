@@ -15,6 +15,7 @@ namespace KronoGeo_Api.Models.Model.DTO.RegionBounds
         public string? Name { get; set; }
         public string? Path { get; set; }
         public string? Description { get; set; }
+        public required DateTimeOffset Timestamp { get; set; }
 
         public Pin ToPin()
         {
@@ -24,7 +25,8 @@ namespace KronoGeo_Api.Models.Model.DTO.RegionBounds
                 OrderIndex = OrderIndex,
                 Name = Name,
                 Path = Path,
-                Description = Description
+                Description = Description,
+                Timestamp = Timestamp,
             };
         }
     }

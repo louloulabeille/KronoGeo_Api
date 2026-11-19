@@ -95,6 +95,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
                     Name = p.Name,
                     Description = p.Description,
                     Path = p.PathPhoto,
+                    Timestamp = p .Timestamp,
                 })
                 .Take(max)
                 .ToList();
@@ -139,6 +140,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
                     Name = p.Name,
                     Description = p.Description,
                     Path = p.PathPhoto,
+                    Timestamp = p.Timestamp,
                 })
                 .Take(max)
                 .ToList();

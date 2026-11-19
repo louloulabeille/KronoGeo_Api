@@ -16,5 +16,6 @@ namespace KronoGeo_Api.Models.RegionBounds
         public string? Name { get; set; }
         public string? Path { get; set; }
         public string? Description { get; set; }
+        public required DateTimeOffset Timestamp { get; set; }
     }
 }

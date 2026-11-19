@@ -4,6 +4,7 @@ using DotNext.Collections.Generic;
 using KronoGeo_Api.Infrastructure.Applications.Gps;
 using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models;
+using KronoGeo_Api.Models.Infrastructure.Options;
 using KronoGeo_Api.Models.Model.DTO;
 using KronoGeo_Api.Models.Model.DTO.RegionBounds;
 using KronoGeo_Api.Models.RegionBounds;
@@ -23,6 +24,7 @@ using Mapsui.Utilities;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
 using SkiaSharp;
 using Svg.Skia;
@@ -47,6 +49,8 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         private IServiceHttpClientAssembly? _serviceHttp { get; set; } = default;
         [Inject]
         private AuthenticationStateProvider? _authenticationStateProvider { get; set; } = default;
+        [Inject]
+        private IOptions<UrlImage>? _ioptionUrlImage { get; set; } = default;
         /// <summary>
         /// Service pour l'affichage des notifications toast
         /// </summary>
@@ -77,6 +81,15 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         protected string Description { get; set; } = string.Empty;
         protected bool IsDescription { get; set; } = false;
         // -------
+        // -- affichage du cluster
+        // -- properties pour afficher la card cluster
+        protected bool IsCluster { get; set; } = false;
+        /// <summary>
+        /// cluster qui est affiché dans la view
+        /// </summary>
+        protected ClusterPin? ClusterCard { get; set; }
+        // ----
+
         #endregion
 
         #region private properties
@@ -86,13 +99,15 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         private MemoryLayer? _clusterLayer = default;
         // -- dictionnaire des images qui sont affichés de la map ( -- images du tracé en cours --)
         private Dictionary<Mapsui.IFeature, LocalisationPhoto> _featureImageMap = [];
-        // -- dictionnaire des pins qui sont affichés et qui appartiennent aux autres tracés
-        private readonly Dictionary<Mapsui.IFeature, Pin> _featurePinMap = [];
         // -- dictionnaire des clusters qui sont affichés à la place des Pins (pour réunir les pins avec le même point)
         private Dictionary<Mapsui.IFeature, ClusterPin> _featureClusterMap = [];
-        private Mapsui.IFeature? _viewPhoto = default;
+        // -- CancellationToken pour 
         private CancellationTokenSource? _cts;
-        
+
+        // -- IFeature afficher dans la card
+        private IFeature? _viewPhoto = default;
+        private IFeature? _viewCluster = default;
+
         #endregion
 
         #region protected override method
@@ -151,6 +166,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         #region protected method 
         /// <summary>
         /// method pour event onpointermove pour afficher la card de la photo
+        /// qui se trouve au niveau du fichier .razord dans la balise
         /// </summary>
         /// <param name="e"></param>
         protected void HandlerPointerMove(PointerEventArgs e)
@@ -178,7 +194,9 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                 // -- fermeture de la saisie de description
                 IsDescription = false;
 
-                UrlImg = Path.Combine("https://localhost:7291/" + imgUrl.PathPhoto?.Replace("wwwroot/", "") , imgUrl.Name) ;
+                // -- https://localhost:7291/ 
+                if (_ioptionUrlImage is not null)
+                    UrlImg = Path.Combine($"{_ioptionUrlImage.Value.Url}{imgUrl.PathPhoto?.Replace("wwwroot/", "")} ", imgUrl.Name) ;
                 MouseX = e.OffsetX;
                 MouseY = e.OffsetY;
                 IsHovered = true;
@@ -204,6 +222,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         /// </summary>
         protected void HandlerCloseCard()
         {
+            // -- card 
             MouseX = 0;
             MouseY = 0;
             IsHovered = false;
@@ -214,6 +233,11 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
             ImgLatitude = string.Empty;
             LocalisationPhoto = null;
             _viewPhoto = null;
+
+            // -- cluster
+            ClusterCard = null;
+            IsCluster = false;
+            _viewCluster = null;
 
             StateHasChanged();
         }
@@ -610,10 +634,17 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
 
         }
 
-        public void InitMapAndZoom ()
+        /// <summary>
+        /// Method qui change les path des images pour pouvoir les afficher
+        /// en créant un path par url
+        /// </summary>
+        private void ChangePath()
         {
-            InitMap();
-
+            if (ClusterCard is null || ClusterCard.Pins.Count == 0 || _ioptionUrlImage is null) return;
+            foreach(var p in ClusterCard.Pins)
+            {
+                p.Path = Path.Combine($"{_ioptionUrlImage.Value.Url}{p.Path?.Replace("wwwroot/", "")}", p.Name ?? string.Empty);
+            }
         }
 
         #endregion

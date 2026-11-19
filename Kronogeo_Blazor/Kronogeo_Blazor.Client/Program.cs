@@ -17,9 +17,11 @@ builder.Services.AddSharedServices();
 
 #region injection de dépendance pour le HttpClient
 builder.Services.AddHttpClientBFF(builder);
-
 builder.Services.AddAutorizationClient();
 #endregion
 
+#region injection Ioption
+builder.Services.AddIoptionsUrlImages(builder.Configuration);
+#endregion
 
 await builder.Build().RunAsync();
