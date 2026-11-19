@@ -11,6 +11,7 @@ namespace KronoGeo_Api.Models.Model.DTO.RegionBounds
     public record PinDTO
     {
         public required CoordonneeDTO PinCoordonnee { get; set; }
+        public required int OrderIndex { get; set; }
         public string? Name { get; set; }
         public string? Path { get; set; }
         public string? Description { get; set; }
@@ -20,6 +21,7 @@ namespace KronoGeo_Api.Models.Model.DTO.RegionBounds
             return new()
             {
                 PinCoordonnee = PinCoordonnee.ToCoordonnee(),
+                OrderIndex = OrderIndex,
                 Name = Name,
                 Path = Path,
                 Description = Description

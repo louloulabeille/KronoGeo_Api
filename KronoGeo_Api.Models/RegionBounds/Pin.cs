@@ -1,6 +1,7 @@
 ﻿using KronoGeo_Api.Models.Model.DTO.RegionBounds;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace KronoGeo_Api.Models.RegionBounds
@@ -11,6 +12,7 @@ namespace KronoGeo_Api.Models.RegionBounds
     public class Pin
     {
         public required Coordonnee PinCoordonnee { get; set; }
+        public required int OrderIndex { get; set; }
         public string? Name { get; set; }
         public string? Path { get; set; }
         public string? Description { get; set; }

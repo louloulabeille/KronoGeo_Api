@@ -375,7 +375,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                             // var visibles = RemoveTooClose(pins, 40 * b.MetersPerPixel);
                             // mise à jour de la couche de pins…
                             // -- 
-                            var clusterPins = FilteringPin.ClusterPins(result.PinRegion.Select(p => p.ToPin()).ToList(),15);
+                            var clusterPins = FilteringPin.ClusterPins(result.PinRegion.Select(p => p.ToPin()).ToList(),30);
                             // -- chargement des points
                             if (clusterPins is not null)
                             {
@@ -384,7 +384,6 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                                 if (pointLayer is not null && MapControl is not null)
                                 {
                                     MapControl.Map.Layers.Add(pointLayer);
-
                                 }
                             }
                         }

@@ -91,6 +91,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
                 .Select(p => new PinDTO()
                 {
                     PinCoordonnee = new CoordonneeDTO() { Latitude = p.Latitude, Longitude = p.Longitude },
+                    OrderIndex = p.OrderIndex,
                     Name = p.Name,
                     Description = p.Description,
                     Path = p.PathPhoto,
@@ -134,6 +135,7 @@ namespace KronoGeo_Api.Applications.MediatR.Queries.Gps
                 .Select(p => new PinDTO()
                 {
                     PinCoordonnee = new CoordonneeDTO() { Latitude = p.Latitude, Longitude = p.Longitude },
+                    OrderIndex = p.OrderIndex,
                     Name = p.Name,
                     Description = p.Description,
                     Path = p.PathPhoto,
