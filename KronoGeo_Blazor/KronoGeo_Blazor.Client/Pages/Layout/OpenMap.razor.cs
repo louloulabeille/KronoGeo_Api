@@ -83,10 +83,13 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         private Layer? _trace = default;
         private MemoryLayer? _photoLayer = default;
         private MemoryLayer? _pinLayer = default;
+        private MemoryLayer? _clusterLayer = default;
         // -- dictionnaire des images qui sont affichés de la map ( -- images du tracé en cours --)
         private readonly Dictionary<Mapsui.IFeature, LocalisationPhoto> _featureImageMap = [];
-        // -- dictionnaire des pins qui sont des affichés qui aapartieent aux autres tracés
+        // -- dictionnaire des pins qui sont affichés et qui appartiennent aux autres tracés
         private readonly Dictionary<Mapsui.IFeature, Pin> _featurePinMap = [];
+        // -- dictionnaire des clusters qui sont affichés à la place des Pins (pour réunir les pins avec le même point)
+        private readonly Dictionary<Mapsui.IFeature, ClusterPin> _featureClusterMap = [];
         private Mapsui.IFeature? _viewPhoto = default;
         private CancellationTokenSource? _cts;
         
@@ -359,6 +362,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                     var b = GetGeoBounds(map, id);
                     if (b is null ) return;
 
+                    // -- appel vers Api
                     if (_serviceHttp is not null)
                     {
                         var result = await _serviceHttp.GetPinByRegionBounds(b);
@@ -677,6 +681,10 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
 
             if (_pinLayer is not null)
                 MapControl?.Map?.Layers.Remove(_pinLayer);
+
+            if (_clusterLayer is not null)
+                MapControl?.Map?.Layers.Remove(_clusterLayer);
+
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KronoGeo_Api.Models.RegionBounds;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -37,6 +38,56 @@ namespace KronoGeo_Api.Infrastructure.Applications.Gps
 
             double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
             return R * c;
+        }
+
+        /// <summary>
+        /// Retourne les clusters selon la liste des Pins ajoutée dans la methode
+        /// IA - Claude
+        /// </summary>
+        /// <param name="pins"></param>
+        /// <param name="minDistanceMeters"></param>
+        /// <returns></returns>
+        public static List<ClusterPin> ClusterPins(IEnumerable<Pin> pins, double minDistanceMeters)
+        {
+            var clusters = new List<ClusterPin>();
+
+            foreach (var p in pins)
+            {
+                // cluster existant le plus proche, à moins de minDistanceMeters
+                ClusterPin? nearest = null;
+                double best = double.MaxValue;
+
+                // -- vérification du cluster le plus proche pour le pin si existant 
+                foreach (var c in clusters)
+                {
+                    double d = 
+                        HaversineMeters(c.CentralCoordonate!.Latitude, c.CentralCoordonate!.Longitude, p.PinCoordonnee.Latitude, p.PinCoordonnee.Longitude);
+                    // -- vérification pour avoir le meilleur cluster pour le Pin
+                    if (d < minDistanceMeters && d < best)
+                    {
+                        best = d;
+                        nearest = c;
+                    }
+                }
+
+                // -- création du cluster ave le Pin
+                if (nearest is null)
+                {
+                    var c = new ClusterPin { CentralCoordonate = 
+                        new() { Latitude = p.PinCoordonnee.Latitude, Longitude = p.PinCoordonnee.Longitude }
+                    };
+                    c.Pins.Add(p);
+                    clusters.Add(c);
+                }
+                else
+                { // -- ajout dans la liste des pins du cluster
+                    nearest.Pins.Add(p);
+                    int n = nearest.Count;                       // recalcul incrémental du centre
+                    nearest.CentralCoordonate?.Latitude += (p.PinCoordonnee.Latitude - nearest.CentralCoordonate.Latitude) / n;
+                    nearest.CentralCoordonate?.Longitude += (p.PinCoordonnee.Longitude - nearest.CentralCoordonate.Longitude) / n;
+                }
+            }
+            return clusters;
         }
         #endregion
     }
