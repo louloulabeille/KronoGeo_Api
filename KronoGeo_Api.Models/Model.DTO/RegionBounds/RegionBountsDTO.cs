@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KronoGeo_Api.Models.RegionBounds;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -19,6 +20,11 @@ namespace KronoGeo_Api.Models.Model.DTO.RegionBounds
             return $"latitude: {Latitude} & longitude: {Longitude}";
         }
         #endregion
+
+        public Coordonnee ToCoordonnee ()
+        {
+            return new() { Latitude = Latitude, Longitude = Longitude };
+        }
     }
 
     /// <summary>

@@ -6,6 +6,7 @@ using KronoGeo_Api.Interface.Service;
 using KronoGeo_Api.Models;
 using KronoGeo_Api.Models.Model.DTO;
 using KronoGeo_Api.Models.Model.DTO.RegionBounds;
+using KronoGeo_Api.Models.RegionBounds;
 using KronoGeo_Blazor.Client.Infrastructure.Service;
 using Mapsui;
 using Mapsui.Extensions;
@@ -85,7 +86,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         // -- dictionnaire des images qui sont affichés de la map ( -- images du tracé en cours --)
         private readonly Dictionary<Mapsui.IFeature, LocalisationPhoto> _featureImageMap = [];
         // -- dictionnaire des pins qui sont des affichés qui aapartieent aux autres tracés
-        private readonly Dictionary<Mapsui.IFeature, PinDTO> _featurePinMap = [];
+        private readonly Dictionary<Mapsui.IFeature, Pin> _featurePinMap = [];
         private Mapsui.IFeature? _viewPhoto = default;
         private CancellationTokenSource? _cts;
         
@@ -365,9 +366,10 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                         {
                             // var visibles = RemoveTooClose(pins, 40 * b.MetersPerPixel);
                             // mise à jour de la couche de pins…
-
+                            // -- 
+                            var pins = result.PinRegion.Select(p => p.ToPin()).ToList();
                             // -- chargement des points
-                            var pointLayer = AddPointImage(result.PinRegion);
+                            var pointLayer = AddPointImage(pins);
                             if (pointLayer is not null && MapControl is not null)
                                 MapControl.Map.Layers.Add(pointLayer);
 
@@ -521,12 +523,14 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         /// </summary>
         /// <param name="localisations"></param>
         /// <returns></returns>
-        private MemoryLayer? AddPointImage(IEnumerable<PinDTO> pins)
+        private MemoryLayer? AddPointImage(IEnumerable<Pin> pins)
         { 
             if (_pinLayer is not null)
                 MapControl?.Map?.Layers.Remove(_pinLayer);
 
+            // -- vérification si des enregistrements dans la liste
             if ( !pins.Any() ) return default;
+            // -- retour du feature qui retourné dans le MemoryLayer
             var features = new List<Mapsui.IFeature>();
 
             foreach ( var pin in pins )
