@@ -171,9 +171,8 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         /// <param name="e"></param>
         protected void HandlerPointerMove(PointerEventArgs e)
         {
-            if (MapControl?.Map == null) return;
+            if (MapControl?.Map is null) return;
             
-
             // Conversion des coordonnées écran vers la carte Mapsui
             //var viewport = MapControl.Map.Navigator.Viewport;
             //var worldPoint = viewport.ScreenToWorld(e.OffsetX, e.OffsetY);
@@ -184,28 +183,53 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
 
             // Détection si le pointeur survole un point (HitTesting)
             var mapInfo = MapControl?.GetMapInfo(new ScreenPosition(e.OffsetX, e.OffsetY), layers);
+            var feature = mapInfo?.Feature;
+            if (feature is null) return;
 
             // recherche si un feature existe sur la map && qu'il existe dans le dictionnaire
-            if (mapInfo?.Feature != null && _featureImageMap.TryGetValue(mapInfo.Feature, out var imgUrl))
+            // -- gestion de l'affichage des cards du tracé affiché
+            if ( _featureImageMap.TryGetValue(feature, out var imgUrl))
             {
+                IsHovered = true;
+                IsCluster = false;
                 // -- feature qui est survolé par la souris
-                _viewPhoto = mapInfo?.Feature;
+                _viewPhoto = feature;
 
                 // -- fermeture de la saisie de description
                 IsDescription = false;
 
                 // -- https://localhost:7291/ 
                 if (_ioptionUrlImage is not null)
-                    UrlImg = Path.Combine($"{_ioptionUrlImage.Value.Url}{imgUrl.PathPhoto?.Replace("wwwroot/", "")} ", imgUrl.Name) ;
+                    UrlImg = Path.Combine($"{_ioptionUrlImage.Value.Url}{imgUrl.PathPhoto?.Replace("wwwroot/", "")}", imgUrl.Name) ;
                 MouseX = e.OffsetX;
                 MouseY = e.OffsetY;
-                IsHovered = true;
 
                 ImgDate = imgUrl.Timestamp.LocalDateTime.ToString("dd/MM/yyyy HH:mm:ss");
                 ImgLongitude = imgUrl.Longitude.ToString();
                 ImgLatitude = imgUrl.Latitude.ToString();
                 LocalisationPhoto = imgUrl;
                 Description = imgUrl.Description ?? string.Empty;
+                StateHasChanged();
+                return;
+            }
+
+            // -- gestion de l'affichage des cluster
+            if ( _featureClusterMap.TryGetValue(feature, out var clusterView))
+            {
+                // même cluster déjà affiché : on ne reconstruit pas le carrousel
+                if (IsCluster && ReferenceEquals(_viewCluster, feature)) return;
+
+                IsCluster = true;
+                IsHovered = false;
+
+                _viewCluster = feature;
+                ClusterCard = null;
+                ClusterCard = clusterView;
+
+                MouseX = e.OffsetX;
+                MouseY = e.OffsetY;
+                
+                StateHasChanged();
             }
             //else
             //{
@@ -214,7 +238,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
             //    IsHovered = false;
             //}
 
-            StateHasChanged();
+            
         }
 
         /// <summary>
@@ -403,13 +427,15 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                             var d = MapControl?.Map.Navigator.Viewport.Resolution ?? 0;
                             var clusterPins = FilteringPin.ClusterByScreenDistance(result.PinRegion.Select(p => p.ToPin()).ToList(), d);
                             // -- chargement des points
-                            if (clusterPins is not null)
+                           if (clusterPins is not null)
                             {
-                                var pointLayer = ToolsMapSui.AddPointImage(clusterPins, out _featureClusterMap);
+                                var pointLayer = ToolsMapSui.AddPointImage(ChangePath(clusterPins), out _featureClusterMap);
 
                                 if (pointLayer is not null )
                                 {
+                                    _clusterLayer = pointLayer;
                                     MapControl?.Map.Layers.Add(pointLayer);
+                                    MapControl?.Refresh();
                                 }
                             }
                         }
@@ -494,15 +520,25 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         {
             if (MapControl is null || !localisations.Any()) return;
 
+            if (_photoLayer is not null)
+                MapControl.Map.Layers.Remove(_photoLayer);
+
+            if (_trace is not null)
+                MapControl.Map.Layers.Remove(_trace);
+
             // -- chargement des tracés
             var traceLayer = AddTraceLocalisation(localisations, out GeometryFeature outLine);
             // -- ajout du tracé au niveau des calques au niveau du conteneur
+            _trace = traceLayer;
             MapControl.Map.Layers.Add(traceLayer);
 
             // -- chargement des points
             var pointLayer = ToolsMapSui.AddPointImage(localisations, out _featureImageMap);
             if(pointLayer is not null)
+            {
                 MapControl.Map.Layers.Add(pointLayer);
+                _photoLayer = pointLayer;
+            }   
 
             // -- probleme avec GeometryFreature quand les points sont trop proche
             // -- zoom to box a du mal à aller sur les points indiqués 
@@ -576,7 +612,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                 Name = "Tracé"
             };
 
-            _trace = traceLayer;
+            
 
             return traceLayer;
         }
@@ -638,15 +674,27 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         /// Method qui change les path des images pour pouvoir les afficher
         /// en créant un path par url
         /// </summary>
-        private void ChangePath()
+        private ClusterPin? ChangePath(ClusterPin entry)
         {
-            if (ClusterCard is null || ClusterCard.Pins.Count == 0 || _ioptionUrlImage is null) return;
-            foreach(var p in ClusterCard.Pins)
+            if ( entry.Pins.Count == 0 || _ioptionUrlImage is null) return default;
+            foreach(var p in entry.Pins)
             {
                 p.Path = Path.Combine($"{_ioptionUrlImage.Value.Url}{p.Path?.Replace("wwwroot/", "")}", p.Name ?? string.Empty);
             }
+            return entry;
         }
 
+        private List<ClusterPin> ChangePath(List<ClusterPin> clusters)
+        {
+            List<ClusterPin> clustersPin = [];
+            foreach (var clusterPin in clusters )
+            {
+                var pins = ChangePath(clusterPin);
+                if (pins is not null)
+                    clustersPin.Add(pins);
+            } 
+            return clustersPin;
+        }
         #endregion
 
         #region public method interface Idisposable

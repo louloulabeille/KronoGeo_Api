@@ -17,5 +17,11 @@ namespace KronoGeo_Api.Models.RegionBounds
         public string? Path { get; set; }
         public string? Description { get; set; }
         public required DateTimeOffset Timestamp { get; set; }
+
+        // -- retourne le date time
+        public override string ToString()
+        {
+            return Timestamp.LocalDateTime.ToString("dd/MM/yyyy HH:mm:ss"); ;
+        }
     }
 }

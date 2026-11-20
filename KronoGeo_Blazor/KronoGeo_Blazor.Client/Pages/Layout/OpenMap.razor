@@ -85,7 +85,7 @@
 
         <!-- debut card pour afficher le cluster -->
         @if( IsCluster && !IsHovered && ClusterCard is not null) {
-            <div class="card" style="width: 250px; top: @($"{MouseY + 40.0}px");
+            <div class="card" style="width: 290px; top: @($"{MouseY + 40.0}px");
                 left: @($"{MouseX - 10.0}px"); z-index: 9999; pointer-events: auto;position : absolute;">
                 <button type="button" class="btn-close" aria-label="Close" @onclick="HandlerCloseCard"
                         style="pointer-events: auto;">
@@ -93,9 +93,16 @@
                 <div class="card-body">
                     <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-inner">
-                    @foreach(var item in ClusterCard.Pins )
-                    {
-                        <div class="carousel-item active">
+                        @{
+                            bool isActive = true; 
+                        }
+                        @foreach(var item in ClusterCard.Pins )
+                        {
+                            @if ( string.IsNullOrEmpty(item.Path) ) continue;
+                            <div class="carousel-item @(isActive?"active":"")">
+                            @{
+                                isActive = false;
+                            }
                             <div class="card">
                                 <img src="@item.Path" class="card-img-top" alt="@item.Name">
                             </div>
@@ -117,7 +124,7 @@
                                                     </tr>
                                                     <tr>
                                                         <th scope="row"><p style="font-size: small">Date/heure</p></th>
-                                                        <td><p style="font-size: small">@ImgDate</p></td>
+                                                        <td><p style="font-size: small">@item.ToString()</p></td>
                                                     </tr>
                                                     <tr>
                                                         <th scope="row"><p style="font-size: small">Longitude</p></th>
@@ -131,8 +138,9 @@
                                             </table>
                                         </p>
                                     </div>
-                        </div>
-                    }
+                            </div>
+                        }
+                         
                         </div>
                         <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
                             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
