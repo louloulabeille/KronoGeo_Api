@@ -29,6 +29,7 @@ using NetTopologySuite.Geometries;
 using SkiaSharp;
 using Svg.Skia;
 using System.ComponentModel;
+using System.Globalization;
 using System.Security.Claims;
 using static Microsoft.Maui.ApplicationModel.Permissions;
 using static System.Net.WebRequestMethods;

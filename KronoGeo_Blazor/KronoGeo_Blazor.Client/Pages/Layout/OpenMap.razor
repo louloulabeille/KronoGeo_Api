@@ -15,8 +15,8 @@
         @if (IsHovered && !string.IsNullOrEmpty(UrlImg))
         {
             <!--18rem-->
-            <div class="card" style="width: 250px; top: @($"{MouseY + 40.0}px"); 
-                left: @($"{MouseX - 10.0}px"); z-index: 9999; pointer-events: auto;position : absolute;">
+            <div class="card" style="width:280px; top:@($"{(MouseY + 40).ToString("0", CultureInfo.InvariantCulture)}px");
+                left:@($"{(MouseX - 140).ToString("0", CultureInfo.InvariantCulture)}px"); z-index: 9999; pointer-events: auto;position : absolute;">
                 <button type="button" class="btn-close" aria-label="Close" @onclick="HandlerCloseCard" 
                     style="pointer-events: auto;"></button>
                 <img src="@UrlImg" class="card-img-top" alt="...">
@@ -85,68 +85,44 @@
 
         <!-- debut card pour afficher le cluster -->
         @if( IsCluster && !IsHovered && ClusterCard is not null) {
-            <div class="card" style="width: 290px; top: @($"{MouseY + 40.0}px");
-                left: @($"{MouseX - 10.0}px"); z-index: 9999; pointer-events: auto;position : absolute;">
+            <div class="card" style="width:310px; top:@($"{(MouseY + 40).ToString("0", CultureInfo.InvariantCulture)}px");
+                left:@($"{(MouseX - 150).ToString("0", CultureInfo.InvariantCulture)}px"); z-index: 9999; pointer-events: auto;position : absolute;">
                 <button type="button" class="btn-close" aria-label="Close" @onclick="HandlerCloseCard"
                         style="pointer-events: auto;">
                 </button>
                 <div class="card-body">
-                    <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+                    <div id="carouselControls" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-inner">
                         @{
-                            bool isActive = true; 
+                                int i = 1;
                         }
                         @foreach(var item in ClusterCard.Pins )
                         {
                             @if ( string.IsNullOrEmpty(item.Path) ) continue;
-                            <div class="carousel-item @(isActive?"active":"")">
+                            <div class="carousel-item @(i==1?"active":"")">
                             @{
-                                isActive = false;
+                                        string title = $"{item.ToString()}";
+                                        string pageCar = $"{i}/{ClusterCard.Count}";
+                                        i++;
                             }
-                            <div class="card">
-                                <img src="@item.Path" class="card-img-top" alt="@item.Name">
-                            </div>
-                                    <div class="card-body">
-                                        <p class="card-text">
-                                            <table class="table table-primary table-striped ">
-                                                <tbody>
-                                                    <tr>
-                                                        <th scope="row" colspan="2">
-                                                            <p style="font-size: small">
-                                                                Description
-                                                            </p>
-                                                        </th>
-                                                    </tr>
-                                                    <tr>
-                                                        <td colspan="2">
-                                                            <p style="font-size: small">@item.Description</p>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th scope="row"><p style="font-size: small">Date/heure</p></th>
-                                                        <td><p style="font-size: small">@item.ToString()</p></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th scope="row"><p style="font-size: small">Longitude</p></th>
-                                                        <td><p style="font-size: small">@item.PinCoordonnee.Longitude</p></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th scope="row"><p style="font-size: small">Latitude</p></th>
-                                                        <td><p style="font-size: small">@item.PinCoordonnee.Latitude</p></td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </p>
-                                    </div>
+                                <img src="@item.Path" class="d-block w-100" alt="@item.Name">
+                                <div class="carousel-caption d-none d-md-block">
+                                    <p>@title</p>
+                                    @if(string.IsNullOrEmpty(item.Description)){
+                                        <p>@item.Description</p>
+                                    }
+                                    <p>@item.PinCoordonnee.ToString()</p>
+                                    <p><strong>@pageCar</strong></p>
+                                </div>
                             </div>
                         }
                          
                         </div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselControls" data-bs-slide="prev">
                             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                             <span class="visually-hidden">Previous</span>
                         </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselControls" data-bs-slide="next">
                             <span class="carousel-control-next-icon" aria-hidden="true"></span>
                             <span class="visually-hidden">Next</span>
                         </button>
