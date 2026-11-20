@@ -12,7 +12,7 @@
         </div>
 
         <!-- card image et affichage des informations de l'image-->
-        @if (IsHovered && !string.IsNullOrEmpty(UrlImg))
+        @if (IsHovered && !string.IsNullOrEmpty(UrlImg) && !IsCluster)
         {
             <!--18rem-->
             <div class="card" style="width:280px; top:@($"{(MouseY + 40).ToString("0", CultureInfo.InvariantCulture)}px");
@@ -92,7 +92,7 @@
                 </button>
                 <div class="card-body">
                     <div id="carouselControls" class="carousel slide" data-bs-ride="carousel">
-                        <div class="carousel-inner">
+                        <div class="carousel-inner fs-6">
                         @{
                                 int i = 1;
                         }
@@ -108,10 +108,10 @@
                                 <img src="@item.Path" class="d-block w-100" alt="@item.Name">
                                 <div class="carousel-caption d-none d-md-block">
                                     <p>@title</p>
-                                    @if(string.IsNullOrEmpty(item.Description)){
+                                    @if(!string.IsNullOrEmpty(item.Description)){
                                         <p>@item.Description</p>
                                     }
-                                    <p>@item.PinCoordonnee.ToString()</p>
+                                    @*<p>@item.PinCoordonnee.ToString()</p>*@
                                     <p><strong>@pageCar</strong></p>
                                 </div>
                             </div>
