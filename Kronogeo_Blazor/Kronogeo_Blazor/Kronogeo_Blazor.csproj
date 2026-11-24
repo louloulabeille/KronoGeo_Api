@@ -5,8 +5,16 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+    <UserSecretsId>53fdfc7e-eb54-4cf0-9d2f-8840b2ff210e</UserSecretsId>
     <!--<ScopedCssEnabled>false</ScopedCssEnabled>-->
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="publish\**" />
+    <Content Remove="publish\**" />
+    <EmbeddedResource Remove="publish\**" />
+    <None Remove="publish\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\KronoGeo_Api.Infrastructure\KronoGeo_Api.Infrastructure.csproj" />
