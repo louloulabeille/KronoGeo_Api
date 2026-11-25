@@ -26,7 +26,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 #region injection qui doit être déclaré en serveur et client blazor
-builder.Services.AddSharedServices();
+builder.Services.AddSharedServices(builder.Configuration);
 #endregion
 
 #region IOptions urlApi

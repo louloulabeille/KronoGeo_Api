@@ -12,7 +12,7 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
 #region injection pour passer les localisations vers la map
 //builder.Services.AddScoped<IMapStateService,MapStateService>();
-builder.Services.AddSharedServices();
+builder.Services.AddSharedServices(builder.Configuration);
 #endregion
 
 #region injection de dépendance pour le HttpClient
@@ -22,6 +22,7 @@ builder.Services.AddAutorizationClient();
 
 #region injection Ioption
 builder.Services.AddIoptionsUrlImages(builder.Configuration);
+builder.Services.AddIoptionsUrlProxyTile(builder.Configuration);
 #endregion
 
 await builder.Build().RunAsync();

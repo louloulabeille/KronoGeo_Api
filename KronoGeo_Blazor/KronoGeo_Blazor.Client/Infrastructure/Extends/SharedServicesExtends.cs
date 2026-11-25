@@ -16,12 +16,12 @@ namespace KronoGeo_Blazor.Client.Infrastructure.Extends
             /// ajout les services qui doivent être appellé en commun entre le client et le serveur
             /// </summary>
             /// <returns></returns>
-            public IServiceCollection AddSharedServices()
+            public IServiceCollection AddSharedServices(IConfiguration config)
             {
                 services.AddScoped<IMapStateService, MapStateService>();
 
                 services.AddOptions();
-                services.Configure<UrlApiBlazorClient>(options => {
+                /*services.Configure<UrlApiBlazorClient>(options => {
                     options.BasicAdress = "https://localhost:7186";
                     //options.BasicAdress = "https://kronogeo.fr/";
                     options.Login = "api/v1/AuthBFF/Login";
@@ -34,7 +34,9 @@ namespace KronoGeo_Blazor.Client.Infrastructure.Extends
                     options.UpdateLocalisationGroup = "api/v1/GpsBFF/UpdateLocalisationGroup";
                     options.DeleteLocalisationGroup = "api/v1/GpsBFF/DeleteLocalisationGroup";
                     options.GetPinByRegionBounds = "api/v1/GpsBFF/GetPinByRegionBounds";
-                });
+                });*/
+                services.Configure<UrlApiBlazorClient>(config.GetSection("UrlApiBlazorClient"));
+
                 // -- ajout du service ToastsService pour l'affichage des notifications toast
                 // -- javascript interop pour l'affichage des notifications toast
                 services.AddScoped<ToastsService>();

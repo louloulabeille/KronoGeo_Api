@@ -52,6 +52,8 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
         private AuthenticationStateProvider? _authenticationStateProvider { get; set; } = default;
         [Inject]
         private IOptions<UrlImage>? _ioptionUrlImage { get; set; } = default;
+        [Inject]
+        private IOptions<UrlProxyOpenStreetMap>? _iOptionUrlProxy { get; set; } = default;
         /// <summary>
         /// Service pour l'affichage des notifications toast
         /// </summary>
@@ -126,7 +128,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                  
                 var cartoDbTileSource = new HttpTileSource(
                     new GlobalSphericalMercator(),
-                    "https://localhost:7186/tiles/{z}/{x}/{y}.png",
+                    _iOptionUrlProxy?.Value.BasicAdress ?? "https://localhost:7186/tiles/{z}/{x}/{y}.png",
                     name: "Open Street Map"
                 );
 
