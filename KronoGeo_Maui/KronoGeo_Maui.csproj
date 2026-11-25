@@ -29,10 +29,10 @@
 		<MauiXamlInflator>SourceGen</MauiXamlInflator>
 
 		<!-- Display name -->
-		<ApplicationTitle>KronoGeo_Maui</ApplicationTitle>
+		<ApplicationTitle>KronoGeo</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.kronogeo_maui</ApplicationId>
+		<ApplicationId>fr.kronogeo.kronogeo</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
