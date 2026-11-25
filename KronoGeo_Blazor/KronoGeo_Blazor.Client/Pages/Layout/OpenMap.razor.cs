@@ -128,7 +128,7 @@ namespace KronoGeo_Blazor.Client.Pages.Layout
                  
                 var cartoDbTileSource = new HttpTileSource(
                     new GlobalSphericalMercator(),
-                    _iOptionUrlProxy?.Value.BasicAdress ?? "https://localhost:7186/tiles/{z}/{x}/{y}.png",
+                    _iOptionUrlProxy?.Value.BasicAdress ?? "https://kronogeo.fr/tiles/{z}/{x}/{y}.png",
                     name: "Open Street Map"
                 );
 
