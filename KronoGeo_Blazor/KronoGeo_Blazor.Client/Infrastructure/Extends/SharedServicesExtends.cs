@@ -22,8 +22,8 @@ namespace KronoGeo_Blazor.Client.Infrastructure.Extends
 
                 services.AddOptions();
                 services.Configure<UrlApiBlazorClient>(options => {
-                    //options.BasicAdress = "https://localhost:7186";
-                    options.BasicAdress = "https://kronogeo.fr/";
+                    options.BasicAdress = "https://localhost:7186";
+                    //options.BasicAdress = "https://kronogeo.fr/";
                     options.Login = "api/v1/AuthBFF/Login";
                     options.Me = "api/v1/AuthBFF/Me";
                     options.Logout = "api/v1/AuthBFF/Logout";
