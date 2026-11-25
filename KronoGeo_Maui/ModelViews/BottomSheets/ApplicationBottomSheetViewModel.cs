@@ -202,6 +202,7 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
         public async Task InitListeGroupTraceAsync()
         {
             var traces =  await _dbMaui.GetGroupsTraceAsync();
+            _listGroupTrace?.Clear();
             _listGroupTrace = traces.OrderByDescending(t => t.Date).ToList();
             LoadTrace(_listGroupTrace);
         }
@@ -212,6 +213,7 @@ namespace KronoGeo_Maui.ModelViews.BottomSheets
         /// <param name="traces"></param>
         private void LoadTrace( List<LocalisationGroupTraceMaui> traces )
         {
+            MesTraces.Clear();
             foreach (var item in traces)
             {
                 MesTraces.Add(item);

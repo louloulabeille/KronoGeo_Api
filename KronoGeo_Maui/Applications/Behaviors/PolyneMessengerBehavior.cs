@@ -41,8 +41,8 @@ namespace KronoGeo_Maui.Applications.Behaviors
                     {
                         _live = new Polyline()
                         {
-                            StrokeColor = Colors.OrangeRed,
-                            StrokeWidth = 8,
+                            StrokeColor = Colors.BlueViolet,
+                            StrokeWidth = 10,
                         };
                         bindable.MapElements.Add(_live);
                         //bindable.MapElements.Insert(1, _live);
@@ -54,6 +54,8 @@ namespace KronoGeo_Maui.Applications.Behaviors
                     }
                     else
                     { // -- supprime tous les éléments en Map
+                        _live.Clear();
+                        _live = null;
                         bindable.MapElements.Clear();
                     }
 
