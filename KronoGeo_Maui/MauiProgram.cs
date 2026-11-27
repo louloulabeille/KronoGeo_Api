@@ -56,6 +56,11 @@ namespace KronoGeo_Maui
             builder.Services.AddHttpClientService();
             #endregion
 
+            #region Meteo
+            builder.Services.AddIoptionsParamMeteo(builder.Configuration);
+            builder.Services.AddHttpClientMeteo();
+            #endregion
+
             #region injection pour la sauvegarde en memoire de l'utilisateur
             builder.Services.AddScoped<IServiceSaveUser,InMemoriMauiUser>();
             #endregion
@@ -77,7 +82,6 @@ namespace KronoGeo_Maui
             builder.Services.AddSingleton<IServiceBackupGps, GpsBackUpMauiService>();
             builder.Services.AddTransient<IServicePermissions, GestionPermissions>();
             builder.Services.AddTransient<IServiceCompressPhoto, CompressPhotoSkiaSharp>();
-            builder.Services.AddIoptionsParamMeteo(builder.Configuration);
             builder.Services.AddServiceSavePhotoLocal();
             #endregion
 
