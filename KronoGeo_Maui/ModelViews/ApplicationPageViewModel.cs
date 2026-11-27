@@ -31,6 +31,7 @@ using KronoGeo_Api.Models.ModelEventArgs;
 using KronoGeo_Maui.Applications.Factory.Geolocalisation;
 using KronoGeo_Api.Models.Model.Maui;
 using Application = Microsoft.Maui.Controls.Application;
+using KronoGeo_Api.Models.Infrastructure.Http.ApiExterne.Model.Api.Meteo;
 
 #if ANDROID
 using Android.Util;
@@ -62,6 +63,7 @@ namespace KronoGeo_Maui.ModelViews
         private readonly IServiceProvider _serviceProvider;
         private readonly IServicePermissions _servicePermissions;
         private readonly IServiceDatabaseMaui _dbSqlite;
+        private readonly IServiceApiMeteo _serviceMeteo;
         
 #if ANDROID
         private readonly IServiceSaveParametrage? _parametrage;
@@ -80,6 +82,7 @@ namespace KronoGeo_Maui.ModelViews
         /// true si il y a des enregistrements lors du chargement de l'application
         /// </summary>
         private bool _isLoaded = false;
+        private ResponseApiWeather? _weather { get; set; } = default;
         #endregion
 
         #region public properties
@@ -132,7 +135,7 @@ namespace KronoGeo_Maui.ModelViews
             , ApplicationBottomSheetViewModel sheetViewModel
             , IServiceProvider serviceProvider , IServicePermissions servicePermissions
             , IServiceBattery? serviceBattery, IServiceSaveParametrage? parametrage
-            , IServiceDatabaseMaui sqliteMaui)
+            , IServiceDatabaseMaui sqliteMaui, IServiceApiMeteo serviceMeteo)
         {
             // -- pour affichage des différentes pages du carousel
             /*MesPages = [];
@@ -150,6 +153,7 @@ namespace KronoGeo_Maui.ModelViews
             _serviceProvider = serviceProvider; //-- service pour l'injection de dépendance
             _servicePermissions = servicePermissions;
             _dbSqlite = sqliteMaui;
+            _serviceMeteo = serviceMeteo;
 
 #if !ANDROID
             _serviceGeo.LocationChanged += async(sender, e) => await OnLocalication_Changed(sender, e);
@@ -948,6 +952,7 @@ namespace KronoGeo_Maui.ModelViews
             SheetViewModel.DeleteAllPhotos();
             Message = string.Empty;
             IsMessageError = false;
+            _weather = null;
 
             // -- enregistrement ok
             //_localisations.Clear();
@@ -982,6 +987,10 @@ namespace KronoGeo_Maui.ModelViews
 #if ANDROID
             Log.Debug("GeoAndroidService", $"Accuracy :{localisation.Accuracy} - Longitude : {localisation.Longitude} - Latitude : {localisation.Latitude}" );
 #endif
+            // -- remonter des datas météo après la remonter de la première localisation
+            if ( _weather is null)
+                _weather = await _serviceMeteo.SendAsync(location.Latitude, location.Longitude);
+
             // -- si des doublons au niveau de eventchange Google lors de la mise a jour de la position, donc on ne garde que les nouvelles positions
             //if ( !_localisations.Exists(l=> l.Longitude == localisation.Longitude && l.Latitude == localisation.Latitude) )
             if (!await _dbSqlite.Exists(localisation))

@@ -25,7 +25,7 @@ namespace KronoGeo_Maui.Applications.ExtendMethods
             {
                 services.AddOptions();
                 services.Configure<ParamMeteo>(config.GetSection("ParamMeteo"));
-                services.Configure<UrlApiMeteo>(config.GetSection("UrlApiMeteo"));
+                services.Configure<UrlApiMeteo>(config.GetSection("ApiMeteo"));
                 return services;
             }
 
