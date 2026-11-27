@@ -77,7 +77,7 @@ namespace KronoGeo_Maui
             builder.Services.AddSingleton<IServiceBackupGps, GpsBackUpMauiService>();
             builder.Services.AddTransient<IServicePermissions, GestionPermissions>();
             builder.Services.AddTransient<IServiceCompressPhoto, CompressPhotoSkiaSharp>();
-
+            builder.Services.AddIoptionsParamMeteo(builder.Configuration);
             builder.Services.AddServiceSavePhotoLocal();
             #endregion
 
